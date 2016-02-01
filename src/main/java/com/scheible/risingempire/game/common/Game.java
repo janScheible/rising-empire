@@ -1,7 +1,6 @@
 package com.scheible.risingempire.game.common;
 
 import com.scheible.risingempire.game.common.command.Command;
-import com.scheible.risingempire.game.common.event.Event;
 import com.scheible.risingempire.game.common.view.View;
 import java.util.List;
 import java.util.Map;

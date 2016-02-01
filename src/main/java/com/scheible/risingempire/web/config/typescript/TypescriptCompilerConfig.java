@@ -1,5 +1,6 @@
 package com.scheible.risingempire.web.config.typescript;
 
+import com.google.common.base.Strings;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +38,8 @@ public class TypescriptCompilerConfig {
 		@Override
 		public void afterPropertiesSet() throws Exception {
 			try {
-				ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", typescriptProperty.getPath(), "-w");
+				ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", 
+						Strings.nullToEmpty(typescriptProperty.getPath()) + "tsc.cmd", "-w");
 				processBuilder.directory(new File(new File(".").getCanonicalPath() + typescriptProperty.getTsconfig()));
 				compilerProcess = processBuilder.start();
 				awaitCompilerReady(compilerProcess);
