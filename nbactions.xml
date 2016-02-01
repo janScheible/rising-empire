@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+	<action>
+		<actionName>run</actionName>
+		<packagings>
+			<packaging>jar</packaging>
+		</packagings>
+		<goals>
+			<goal>spring-boot:run</goal>
+		</goals>
+		<properties>
+			<skipTests>true</skipTests>
+		</properties>
+	</action>
+	<action>
+		<actionName>debug</actionName>
+		<packagings>
+			<packaging>jar</packaging>
+		</packagings>
+		<goals>
+			<goal>spring-boot:run</goal>
+		</goals>
+		<properties>
+			<jpda.listen>maven</jpda.listen>
+			<skipTests>true</skipTests>			
+		</properties>
+	</action>
+	<action>
+		<actionName>CUSTOM-Spring Boot Package</actionName>
+		<displayName>Spring Boot Package</displayName>
+		<goals>
+			<goal>package</goal>
+			<goal>spring-boot:repackage</goal>
+		</goals>
+	</action>
+	<action>
+		<actionName>rebuild</actionName>
+		<packagings>
+			<packaging>*</packaging>
+		</packagings>
+		<goals>
+			<goal>clean</goal>
+			<goal>install</goal>
+		</goals>
+		<properties>
+			<skipTests>true</skipTests>
+		</properties>
+	</action>
+</actions>

@@ -1,0 +1,99 @@
+universeView = {
+  nation: 'Humans',
+  nations: [
+    {
+      nation: 'Humans',
+      leaderName: 'Alexander',
+      color: 'blue'
+    }, {
+      nation: 'Psilons',
+      leaderName: 'Ampel',
+      color: 'green'
+    }
+  ]
+  stars: [
+    {
+      name : 'Sol',
+      x: 200, y: 400,
+      color: 'red',
+      populationCapacity: 120,
+      colony: {
+        nation: 'Humans',
+        populationSize: 60,
+        focus: 'FLEET',
+        shipModel: 'FIGHTER',
+        scanRadius: 50
+      }
+    },
+    {
+      name : 'Alderaan',
+      x: 100, y: 400,
+      color: 'green',
+      populationCapacity: 120,
+      colony: {
+        nation: 'Psilons',
+        populationSize: 60
+      }
+    }
+  ],
+  fleets: [
+    {
+      id: 1,
+      xOrigin: 30, yOrigin: 50,
+      x: 100, y: 400,
+      xDestination: 30, yDestination: 50,
+      dispatchable: true, orbiting: true, canColonize: false,
+      nation: 'Humans',
+      scanRadius: 30,
+      shipModels: {
+        SCOUT: 0, FIGHTER: 24, COLONY: 1, BATTLE_SHIP: 5
+      }
+    },
+    {
+      id: 2,
+      x: 300, y: 400,
+      orbiting: true,
+      nation: 'Psilons',
+      shipModels: {
+        SCOUT: 0, FIGHTER: 24, COLONY: 1, BATTLE_SHIP: 5
+      }
+    }
+  ],
+  updates: [
+    {
+      type: 'COLONY_DESTROYED',
+      starName: 'Entenhausen'
+    },
+    {
+      type: 'SPACE_COMBAT_RESULT',
+      starName: 'Buxdehude',
+      result: 'VICTORY' // 'DEFAEAT'
+    }    
+  ]
+}
+
+turnCommands = [
+  {
+    type: 'COLONY_SET_FOCUS',
+    starName: 'Sol',
+    focus:'FLEET',
+    shipModel: 'FIGHTER'
+  },
+  {
+    type: 'FLEET_DISPATCH',
+    fleetId: 1,
+    destination:'Alderaan',
+    shipModels: {
+      SCOUT: 0, FIGHTER: 24, COLONY: 1, BATTLE_SHIP: 5
+    }    
+  },
+  {
+    type: 'FLEET_COLONIZE,
+    fleetId: 55
+  },
+  {
+    type: 'FLEET_BOMBARD,
+    fleetId: 666
+  }   
+]
+ 
