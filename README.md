@@ -1,8 +1,11 @@
 # Rising Empire
 This project has multiple sub-goals:
-- Leveraging the power of Spring Boot
-- Providing an as convenient as possible development experience with Netbeans
-- Implementation of a clean architecture with a framework independent game core
+- leveraging the power of Spring Boot
+- providing an as convenient as possible development experience with Netbeans
+  - Unit Tests are only executed if explicitly chosen
+  - Spring Boot JAR files are not created when only debugging
+  - HTML templates and TypeScript files are updated without an application restart
+- implementation of a clean architecture with a framework independent game core
 - ... and finaly creation of a game :-)
  
 I called it a framework because everything is there: The game core, AI support, WebSocket communication and a Kendo UI GUI. But what's currently missing is game logic. The only thing a human player and the AI is able to do is sending a single fleet to the stars of the universe. But doesn't that already sound cool? ;-)
