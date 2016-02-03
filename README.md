@@ -10,6 +10,9 @@ This project has multiple sub-goals:
  
 I called it a framework because everything is there: The game core, AI support, WebSocket communication and a Kendo UI GUI. But what's currently missing is game logic. The only thing a human player and the AI is able to do is sending a single fleet to the stars of the universe. But doesn't that already sound cool? ;-)
 
+![Join](https://github.com/janScheible/rising-empire/blob/master/join.png)
+![Game](https://github.com/janScheible/rising-empire/blob/master/game.png)
+
 ## Prerequisites
 1. recent JDK 8
 1. Netbeans >= 8.0
