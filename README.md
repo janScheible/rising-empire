@@ -1,6 +1,8 @@
 # Rising Empire
 This project has multiple sub-goals:
 - leveraging the power of Spring Boot
+  - Under the hood a regular form based Spring Security login is used
+  - WebSocket communication is protected by Spring Security as well (even session timeout works thanks to Spring Session)
 - providing an as convenient as possible development experience with Netbeans
   - Unit Tests are only executed if explicitly chosen
   - Spring Boot JAR files are not created when only debugging
@@ -18,6 +20,7 @@ I called it a framework because everything is there: The game core, AI support, 
 1. Netbeans >= 8.0
 1. [Netbeans Typescript Plugin](https://github.com/Everlaw/nbts)
   - If you have `tsc.cmd` on the path you don't even have to set `application.typescript.path` in application.properties
+1. Recent Browser: works best in Chrome 48; Firefox 43 and IE 11 work as well but currently suffer from [#2](/../../issues/2)
 
 All you have to do to lunch the game is open the project in Netbeans, right click and debug.
 
