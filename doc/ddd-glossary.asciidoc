@@ -1,4 +1,3 @@
-.Table Glossary
 [cols="a,a,a,a",width="100%"]
 |===
 | Term | Description | Supertype (is-a) | Relations (has-a)
@@ -63,7 +62,7 @@ According to the http://www.meixnerobservatorium.at/astronomie-allgemein-astrono
 | -
 | -
 
-| special
+| specials
 | Mineral Poor, Ultra Poor, Artifact, Mineral Rich, Ultra Rich, Hostile, Fertile, Gaia
 | -
 | -
@@ -75,25 +74,37 @@ According to the http://www.meixnerobservatorium.at/astronomie-allgemein-astrono
 * nation{1}
 * total production{1}
 * scan radius{1}
+* (selected) ship type{0..1}
+
+| total production
+| Planetary production is measured in BCs (billions of credits) and is a measure of a solar system’s overall production capacity.
+| -
+| -
+
+| scan radius
+| The area colonies and fleets are able to scan for foreign colonies and fleets. It is measured in parsecs.
+| -
+| -
 
 | fleet
 | A group of ships commanded by a nation. Is either orbiting a star or traveling through deep space. 
 | - 
 |
 * nation{1}
-* ship{+}
+* ship type --> count{+}
 * star{0..1}
 
-| ship
-| A single space vessel. The type is either:
+| ship type
+| Type of a single space vessel. The speed is given in parsecs per turn. The type is either:
 
-* scout (speed = 0.5, scan radius = 0.5)
-* fighter (speed = 0.4, scan radius = 0.25)
-* colony ship (speed = 0.25, scan radius = 0.5)
+* scout (speed = 0.5, scan radius = 0.5, costs = 10)
+* fighter (speed = 0.4, scan radius = 0.25, costs = 20)
+* bomber (speed = 0.3, scan radius = 0.15, costs = 40)
+* colony ship (speed = 0.25, scan radius = 0.5, costs = 80)
 | -
 |
-* type
+* (speed)
 * scan radius{1}
-* speed [parsecs/turn]
+* (costs)
 
 |=== 
