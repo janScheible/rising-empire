@@ -91,7 +91,7 @@ According to the http://www.meixnerobservatorium.at/astronomie-allgemein-astrono
 | - 
 |
 * nation{1}
-* ship type --> count{+}
+* ship type -> count{+}
 * star{0..1}
 
 | ship type
