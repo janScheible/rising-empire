@@ -49,4 +49,64 @@ According to the http://www.meixnerobservatorium.at/astronomie-allgemein-astrono
 | -
 | -
 
+| planetary characteristics
+| Summarizes the overall characteristics of a star system's planets. That means individual planets are not taken into account but rather a average value. The characteristics include e.g.: planetary environment, planetary specials and planetary size.
+| -
+|
+* planetary environment{1}
+* planetary specials{*}
+
+| planetary environment 
+| 
+* Terran
+* Jungle
+* Ocean
+* Arid
+* Steppe
+* Desert
+* Minimal
+* Barren
+* Tundra
+* Dead 
+* Inferno
+* Toxic
+* Radiated
+| -
+| -
+
+| planetary special
+| 
+* Mineral Poor
+* Ultra Poor
+* Artifact
+* Mineral Rich
+* Ultra Rich
+* Hostile
+* Fertile
+* Gaia
+| -
+| -
+
+| colony 
+| "A colony is a territory under the immediate political control of a geographically distant state." https://en.wikipedia.org/wiki/Colony_(disambiguation)[(Wikipedia)] 
+| - 
+| 
+* star{1}
+* nation{1}
+* total production{1}
+* production ratios{1}
+
+| fleet
+| A group of ships commanded by a nation. Is either orbiting a star or traveling through deep space. 
+| - 
+|
+* nation{1}
+* ship{+}
+* star{0..1}
+
+| ship
+| A single space vessel.
+| -
+| -
+
 |=== 
