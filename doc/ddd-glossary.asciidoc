@@ -34,6 +34,7 @@
 | 
 * spectral class{1}
 * planetary characteristics{1}
+* colony{0..1}
 * fleet{*}
 
 | spectral class 
@@ -50,40 +51,20 @@ According to the http://www.meixnerobservatorium.at/astronomie-allgemein-astrono
 | -
 
 | planetary characteristics
-| Summarizes the overall characteristics of a star system's planets. That means individual planets are not taken into account but rather a average value. The characteristics include e.g.: planetary environment, planetary specials and planetary size.
+| Summarizes the overall characteristics of a solar system's planets. That means individual planets are not taken into account but rather an average value. The characteristics include e.g. environment, specials and size.
 | -
 |
-* planetary environment{1}
-* planetary specials{*}
+* environment{1}
+* specials{*}
+* (size)
 
-| planetary environment 
-| 
-* Terran
-* Jungle
-* Ocean
-* Arid
-* Steppe
-* Desert
-* Minimal
-* Barren
-* Tundra
-* Dead 
-* Inferno
-* Toxic
-* Radiated
+| environment 
+| Terran, Jungle, Ocean, Arid, Steppe, Desert, Minimal, Barren, Tundra, Dead, Inferno, Toxic, Radiated
 | -
 | -
 
-| planetary special
-| 
-* Mineral Poor
-* Ultra Poor
-* Artifact
-* Mineral Rich
-* Ultra Rich
-* Hostile
-* Fertile
-* Gaia
+| special
+| Mineral Poor, Ultra Poor, Artifact, Mineral Rich, Ultra Rich, Hostile, Fertile, Gaia
 | -
 | -
 
@@ -91,10 +72,9 @@ According to the http://www.meixnerobservatorium.at/astronomie-allgemein-astrono
 | "A colony is a territory under the immediate political control of a geographically distant state." https://en.wikipedia.org/wiki/Colony_(disambiguation)[(Wikipedia)] 
 | - 
 | 
-* star{1}
 * nation{1}
 * total production{1}
-* production ratios{1}
+* scan radius{1}
 
 | fleet
 | A group of ships commanded by a nation. Is either orbiting a star or traveling through deep space. 
@@ -105,8 +85,15 @@ According to the http://www.meixnerobservatorium.at/astronomie-allgemein-astrono
 * star{0..1}
 
 | ship
-| A single space vessel.
+| A single space vessel. The type is either:
+
+* scout (speed = 0.5, scan radius = 0.5)
+* fighter (speed = 0.4, scan radius = 0.25)
+* colony ship (speed = 0.25, scan radius = 0.5)
 | -
-| -
+|
+* type
+* scan radius{1}
+* speed [parsecs/turn]
 
 |=== 
