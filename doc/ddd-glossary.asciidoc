@@ -1,0 +1,52 @@
+.Table Glossary
+[cols="a,a,a,a",width="100%"]
+|===
+| Term | Description | Supertype (is-a) | Relations (has-a)
+
+| universe
+| The sandbox for history to take place.
+| -
+| 
+* nation{+}
+* star{+}
+* fleet{*}
+
+| nation
+| The organizational structure that allows individuals to act as a group. 
+| - 
+| 
+* species{1}
+* leader{1}
+
+| species 
+| A group of organisms being on the cusp to the stars.
+| -
+| -
+
+| leader 
+| A single individual massively influencing the actions of a species. Might be some kind of emperor or elected sovereign.
+| -
+| -
+
+| star
+| "A star is a luminous sphere of plasma held together by its own gravity. The nearest star to Earth is the Sun." https://en.wikipedia.org/wiki/Star[(Wikipedia)]
+| - 
+| 
+* spectral class{1}
+* planetary characteristics{1}
+* fleet{*}
+
+| spectral class 
+| 
+* O and B (blue)
+* A (white)
+* F (green)
+* G (yellow)
+* K (orange)
+* M (red)
+
+According to the http://www.meixnerobservatorium.at/astronomie-allgemein-astronomy-popular/hertzsprung-russel-diagramm/[Hertzsprung–Russell diagram] F should rather be white/yellow instead of green. The spectral class of a star influences what kind of planets might orbiting it. Stars of class G and partially F and K have the highest likelihood for earth like planets.
+| -
+| -
+
+|=== 
