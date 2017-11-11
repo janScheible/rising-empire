@@ -2,6 +2,7 @@
 	"compilerOptions": {
 		"target": "ES5",
 		"rootDir": "typescript",
-		"out": "js/risingempire.js"
-	}
+		"outFile": "js/risingempire.js"
+	},
+    "compileOnSave": true
 }
