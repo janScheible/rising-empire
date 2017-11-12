@@ -58,6 +58,14 @@ class GameUserInterface {
 				}					 
 			}));
 		}
+        
+        buttonDiv.prepend($('<span>').html('&nbsp;&nbsp;'));
+        buttonDiv.prepend($('<input>').attr('type', 'button').attr('value', 'H2 Console').kendoButton({ click:
+            () => {
+                $(this).triggerHandler('h2-console', this);
+            }					 
+        }));          
+        
 		// NOTE Trick the logout button into the title of the window
 		$('.k-window-actions').css('padding-top', '0px').prepend(buttonDiv.css('transform', 'scale(0.7)'));
 		this._tabstrip = $('#tabstrip').kendoTabStrip({ animation: false }).data("kendoTabStrip");

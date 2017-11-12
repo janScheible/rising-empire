@@ -46,5 +46,12 @@ class Game {
 		$(userInterface).on('shutdown', function(event) {
 			communication.shutdown();
 		});
+        
+        $(userInterface).on('h2-console', function(event) {
+			alert('Please see browser console for settings.');
+            console.log("Saved Settings: 'Generic H2 (Embedded)'");
+            console.log("JDBC URL: 'jdbc:h2:mem:testdb' (Spring Boot default)");
+            window.open('/h2-console', '_blank')
+		});        
 	}
 }

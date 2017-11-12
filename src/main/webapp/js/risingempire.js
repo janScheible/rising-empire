@@ -40,9 +40,15 @@ var Game = (function () {
         $(userInterface).on('shutdown', function (event) {
             communication.shutdown();
         });
+        $(userInterface).on('h2-console', function (event) {
+            alert('Please see browser console for settings.');
+            console.log("Saved Settings: 'Generic H2 (Embedded)'");
+            console.log("JDBC URL: 'jdbc:h2:mem:testdb' (Spring Boot default)");
+            window.open('/h2-console', '_blank');
+        });
     };
     return Game;
-})();
+}());
 var Join = (function () {
     function Join() {
     }
@@ -52,12 +58,12 @@ var Join = (function () {
         $.getJSON('players', {}).done(userInterface.setPlayerEntries.bind(userInterface));
     };
     return Join;
-})();
+}());
 var Command = (function () {
     function Command() {
     }
     return Command;
-})();
+}());
 var CommandBuilder = (function () {
     function CommandBuilder() {
     }
@@ -73,7 +79,7 @@ var CommandBuilder = (function () {
         };
     };
     return CommandBuilder;
-})();
+}());
 var Communication = (function () {
     function Communication() {
         var _this = this;
@@ -131,7 +137,7 @@ var Communication = (function () {
         this._stompClient.send("/app/commands", {}, JSON.stringify(message));
     };
     return Communication;
-})();
+}());
 var GameUserInterface = (function () {
     function GameUserInterface(windowElement, starmapElement, inspectorElement, turnManagerElement, logElement, commandListElement, allowShutdown) {
         var _this = this;
@@ -170,6 +176,11 @@ var GameUserInterface = (function () {
                 }
             }));
         }
+        buttonDiv.prepend($('<span>').html('&nbsp;&nbsp;'));
+        buttonDiv.prepend($('<input>').attr('type', 'button').attr('value', 'H2 Console').kendoButton({ click: function () {
+                $(_this).triggerHandler('h2-console', _this);
+            }
+        }));
         // NOTE Trick the logout button into the title of the window
         $('.k-window-actions').css('padding-top', '0px').prepend(buttonDiv.css('transform', 'scale(0.7)'));
         this._tabstrip = $('#tabstrip').kendoTabStrip({ animation: false }).data("kendoTabStrip");
@@ -190,7 +201,7 @@ var GameUserInterface = (function () {
         return this._commandList.getAndRemoveCommands();
     };
     return GameUserInterface;
-})();
+}());
 var Starmap = (function () {
     function Starmap(starmapElement) {
         var _this = this;
@@ -288,7 +299,7 @@ var Starmap = (function () {
         }
     };
     return Starmap;
-})();
+}());
 var Inspector = (function () {
     function Inspector(inspectorElement) {
         this._inspectorElement = inspectorElement;
@@ -311,7 +322,7 @@ var Inspector = (function () {
             .kendoButton({ click: function () { _this.showStar(star); } }));
     };
     return Inspector;
-})();
+}());
 var TurnManager = (function () {
     function TurnManager(turnManagerElement) {
         this._turnManagerElement = turnManagerElement;
@@ -327,7 +338,7 @@ var TurnManager = (function () {
             var rowsElement = $('<table>').append($('<tr>').append($('<td>').append($('<span>').css('background-color', color).css('width', '16px')
                 .css('height', '16px').css('display', 'inline-block').html('&nbsp;')), $('<td>').text(player.name), $('<td>').text(player.nation)), $('<tr>').append($('<td>').html('&nbsp;'), $('<td>').text('Turn'), $('<td>').append(this._turnLabelElement = $('<span>'))));
             this._turnManagerElement.append(rowsElement);
-            var turnButtonElement;
+            var turnButtonElement = void 0;
             this._turnManagerElement.append(turnButtonElement = $('<input>').attr('type', 'button').attr('value', 'Turn')
                 .kendoButton({ click: function () { _this._turnButton.enable(false); $(_this).triggerHandler('finishTurn'); } }));
             this._turnButton = turnButtonElement.data('kendoButton');
@@ -335,7 +346,7 @@ var TurnManager = (function () {
         this._turnLabelElement.text(turn);
     };
     return TurnManager;
-})();
+}());
 var Log = (function () {
     function Log(logElement) {
         this._logElement = logElement;
@@ -345,7 +356,7 @@ var Log = (function () {
         this._logElement.prepend($('<div>').text(timestamp + ' ' + message));
     };
     return Log;
-})();
+}());
 var CommandList = (function () {
     function CommandList(commandListElement) {
         this._commands = [];
@@ -362,7 +373,7 @@ var CommandList = (function () {
         this._commands.push(CommandBuilder.createFleetDispatchCommand(fleet.id, star.name));
     };
     return CommandList;
-})();
+}());
 var JoinUserInterface = (function () {
     function JoinUserInterface(windowElement, loginFormElement, usernameElement) {
         this._windowElement = windowElement;
@@ -417,4 +428,4 @@ var JoinUserInterface = (function () {
         this._windowElement.data("kendoWindow").content(entriesElement);
     };
     return JoinUserInterface;
-})();
+}());
