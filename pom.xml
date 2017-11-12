@@ -10,7 +10,7 @@
 
 	<groupId>com.scheible</groupId>
 	<artifactId>rising-empire</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 
 	<packaging>jar</packaging>
 	<name>com.scheible:rising-empire</name>
