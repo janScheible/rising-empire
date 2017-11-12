@@ -260,7 +260,7 @@ var Starmap = (function () {
         var fleetSvg = "<svg class='fleet-image' xmlns='http://www.w3.org/2000/svg' width='140' height='60'><rect x='0' y='0'  width='140' height='60' fill='black'/><rect x='40' y='20'  width='80' height='20' fill='${fill-color}'/><rect x='20' y='0' width='40' height='20' fill='${fill-color}'/><rect x='20' y='40' width='40' height='20' fill='${fill-color}'/></svg>";
         for (var i = 0; i < view.fleets.length; i++) {
             var fleet = view.fleets[i];
-            var color = encodeURIComponent(colorMapping[fleet.nation]);
+            var color = colorMapping[fleet.nation];
             var x = fleet.x, y = fleet.y;
             if (fleet.star !== null) {
                 var star = starMapping[fleet.star];
@@ -272,7 +272,7 @@ var Starmap = (function () {
                 .css('transform', 'scale(0.1)').css('cursor', 'pointer')
                 .css('padding', '2px').css('left', x + 'px').css('top', y + 'px').css('z-index', '500')
                 .data('fleet', fleet).append($('<div>').addClass('image').html('&nbsp;')
-                .css('background-image', 'url("data:image/svg+xml;utf8,' + fleetSvg.replace(/\${fill-color}/g, color) + '")')
+                .css('background-image', 'url("data:image/svg+xml,' + encodeURIComponent(fleetSvg.replace(/\${fill-color}/g, color)) + '")')
                 .css('background-position', 'center').css('background-repeat', 'no-repeat')
                 .css('width', '140px').css('height', '60px')
                 .css('padding', '15px')
