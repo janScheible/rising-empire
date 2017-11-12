@@ -260,7 +260,7 @@ var Starmap = (function () {
         var fleetSvg = "<svg class='fleet-image' xmlns='http://www.w3.org/2000/svg' width='140' height='60'><rect x='0' y='0'  width='140' height='60' fill='black'/><rect x='40' y='20'  width='80' height='20' fill='${fill-color}'/><rect x='20' y='0' width='40' height='20' fill='${fill-color}'/><rect x='20' y='40' width='40' height='20' fill='${fill-color}'/></svg>";
         for (var i = 0; i < view.fleets.length; i++) {
             var fleet = view.fleets[i];
-            var color = colorMapping[fleet.nation];
+            var color = encodeURIComponent(colorMapping[fleet.nation]);
             var x = fleet.x, y = fleet.y;
             if (fleet.star !== null) {
                 var star = starMapping[fleet.star];
