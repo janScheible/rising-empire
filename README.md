@@ -44,3 +44,7 @@ All you have to do to lunch the game is open the project in Netbeans, right clic
         <dd>Controllers and messaging POJOs for the join page.</dd></dl>
     - <dl><dt>game</dt>
         <dd>Controllers and messaging POJOs for the game page. `GameHolder` is the glue between the Spring world and the game. Currently a new game is started at server boot and can't be terminated or restarted. `GameHolder` makes heavy use of `synchronized` to avoid trouble in the multi threaded world of a HTTP server.</dd></dl>
+        
+## Links
+- [Designing AI Algorithms For Turn-Based Strategy Games ](http://www.gamasutra.com/view/feature/129959/designing_ai_algorithms_for_.php)
+- [Galactic Reign: Competitive Depth on Mobile Platforms](https://www.gamasutra.com/blogs/StephenDewhurst/20130507/191875/Galactic_Reign_Competitive_Depth_on_Mobile_Platforms.php)
