@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+	<include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+	
+	<property name="ROOT_LOG_LEVEL" value="${logback.root.log.level:-WARN}"/>
+	
+	<root level="${ROOT_LOG_LEVEL}">
+		<appender-ref ref="CONSOLE"/>
+	</root>
+</configuration>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.scheible.risingempire</groupId>
+		<artifactId>rising-empire</artifactId>
+		<version>${revision}</version>
+	</parent>
+
+	<artifactId>rising-empire-moo-theme</artifactId>
+
+	<packaging>jar</packaging>
+	<name>rising-empire :: moo theme</name>
+
+	<properties>
+		<multiModuleRootRelativeUp>..</multiModuleRootRelativeUp>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>com.scheible.risingempire.mootheme.cli.MooThemeGeneratorCli</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

@@ -1,0 +1,32 @@
+:host {
+	box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+	box-sizing: inherit;
+}
+
+:host([hidden]) {
+	display: none;
+}
+
+button,
+input,
+select,
+textarea {
+	font-family: inherit;
+	font-size: inherit;
+}
+
+table,
+td,
+th {
+	border: 1px solid var(--theme-border-color);
+	padding: 4px;
+}
+
+table {
+	border-collapse: collapse;
+}

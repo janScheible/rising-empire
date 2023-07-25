@@ -1,0 +1,35 @@
+package com.scheible.risingempire.mootheme.lbx;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
+import org.junit.jupiter.api.Test;
+
+/**
+ *
+ * @author sj
+ */
+class LbxInputStreamTest {
+
+	@Test
+	void testRead() throws IOException {
+		final ByteArrayInputStream byteArrayInputStream = spy(
+				new ByteArrayInputStream(new byte[] { 42, 42, 42, 42, 42, 42, 42, 0, 42 }));
+		try (LbxInputStream input = new LbxInputStream(byteArrayInputStream)) {
+
+			assertThat(input.readUByte()).isEqualTo((short) 42);
+			assertThat(input.readUShort()).isEqualTo(10794);
+			assertThat(input.readUInt()).isEqualTo(707406378l);
+
+			assertThat(input.skip(1)).isEqualTo(1);
+
+			assertThat(input.readUByte()).isEqualTo((short) 42);
+		}
+
+		verify(byteArrayInputStream).close();
+	}
+}

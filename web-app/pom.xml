@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.scheible.risingempire</groupId>
+		<artifactId>rising-empire</artifactId>
+		<version>${revision}</version>
+	</parent>
+
+	<artifactId>rising-empire-web-app</artifactId>
+
+	<packaging>jar</packaging>
+	<name>rising-empire :: web-app</name>
+
+	<properties>
+		<multiModuleRootRelativeUp>..</multiModuleRootRelativeUp>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.scheible.risingempire</groupId>
+			<artifactId>rising-empire-game</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.scheible.risingempire</groupId>
+			<artifactId>rising-empire-util</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.scheible.esbuild</groupId>
+			<artifactId>esbuild-devserver-spring-boot-starter</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.blueconic</groupId>
+			<artifactId>browscap-java</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>webjars-locator-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>io.github.classgraph</groupId>
+			<artifactId>classgraph</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.scheible.pocketsaw.esbuild</groupId>
+			<artifactId>pocketsaw-esbuild</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-firefox-driver</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>jsr305</artifactId>
+					<groupId>com.google.code.findbugs</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>okio</artifactId>
+					<groupId>com.squareup.okio</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-support</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.galenframework</groupId>
+			<artifactId>galen-rainbow4j</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>build-info</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<image>
+						<publish>true</publish>
+						<name>${registry-domain}/${project.artifactId}</name>
+						<buildpacks>
+							<buildpack>paketo-buildpacks/java</buildpack>
+							<buildpack>gcr.io/paketo-buildpacks/opentelemetry</buildpack>
+						</buildpacks>
+						<env>
+							<BP_OPENTELEMETRY_ENABLED>true</BP_OPENTELEMETRY_ENABLED>
+							<BPE_OTEL_JAVAAGENT_ENABLED>true</BPE_OTEL_JAVAAGENT_ENABLED>
+							<BPE_OTEL_EXPORTER_OTLP_ENDPOINT>http://signoz-helm-chart-otel-collector.platform.svc.cluster.local:4317</BPE_OTEL_EXPORTER_OTLP_ENDPOINT>
+							<BPE_OTEL_SERVICE_NAME>${project.artifactId}</BPE_OTEL_SERVICE_NAME>
+						</env>
+					</image>
+					<docker>
+						<host>tcp://localhost:2375</host>
+						<publishRegistry>
+							<url>https://${registry-domain}</url>
+							<username>${registry-username}</username>
+							<password>${registry-password}</password>
+						</publishRegistry>
+					</docker>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>io.github.git-commit-id</groupId>
+				<artifactId>git-commit-id-maven-plugin</artifactId>
+				<configuration>
+					<offline>true</offline>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.scheible.esbuild</groupId>
+				<artifactId>esbuild-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<configuration>
+					<excludeFilterFile>${project.basedir}/spotbugs-exclude.xml</excludeFilterFile>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

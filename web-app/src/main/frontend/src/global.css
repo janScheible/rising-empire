@@ -1,0 +1,46 @@
+body {
+	margin: 0px;
+	overflow: hidden;
+}
+
+body#game-browser {
+	display: flex;
+	justify-content: center;
+
+	background-color: var(--theme-background-color);
+
+	/* makes the theme background color darker */
+	background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2));
+}
+
+:root {
+	--blue-player-color: #4d79aa;
+	--green-player-color: #34961c;
+	--purple-player-color: #b68ae7;
+	--red-player-color: #ff2828;
+	--white-player-color: #a6a6a6;
+	--yellow-player-color: #e7a600;
+
+	--theme-background-color: #cacaca;
+	--theme-border-color: #707070;
+	--theme-container-title-background-color: #7f6550;
+	--theme-container-title-color: white;
+
+	--theme-scifi-font: 'Orbitron';
+
+	font-family: sans-serif;
+	font-size: 14px;
+
+	user-select: none;
+}
+
+@font-face {
+	font-family: 'Orbitron';
+	src: url('Orbitron-VariableFont_wght.ttf') format('truetype-variations');
+	font-weight: 400 900;
+	font-display: swap;
+}
+
+.bold {
+	font-weight: bold;
+}

@@ -1,6 +1,0 @@
-- GameUi
-	- Panel borders are currenty hardcoded as inline styles
-	
-- Java
-	- hashCode/equals: Entity and value type concept?
-	- toString

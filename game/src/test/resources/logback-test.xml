@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+	
+	<property name="ROOT_LOG_LEVEL" value="${logback.root.log.level:-WARN}" />
+
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>%d{HH:mm:ss.SSS} %msg%n</Pattern>
+		</layout>
+	</appender>
+
+	<logger name="com.tngtech.archunit" level="WARN" />
+
+	<root level="${ROOT_LOG_LEVEL}">
+		<appender-ref ref="CONSOLE"/>
+	</root>
+</configuration>

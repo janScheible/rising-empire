@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang=en>
+	<head>
+		<meta charset=utf-8>
+
+		<title>Rising Empire - ${gameId}</title>
+
+		<script type="importmap">
+			${importMap}
+		</script>		
+
+		<link rel="stylesheet" href="/frontend/global.css?rev=${appRevision}">
+		<script type="module" src="/frontend/bootstrap.js?rev=${appRevision}"></script>
+		<script>
+			import('~/util/logger/logger-factory').then((module) => {
+				// make the loggerFactory available globally in the browser to change log levels on the fly
+				window.loggerFactory = module.default;
+			});
+		</script>
+	</head>
+	<body data-frontend-init-uri="/frontend/${gameId}/${player}/main-page"
+		  data-notification-uri="/frontend/notifications?gameId=${gameId}&player=${player}"
+		  data-errors-uri="/frontend/${gameId}/${player}/errors">
+	</body>
+</html>
