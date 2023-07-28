@@ -87,13 +87,13 @@ class GameBrowserController {
 		return result;
 	}
 
-	@DeleteMapping(path = "/frontend/{gameId}/{player:blue|green|purple|red|white|yellow}")
+	@DeleteMapping(path = "/frontend/{gameId:^(?!\\bnotifications\\b).*$}/{player:^\\w+$}")
 	ResponseEntity<Object> kickPlayer(@ModelAttribute final FrontendContext context) {
 		gameManager.kickPlayer(context.getGameId(), context.getPlayer());
 		return ResponseEntity.ok(new Object());
 	}
 
-	@DeleteMapping(path = "/frontend/{gameId:\\w+\\b(?<!\\bnotifications)}")
+	@DeleteMapping(path = "/frontend/{gameId:^(?!\\bnotifications\\b).*$}")
 	ResponseEntity<Object> stopGame(@ModelAttribute final FrontendContext context) {
 		gameManager.stopGame(context.getGameId());
 		return ResponseEntity.ok(new Object());

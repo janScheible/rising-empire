@@ -111,7 +111,7 @@ class HtmlController {
 				new SimpleImmutableEntry<>("${appRevision}", model -> appRevision.value())));
 	}
 
-	@GetMapping(path = "/{gameId}/{player:blue|green|purple|red|white|yellow}", produces = TEXT_HTML_VALUE, headers = {
+	@GetMapping(path = "/{gameId:^(?!\\bfrontend\\b).*$}/{player:^\\w+$}", produces = TEXT_HTML_VALUE, headers = {
 			"!Sec-WebSocket-Key" })
 	ModelAndView gameHtml(@PathVariable final String gameId, @PathVariable final Player player) {
 		return new ModelAndView("gameView", Map.of("gameId", gameId, "player", player));
