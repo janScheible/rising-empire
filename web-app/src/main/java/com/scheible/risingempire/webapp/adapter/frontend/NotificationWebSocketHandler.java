@@ -1,6 +1,8 @@
 package com.scheible.risingempire.webapp.adapter.frontend;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -97,8 +99,8 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
 		final String sessionId = queryParams.getFirst("sessionId");
 
 		if (gameId != null && playerString != null && sessionId != null) {
-			final Player player = Player.valueOf(playerString);
-			return new SessionContext(gameId, player, sessionId);
+			final Player player = Player.valueOf(URLDecoder.decode(playerString, StandardCharsets.UTF_8));
+			return new SessionContext(URLDecoder.decode(gameId, StandardCharsets.UTF_8), player, sessionId);
 		} else {
 			return null;
 		}

@@ -1,5 +1,7 @@
 package com.scheible.risingempire.webapp.hypermedia;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,37 +27,55 @@ public class Action {
 	private final List<ActionField> fields = new ArrayList<>();
 
 	private final String name;
+	/**
+	 * Always encoded hyperlink reference suitable for serialization and sending to the Browser.
+	 */
 	private final String href;
 	private final ActionHttpMethod method;
 	@Nullable
 	private final String contentType;
 
+	/**
+	 * @param name        a name
+	 * @param href        the already encoded hyperlink reference
+	 * @param method      the HTTP method
+	 * @param contentType the content type
+	 */
 	public Action(final String name, final String href, final ActionHttpMethod method, final String contentType) {
+		if (contentType != null && method != ActionHttpMethod.POST) {
+			throw new IllegalStateException("Only POST actions have a content type!");
+		}
+
 		this.name = name;
 		this.href = href;
 		this.method = method;
 		this.contentType = contentType;
 	}
 
+	/**
+	 * @param name   a name
+	 * @param href   the already encoded hyperlink reference
+	 * @param method the HTTP method
+	 */
 	public Action(final String name, final String href, final ActionHttpMethod method) {
 		this(name, href, method, null);
 	}
 
 	public static Action jsonPost(final String name, final String... pathSegments) {
 		return new Action(name,
-				UriComponentsBuilder.newInstance().pathSegment(pathSegments).build().encode().toUriString(),
+				UriComponentsBuilder.newInstance().pathSegment(pathSegments).encode().build().toUriString(),
 				ActionHttpMethod.POST, MediaType.APPLICATION_JSON_VALUE);
 	}
 
 	public static Action get(final String name, final String... pathSegments) {
 		return new Action(name,
-				UriComponentsBuilder.newInstance().pathSegment(pathSegments).build().encode().toUriString(),
+				UriComponentsBuilder.newInstance().pathSegment(pathSegments).encode().build().toUriString(),
 				ActionHttpMethod.GET);
 	}
 
 	public static Action delete(final String name, final String... pathSegments) {
 		return new Action(name,
-				UriComponentsBuilder.newInstance().pathSegment(pathSegments).build().encode().toUriString(),
+				UriComponentsBuilder.newInstance().pathSegment(pathSegments).encode().build().toUriString(),
 				ActionHttpMethod.DELETE);
 	}
 
@@ -110,10 +130,13 @@ public class Action {
 			throw new IllegalStateException("Only GET actions can be converted to an Uri!");
 		}
 
-		final UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance().path(href);
+		// href (which is always encoded) is decoded first because it is encoded again by UriComponentsBuilder
+		final String decodedHref = URLDecoder.decode(href, StandardCharsets.UTF_8);
+
+		final UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(decodedHref);
 		fields.stream().forEach(f -> uriBuilder.queryParam(f.getName(), f.getValue().toString()));
 
-		return uriBuilder.build().encode().toUriString();
+		return uriBuilder.toUriString();
 	}
 
 	public String getName() {
