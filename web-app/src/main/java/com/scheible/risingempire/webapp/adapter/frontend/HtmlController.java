@@ -21,6 +21,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 
@@ -38,6 +39,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author sj
  */
 @Controller
+@RequestMapping(produces = TEXT_HTML_VALUE)
 class HtmlController {
 
 	static class TemplateView implements View {
@@ -96,7 +98,7 @@ class HtmlController {
 		this.servletContext = servletContext;
 	}
 
-	@GetMapping(path = "/", produces = TEXT_HTML_VALUE)
+	@GetMapping(path = "/")
 	ModelAndView gameBrowserHtml() {
 		return new ModelAndView("gameBrowserView");
 	}
@@ -111,8 +113,7 @@ class HtmlController {
 				new SimpleImmutableEntry<>("${appRevision}", model -> appRevision.value())));
 	}
 
-	@GetMapping(path = "/{gameId:^(?!\\bfrontend\\b).*$}/{player:^\\w+$}", produces = TEXT_HTML_VALUE, headers = {
-			"!Sec-WebSocket-Key" })
+	@GetMapping(path = "/games/{gameId}/{player}")
 	ModelAndView gameHtml(@PathVariable final String gameId, @PathVariable final Player player) {
 		return new ModelAndView("gameView", Map.of("gameId", gameId, "player", player));
 	}

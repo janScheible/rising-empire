@@ -9,7 +9,8 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.scheible.risingempire.webapp.adapter.frontend.NotificationWebSocketHandler;
+import com.scheible.risingempire.webapp.adapter.frontend.GameBrowserNotificationWebSocketHandler;
+import com.scheible.risingempire.webapp.adapter.frontend.GameNotificationWebSocketHandler;
 import com.scheible.risingempire.webapp.notification.NotificationService;
 
 /**
@@ -20,14 +21,20 @@ import com.scheible.risingempire.webapp.notification.NotificationService;
 @EnableWebSocket
 public class WebSocketConfiguration implements WebSocketConfigurer, ApplicationContextAware {
 
+	private static final String[] ALLOWED_ORIGINS = new String[] { "http://localhost", "https://localhost",
+			"http://localhost:8080", "https://risingempire.de" };
+
 	private ApplicationContext applicationContext;
 
 	@Override
 	public void registerWebSocketHandlers(final WebSocketHandlerRegistry registry) {
-		final NotificationWebSocketHandler handler = new NotificationWebSocketHandler(
+		final GameNotificationWebSocketHandler gameHandler = new GameNotificationWebSocketHandler(
 				applicationContext.getBean(ObjectMapper.class), applicationContext.getBean(NotificationService.class));
-		registry.addHandler(handler, "/frontend/notifications").setAllowedOrigins("http://localhost",
-				"https://localhost", "http://localhost:8080", "https://risingempire.de");
+		registry.addHandler(gameHandler, "/game/notifications").setAllowedOrigins(ALLOWED_ORIGINS);
+
+		final GameBrowserNotificationWebSocketHandler gameBrowserHandler = new GameBrowserNotificationWebSocketHandler(
+				applicationContext.getBean(ObjectMapper.class), applicationContext.getBean(NotificationService.class));
+		registry.addHandler(gameBrowserHandler, "/game-browser/notifications").setAllowedOrigins(ALLOWED_ORIGINS);
 	}
 
 	@Override

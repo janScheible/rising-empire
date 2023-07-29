@@ -39,7 +39,8 @@ class ErrorController {
 		this.userAgentParser = userAgentParser;
 	}
 
-	@PostMapping(path = { "/frontend/errors", "/frontend/{gameId}/{player}/errors" }, consumes = APPLICATION_JSON_VALUE)
+	@PostMapping(path = { "/game-browser/errors",
+			"/game/games/{gameId}/{player}/errors" }, consumes = APPLICATION_JSON_VALUE)
 	void receiveError(@RequestHeader(value = "User-Agent") final String userAgent,
 			@ModelAttribute final FrontendContext context, @RequestBody final FrontendErrorBodyDto body) {
 		final Capabilities userAgentCapabilities = userAgentParser.parse(userAgent);

@@ -116,7 +116,7 @@ public class FrontendContext {
 	}
 
 	private Stream<String> concatPathSegments(final String... pathSegments) {
-		return Stream.concat(Arrays.stream(new String[] { "frontend", gameId, player.name() }),
+		return Stream.concat(Arrays.stream(new String[] { "game", "games", gameId, player.name() }),
 				Arrays.stream(pathSegments));
 	}
 

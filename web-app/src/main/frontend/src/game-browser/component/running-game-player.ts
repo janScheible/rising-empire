@@ -45,12 +45,7 @@ export default class RunningGamePlayer extends HTMLElement {
 
 		this.#joinButtonEl = this.shadowRoot.querySelector('#join-button');
 		this.#joinButtonEl.addEventListener('click', (event) => {
-			const joinModel = { _actions: [this.#joinAction] };
-
-			const joinGameIdField = HypermediaUtil.getField(joinModel, 'join', 'gameId');
-			const joinPlayerField = HypermediaUtil.getField(joinModel, 'join', 'player');
-
-			LaunchGameUtil.launch(joinGameIdField.value, joinPlayerField.value, event.ctrlKey);
+			LaunchGameUtil.launchUrl(this.#joinAction.href, event.ctrlKey);
 		});
 	}
 

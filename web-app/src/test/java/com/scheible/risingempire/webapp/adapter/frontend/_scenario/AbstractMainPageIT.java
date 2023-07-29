@@ -306,13 +306,13 @@ abstract class AbstractMainPageIT {
 	}
 
 	protected HypermediaClient createHypermediaClient(final Player player) throws Exception {
-		return HypermediaClient.create("/frontend/" + TEST_GAME_ID + "/" + player + "/main-page",
+		return HypermediaClient.create("/game/games/" + TEST_GAME_ID + "/" + player + "/main-page",
 				MediaType.APPLICATION_JSON, mockMvc);
 	}
 
 	protected HypermediaClient finishTurn(final SystemId selectedStar, final int round) throws Exception {
 		return HypermediaClient.create(
-				post("/frontend/" + TEST_GAME_ID + "/BLUE/main-page/button-bar/finished-turns")
+				post("/game/games/" + TEST_GAME_ID + "/BLUE/main-page/button-bar/finished-turns")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(JSONObject.toJSONString(
 								Map.of("selectedStarId", Arrays.asList(selectedStar.getValue()), "round", round))),

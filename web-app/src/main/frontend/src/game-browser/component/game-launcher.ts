@@ -3,6 +3,7 @@ import capitalize from '~/util/capitalize';
 import cssUrl from '~/util/cssUrl';
 import Reconciler from '~/util/reconciler';
 import LaunchGameUtil from '~/game-browser/component/launch-game-util';
+import HypermediaUtil from '~/util/hypermedia-util';
 
 export default class GameLauncher extends HTMLElement {
 	static NAME = 're-game-launcher';
@@ -10,6 +11,8 @@ export default class GameLauncher extends HTMLElement {
 	#startEl: HTMLButtonElement;
 	#gameIdEl: HTMLInputElement;
 	#playerEl: HTMLSelectElement;
+
+	#startAction;
 
 	constructor() {
 		super();
@@ -37,11 +40,13 @@ export default class GameLauncher extends HTMLElement {
 			const gameId = this.#gameIdEl.value;
 			const player = this.#playerEl.value;
 
-			LaunchGameUtil.launch(gameId, player, event.ctrlKey);
+			LaunchGameUtil.launchUrlTemplate(this.#startAction.href, gameId, player, event.ctrlKey);
 		});
 	}
 
 	render(data) {
+		this.#startAction = HypermediaUtil.getAction(data, 'start');
+
 		if (this.#gameIdEl.value === '#INIT#') {
 			Reconciler.reconcileAttribute(this.#gameIdEl, 'value', data.defaultGameId ?? '');
 		}

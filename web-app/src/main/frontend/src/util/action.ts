@@ -12,6 +12,7 @@ interface Action {
 	//
 	// from client-side
 	//
+
 	synthetic?: boolean;
 }
 

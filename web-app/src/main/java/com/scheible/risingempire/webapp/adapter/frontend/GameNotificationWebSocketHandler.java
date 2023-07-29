@@ -1,10 +1,7 @@
 package com.scheible.risingempire.webapp.adapter.frontend;
 
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
@@ -12,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -29,9 +25,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *
  * @author sj
  */
-public class NotificationWebSocketHandler extends TextWebSocketHandler {
+public class GameNotificationWebSocketHandler extends TextWebSocketHandler {
 
-	private static final Logger logger = LoggerFactory.getLogger(NotificationWebSocketHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(GameNotificationWebSocketHandler.class);
 
 	private final ObjectMapper objectMapper;
 	private final NotificationService notificationService;
@@ -43,7 +39,7 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
 	private final Set<String> rejectedWebSockerSessionIds = new ConcurrentSkipListSet<>();
 
 	@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "The objects are not mutated.")
-	public NotificationWebSocketHandler(final ObjectMapper objectMapper,
+	public GameNotificationWebSocketHandler(final ObjectMapper objectMapper,
 			final NotificationService notificationService) {
 		this.objectMapper = objectMapper;
 		this.notificationService = notificationService;
@@ -61,7 +57,7 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
 				rejectedWebSockerSessionIds.add(session.getId());
 			}
 		} else {
-			notificationService.registerBroadcastChannel(session.getId(), notificationChannel);
+			logger.warn("Unable to get session context from '{}'.", session.getUri());
 		}
 	}
 
@@ -72,7 +68,7 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
 			logger.warn("WebSocket transport error for '{}' ({}) of gameId '{}'.", sessionContext.player(),
 					sessionContext.playerSessionId(), sessionContext.gameId(), exception);
 		} else {
-			logger.warn("WebSocket transport error.", exception);
+			logger.warn("WebSocket transport error for '{}'.", session.getUri(), exception);
 		}
 	}
 
@@ -83,7 +79,7 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
 			if (sessionContext != null) {
 				notificationService.unregisterChannel(sessionContext.gameId(), sessionContext.player());
 			} else {
-				notificationService.unregisterBroadcastChannel(session.getId());
+				logger.warn("Unable to get session context from '{}'.", session.getUri());
 			}
 		} else {
 			rejectedWebSockerSessionIds.remove(session.getId());
@@ -108,26 +104,5 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
 
 	private record SessionContext(String gameId, Player player, String playerSessionId) {
 
-	}
-
-	private static class WebSocketNotification implements NotificationChannel {
-
-		private final WebSocketSession webSocketSession;
-		private final ObjectMapper objectMapper;
-
-		public WebSocketNotification(final WebSocketSession webSocketSession, final ObjectMapper objectMapper) {
-			this.webSocketSession = webSocketSession;
-			this.objectMapper = objectMapper;
-		}
-
-		@Override
-		public void sendMessage(final String type, final Map<String, Object> payload) throws IOException {
-			final Map<String, Object> message = new HashMap<>(payload);
-			message.put("type", type);
-
-			final String json = objectMapper.writeValueAsString(message);
-
-			webSocketSession.sendMessage(new TextMessage(json));
-		}
 	}
 }

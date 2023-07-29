@@ -10,7 +10,7 @@ import java.util.List;
  *
  * @author sj
  */
-record GameBrowserDto(GameLauncherDto gameLauncher, List<EntityModel<RunningGameDto>> runningGames) {
+record GameBrowserDto(EntityModel<GameLauncherDto> gameLauncher, List<EntityModel<RunningGameDto>> runningGames) {
 
 	record GameLauncherDto(String defaultGameId, List<PlayerDto> playerColors) {
 		

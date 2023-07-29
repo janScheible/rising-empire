@@ -51,17 +51,18 @@ class GameBrowserController {
 		this.notificationService = notificationService;
 	}
 
-	@GetMapping("/frontend/game-browser")
+	@GetMapping("/game-browser")
 	@SuppressFBWarnings(value = "PREDICTABLE_RANDOM", justification = "Random enough for game ids.")
 	ResponseEntity<GameBrowserDto> gameBrowser() {
 		final String defaultGameId = ThreadLocalRandom.current().ints(0, SPACE_WORDS.size()).distinct().limit(3)
 				.mapToObj(i -> SPACE_WORDS.get(i)).collect(Collectors.joining());
 
-		return ResponseEntity.ok(new GameBrowserDto(
-				new GameLauncherDto(defaultGameId, List.of(PlayerDto.YELLOW, PlayerDto.BLUE, PlayerDto.WHITE)),
+		return ResponseEntity.ok(new GameBrowserDto(new EntityModel<>(
+				new GameLauncherDto(defaultGameId, List.of(PlayerDto.YELLOW, PlayerDto.BLUE, PlayerDto.WHITE))).with(
+						Action.get("start", "games", "{gameId}", "{player}").with("gameId", null).with("player", null)),
 				gameHolder.getGameIds().stream()
 						.map(gameId -> new EntityModel<>(new RunningGameDto(gameId, toRunningGamePlayers(gameId)))
-								.with(Action.delete("stop", "frontend", gameId)))
+								.with(Action.delete("stop", "game-browser", "games", gameId)))
 						.toList()));
 	}
 
@@ -76,24 +77,22 @@ class GameBrowserController {
 					new RunningGamePlayerDto(PlayerDto.fromPlayer(player), !game.isAiControlled(player),
 							notificationService.getPlayerSession(gameId, player).orElse(null), canReceiveNotifications))
 									.with(!game.isAiControlled(player) && !canReceiveNotifications,
-											() -> Action.delete("kick", "frontend", gameId,
+											() -> Action.delete("kick", "game-browser", "games", gameId,
 													player.name().toLowerCase()))
 									.with(game.isAiControlled(player),
-											() -> Action.get("join", "frontend", gameId, player.name().toLowerCase())
-													.with("gameId", gameId)
-													.with("player", player.name().toLowerCase())));
+											() -> Action.get("join", "games", gameId, player.name().toLowerCase())));
 		}
 
 		return result;
 	}
 
-	@DeleteMapping(path = "/frontend/{gameId:^(?!\\bnotifications\\b).*$}/{player:^\\w+$}")
+	@DeleteMapping(path = "/game-browser/games/{gameId}/{player}")
 	ResponseEntity<Object> kickPlayer(@ModelAttribute final FrontendContext context) {
 		gameManager.kickPlayer(context.getGameId(), context.getPlayer());
 		return ResponseEntity.ok(new Object());
 	}
 
-	@DeleteMapping(path = "/frontend/{gameId:^(?!\\bnotifications\\b).*$}")
+	@DeleteMapping(path = "/game-browser/games/{gameId}")
 	ResponseEntity<Object> stopGame(@ModelAttribute final FrontendContext context) {
 		gameManager.stopGame(context.getGameId());
 		return ResponseEntity.ok(new Object());

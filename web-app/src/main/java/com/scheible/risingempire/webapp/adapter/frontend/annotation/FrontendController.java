@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @RestController
-@RequestMapping(path = "/frontend/{gameId}/{player}", produces = APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/game/games/{gameId}/{player}", produces = APPLICATION_JSON_VALUE)
 public @interface FrontendController {
 
 }

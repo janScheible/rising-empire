@@ -53,7 +53,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * @author sj
  */
 @FrontendController
-public class MainPageController {
+class MainPageController {
 
 	private static final Logger logger = LoggerFactory.getLogger(MainPageController.class);
 
