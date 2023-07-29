@@ -70,14 +70,21 @@ export default class HypermediaUtil {
 			return map;
 		}, valuesAsArrayMap);
 
+		let href = action.href;
+
 		const query = new URLSearchParams();
 		action.fields.forEach((f) => query.append(f.name, f.value));
 		Object.entries(values).forEach(([key, value]) => {
-			query.delete(key);
-			if (!Array.isArray(value)) {
-				query.append(key, value);
+			const templateKey = `{${key}}`;
+			if (href.includes(templateKey)) {
+				href = href.replace(templateKey, encodeURIComponent(value));
 			} else {
-				value.forEach((v) => query.append(key, v));
+				query.delete(key);
+				if (!Array.isArray(value)) {
+					query.append(key, value);
+				} else {
+					value.forEach((v) => query.append(key, v));
+				}
 			}
 		});
 
@@ -86,12 +93,12 @@ export default class HypermediaUtil {
 		if (HypermediaUtil.#logger.isDebugEnabled) {
 			HypermediaUtil.#logger.debug(
 				`submit ${action.synthetic ? 'synthetic ' : ''}action ${action.name} as ${action.method} to ${
-					action.href + decodeURIComponent(encodedQuery)
-				}${action.method !== 'GET' ? ' ith body ' + JSON.stringify(body) : ''}`
+					href + decodeURIComponent(encodedQuery)
+				}${action.method !== 'GET' ? ' with body ' + JSON.stringify(body) : ''}`
 			);
 		}
 
-		const entity = await FetchUtil.jsonFetch(action.href + encodedQuery, {
+		const entity = await FetchUtil.jsonFetch(href + encodedQuery, {
 			method: action.method,
 			headers: action.method !== 'GET' ? { 'Content-Type': action.contentType } : undefined,
 			body: action.method !== 'GET' ? JSON.stringify(body) : undefined,
