@@ -48,8 +48,8 @@ const partialUpdater = new PartialUpdaterDelegate(
 );
 
 async function render(data) {
-	frontendEl.loadIndicator(false);
 	await frontendEl.render(partialUpdater.beforeRender(data));
+	frontendEl.loadIndicator(false);
 
 	if (data.fleetMovements) {
 		frontendEl.beginNewTurn();
