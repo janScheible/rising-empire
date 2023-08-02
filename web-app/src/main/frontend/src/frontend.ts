@@ -46,16 +46,19 @@ export default class Frontend extends HTMLElement {
 
 				#load-indicator {
 					position: absolute;
+
 					left: 0px;
 					top: 0px;
 					right: 0px;
-					height: 4px;
+					bottom: 0px;
+
+					z-index: 10000;
 				}
 
 				#load-indicator > .animation {
 					background-color: blue;
 					background-image: linear-gradient(to right, var(--theme-background-color) 35%, rgba(0, 0, 0, 0.0) 50%, var(--theme-background-color) 65%);
-					height: 100%;
+					height: 4px;
 					width: 100%;
 					animation: move-highlight 1s linear 0s infinite alternate;
 				}
