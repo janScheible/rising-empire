@@ -127,6 +127,8 @@ export default class Frontend extends HTMLElement {
 
 	async render(data) {
 		if (!this.#themeManagerContainerEl.hidden) {
+			this.loadIndicator(false);
+
 			this.#themeManagerEl.apply();
 
 			await new Promise((resolve, reject) => {
