@@ -5,9 +5,8 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.1</version>
+		<version>3.1.2</version>
 		<relativePath></relativePath>
-		<!-- lookup parent from repository -->
 	</parent>
 
 	<groupId>com.scheible.risingempire</groupId>
@@ -136,6 +135,16 @@
 				<artifactId>guava</artifactId>
 				<version>31.1-jre</version>
 			</dependency>
+			<dependency>
+				<groupId>io.opentelemetry</groupId>
+				<artifactId>opentelemetry-semconv</artifactId>
+				<version>1.25.0-alpha</version>
+			</dependency>
+			<dependency>
+				<groupId>io.opentelemetry</groupId>
+				<artifactId>opentelemetry-sdk-logs</artifactId>
+				<version>1.25.0-alpha</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -152,13 +161,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<!-- Starting with Java 16 there are some reflection issues that are solved with this extra dependency:
-			see for example https://github.com/mockito/mockito/issues/2231 -->
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-inline</artifactId>
 			<scope>test</scope>
 		</dependency>
 
@@ -283,17 +285,17 @@
 					</dependencies>
 				</plugin>
 				<plugin>
-				<groupId>com.scheible.esbuild</groupId>
-				<artifactId>esbuild-maven-plugin</artifactId>
-				<version>${esbuild-maven-plugin.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>prepare-frontend</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+					<groupId>com.scheible.esbuild</groupId>
+					<artifactId>esbuild-maven-plugin</artifactId>
+					<version>${esbuild-maven-plugin.version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>prepare-frontend</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 
