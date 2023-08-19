@@ -5,6 +5,9 @@ import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
@@ -30,6 +33,7 @@ import com.scheible.esbuild.bindings.util.ImportMapper;
 import com.scheible.esbuild.spring.AppRevision;
 import com.scheible.risingempire.game.api.view.universe.Player;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -122,12 +126,22 @@ class HtmlController {
 	View gameView() {
 		return new TemplateView("/templates/game.html", Arrays.asList( //
 				new SimpleImmutableEntry<>("${gameId}", model -> model.get("gameId").toString()),
+				new SimpleImmutableEntry<>("${urlEncodedGameId}", model -> urlEncode(model.get("gameId").toString())),
 				new SimpleImmutableEntry<>("${player}", model -> model.get("player").toString()),
 				new SimpleImmutableEntry<>("${importMap}", model -> this.importMapGenerator.generate(Map.of( //
 						ImportMapper.FRONTEND_PREFIX_PLACEHOLDER, this.servletContext.getContextPath() + "/frontend", //
 						ImportMapper.LIBRARY_PREFIX_PLACEHOLDER, this.servletContext.getContextPath() + "/lib", //
 						ImportMapper.APP_REVISION_PLACEHOLDER, this.appRevision.value()))),
 				new SimpleImmutableEntry<>("${appRevision}", model -> appRevision.value())));
+	}
+
+	@SuppressFBWarnings(value = "EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS", justification = "If encoding works once, it will work forever.")
+	private static String urlEncode(final String value) {
+		try {
+			return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+		} catch (final UnsupportedEncodingException ex) {
+			throw new UncheckedIOException(ex);
+		}
 	}
 
 	@GetMapping(path = "/storybook.html", produces = TEXT_HTML_VALUE)
