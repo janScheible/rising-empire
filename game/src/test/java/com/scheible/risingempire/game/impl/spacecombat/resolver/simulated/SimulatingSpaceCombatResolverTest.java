@@ -2,8 +2,10 @@ package com.scheible.risingempire.game.impl.spacecombat.resolver.simulated;
 
 import static com.scheible.risingempire.game.api.view.ship.ShipSize.MEDIUM;
 import static com.scheible.risingempire.game.api.view.ship.ShipSize.SMALL;
+import static com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome.DEFENDER_WON;
 import static com.scheible.risingempire.game.impl.ship.ShipDesignTest.LASER;
 import static com.scheible.risingempire.game.impl.ship.ShipDesignTest.NUCLEAR_MISSILE;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 
@@ -19,20 +21,17 @@ import com.scheible.risingempire.game.impl.spacecombat.resolver.simulated.Simula
 public class SimulatingSpaceCombatResolverTest {
 
 	@Test
-	public void testSomeMethod() {
+	public void testSimulate() {
 		final ShipDesign attackingFighterDesing = ShipDesign.builder().name("Destroyer").size(MEDIUM).look(0)
 				.computer(0).shield(0).ecm(0).armor("Titanium", 1.0).engine("Retro", 1).maneuver(1)
 				.weapons(1, LASER, 1, NUCLEAR_MISSILE).specials();
-		System.out.println("attackingFighterDesing: " + attackingFighterDesing);
 
 		final ShipDesign defendingFighterDesing = ShipDesign.builder().name("Fighter").size(SMALL).look(0).computer(0)
 				.shield(0).ecm(0).armor("Titanium", 1.0).engine("Retro", 1).maneuver(1).weapons(1, LASER).specials();
-		System.out.println("defendingFighterDesing: " + defendingFighterDesing);
 
-		SpaceCombatSummary summary;
-		System.out.println((summary = new SimulatingSpaceCombatResolver().simulate(Map.of(attackingFighterDesing, 3),
-				Map.of(defendingFighterDesing, 7))).outcome);
+		SpaceCombatSummary summary = new SimulatingSpaceCombatResolver().simulate(Map.of(attackingFighterDesing, 3),
+				Map.of(defendingFighterDesing, 7));
 
-		System.out.println(summary);
+		assertThat(summary.outcome).isEqualTo(DEFENDER_WON);
 	}
 }

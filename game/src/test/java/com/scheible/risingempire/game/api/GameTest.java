@@ -29,7 +29,7 @@ import com.scheible.risingempire.game.api.view.universe.Player;
 class GameTest {
 
 	@Test
-	void testExplorationScenario() {
+	void testExploration() {
 		final Game game = GameFactory.get().create(GameOptions.forTestGameScenario());
 		game.registerAi(Player.WHITE);
 		game.registerAi(Player.YELLOW);
@@ -38,7 +38,7 @@ class GameTest {
 		GameView blueGameView = null;
 
 		for (int i = 0; i < 5; i++) {
-			System.out.println(blueGameView = blueGame.getView());
+			blueGameView = blueGame.getView();
 
 			final Set<SystemId> spaceCombatSystemIds = blueGameView.getSpaceCombats().stream()
 					.map(SpaceCombatView::getSystemId).collect(Collectors.toSet());
@@ -61,8 +61,6 @@ class GameTest {
 						Map.of(fleetAtSol.getShipType("Scout").getId(), 1));
 				blueGame.deployFleet(fleetAtSol.getId(), blueGameView.getSystem(new SystemId("s180x220")).getId(),
 						Map.of(fleetAtSol.getShipType("Scout").getId(), 1));
-
-				System.out.println(game.forPlayer(Player.BLUE).getView());
 			} else if (blueGameView.getRound() == 4) {
 				final GameView gameState2 = blueGameView;
 				blueGameView.getOrbiting(blueGameView.getSystem("Fieras").getId())
@@ -78,7 +76,7 @@ class GameTest {
 			blueGame.finishTurn();
 		}
 
-		System.out.println(blueGameView = blueGame.getView());
+		blueGameView = blueGame.getView();
 
 		assertThat(blueGameView.getSystem("Fieras").getLocation()).isEqualTo(new Location(220, 100));
 		assertThat(blueGameView.getSystem("Ajax").getLocation()).isEqualTo(new Location(180, 220));
