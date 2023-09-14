@@ -108,7 +108,7 @@ public class GameFactoryImpl implements GameFactory {
 			return usedSlots.get(0);
 		};
 
-		System solSystem = null, fierasSystem = null, centauriSystem = null;
+		System solSystem = null, fierasSystem = null, centauriSystem = null, rigelSystem = null;
 		final Set<System> systems;
 		if (gameOptions.isTestGameScenario()) {
 			systems = Arrays2.asSet(//
@@ -121,7 +121,9 @@ public class GameFactoryImpl implements GameFactory {
 					new System("Drakka", new Location(340, 140), WHITE, MINIMAL, PlanetSpecial.NONE, 50),
 					centauriSystem = System.createHomeSystem("Centauri", new Location(140, 340), PURPLE, OCEAN,
 							PlanetSpecial.NONE, 110, Player.YELLOW, firstUsedSlot.apply(psilonDesigns)),
-					new System("Spica", new Location(984, 728), GREEN, TUNDRA, PlanetSpecial.NONE, 50));
+					new System("Spica", new Location(984, 728), GREEN, TUNDRA, PlanetSpecial.NONE, 50),
+					rigelSystem = new System("Rigel", new Location(240, 440), GREEN, TUNDRA, PlanetSpecial.NONE, 50));
+			rigelSystem.colonize(Player.YELLOW, DesignSlot.FIRST);
 		} else {
 			systems = new HashSet<>();
 

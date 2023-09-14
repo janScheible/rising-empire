@@ -37,6 +37,8 @@ public interface PlayerGame {
 
 	void colonizeSystem(FleetId fleetId);
 
+	void annexSystem(FleetId fleetId);
+
 	void deployFleet(FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships);
 
 	void selectTech(TechId techId);

@@ -72,6 +72,10 @@ public class System implements SystemOrb {
 		colony = new Colony(player, planetMaxPopulation / 2, spaceDockDesign);
 	}
 
+	public void annex(final Player player, final DesignSlot spaceDockDesign) {
+		colony = new Colony(player, planetMaxPopulation / 2, spaceDockDesign);
+	}
+
 	/**
 	 * @return if system has colony of given player 0 is return, otherwise the shortest distance to any star with
 	 *         a colony of the given player

@@ -125,4 +125,35 @@ class GameTest {
 
 		assertThat(shipNames).containsExactly("Scout", "Colony Ship", "Fighter");
 	}
+
+	@Test
+	void testAnnexation() {
+		final Game game = GameFactory.get().create(GameOptions.forTestGameScenario()
+				// make the whole map reachable in a single turn for a simpler test setup
+				.fleetRangeFactor(2000.0).fleetSpeedFactor(2000.0)
+				// decrease the number of turns of siege required to annex a system to 1
+				.annexationSiegeTurns(1));
+		game.registerAi(Player.WHITE);
+		game.registerAi(Player.YELLOW);
+
+		final PlayerGame blueGame = game.forPlayer(Player.BLUE);
+
+		GameView blueGameView = blueGame.getView();
+		final FleetView fleetAtSol = blueGameView.getOrbiting(blueGameView.getSystem("Sol").getId()).orElseThrow();
+		blueGame.deployFleet(fleetAtSol.getId(), blueGameView.getSystem(new SystemId("s240x440")).getId(),
+				Map.of(fleetAtSol.getShipType("Cruiser").getId(), 1));
+		blueGame.finishTurn();
+
+		blueGameView = blueGame.getView();
+		assertThat(blueGameView.getSystem(new SystemId("s240x440")).getColonyView().get().getPlayer())
+				.isEqualTo(Player.YELLOW);
+		blueGame.finishTurn();
+
+		blueGameView = blueGame.getView();
+		blueGame.annexSystem(blueGameView.getOrbiting(new SystemId("s240x440")).get().getId());
+
+		blueGameView = blueGame.getView();
+		assertThat(blueGameView.getSystem(new SystemId("s240x440")).getColonyView().get().getPlayer())
+				.isEqualTo(Player.BLUE);
+	}
 }

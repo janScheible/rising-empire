@@ -29,7 +29,7 @@ public class FleetFormer {
 	}
 
 	public FleetChanges deployFleet(final Player player, final Fleet from, final SystemOrb source,
-			final SystemOrb destination, final Map<DesignSlot, Integer> ships) {
+			final SystemOrb destination, final Map<DesignSlot, Integer> ships, final int round) {
 		final int speed = journeyCalculator.calcFleetSpeed(player, ships);
 
 		final boolean isJustLeaveSentBack = from.isDeployed() && from.asDeployed().isJustLeaving()
@@ -37,8 +37,8 @@ public class FleetFormer {
 
 		final ProcessingResult<? extends Fleet> to = isJustLeaveSentBack
 				? fleetFinder.getOrbitingFleet(player, source).map(ProcessingResult::existing)
-						.orElseGet(() -> ProcessingResult.created(
-								new OrbitingFleet(fleetIdGenerator.createRandom(), player, new HashMap<>(), source)))
+						.orElseGet(() -> ProcessingResult.created(new OrbitingFleet(fleetIdGenerator.createRandom(),
+								player, new HashMap<>(), source, round)))
 				: fleetFinder.getJustLeavingFleets(player, source, destination, speed).map(ProcessingResult::existing)
 						.orElseGet(() -> ProcessingResult.created(new DeployedFleet(fleetIdGenerator.createRandom(),
 								player, new HashMap<>(), source, destination, speed)));
@@ -63,11 +63,12 @@ public class FleetFormer {
 		}
 	}
 
-	public ProcessingResult<OrbitingFleet> welcomeFleet(final DeployedFleet fleet, final SystemOrb destination) {
+	public ProcessingResult<OrbitingFleet> welcomeFleet(final DeployedFleet fleet, final SystemOrb destination,
+			final int round) {
 		final ProcessingResult<OrbitingFleet> orbiting = fleetFinder.getOrbitingFleet(fleet.getPlayer(), destination)
 				.map(ProcessingResult::existing)
 				.orElseGet(() -> ProcessingResult.created(new OrbitingFleet(fleetIdGenerator.createRandom(),
-						fleet.getPlayer(), new HashMap<>(), destination)));
+						fleet.getPlayer(), new HashMap<>(), destination, round)));
 		orbiting.get().join(fleet.getShips());
 		return orbiting;
 	}

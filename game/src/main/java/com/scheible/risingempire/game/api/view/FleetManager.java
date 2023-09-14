@@ -18,6 +18,8 @@ public interface FleetManager {
 
 	void colonizeSystem(Player player, FleetId fleetId);
 
+	void annexSystem(Player player, FleetId fleetId);
+
 	Optional<Integer> calcEta(Player player, FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships);
 
 	SystemId getClosest(FleetId fleetId);

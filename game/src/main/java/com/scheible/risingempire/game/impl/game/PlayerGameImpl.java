@@ -43,6 +43,11 @@ public class PlayerGameImpl implements PlayerGame {
 	}
 
 	@Override
+	public void annexSystem(final FleetId fleetId) {
+		game.annexSystem(player, fleetId);
+	}
+
+	@Override
 	public void deployFleet(final FleetId fleetId, final SystemId destinationId, final Map<ShipTypeId, Integer> ships) {
 		game.deployFleet(player, fleetId, destinationId, ships);
 	}

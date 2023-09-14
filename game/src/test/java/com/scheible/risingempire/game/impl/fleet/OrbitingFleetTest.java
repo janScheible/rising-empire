@@ -26,7 +26,7 @@ class OrbitingFleetTest {
 		doReturn(new Location(42, 42)).when(system).getLocation();
 
 		final OrbitingFleet fleet = new OrbitingFleet(FleetId.createRandom(), Player.BLUE, Map.of(DesignSlot.FIRST, 2),
-				system);
+				system, 1);
 		fleet.detach(Map.of(DesignSlot.FIRST, 2));
 
 		assertThat(fleet.hasShips()).isFalse();

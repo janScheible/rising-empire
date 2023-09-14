@@ -94,6 +94,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	private final FleetFormer fleetFormer;
 	private final JourneyCalculator journeyCalculator;
 	private final FleetTurn fleetTurn;
+	private final int annexationSiegeTurns;
 
 	private final EnumSet<Player> finishedTurn = EnumSet.noneOf(Player.class);
 	private int round = 1;
@@ -108,9 +109,11 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 				.unmodifiableMap(fractions.stream().collect(Collectors.toMap(Fraction::getPlayer, identity())));
 		this.fleets = new HashMap<>();
 		fleetIdGenerator = new FleetIdGenerator(this.fleets.keySet());
-		this.fleets.putAll(startFleets.stream().map(
-				sf -> new OrbitingFleet(fleetIdGenerator.createRandom(), sf.getPlayer(), sf.getShips(), sf.getSystem()))
-				.collect(Collectors.toMap(Fleet::getId, identity())));
+		this.fleets
+				.putAll(startFleets
+						.stream().map(sf -> new OrbitingFleet(fleetIdGenerator.createRandom(), sf.getPlayer(),
+								sf.getShips(), sf.getSystem(), round))
+						.collect(Collectors.toMap(Fleet::getId, identity())));
 
 		this.fakeTechProvider = gameOptions.getFakeTechProvider().orElse(null);
 		this.fakeNotificationProvider = gameOptions.getFakeNotificationProvider().orElse(null);
@@ -127,6 +130,8 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 				gameOptions.getSpaceCombatOutcome() == null ? new SimulatingSpaceCombatResolver()
 						: new KnownInAdvanceWinnerSpaceCombatResolver(gameOptions.getSpaceCombatOutcome()),
 				shipDesignProvider);
+
+		this.annexationSiegeTurns = gameOptions.getAnnexationSiegeTurns();
 	}
 
 	private void nextTurn() {
@@ -218,7 +223,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		final SystemOrb source = from.isOrbiting() ? from.asOrbiting().getSystem() : from.asDeployed().getSource();
 		final SystemOrb destination = systems.get(destinationId);
 
-		fleetFormer.deployFleet(player, from, source, destination, DesignSlot.toSlotAndCounts(ships.entrySet()))
+		fleetFormer.deployFleet(player, from, source, destination, DesignSlot.toSlotAndCounts(ships.entrySet()), round)
 				.consume(addedFleet -> fleets.put(addedFleet.getId(), addedFleet),
 						removedFleet -> fleets.remove(removedFleet.getId()));
 	}
@@ -248,6 +253,29 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		system.colonize(orbiting.getPlayer(), colonyShipSlot.get());
 		if (!orbiting.hasShips()) {
 			fleets.remove(fleetId);
+		}
+	}
+
+	@Override
+	public void annexSystem(final Player player, final FleetId fleetId) {
+		final Fleet fleet = fleets.get(fleetId);
+
+		if (!fleet.isOrbiting()) {
+			throw new IllegalArgumentException(
+					"The fleet '" + fleetId + "' can't annex a system because it is deployed!");
+		}
+
+		final OrbitingFleet orbiting = fleet.asOrbiting();
+		final System system = systems.get(orbiting.getSystem().getId());
+
+		if (system.getColony().isEmpty()) {
+			throw new IllegalArgumentException("!!!");
+		} else if (system.getColony().get().getPlayer() == player) {
+			throw new IllegalArgumentException("!!!");
+		} else if (round - orbiting.getArrivalRound() < annexationSiegeTurns) {
+			throw new IllegalArgumentException("!!!");
+		} else {
+			system.annex(player, DesignSlot.FIRST);
 		}
 	}
 

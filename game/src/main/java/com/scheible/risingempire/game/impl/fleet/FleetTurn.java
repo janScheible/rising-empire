@@ -30,7 +30,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 public class FleetTurn {
 
-	private final Supplier<Integer> turnProvider;
+	private final Supplier<Integer> roundProvider;
 	private final Map<SystemId, System> systems;
 	private final SystemSnapshotter snapshotter;
 	private final FleetFormer fleetFormer;
@@ -39,10 +39,10 @@ public class FleetTurn {
 	private final ShipDesignProvider shipDesignProvider;
 
 	@SuppressFBWarnings(value = "EI_EXPOSE_REP2")
-	public FleetTurn(final Supplier<Integer> turnProvider, final Map<SystemId, System> systems,
+	public FleetTurn(final Supplier<Integer> roundProvider, final Map<SystemId, System> systems,
 			final SystemSnapshotter snapshotter, final FleetFormer fleetFormer, final FleetFinder fleetFinder,
 			final SpaceCombatResolver spaceCombatResolver, final ShipDesignProvider shipDesignProvider) {
-		this.turnProvider = turnProvider;
+		this.roundProvider = roundProvider;
 		this.systems = systems;
 		this.snapshotter = snapshotter;
 		this.fleetFormer = fleetFormer;
@@ -67,7 +67,7 @@ public class FleetTurn {
 				final SystemOrb destination = deployedFleet.getDestination();
 
 				final ProcessingResult<OrbitingFleet> orbitingFleet = fleetFormer.welcomeFleet(deployedFleet,
-						destination);
+						destination, roundProvider.get());
 				if (orbitingFleet.wasCreated()) {
 					newFleets.add(orbitingFleet.get());
 				}
@@ -79,7 +79,7 @@ public class FleetTurn {
 				final System destinationSystem = systems.get(destination.getId());
 				if (!destinationSystem.getColony(fleet.getPlayer()).isPresent()) {
 					snapshotter.put(fleet.getPlayer(), destination.getId(),
-							SystemSnapshot.forKnown(turnProvider.get(), destinationSystem));
+							SystemSnapshot.forKnown(roundProvider.get(), destinationSystem));
 				}
 
 				fleetFinder.getOrbitingFleet(destinationSystem).stream()
@@ -95,9 +95,12 @@ public class FleetTurn {
 								defendingFleet.retain(spaceCombat.getDefenderShipCounts());
 
 								newFleets.clear();
-								newFleets.addAll(fleetFormer.deployFleet(deployedFleet.getPlayer(), deployedFleet,
-										deployedFleet.getDestination(), deployedFleet.getSource(),
-										spaceCombat.getAttackerShipCounts()).getAdded());
+								newFleets
+										.addAll(fleetFormer
+												.deployFleet(deployedFleet.getPlayer(), deployedFleet,
+														deployedFleet.getDestination(), deployedFleet.getSource(),
+														spaceCombat.getAttackerShipCounts(), roundProvider.get())
+												.getAdded());
 								assertSingleFleet(newFleets);
 
 								final FleetId newReturningFleetId = newFleets.iterator().next().getId();
@@ -114,7 +117,7 @@ public class FleetTurn {
 
 			if (!orbitingSystem.getColony(fleet.getPlayer()).isPresent()) {
 				snapshotter.put(fleet.getPlayer(), orbitingFleet.getSystem().getId(),
-						SystemSnapshot.forKnown(turnProvider.get(), orbitingSystem));
+						SystemSnapshot.forKnown(roundProvider.get(), orbitingSystem));
 			}
 		}
 

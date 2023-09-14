@@ -43,8 +43,8 @@ class FleetFormerTest {
 
 		// when
 		final FleetChanges changes = manager.deployFleet(Player.BLUE,
-				new OrbitingFleet(FleetId.createRandom(), Player.BLUE, Map.of(DesignSlot.FIRST, 1), firstSystem),
-				firstSystem, secondSystem, Map.of(DesignSlot.FIRST, 1));
+				new OrbitingFleet(FleetId.createRandom(), Player.BLUE, Map.of(DesignSlot.FIRST, 1), firstSystem, 1),
+				firstSystem, secondSystem, Map.of(DesignSlot.FIRST, 1), 1);
 
 		// then
 		assertThat(new ArrayList<>(changes.getAdded()).get(0)).isInstanceOf(DeployedFleet.class);
