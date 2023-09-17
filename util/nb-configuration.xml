@@ -29,5 +29,6 @@ Any value defined here will override the pom.xml file value but is only applicab
         <de-funfried-netbeans-plugins-externalcodeformatter.enabledFormatter_2e_XML>netbeans-formatter</de-funfried-netbeans-plugins-externalcodeformatter.enabledFormatter_2e_XML>
         <de-funfried-netbeans-plugins-externalcodeformatter.enabledFormatter_2e_JAVA>eclipse-java-formatter</de-funfried-netbeans-plugins-externalcodeformatter.enabledFormatter_2e_JAVA>
         <netbeans.hint.jdkPlatform>JDK_17</netbeans.hint.jdkPlatform>
+        <netbeans.compile.on.save>all</netbeans.compile.on.save>
     </properties>
 </project-shared-configuration>
