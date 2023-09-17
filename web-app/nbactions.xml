@@ -107,12 +107,66 @@
 		</properties>
 	</action>
 	<action>
+		<actionName>integration-test.single</actionName>
+		<packagings>
+			<packaging>*</packaging>
+		</packagings>
+		<goals>
+			<goal>pre-integration-test</goal>
+			<goal>failsafe:integration-test</goal>
+		</goals>
+		<properties>
+			<test>DummyToSkipUnitTests</test>
+			<failIfNoTests>false</failIfNoTests>
+			<surefire.failIfNoSpecifiedTests>false</surefire.failIfNoSpecifiedTests>
+			<it.test>${packageClassName}</it.test>
+		</properties>
+		<activatedProfiles>
+			<activatedProfile>skip-all-but-compilation-and-resources-and-unit-tests</activatedProfile>
+			<activatedProfile>skip-compilation-and-resources</activatedProfile>
+		</activatedProfiles>
+	</action>
+	<action>
+		<actionName>debug.integration-test.single</actionName>
+		<packagings>
+			<packaging>*</packaging>
+		</packagings>
+		<goals>
+			<goal>pre-integration-test</goal>
+			<goal>failsafe:integration-test</goal>
+		</goals>
+		<properties>
+			<test>DummyToSkipUnitTests</test>
+			<failIfNoTests>false</failIfNoTests>
+			<surefire.failIfNoSpecifiedTests>false</surefire.failIfNoSpecifiedTests>
+			<it.test>${packageClassName}</it.test>
+			<forkMode>once</forkMode>
+			<maven.failsafe.debug>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address}</maven.failsafe.debug>
+			<jpda.listen>true</jpda.listen>
+		</properties>
+		<activatedProfiles>
+			<activatedProfile>skip-all-but-compilation-and-resources-and-unit-tests</activatedProfile>
+			<activatedProfile>skip-compilation-and-resources</activatedProfile>
+		</activatedProfiles>
+	</action>
+	<action>
 		<actionName>CUSTOM-Full Build</actionName>
 		<displayName>Full Build</displayName>
 		<goals>
 			<goal>clean</goal>
 			<goal>install</goal>
 		</goals>
+	</action>
+	<action>
+		<actionName>CUSTOM-Full Build (without Selenium)</actionName>
+		<displayName>Full Build (without Selenium)</displayName>
+		<goals>
+			<goal>clean</goal>
+			<goal>install</goal>
+		</goals>
+		<properties>
+			<Env.DISABLE_SELENIUM>true</Env.DISABLE_SELENIUM>
+		</properties>
 	</action>
 	<action>
 		<actionName>CUSTOM-Format Code</actionName>
@@ -140,6 +194,16 @@
 		<goals>
 			<goal>failsafe:integration-test</goal>
 		</goals>
+	</action>
+	<action>
+		<actionName>CUSTOM-Integration Test (without Selenium)</actionName>
+		<displayName>Integration Test (without Selenium)</displayName>
+		<goals>
+			<goal>failsafe:integration-test</goal>
+		</goals>
+		<properties>
+			<Env.DISABLE_SELENIUM>true</Env.DISABLE_SELENIUM>
+		</properties>
 	</action>
 	<action>
 		<actionName>CUSTOM-Test Gap Analysis (Unit Test only)</actionName>

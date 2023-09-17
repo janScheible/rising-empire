@@ -28,6 +28,7 @@ import javax.imageio.ImageIO;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebElement;
@@ -52,6 +53,7 @@ import com.scheible.risingempire.webapp._selenium.SeleniumHelper;
  * @author sj
  */
 @SpringBootTest(webEnvironment = RANDOM_PORT)
+@DisabledIfEnvironmentVariable(named = "DISABLE_SELENIUM", matches = "true")
 class StorybookSeleniumIT {
 
 	static class StorybookPage {
