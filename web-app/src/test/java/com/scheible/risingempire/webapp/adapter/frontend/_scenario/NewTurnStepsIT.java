@@ -229,10 +229,10 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 				replaceAll(systemNotifications);
 				blueClient.submit("$.starMap.starNotification._actions[?(@.name=='confirm')]");
 			} else if (current == COLONIZATION) {
-				blueClient.submit("$.inspector.colonization._actions[?(@.name=='colonize')]");
+				blueClient.submit("$.inspector.colonization._actions[?(@.name=='cancel')]");
 				assertThat(blueClient).is2xxSuccessful().isNotNewTurn().is(mainPageState("ColonizationState"));
 
-				blueClient.submit("$.inspector.colonization._actions[?(@.name=='cancel')]");
+				blueClient.submit("$.inspector.colonization._actions[?(@.name=='colonize')]");
 			}
 
 			assertThat(blueClient).is2xxSuccessful();

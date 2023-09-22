@@ -92,6 +92,7 @@ class MainPageController {
 
 		SystemId selectedStarId;
 		FleetId fleetId;
+		Optional<List<String>> colonizableSystemId = Optional.empty();
 		Optional<List<String>> notificationSystemId = Optional.empty();
 	}
 
@@ -103,14 +104,16 @@ class MainPageController {
 
 		context.getPlayerGame().colonizeSystem(fleet.getId());
 
-		return ResponseEntity.status(HttpStatus.SEE_OTHER).header(HttpHeaders.LOCATION,
-				context.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page")
-						.with(body.notificationSystemId.orElseGet(() -> emptyList()).stream()
-								.map(nsId -> new ActionField("notificationSystemId", nsId)))
-						.with(context.getGameView().getColonizableSystemIds().stream()
-								.filter(cdId -> !fleet.getOrbiting().get().equals(cdId))
-								.map(csId -> new ActionField("colonizableSystemId", csId.getValue())))
-						.toGetUri())
+		return ResponseEntity.status(HttpStatus.SEE_OTHER)
+				.header(HttpHeaders.LOCATION,
+						context.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page")
+								.with(body.colonizableSystemId.orElseGet(() -> emptyList()).stream()
+										.map(csId -> new ActionField("colonizableSystemId", csId)))
+								.with(body.notificationSystemId.orElseGet(() -> emptyList()).stream()
+										.map(nsId -> new ActionField("notificationSystemId", nsId)))
+								.with(body.notificationSystemId.isEmpty() && body.colonizableSystemId.isEmpty(),
+										"newTurn", () -> Boolean.TRUE)
+								.toGetUri())
 				.build();
 	}
 
