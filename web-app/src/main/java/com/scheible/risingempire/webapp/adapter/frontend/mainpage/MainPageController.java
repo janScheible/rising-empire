@@ -93,7 +93,6 @@ class MainPageController {
 		SystemId selectedStarId;
 		FleetId fleetId;
 		Optional<List<String>> colonizableSystemId = Optional.empty();
-		Optional<List<String>> notificationSystemId = Optional.empty();
 	}
 
 	@PostMapping(path = "/main-page/inspector/colonizations", consumes = APPLICATION_JSON_VALUE)
@@ -104,17 +103,42 @@ class MainPageController {
 
 		context.getPlayerGame().colonizeSystem(fleet.getId());
 
-		return ResponseEntity.status(HttpStatus.SEE_OTHER)
-				.header(HttpHeaders.LOCATION,
-						context.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page")
-								.with(body.colonizableSystemId.orElseGet(() -> emptyList()).stream()
-										.map(csId -> new ActionField("colonizableSystemId", csId)))
-								.with(body.notificationSystemId.orElseGet(() -> emptyList()).stream()
-										.map(nsId -> new ActionField("notificationSystemId", nsId)))
-								.with(body.notificationSystemId.isEmpty() && body.colonizableSystemId.isEmpty(),
-										"newTurn", () -> Boolean.TRUE)
-								.toGetUri())
-				.build();
+		return ResponseEntity.status(HttpStatus.SEE_OTHER).header(HttpHeaders.LOCATION, context
+				.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page")
+				.with(body.colonizableSystemId.orElseGet(() -> emptyList()).stream()
+						.map(csId -> new ActionField("colonizableSystemId", csId)))
+				.with(context.getGameView().getAnnexableSystemIds().stream()
+						.map(asId -> new ActionField("annexableSystemId", asId.getValue())))
+				.with(context.getGameView().getSystemNotifications().stream()
+						.map(nsId -> new ActionField("notificationSystemId", nsId.getSystemId().getValue())))
+				.with(body.colonizableSystemId.isEmpty() && context.getGameView().getAnnexableSystemIds().isEmpty()
+						&& context.getGameView().getSystemNotifications().isEmpty(), "newTurn", () -> Boolean.TRUE)
+				.toGetUri()).build();
+	}
+
+	static class AnnexSystemBodyDto {
+
+		SystemId selectedStarId;
+		FleetId fleetId;
+		Optional<List<String>> annexableSystemId = Optional.empty();
+	}
+
+	@PostMapping(path = "/main-page/inspector/annexations", consumes = APPLICATION_JSON_VALUE)
+	ResponseEntity<Void> annexSystem(@ModelAttribute final FrontendContext context,
+			@RequestBody final AnnexSystemBodyDto body) {
+		final FleetView fleet = context.getGameView().getFleet(body.fleetId);
+
+		context.getPlayerGame().annexSystem(fleet.getId());
+
+		return ResponseEntity.status(HttpStatus.SEE_OTHER).header(HttpHeaders.LOCATION, context
+				.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page")
+				.with(body.annexableSystemId.orElseGet(() -> emptyList()).stream()
+						.map(asId -> new ActionField("annexableSystemId", asId)))
+				.with(context.getGameView().getSystemNotifications().stream()
+						.map(nsId -> new ActionField("notificationSystemId", nsId.getSystemId().getValue())))
+				.with(body.annexableSystemId.isEmpty() && context.getGameView().getSystemNotifications().isEmpty(),
+						"newTurn", () -> Boolean.TRUE)
+				.toGetUri()).build();
 	}
 
 	@PostMapping(path = "/main-page/inspector/deployments", consumes = APPLICATION_JSON_VALUE)
@@ -192,6 +216,7 @@ class MainPageController {
 			@RequestParam(name = "spaceCombatSystemId") final Optional<List<String>> spaceCombatSystemIds,
 			@RequestParam(name = "exploredSystemId") final Optional<List<String>> exploredSystemIds,
 			@RequestParam(name = "colonizableSystemId") final Optional<List<String>> colonizableSystemIds,
+			@RequestParam(name = "annexableSystemId") final Optional<List<String>> annexableSystemIds,
 			@RequestParam(name = "notificationSystemId") final Optional<List<String>> notificationSystemIds,
 			@RequestParam final Optional<Integer> turnFinishedRound, @RequestParam final Optional<Boolean> newTurn,
 			@RequestParam final Map<String, String> shipTypeIdsAndCounts,
@@ -205,7 +230,8 @@ class MainPageController {
 		game.unregisterAi(context.getPlayer());
 
 		final MainPageState state = MainPageState.fromParameters(selectedStarId, selectedFleetId, shipTypeIdsAndCounts,
-				spaceCombatSystemIds, exploredSystemIds, colonizableSystemIds, notificationSystemIds, lockedCategory,
+				spaceCombatSystemIds, exploredSystemIds, colonizableSystemIds, annexableSystemIds,
+				notificationSystemIds, lockedCategory,
 				turnFinishedRound.map(tfr -> tfr == context.getGameView().getRound()), newTurn.orElse(Boolean.FALSE),
 				(fleetId, parameters) -> toShipTypesAndCounts(context.getGameView().getFleet(fleetId).getShips(),
 						parameters),
@@ -233,14 +259,7 @@ class MainPageController {
 			return ResponseEntity.status(HttpStatus.SEE_OTHER)
 					.header(HttpHeaders.LOCATION,
 							context.withSelectedStar(context.getSelectedStarId().orElseThrow().getValue())
-									.toAction(HttpMethod.GET, "select-tech-page")
-									.with(exploredSystemIds.orElseGet(() -> emptyList()).stream()
-											.map(esId -> new ActionField("exploredSystemId", esId)))
-									.with(colonizableSystemIds.orElseGet(() -> emptyList()).stream()
-											.map(csId -> new ActionField("colonizableSystemId", csId)))
-									.with(notificationSystemIds.orElseGet(() -> emptyList()).stream()
-											.map(nsId -> new ActionField("notificationSystemId", nsId)))
-									.toGetUri())
+									.toAction(HttpMethod.GET, "select-tech-page").toGetUri())
 					.build();
 		}
 
@@ -252,7 +271,7 @@ class MainPageController {
 	}
 
 	private static Stream<ActionField> getSteps(final GameView gameView) {
-		final Set<ActionField> fields = Stream.concat(Stream.concat(Stream.concat(//
+		final Set<ActionField> fields = Stream.concat(Stream.concat(Stream.concat(Stream.concat(//
 				gameView.getSpaceCombats().stream()
 						.map(scv -> new ActionField("spaceCombatSystemId",
 								scv.getSystemId().getValue() + "@" + scv.getOrder())),
@@ -262,6 +281,9 @@ class MainPageController {
 
 				gameView.getColonizableSystemIds().stream()
 						.map(csId -> new ActionField("colonizableSystemId", csId.getValue()))),
+
+				gameView.getAnnexableSystemIds().stream()
+						.map(asId -> new ActionField("annexableSystemId", asId.getValue()))),
 
 				gameView.getSystemNotifications().stream().map(SystemNotificationView::getSystemId)
 						.map(nsId -> new ActionField("notificationSystemId", nsId.getValue())))

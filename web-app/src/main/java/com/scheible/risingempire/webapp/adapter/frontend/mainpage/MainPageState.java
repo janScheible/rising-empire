@@ -1,7 +1,5 @@
 package com.scheible.risingempire.webapp.adapter.frontend.mainpage;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
@@ -26,45 +24,6 @@ abstract class MainPageState {
 
 	static class InitState extends MainPageState {
 
-	}
-
-	private abstract static class OneByOneSystemsState<T> extends MainPageState {
-
-		private final SystemId selectedSystemId;
-		private final SystemId actualSelectedSystemId;
-		protected final List<T> systemIds;
-
-		private OneByOneSystemsState(final SystemId selectedSystemId, final List<T> systemIds,
-				final Function<T, SystemId> systemIdExtractor) {
-			this.actualSelectedSystemId = selectedSystemId;
-			this.selectedSystemId = systemIdExtractor.apply(systemIds.get(0));
-			this.systemIds = systemIds.size() == 1 ? emptyList()
-					: unmodifiableList(systemIds.subList(1, systemIds.size()));
-		}
-
-		@Override
-		Optional<SystemId> getSelectedSystemId() {
-			return Optional.of(selectedSystemId);
-		}
-
-		SystemId getActualSelectedSystemId() {
-			return actualSelectedSystemId;
-		}
-
-		@Override
-		boolean isMiniMap() {
-			return true;
-		}
-
-		@Override
-		boolean isSystemSelectable(final SystemId systemId) {
-			return false;
-		}
-
-		@Override
-		boolean isFleetSelectable(final FleetId fleetId) {
-			return false;
-		}
 	}
 
 	static class SpaceCombatSystemState extends OneByOneSystemsState<Entry<SystemId, Integer>> {
@@ -114,6 +73,20 @@ abstract class MainPageState {
 		}
 
 		boolean hasRemainingColonizableSystems() {
+			return !systemIds.isEmpty();
+		}
+	}
+
+	static class AnnexationState extends OneByOneSystemsState<SystemId> {
+		private AnnexationState(final SystemId selectedSystemId, final List<SystemId> annexableSystemIds) {
+			super(selectedSystemId, annexableSystemIds, Function.identity());
+		}
+
+		List<SystemId> getRemainingAnnexableSystemIds() {
+			return systemIds;
+		}
+
+		boolean hasRemainingAnnexableSystemIds() {
 			return !systemIds.isEmpty();
 		}
 	}
@@ -346,12 +319,14 @@ abstract class MainPageState {
 		}
 	}
 
+	@SuppressWarnings("checkstyle:CyclomaticComplexity")
 	static MainPageState fromParameters(final Optional<String> rawSelectedStarId,
 			final Optional<String> rawSelectedFleetId, final Map<String, String> rawShipTypeIdsAndCounts,
 			final Optional<List<String>> rawSpaceCombatSystemIds, final Optional<List<String>> rawExploredSystemIds,
-			final Optional<List<String>> rawColonizableSystemIds, final Optional<List<String>> rawNotificationSystemIds,
-			final Optional<String> lockedCategory, final Optional<Boolean> finishedTurnInCurrentRound,
-			final boolean newTurn, final ShipProvider shipProvider, final OrbitingSystemProvider orbitingSystemProvider,
+			final Optional<List<String>> rawColonizableSystemIds, final Optional<List<String>> rawAnnexableSystemIds,
+			final Optional<List<String>> rawNotificationSystemIds, final Optional<String> lockedCategory,
+			final Optional<Boolean> finishedTurnInCurrentRound, final boolean newTurn, final ShipProvider shipProvider,
+			final OrbitingSystemProvider orbitingSystemProvider,
 			final DeployableFleetProvider deployableFleetProvider) {
 		final SystemId selectedSystemId = rawSelectedStarId.map(id -> new SystemId(id)).orElse(null);
 		final FleetId selectedFleetId = rawSelectedFleetId.map(id -> new FleetId(id)).orElse(null);
@@ -371,6 +346,10 @@ abstract class MainPageState {
 			final List<SystemId> colonizableSystemIds = rawColonizableSystemIds
 					.map(ids -> ids.stream().map(id -> new SystemId(id))).get().collect(Collectors.toList());
 			return new ColonizationState(selectedSystemId, colonizableSystemIds);
+		} else if (rawAnnexableSystemIds.isPresent()) {
+			final List<SystemId> annexableSystemIds = rawAnnexableSystemIds
+					.map(ids -> ids.stream().map(id -> new SystemId(id))).get().collect(Collectors.toList());
+			return new AnnexationState(selectedSystemId, annexableSystemIds);
 		} else if (rawNotificationSystemIds.isPresent()) {
 			final List<SystemId> notificationSystemIds = rawNotificationSystemIds
 					.map(ids -> ids.stream().map(id -> new SystemId(id))).get().collect(Collectors.toList());
@@ -438,6 +417,10 @@ abstract class MainPageState {
 		return this instanceof ColonizationState;
 	}
 
+	boolean isAnnexationState() {
+		return this instanceof AnnexationState;
+	}
+
 	boolean isNotificationState() {
 		return this instanceof NotificationState;
 	}
@@ -448,6 +431,10 @@ abstract class MainPageState {
 
 	ColonizationState asColonizationState() {
 		return (ColonizationState) this;
+	}
+
+	AnnexationState asAnnexationState() {
+		return (AnnexationState) this;
 	}
 
 	NotificationState asNotificationState() {

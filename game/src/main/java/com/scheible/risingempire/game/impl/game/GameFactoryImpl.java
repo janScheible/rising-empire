@@ -63,7 +63,6 @@ public class GameFactoryImpl implements GameFactory {
 	@SuppressFBWarnings(value = "PREDICTABLE_RANDOM", justification = "Unique enough for a generated universe.")
 	@Override
 	public Game create(final GameOptions gameOptions) {
-
 		final Supplier<ShipDesign> scoutDesginFactory = () -> ShipDesign.builder().name("Scout").size(SMALL).look(0)
 				.computer(0).shield(0).ecm(0).armor("Titanium", 1.0).engine("Nuclear", 2).maneuver(1).weapons()
 				.specials(new ReserveTanks());
@@ -108,7 +107,7 @@ public class GameFactoryImpl implements GameFactory {
 			return usedSlots.get(0);
 		};
 
-		System solSystem = null, fierasSystem = null, centauriSystem = null, rigelSystem = null;
+		System solSystem = null, fierasSystem = null, centauriSystem = null, rigelSystem = null, spicaSystem = null;
 		final Set<System> systems;
 		if (gameOptions.isTestGameScenario()) {
 			systems = Arrays2.asSet(//
@@ -122,8 +121,10 @@ public class GameFactoryImpl implements GameFactory {
 					centauriSystem = System.createHomeSystem("Centauri", new Location(140, 340), PURPLE, OCEAN,
 							PlanetSpecial.NONE, 110, Player.YELLOW, firstUsedSlot.apply(psilonDesigns)),
 					new System("Spica", new Location(984, 728), GREEN, TUNDRA, PlanetSpecial.NONE, 50),
-					rigelSystem = new System("Rigel", new Location(240, 440), GREEN, TUNDRA, PlanetSpecial.NONE, 50));
+					rigelSystem = new System("Rigel", new Location(240, 440), GREEN, TUNDRA, PlanetSpecial.NONE, 50),
+					spicaSystem = new System("Spicia", new Location(300, 140), BLUE, ARID, PlanetSpecial.NONE, 50));
 			rigelSystem.colonize(Player.YELLOW, DesignSlot.FIRST);
+			spicaSystem.colonize(Player.WHITE, DesignSlot.FIRST);
 		} else {
 			systems = new HashSet<>();
 
@@ -178,10 +179,8 @@ public class GameFactoryImpl implements GameFactory {
 				Map.of(DesignSlot.FIRST, 2, DesignSlot.SECOND, getColonyShipCount(gameOptions.isTestGameScenario()),
 						DesignSlot.THIRD, 30, DesignSlot.FOURTH, 10, DesignSlot.FIFTH, 4));
 
-		final Set<Fraction> fractions = Arrays2.asSet(humanFraction, mrrshanFraction, psilonFraction);
-
-		return new GameImpl(systems, fractions, Arrays2.asSet(humanHomeFleet, mrrshanHomeFleet, psilonHomeFleet),
-				gameOptions);
+		return new GameImpl(systems, Arrays2.asSet(humanFraction, mrrshanFraction, psilonFraction),
+				Arrays2.asSet(humanHomeFleet, mrrshanHomeFleet, psilonHomeFleet), gameOptions);
 	}
 
 	private int getColonyShipCount(final boolean testGameScenario) {

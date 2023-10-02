@@ -38,6 +38,7 @@ import ThemeStories from '~/storybook/stories/theme-stories';
 import GameLauncherStories from '~/storybook/stories/game-launcher-stories';
 import RunningGameStories from '~/storybook/stories/running-game-stories';
 import RisingEmpireLogoStories from '~/storybook/stories/rising-empire-logo-stories';
+import AnnexationStories from '~/storybook/stories/annexation-stories';
 
 class Storybook extends HTMLElement {
 	static NAME = 're-storybook';
@@ -64,6 +65,7 @@ class Storybook extends HTMLElement {
 		habitability: (story) => HabitabilityStories.showHabitability(story),
 		'system-name': (story) => SystemNameStories.showSystemName(story),
 		colonization: (story) => ColonizationStories.showColonization(story),
+		annexation: (story) => AnnexationStories.showAnnexation(story),
 		exploration: (story) => ExplorationStories.showExploration(story),
 		'fleet-deployment-deployable-fleet': (story) =>
 			FleetDeploymentStories.showFleetDeploymentDeployableFleet(story),
@@ -183,6 +185,7 @@ class Storybook extends HTMLElement {
 									<option value="habitability" class="lv-3">habitability</option>
 									<option value="system-name" class="lv-3">system-name</option>
 									<option value="colonization" class="lv-3">colonization</option>
+									<option value="annexation" class="lv-3">annexation</option>
 									<option value="exploration" class="lv-3">exploration</option>
 									<option value="fleet-deployment-deployable-fleet" class="lv-3">fleet-deployment for deployable fleet</option>
 									<option value="fleet-view" class="lv-3">fleet-view</option>

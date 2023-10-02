@@ -20,6 +20,8 @@ public interface FleetManager {
 
 	void annexSystem(Player player, FleetId fleetId);
 
+	boolean canAnnex(FleetId fleetId);
+
 	Optional<Integer> calcEta(Player player, FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships);
 
 	SystemId getClosest(FleetId fleetId);

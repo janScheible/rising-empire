@@ -1,5 +1,6 @@
 import ModalDialog from '~/component/modal-dialog';
 import Colonization from '~/page/main-page/component/inspector/component/colonization';
+import Annexation from '~/page/main-page/component/inspector/component/annexation';
 import Exploration from '~/page/main-page/component/inspector/component/exploration';
 import FleetDeployment from '~/page/main-page/component/inspector/component/fleet-deployment';
 import SystemDetails from '~/page/main-page/component/inspector/component/system-details/system-details';
@@ -17,6 +18,7 @@ export default class Inspector extends HTMLElement {
 	#fleetViewEl: FleetView;
 	#explorationEl: Exploration;
 	#colonizationEl: Colonization;
+	#annexationEl: Annexation;
 	#spaceCombatEl: SpaceCombat;
 	#unexploredEl: Unexplored;
 	#blockerEl: ModalDialog;
@@ -42,6 +44,7 @@ export default class Inspector extends HTMLElement {
 			<${FleetView.NAME} hidden></${FleetView.NAME}>
 			<${Exploration.NAME} hidden></${Exploration.NAME}>
 			<${Colonization.NAME} hidden></${Colonization.NAME}>
+			<${Annexation.NAME} hidden></${Annexation.NAME}>
 			<${SpaceCombat.NAME} hidden></${SpaceCombat.NAME}>
 			<${Unexplored.NAME} hidden></${Unexplored.NAME}>
 			<${ModalDialog.NAME} hidden></${ModalDialog.NAME}>`;
@@ -51,6 +54,7 @@ export default class Inspector extends HTMLElement {
 		this.#fleetViewEl = this.shadowRoot.querySelector(FleetView.NAME);
 		this.#explorationEl = this.shadowRoot.querySelector(Exploration.NAME);
 		this.#colonizationEl = this.shadowRoot.querySelector(Colonization.NAME);
+		this.#annexationEl = this.shadowRoot.querySelector(Annexation.NAME);
 		this.#spaceCombatEl = this.shadowRoot.querySelector(SpaceCombat.NAME);
 		this.#unexploredEl = this.shadowRoot.querySelector(Unexplored.NAME);
 		this.#blockerEl = this.shadowRoot.querySelector(ModalDialog.NAME);
@@ -64,6 +68,7 @@ export default class Inspector extends HTMLElement {
 		this.#fleetViewEl.render(data.fleetView);
 		this.#explorationEl.render(data.exploration);
 		this.#colonizationEl.render(data.colonization);
+		this.#annexationEl.render(data.annexation);
 		this.#spaceCombatEl.render(data.spaceCombat);
 		this.#unexploredEl.render(data.unexplored);
 	}

@@ -41,6 +41,7 @@ public class GameView {
 	private final Map<FleetId, FleetView> fleets;
 	private final Set<FleetView> fleetsSet;
 	private final Set<SystemId> colonizableSystemIds;
+	private final Set<SystemId> annexableSystemIds;
 	private final Set<SpaceCombatView> spaceCombats;
 	private final Set<SystemId> justExploredSystem;
 	private final Set<TechGroupView> selectTechGroups;
@@ -49,8 +50,9 @@ public class GameView {
 	public GameView(final int galaxyWidth, final int galaxyHeight, final Player player, final Race race,
 			final Set<Player> players, final int round, final Map<Player, Boolean> turnFinishedStatus,
 			final Set<SystemView> systems, final Set<FleetView> fleets, final Set<SystemId> colonizableSystemIds,
-			final Set<SpaceCombatView> spaceCombats, final Set<SystemId> justExploredSystem,
-			final Set<TechGroupView> selectTechGroups, final Set<SystemNotificationView> systemNotifications) {
+			final Set<SystemId> annexableSystemIds, final Set<SpaceCombatView> spaceCombats,
+			final Set<SystemId> justExploredSystem, final Set<TechGroupView> selectTechGroups,
+			final Set<SystemNotificationView> systemNotifications) {
 		this.galaxyWidth = galaxyWidth;
 		this.galaxyHeight = galaxyHeight;
 		this.player = player;
@@ -64,6 +66,7 @@ public class GameView {
 		this.fleets = unmodifiableMap(fleets.stream().collect(Collectors.toMap(FleetView::getId, Function.identity())));
 		this.fleetsSet = unmodifiableSet(fleets);
 		this.colonizableSystemIds = unmodifiableSet(colonizableSystemIds);
+		this.annexableSystemIds = unmodifiableSet(annexableSystemIds);
 		this.spaceCombats = unmodifiableSet(spaceCombats);
 		this.justExploredSystem = unmodifiableSet(justExploredSystem);
 		this.selectTechGroups = unmodifiableSet(selectTechGroups);
@@ -120,6 +123,10 @@ public class GameView {
 
 	public Set<SystemId> getColonizableSystemIds() {
 		return colonizableSystemIds;
+	}
+
+	public Set<SystemId> getAnnexableSystemIds() {
+		return annexableSystemIds;
 	}
 
 	/**

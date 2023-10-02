@@ -24,9 +24,9 @@ public class SeleniumHelper {
 
 	public static RemoteWebDriver createFirefoxDriver(final int windowWidth, final int windowHeight) {
 		try {
-			final String suffix = System.getProperty("os.name").toLowerCase().contains("windows") ? "-win32.exe"
+			final String suffix = System.getProperty("os.name").toLowerCase().contains("windows") ? "-win64.exe"
 					: "-linux64";
-			final File geckodriverFile = new ClassPathResource("geckodriver-v0.32.0" + suffix, SeleniumHelper.class)
+			final File geckodriverFile = new ClassPathResource("geckodriver-v0.33.0" + suffix, SeleniumHelper.class)
 					.getFile();
 			System.setProperty("webdriver.gecko.driver", geckodriverFile.getCanonicalPath());
 		} catch (final IOException ex) {

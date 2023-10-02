@@ -69,6 +69,7 @@ public class GameViewBuilder {
 		final Set<FleetView> fleetViews = new HashSet<>(30);
 
 		final Set<SystemOrb> uncolonized = new HashSet<>(30);
+
 		for (final System system : systems) {
 			systemViews.add(system.getColony(player).map(c -> SystemSnapshot.forKnown(round, system))
 					.or(() -> snapshotProvider.apply(player, system.getId()))
@@ -106,11 +107,17 @@ public class GameViewBuilder {
 			}
 		}
 
+		final Set<SystemId> annexableSystemIds = new HashSet<>(30);
+
 		for (final Fleet fleet : fleets) {
 			if (fleet.getPlayer() == player) {
 				fleetViews.add(toOwnFleetView(fleet, orbitingArrivingMapping.get(fleet.getId()),
 						playerRaceMapping.get(fleet.getPlayer()), designs.get(player), player, uncolonized,
 						fleetManager.getClosest(fleet.getId()), technology.getFleetScannerRange()));
+
+				if (fleetManager.canAnnex(fleet.getId())) {
+					annexableSystemIds.add(fleet.asOrbiting().getSystem().getId());
+				}
 			} else if (isForeigenFleetVisible(systems, player, fleet, technology, fleets)) {
 				fleetViews.add(toForeignFleetView(fleet, orbitingArrivingMapping.get(fleet.getId()),
 						playerRaceMapping.get(fleet.getPlayer()), fleetManager.getClosest(fleet.getId())));
@@ -141,7 +148,7 @@ public class GameViewBuilder {
 
 		return new GameView(galaxySize.getWidth(), galaxySize.getHeight(), player, playerRaceMapping.get(player),
 				playerRaceMapping.keySet(), round, turnFinishedStatus, systemViews, fleetViews, colonizableSystemIds,
-				spaceCombatViews, justExploredSystem, technologies, systemNotifications);
+				annexableSystemIds, spaceCombatViews, justExploredSystem, technologies, systemNotifications);
 	}
 
 	private static List<CombatantShipSpecsView> toCombatantShipSpecs(final Map<DesignSlot, Integer> shipCounts,

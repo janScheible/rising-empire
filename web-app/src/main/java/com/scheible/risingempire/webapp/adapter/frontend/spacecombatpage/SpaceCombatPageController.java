@@ -38,6 +38,7 @@ class SpaceCombatPageController {
 			@RequestParam(name = "spaceCombatSystemId") final Optional<List<String>> spaceCombatSystemIds,
 			@RequestParam(name = "exploredSystemId") final Optional<List<String>> exploredSystemIds,
 			@RequestParam(name = "colonizableSystemId") final Optional<List<String>> colonizableSystemIds,
+			@RequestParam(name = "annexableSystemId") final Optional<List<String>> annexableSystemIds,
 			@RequestParam(name = "notificationSystemId") final Optional<List<String>> notificationSystemIds) {
 		final SpaceCombatView spaceCombatView = context.getGameView().getSpaceCombats().stream()
 				.filter(sc -> sc.getSystemId().getValue().equals(currentSpaceCombatSystemId)).findAny().orElseThrow();
@@ -50,11 +51,13 @@ class SpaceCombatPageController {
 				toCombatantShipSpecsDtos(spaceCombatView.getDefenderPlayer(), spaceCombatView.getDefenderShipSpecs()),
 				spaceCombatView.getFireExchangeCount(),
 				new CombatOutcomeDto(OutcomeDto.toOutcomeDto(context.getPlayer(), spaceCombatView.getAttackerPlayer(),
-						spaceCombatView.getDefenderPlayer(), spaceCombatView.getOutcome())))).with(TurnSteps
-								.getMainPageAction(context, "continue", context.getSelectedStarId().get(),
-										spaceCombatSystemIds, exploredSystemIds, colonizableSystemIds,
-										notificationSystemIds, !context.getGameView().getSelectTechs().isEmpty())
-								.with(new ActionField("currentSpaceCombatSystemId", currentSpaceCombatSystemId)));
+						spaceCombatView.getDefenderPlayer(), spaceCombatView.getOutcome()))))
+								.with(TurnSteps.getMainPageAction(context, "continue",
+										context.getSelectedStarId().get(), spaceCombatSystemIds, exploredSystemIds,
+										colonizableSystemIds, annexableSystemIds, notificationSystemIds,
+										!context.getGameView().getSelectTechs().isEmpty())
+										.with(new ActionField("currentSpaceCombatSystemId",
+												currentSpaceCombatSystemId)));
 	}
 
 	List<CombatantShipSpecsDto> toCombatantShipSpecsDtos(final Player player,

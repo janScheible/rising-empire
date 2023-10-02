@@ -2,9 +2,9 @@ package com.scheible.risingempire.webapp.adapter.frontend._scenario;
 
 import static java.util.Collections.emptySet;
 
-import static com.scheible.risingempire.util.jdk.Collections2.replaceAll;
 import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.JsonAssertCondition.mainPageState;
 import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.MainPageAssert.assertThat;
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.ANNEXATION;
 import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.COLONIZATION;
 import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.EXPLORATION;
 import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.NEW_TURN;
@@ -19,10 +19,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -47,6 +47,7 @@ import com.scheible.risingempire.game.api.view.system.SystemView;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
 import com.scheible.risingempire.game.api.view.tech.TechId;
 import com.scheible.risingempire.game.api.view.tech.TechView;
+import com.scheible.risingempire.game.api.view.universe.Location;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.util.jdk.Arrays2;
 import com.scheible.risingempire.webapp._hypermedia.HypermediaClient;
@@ -61,8 +62,8 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 	private static final Logger logger = LoggerFactory.getLogger(NewTurnStepsIT.class);
 
 	enum Step {
-		SPACE_COMBAT(0b10000), SPACE_COMBAT_PAGE(0b10000), SELECT_TECH_PAGE(0b01000), EXPLORATION(0b00100),
-		COLONIZATION(0b00010), NOTIFICATION(0b00001), NEW_TURN(0);
+		SPACE_COMBAT(0b100000), SPACE_COMBAT_PAGE(0b100000), SELECT_TECH_PAGE(0b010000), EXPLORATION(0b001000),
+		COLONIZATION(0b000100), ANNEXATION(0b000010), NOTIFICATION(0b000001), NEW_TURN(0);
 
 		final int bitMask;
 
@@ -90,10 +91,30 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 		}
 	}
 
+	private interface TestPlayerGame {
+
+		void deployHomeFleet(String shipType, int count, String destinationSystemId);
+
+		void deployHomeFleet(String shipType, int count, SystemId destinationId);
+
+		Location getHomeSystemLocation();
+
+		int getRound();
+
+		void finishTurn();
+	}
+
+	@FunctionalInterface
+	private interface TurnActions {
+
+		void turn(TestPlayerGame bluePlayerGame, TestPlayerGame yellowPlayerGame, TestPlayerGame whitePlayerGame);
+	}
+
 	private static final Map<String, Step> MAIN_PAGE_STATE_STEP_MAPPING = Map.of(//
 			"SpaceCombatSystemState", SPACE_COMBAT, //
 			"ExplorationState", EXPLORATION, //
 			"ColonizationState", COLONIZATION, //
+			"AnnexationState", ANNEXATION, //
 			"NotificationState", NOTIFICATION, //
 			"NewTurnState", NEW_TURN);
 
@@ -125,56 +146,54 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 		// given
 		//
 
-		final Set<SystemNotificationView> systemNotifications = new HashSet<>();
-
 		startGameForBlue(GameFactory.get().create(GameOptions.forTestGameScenario()
 				// make the whole map reachable in a single turn for a simpler test setup
 				.fleetRangeFactor(2000.0).fleetSpeedFactor(2000.0)
-				// make a technology selectable in round 2 (but only if select tech step is included)
-				.fakeTechProvider((player, round) -> (steps.contains(SELECT_TECH_PAGE) && round == 2)
+				// decrease the number of turns of siege required to annex a system to 1
+				.annexationSiegeTurns(1)
+				// make a technology selectable in round 4 (but only if select tech step is included)
+				.fakeTechProvider((player, round) -> (steps.contains(SELECT_TECH_PAGE) && round == 4)
 						? Collections.singleton(new TechGroupView(Arrays2.asSet( //
 								new TechView(new TechId("hl"), "Hand Lasers", "Bla..."),
 								new TechView(new TechId("gl"), "Gatling Laser", "Bla..."),
 								new TechView(new TechId("hvr"), "Hyper-V Rockets", "Bla..."))))
 						: emptySet())
 				// make the notifications controllable by the test
-				.fakeSystemNotificationProvider((player, round) -> systemNotifications)));
+				.fakeSystemNotificationProvider((player, round) -> steps.contains(NOTIFICATION) && round == 4 ? Set.of(
+						new SystemNotificationView(WHITE_HOME_SYSTEM_ID, Set.of("Home system notification...")),
+						new SystemNotificationView(YELLOW_HOME_SYSTEM_ID, Set.of("Other system notification...")))
+						: Set.of())));
 
 		final Game game = getGame();
 
 		game.registerAi(Player.WHITE);
 		game.registerAi(Player.YELLOW);
 
-		final PlayerGame blueGame = game.forPlayer(Player.BLUE);
-		final GameView blueGameView = blueGame.getView();
-		final SystemView blueHomeSystem = blueGameView.getHomeSystem();
-		final FleetView blueHomeFleet = blueGameView.getFleets().stream()
-				.filter(f -> blueHomeSystem.getId().equals(f.getOrbiting().orElse(null))).findFirst().orElseThrow();
+		doBlueTurn(game, bluePlayerGame -> {
+			if (steps.contains(ANNEXATION)) {
+				bluePlayerGame.deployHomeFleet("Cruiser", 1, "s240x440");
+				bluePlayerGame.deployHomeFleet("Cruiser", 1, "s300x140");
+			}
+		});
+
+		doBlueTurn(game, bluePlayerGame -> {
+		});
+
+		final TestPlayerGame bluePlayerGame = createBluePlayerGame(game);
 
 		if (steps.contains(SPACE_COMBAT) && steps.contains(SPACE_COMBAT_PAGE)) {
-			blueGame.deployFleet(blueHomeFleet.getId(), WHITE_HOME_SYSTEM_ID,
-					Map.of(blueHomeFleet.getShipType("Colony Ship").getId(), 1));
-			blueGame.deployFleet(blueHomeFleet.getId(), YELLOW_HOME_SYSTEM_ID,
-					Map.of(blueHomeFleet.getShipType("Colony Ship").getId(), 1));
+			bluePlayerGame.deployHomeFleet("Colony Ship", 1, WHITE_HOME_SYSTEM_ID);
+			bluePlayerGame.deployHomeFleet("Colony Ship", 1, YELLOW_HOME_SYSTEM_ID);
 		} else if (!(!steps.contains(SPACE_COMBAT) && !steps.contains(SPACE_COMBAT_PAGE))) {
 			throw new IllegalArgumentException("Either both SPACE_COMBAT and SPACE_COMBAT_COMMAND or none at all!");
 		}
 		if (steps.contains(EXPLORATION)) {
-			blueGame.deployFleet(blueHomeFleet.getId(), new SystemId("s340x140"),
-					Map.of(blueHomeFleet.getShipType("Scout").getId(), 1));
-			blueGame.deployFleet(blueHomeFleet.getId(), new SystemId("s984x728"),
-					Map.of(blueHomeFleet.getShipType("Scout").getId(), 1));
+			bluePlayerGame.deployHomeFleet("Scout", 1, "s340x140");
+			bluePlayerGame.deployHomeFleet("Scout", 1, "s984x728");
 		}
 		if (steps.contains(COLONIZATION)) {
-			blueGame.deployFleet(blueHomeFleet.getId(), new SystemId("s80x260"),
-					Map.of(blueHomeFleet.getShipType("Colony Ship").getId(), 1));
-			blueGame.deployFleet(blueHomeFleet.getId(), new SystemId("s180x220"),
-					Map.of(blueHomeFleet.getShipType("Colony Ship").getId(), 1));
-		}
-		if (steps.contains(NOTIFICATION)) {
-			replaceAll(systemNotifications,
-					new SystemNotificationView(WHITE_HOME_SYSTEM_ID, Arrays2.asSet("Home system notification...")),
-					new SystemNotificationView(YELLOW_HOME_SYSTEM_ID, Arrays2.asSet("Other system notification...")));
+			bluePlayerGame.deployHomeFleet("Colony Ship", 1, "s80x260");
+			bluePlayerGame.deployHomeFleet("Colony Ship", 1, "s180x220");
 		}
 
 		//
@@ -185,14 +204,14 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 
 		HypermediaClient startTypeSpecificBlueClient = null;
 		if (stepsParameter.startType == FINISH_TURN) {
-			startTypeSpecificBlueClient = finishTurn(BLUE_HOME_SYSTEM_ID, blueGameView.getRound());
+			startTypeSpecificBlueClient = finishTurn(BLUE_HOME_SYSTEM_ID, bluePlayerGame.getRound());
 			assertThat(startTypeSpecificBlueClient).is2xxSuccessful().isNotNewTurn()
 					.is(mainPageState("FleetMovementState"));
 
 			beginNewTurn(startTypeSpecificBlueClient);
 		} else if (stepsParameter.startType == RELOAD) {
 			// turn has to be finished manually because 'finish-turn' action is not called
-			blueGame.finishTurn();
+			bluePlayerGame.finishTurn();
 
 			startTypeSpecificBlueClient = createHypermediaClient(Player.BLUE);
 		}
@@ -222,17 +241,21 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 				assertThat(blueClient).is2xxSuccessful().isNotNewTurn().is(mainPageState("ExplorationState"));
 
 				blueClient.submit("$.inspector.exploration._actions[?(@.name=='continue')]");
-			} else if (current == NOTIFICATION) {
-				blueClient.submit("$.starMap.starNotification._actions[?(@.name=='confirm')]");
-				assertThat(blueClient).is2xxSuccessful().isNotNewTurn().is(mainPageState("NotificationState"));
-
-				replaceAll(systemNotifications);
-				blueClient.submit("$.starMap.starNotification._actions[?(@.name=='confirm')]");
 			} else if (current == COLONIZATION) {
 				blueClient.submit("$.inspector.colonization._actions[?(@.name=='cancel')]");
 				assertThat(blueClient).is2xxSuccessful().isNotNewTurn().is(mainPageState("ColonizationState"));
 
 				blueClient.submit("$.inspector.colonization._actions[?(@.name=='colonize')]");
+			} else if (current == ANNEXATION) {
+				blueClient.submit("$.inspector.annexation._actions[?(@.name=='cancel')]");
+				assertThat(blueClient).is2xxSuccessful().isNotNewTurn().is(mainPageState("AnnexationState"));
+
+				blueClient.submit("$.inspector.annexation._actions[?(@.name=='annex')]");
+			} else if (current == NOTIFICATION) {
+				blueClient.submit("$.starMap.starNotification._actions[?(@.name=='confirm')]");
+				assertThat(blueClient).is2xxSuccessful().isNotNewTurn().is(mainPageState("NotificationState"));
+
+				blueClient.submit("$.starMap.starNotification._actions[?(@.name=='confirm')]");
 			}
 
 			assertThat(blueClient).is2xxSuccessful();
@@ -251,8 +274,8 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 		// then every expected step is executed
 		//
 		assertThat(blueClient).is2xxSuccessful().isNewTurn().is(mainPageState("NewTurnState"));
-		assertThat(starSelection)
-				.isEqualTo(Map.of("x", blueHomeSystem.getLocation().getX(), "y", blueHomeSystem.getLocation().getY()));
+		assertThat(starSelection).isEqualTo(Map.of("x", bluePlayerGame.getHomeSystemLocation().getX(), "y",
+				bluePlayerGame.getHomeSystemLocation().getY()));
 		assertThat(actualSteps).isEqualTo(steps);
 	}
 
@@ -277,5 +300,47 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 		} else {
 			throw new IllegalStateException("Unknown page type '" + type + "'!");
 		}
+	}
+
+	private static void doBlueTurn(final Game game, final Consumer<TestPlayerGame> turnActions) {
+		final TestPlayerGame bluePlayerGame = createBluePlayerGame(game);
+		turnActions.accept(bluePlayerGame);
+		bluePlayerGame.finishTurn();
+	}
+
+	private static TestPlayerGame createBluePlayerGame(final Game game) {
+		final PlayerGame playerGame = game.forPlayer(Player.BLUE);
+		final GameView gameView = playerGame.getView();
+		final SystemView homeSystem = gameView.getHomeSystem();
+		final FleetView homeFleet = gameView.getFleets().stream()
+				.filter(f -> homeSystem.getId().equals(f.getOrbiting().orElse(null))).findFirst().orElseThrow();
+
+		return new TestPlayerGame() {
+			@Override
+			public void deployHomeFleet(String shipType, int count, String destinationSystemId) {
+				deployHomeFleet(shipType, count, new SystemId(destinationSystemId));
+			}
+
+			@Override
+			public void deployHomeFleet(String shipType, int count, SystemId destinationId) {
+				playerGame.deployFleet(homeFleet.getId(), destinationId,
+						Map.of(homeFleet.getShipType(shipType).getId(), count));
+			}
+
+			@Override
+			public Location getHomeSystemLocation() {
+				return gameView.getHomeSystem().getLocation();
+			}
+
+			@Override
+			public int getRound() {
+				return gameView.getRound();
+			}
+
+			@Override
+			public void finishTurn() {
+				playerGame.finishTurn();
+			}
+		};
 	}
 }

@@ -269,14 +269,41 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		final System system = systems.get(orbiting.getSystem().getId());
 
 		if (system.getColony().isEmpty()) {
-			throw new IllegalArgumentException("!!!");
+			throw new IllegalArgumentException("The fleet '" + orbiting + "' can't annex the system '" + system.getId()
+					+ "' because there is no colony!");
 		} else if (system.getColony().get().getPlayer() == player) {
-			throw new IllegalArgumentException("!!!");
-		} else if (round - orbiting.getArrivalRound() < annexationSiegeTurns) {
-			throw new IllegalArgumentException("!!!");
+			throw new IllegalArgumentException("The fleet '" + orbiting + "' can't annex the system '" + system.getId()
+					+ "' because the colony already belong to " + player + "!");
+		} else if (!isSiegeSuccessful(orbiting)) {
+			throw new IllegalArgumentException("The fleet '" + orbiting + "' can't annex the system '" + system.getId()
+					+ "' because the fleet is only there for " + (round - orbiting.getArrivalRound())
+					+ " but must be at least " + annexationSiegeTurns + "!");
 		} else {
 			system.annex(player, DesignSlot.FIRST);
 		}
+	}
+
+	private boolean isSiegeSuccessful(final OrbitingFleet orbiting) {
+		return round - orbiting.getArrivalRound() >= annexationSiegeTurns;
+	}
+
+	@Override
+	public boolean canAnnex(final FleetId fleetId) {
+		final Fleet fleet = fleets.get(fleetId);
+		if (fleet.isOrbiting()) {
+			final OrbitingFleet orbiting = fleet.asOrbiting();
+
+			final SystemId systemId = orbiting.getSystem().getId();
+			final System system = systems.get(systemId);
+
+			final Optional<Colony> colony = system.getColony();
+
+			if (colony.isPresent() && colony.get().getPlayer() != orbiting.getPlayer() && isSiegeSuccessful(orbiting)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	@Override

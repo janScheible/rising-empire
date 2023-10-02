@@ -23,20 +23,21 @@ public class TurnSteps {
 
 	public static ResponseEntity<Void> getMainPageRedirect(final FrontendContext context, final SystemId selectedStarId,
 			final Optional<List<String>> spaceCombatSystemId, final Optional<List<String>> exploredSystemId,
-			final Optional<List<String>> colonizableSystemId, final Optional<List<String>> notificationSystemId,
-			final boolean selectTech) {
-		return ResponseEntity.status(HttpStatus.SEE_OTHER)
-				.header(HttpHeaders.LOCATION,
-						getMainPageAction(context, "not-relevant-for-a-redirect", selectedStarId, spaceCombatSystemId,
-								exploredSystemId, colonizableSystemId, notificationSystemId, selectTech).toGetUri())
+			final Optional<List<String>> colonizableSystemId, final Optional<List<String>> annexableSystemId,
+			final Optional<List<String>> notificationSystemId, final boolean selectTech) {
+		return ResponseEntity.status(HttpStatus.SEE_OTHER).header(HttpHeaders.LOCATION,
+				getMainPageAction(context, "not-relevant-for-a-redirect", selectedStarId, spaceCombatSystemId,
+						exploredSystemId, colonizableSystemId, annexableSystemId, notificationSystemId, selectTech)
+								.toGetUri())
 				.build();
 	}
 
 	public static Action getMainPageAction(final FrontendContext context, final String name,
 			final SystemId selectedStarId, final Optional<List<String>> spaceCombatSystemId,
 			final Optional<List<String>> exploredSystemId, final Optional<List<String>> colonizableSystemId,
-			final Optional<List<String>> notificationSystemId, final boolean selectTech) {
-		final boolean newTurn = isNewTurn(spaceCombatSystemId, exploredSystemId, colonizableSystemId,
+			final Optional<List<String>> annexableSystemId, final Optional<List<String>> notificationSystemId,
+			final boolean selectTech) {
+		final boolean newTurn = isNewTurn(spaceCombatSystemId, exploredSystemId, colonizableSystemId, annexableSystemId,
 				notificationSystemId, selectTech);
 
 		return context.withSelectedStar(selectedStarId).toNamedAction(name, HttpMethod.GET, true, false, "main-page")
@@ -46,6 +47,8 @@ public class TurnSteps {
 						.map(esId -> new ActionField("exploredSystemId", esId)))
 				.with(colonizableSystemId.orElseGet(() -> emptyList()).stream()
 						.map(csId -> new ActionField("colonizableSystemId", csId)))
+				.with(annexableSystemId.orElseGet(() -> emptyList()).stream()
+						.map(csId -> new ActionField("annexableSystemId", csId)))
 				.with(notificationSystemId.orElseGet(() -> emptyList()).stream()
 						.map(nsId -> new ActionField("notificationSystemId", nsId)))
 				.with(newTurn, "newTurn", () -> Boolean.TRUE);
@@ -53,8 +56,9 @@ public class TurnSteps {
 
 	private static boolean isNewTurn(final Optional<List<String>> spaceCombatSystemId,
 			final Optional<List<String>> exploredSystemId, final Optional<List<String>> colonizableSystemId,
-			final Optional<List<String>> notificationSystemId, final boolean selectTech) {
+			final Optional<List<String>> annexableSystemId, final Optional<List<String>> notificationSystemId,
+			final boolean selectTech) {
 		return spaceCombatSystemId.isEmpty() && exploredSystemId.isEmpty() && colonizableSystemId.isEmpty()
-				&& notificationSystemId.isEmpty() && !selectTech;
+				&& annexableSystemId.isEmpty() && notificationSystemId.isEmpty() && !selectTech;
 	}
 }

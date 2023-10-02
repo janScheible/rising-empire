@@ -150,6 +150,17 @@ class InspectorDto {
 		}
 	}
 
+	static class AnnexationDto {
+
+		final SystemNameDto systemName;
+		final HabitabilityDto habitability;
+
+		AnnexationDto(final String systemName, final HabitabilityDto habitability) {
+			this.systemName = new SystemNameDto(systemName);
+			this.habitability = habitability;
+		}
+	}
+
 	static class SpaceCombatSystem {
 
 		final SystemNameDto systemName;
@@ -269,6 +280,7 @@ class InspectorDto {
 	SystemDetailsDto systemDetails;
 	EntityModel<ExplorationDto> exploration;
 	EntityModel<ColonizationDto> colonization;
+	EntityModel<AnnexationDto> annexation;
 	EntityModel<FleetDeploymentDto> fleetDeployment;
 	EntityModel<FleetViewDto> fleetView;
 	EntityModel<SpaceCombatDto> spaceCombat;

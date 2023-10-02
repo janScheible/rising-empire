@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
+import com.scheible.risingempire.game.api.view.GameView;
+import com.scheible.risingempire.game.api.view.notification.SystemNotificationView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
 import com.scheible.risingempire.game.api.view.tech.TechId;
@@ -37,25 +38,25 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 class SelectTechPageController {
 
 	@GetMapping(path = "/select-tech-page")
-	SelectTechPageDto selectTechPage(@ModelAttribute final FrontendContext context,
-			@RequestParam(name = "exploredSystemId") final Optional<List<String>> exploredSystemIds,
-			@RequestParam(name = "colonizableSystemId") final Optional<List<String>> colonizableSystemIds,
-			@RequestParam(name = "notificationSystemId") final Optional<List<String>> notificationSystemIds) {
+	SelectTechPageDto selectTechPage(@ModelAttribute final FrontendContext context) {
 		final Set<TechGroupView> selectTechs = context.getGameView().getSelectTechs();
+		final GameView gameView = context.getGameView();
 
 		List<EntityModel<TechDto>> selectTechsEntities = emptyList();
 		if (!selectTechs.isEmpty()) {
 			selectTechsEntities = selectTechs.iterator().next().stream()
-					.map(tech -> new EntityModel<>(new TechDto(tech.getId().getValue(), tech.getName()))
-							.with(Action.jsonPost("select", context.toFrontendUri("select-tech-page", "selects"))
-									.with("technologyId", tech.getId().getValue()) //
-									.with("selectedStarId", context.getSelectedStarId().get().getValue())
-									.with(exploredSystemIds.orElseGet(() -> emptyList()).stream()
-											.map(esId -> new ActionField("exploredSystemId", esId)))
-									.with(colonizableSystemIds.orElseGet(() -> emptyList()).stream()
-											.map(csId -> new ActionField("colonizableSystemId", csId)))
-									.with(notificationSystemIds.orElseGet(() -> emptyList()).stream()
-											.map(nsId -> new ActionField("notificationSystemId", nsId)))))
+					.map(tech -> new EntityModel<>(new TechDto(tech.getId().getValue(), tech.getName())).with(Action
+							.jsonPost("select", context.toFrontendUri("select-tech-page", "selects"))
+							.with("technologyId", tech.getId().getValue()) //
+							.with("selectedStarId", context.getSelectedStarId().get().getValue()) // CPD-OFF
+							.with(gameView.getJustExploredSystemIds().stream()
+									.map(esId -> new ActionField("exploredSystemId", esId.getValue())))
+							.with(gameView.getColonizableSystemIds().stream()
+									.map(csId -> new ActionField("colonizableSystemId", csId.getValue())))
+							.with(gameView.getAnnexableSystemIds().stream()
+									.map(asId -> new ActionField("annexableSystemId", asId.getValue())))
+							.with(gameView.getSystemNotifications().stream().map(SystemNotificationView::getSystemId)
+									.map(nsId -> new ActionField("notificationSystemId", nsId.getValue()))))) // CPD-ON
 					.collect(Collectors.toList());
 		}
 
@@ -68,6 +69,7 @@ class SelectTechPageController {
 		SystemId selectedStarId;
 		Optional<List<String>> exploredSystemId = Optional.empty();
 		Optional<List<String>> colonizableSystemId = Optional.empty();
+		Optional<List<String>> annexableSystemId = Optional.empty();
 		Optional<List<String>> notificationSystemId = Optional.empty();
 	}
 
@@ -78,7 +80,7 @@ class SelectTechPageController {
 		context.getPlayerGame().selectTech(body.technologyId);
 
 		return TurnSteps.getMainPageRedirect(context, body.selectedStarId, Optional.empty(), body.exploredSystemId,
-				body.colonizableSystemId, body.notificationSystemId,
+				body.colonizableSystemId, body.annexableSystemId, body.notificationSystemId,
 				!context.getPlayerGame().getView().getSelectTechs().isEmpty());
 	}
 }
