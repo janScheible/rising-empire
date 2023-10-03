@@ -9,6 +9,7 @@ export default class RunningGame extends HTMLElement {
 	static NAME = 're-running-game';
 
 	#gameIdEl: HTMLSpanElement;
+	#roundEl: HTMLSpanElement;
 	#playerGridEl: GridLayout;
 
 	#stopGameAction;
@@ -22,12 +23,13 @@ export default class RunningGame extends HTMLElement {
 			</style>
 
 			<${Container.NAME} border gap="L">
-				<div>Game id: <span id="game-id"></span> <button id="stop-button">Stop</button></div>
+				<div>Game id: <span id="game-id"></span>, round: <span id="round"></span> <button id="stop-button">Stop</button></div>
 				<${GridLayout.NAME} id="player-grid" cols="2">					
 				</${GridLayout.NAME}>
 			</${Container.NAME}>`;
 
 		this.#gameIdEl = this.shadowRoot.querySelector('#game-id');
+		this.#roundEl = this.shadowRoot.querySelector('#round');
 		this.#playerGridEl = this.shadowRoot.querySelector('#player-grid');
 
 		this.shadowRoot.querySelector('#stop-button').addEventListener('click', (event) => {
@@ -39,6 +41,7 @@ export default class RunningGame extends HTMLElement {
 		this.#stopGameAction = HypermediaUtil.getAction(data, 'stop');
 
 		Reconciler.reconcileProperty(this.#gameIdEl, 'innerText', data.gameId);
+		Reconciler.reconcileProperty(this.#roundEl, 'innerText', data.round);
 
 		Reconciler.reconcileChildren(
 			this.#playerGridEl,

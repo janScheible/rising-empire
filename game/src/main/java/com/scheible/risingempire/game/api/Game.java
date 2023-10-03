@@ -19,4 +19,6 @@ public interface Game {
 	boolean isAiControlled(Player player);
 
 	void unregisterAi(Player player);
+
+	int getRound();
 }

@@ -5,6 +5,7 @@ export default class RunningGameStories {
 	static showRunningGame(story: Story) {
 		story.setRenderData(`{
 			"gameId": "my-game",
+			"round": 42,
 			"players": [
 				{ 
 					"playerColor": "yellow",

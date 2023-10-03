@@ -394,4 +394,9 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		return Collections
 				.unmodifiableSet(fractions.values().stream().map(Fraction::getPlayer).collect(Collectors.toSet()));
 	}
+
+	@Override
+	public int getRound() {
+		return round;
+	}
 }

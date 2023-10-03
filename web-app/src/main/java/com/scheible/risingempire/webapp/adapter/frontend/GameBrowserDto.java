@@ -19,7 +19,7 @@ record GameBrowserDto(EntityModel<GameLauncherDto> gameLauncher, List<EntityMode
 		}
 	}
 
-	record RunningGameDto(String gameId, List<EntityModel<RunningGamePlayerDto>> players) {
+	record RunningGameDto(String gameId, List<EntityModel<RunningGamePlayerDto>> players, int round) {
 		
 		record RunningGamePlayerDto(PlayerDto playerColor, boolean interactive, @Nullable String playerSessionId,
 				boolean canReceiveNotifications) {

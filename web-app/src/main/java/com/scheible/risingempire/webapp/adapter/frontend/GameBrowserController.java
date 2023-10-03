@@ -61,8 +61,9 @@ class GameBrowserController {
 				new GameLauncherDto(defaultGameId, List.of(PlayerDto.YELLOW, PlayerDto.BLUE, PlayerDto.WHITE))).with(
 						Action.get("start", "games", "{gameId}", "{player}").with("gameId", null).with("player", null)),
 				gameHolder.getGameIds().stream()
-						.map(gameId -> new EntityModel<>(new RunningGameDto(gameId, toRunningGamePlayers(gameId)))
-								.with(Action.delete("stop", "game-browser", "games", gameId)))
+						.map(gameId -> new EntityModel<>(new RunningGameDto(gameId, toRunningGamePlayers(gameId),
+								gameHolder.get(gameId).get().getRound()))
+										.with(Action.delete("stop", "game-browser", "games", gameId)))
 						.toList()));
 	}
 

@@ -49,6 +49,8 @@ public class GameManager {
 		if (turnStatus.wasTurnFinished()) {
 			turnStatus.getPlayerStatus().keySet().stream().filter(c -> c != player)
 					.forEach(p -> notificationService.send(gameId, p, "turn-finished"));
+
+			notificationService.broadcast("game-change");
 		} else {
 			for (final Entry<Player, Boolean> playerTurnStatus : turnStatus.getPlayerStatus().entrySet()) {
 				if (playerTurnStatus.getValue() && playerTurnStatus.getKey() != player) {
