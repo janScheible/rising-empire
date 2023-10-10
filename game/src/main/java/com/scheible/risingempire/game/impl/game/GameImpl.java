@@ -12,6 +12,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -90,6 +91,9 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	private final Set<SpaceCombat> spaceCombats = new HashSet<>();
 	private final Map<FleetId, Set<FleetBeforeArrival>> orbitingArrivingMapping = new HashMap<>();
 
+	private final Set<ColonizeCommand> colonizeCommands = new HashSet<>();
+	private final Set<AnnexCommand> annexCommands = new HashSet<>();
+
 	private final ShipDesignProvider shipDesignProvider;
 	private final FleetFormer fleetFormer;
 	private final JourneyCalculator journeyCalculator;
@@ -136,6 +140,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 
 	private void nextTurn() {
 		round++;
+
 		spaceCombats.clear();
 		orbitingArrivingMapping.clear();
 
@@ -152,6 +157,34 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 			changes.getOrbitingArrivingMapping().forEach((orbitingId, deployedIds) -> orbitingArrivingMapping
 					.computeIfAbsent(orbitingId, key -> new HashSet<>()).addAll(deployedIds));
 		}
+
+		colonizeCommands.stream().forEach(command -> {
+			if (fleets.containsKey(command.fleetId())) {
+				final Fleet fleet = fleets.get(command.fleetId());
+				if (fleet.getPlayer() == command.player() && fleet.isOrbiting()
+						&& fleet.asOrbiting().getSystem().getId().equals(command.systemId())) {
+					final OrbitingFleet orbiting = fleet.asOrbiting();
+					final FleetId fleetId = fleet.getId();
+					final System system = systems.get(command.systemId());
+
+					final Optional<DesignSlot> colonyShipSlot = fleet.getShips().keySet().stream()
+							.filter(ds -> shipDesignProvider.get(fleet.getPlayer(), ds).hasColonyBase()).findFirst();
+
+					if (colonyShipSlot.isPresent()) {
+						orbiting.detach(Map.of(colonyShipSlot.get(), 1));
+						system.colonize(orbiting.getPlayer(), colonyShipSlot.get());
+						if (!orbiting.hasShips()) {
+							fleets.remove(fleetId);
+						}
+					}
+				}
+			}
+		});
+		colonizeCommands.clear();
+
+		annexCommands.stream()
+				.forEach(command -> systems.get(command.systemId()).annex(command.player(), DesignSlot.FIRST));
+		annexCommands.clear();
 	}
 
 	@Override
@@ -229,7 +262,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	}
 
 	@Override
-	public void colonizeSystem(final Player player, final FleetId fleetId) {
+	public void colonizeSystem(final Player player, final FleetId fleetId, final boolean skip) {
 		final Fleet fleet = fleets.get(fleetId);
 
 		if (!fleet.isOrbiting()) {
@@ -249,15 +282,49 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 
 		final System system = systems.get(orbiting.getSystem().getId());
 
-		orbiting.detach(Map.of(colonyShipSlot.get(), 1));
-		system.colonize(orbiting.getPlayer(), colonyShipSlot.get());
-		if (!orbiting.hasShips()) {
-			fleets.remove(fleetId);
+		if (!skip) {
+			colonizeCommands.add(new ColonizeCommand(player, system.getId(), orbiting.getId()));
+		} else {
+			final Iterator<ColonizeCommand> commandIterator = colonizeCommands.iterator();
+			while (commandIterator.hasNext()) {
+				final ColonizeCommand command = commandIterator.next();
+				if (command.player() == player && command.systemId().equals(system.getId())
+						&& command.fleetId().equals(orbiting.getId())) {
+					commandIterator.remove();
+				}
+			}
 		}
 	}
 
 	@Override
-	public void annexSystem(final Player player, final FleetId fleetId) {
+	public boolean canColonize(final FleetId fleetId) {
+		final Fleet fleet = fleets.get(fleetId);
+
+		if (fleet.isOrbiting()) {
+			final OrbitingFleet orbiting = fleet.asOrbiting();
+			final SystemId systemId = orbiting.getSystem().getId();
+			final System system = systems.get(systemId);
+
+			final boolean hasColonyShip = orbiting.getShips().keySet().stream()
+					.map(fractions.get(orbiting.getPlayer()).getShipDesigns()::get).anyMatch(ShipDesign::hasColonyBase);
+
+			if (hasColonyShip && system.getColony().isEmpty()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	@Override
+	public boolean hasColonizeCommand(final Player player, final SystemId systemId, final FleetId fleetId) {
+		return colonizeCommands.stream().anyMatch(command -> command.player() == player
+				&& command.systemId().equals(systemId) && command.fleetId().equals(fleetId));
+
+	}
+
+	@Override
+	public void annexSystem(final Player player, final FleetId fleetId, final boolean skip) {
 		final Fleet fleet = fleets.get(fleetId);
 
 		if (!fleet.isOrbiting()) {
@@ -279,7 +346,18 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 					+ "' because the fleet is only there for " + (round - orbiting.getArrivalRound())
 					+ " but must be at least " + annexationSiegeTurns + "!");
 		} else {
-			system.annex(player, DesignSlot.FIRST);
+			if (!skip) {
+				annexCommands.add(new AnnexCommand(player, system.getId(), orbiting.getId()));
+			} else {
+				final Iterator<AnnexCommand> annexIterator = annexCommands.iterator();
+				while (annexIterator.hasNext()) {
+					final AnnexCommand command = annexIterator.next();
+					if (command.player() == player && command.systemId().equals(system.getId())
+							&& command.fleetId().equals(orbiting.getId())) {
+						annexIterator.remove();
+					}
+				}
+			}
 		}
 	}
 
@@ -290,6 +368,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	@Override
 	public boolean canAnnex(final FleetId fleetId) {
 		final Fleet fleet = fleets.get(fleetId);
+
 		if (fleet.isOrbiting()) {
 			final OrbitingFleet orbiting = fleet.asOrbiting();
 
@@ -304,6 +383,12 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		}
 
 		return false;
+	}
+
+	@Override
+	public boolean hasAnnexCommand(final Player player, final SystemId systemId, final FleetId fleetId) {
+		return annexCommands.stream().anyMatch(command -> command.player() == player
+				&& command.systemId().equals(systemId) && command.fleetId().equals(fleetId));
 	}
 
 	@Override

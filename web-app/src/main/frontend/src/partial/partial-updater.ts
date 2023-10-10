@@ -108,20 +108,9 @@ export default class PartialUpdater {
 		starMapReloadAction.fields = starMapReloadAction.fields.filter((f) => f.name !== 'newTurn');
 
 		if (this.#mainPageData.inspector.fleetDeployment) {
-			const cancelAction = HypermediaUtil.getAction(this.#mainPageData.inspector.fleetDeployment, 'cancel');
-			if (cancelAction) {
-				cancelAction.origin = '$.inspector.fleetDeployment';
-			}
-
-			const deployAction = HypermediaUtil.getAction(this.#mainPageData.inspector.fleetDeployment, 'deploy');
-			if (deployAction) {
-				deployAction.origin = '$.inspector.fleetDeployment';
-			}
-
-			const reloadAction = HypermediaUtil.getAction(this.#mainPageData.inspector.fleetDeployment, 'assign-ships');
-			if (reloadAction) {
-				reloadAction.origin = '$.inspector.fleetDeployment';
-			}
+			HypermediaUtil.getActions(this.#mainPageData.inspector.fleetDeployment).forEach(
+				(action) => (action.origin = '$.inspector.fleetDeployment')
+			);
 		}
 
 		if (this.#mainPageData.inspector.systemDetails) {
@@ -144,6 +133,18 @@ export default class PartialUpdater {
 					nextShipTypeAction.origin = '$.inspector.systemDetails';
 				}
 			}
+		}
+
+		if (this.#mainPageData.inspector.colonization) {
+			HypermediaUtil.getActions(this.#mainPageData.inspector.colonization).forEach(
+				(action) => (action.origin = '$.inspector.colonization')
+			);
+		}
+
+		if (this.#mainPageData.inspector.annexation) {
+			HypermediaUtil.getActions(this.#mainPageData.inspector.annexation).forEach(
+				(action) => (action.origin = '$.inspector.annexation')
+			);
 		}
 
 		for (const star of this.#mainPageData.starMap.stars) {
@@ -231,6 +232,17 @@ export default class PartialUpdater {
 		} else if (
 			(action.name === 'allocate-spending' || action.name === 'next-ship-type') &&
 			action.origin === '$.inspector.systemDetails'
+		) {
+			values.fields = ['$.inspector'].join(',');
+		} else if (
+			(action.name === 'colonize' || action.name === 'cancel') &&
+			action.origin === '$.inspector.colonization'
+		) {
+			values.fields = ['$.inspector'].join(',');
+		} else if (
+			(action.name === 'annex' || action.name === 'cancel') &&
+			action.origin === '$.inspector.annexation' &&
+			action.fields.filter((field) => field.name === 'skip').length > 0
 		) {
 			values.fields = ['$.inspector'].join(',');
 		}

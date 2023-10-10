@@ -16,11 +16,17 @@ public interface FleetManager {
 
 	void deployFleet(Player player, FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships);
 
-	void colonizeSystem(Player player, FleetId fleetId);
+	void colonizeSystem(Player player, FleetId fleetId, boolean skip);
 
-	void annexSystem(Player player, FleetId fleetId);
+	boolean canColonize(FleetId fleetId);
+
+	boolean hasColonizeCommand(Player player, SystemId systemId, FleetId fleetId);
+
+	void annexSystem(Player player, FleetId fleetId, boolean skip);
 
 	boolean canAnnex(FleetId fleetId);
+
+	boolean hasAnnexCommand(Player player, SystemId systemId, FleetId fleetId);
 
 	Optional<Integer> calcEta(Player player, FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships);
 

@@ -18,7 +18,7 @@ import com.scheible.risingempire.game.api.view.universe.Player;
 public interface PlayerGame {
 
 	//
-	// queries
+	// Queries to get information about the game from the player's point of view.
 	//
 
 	GameView getView();
@@ -28,18 +28,22 @@ public interface PlayerGame {
 	Player getPlayer();
 
 	//
-	// commands
+	// Commands of the player that will be executed at end of turn.
 	//
-
-	TurnStatus finishTurn();
 
 	void nextShipType(ColonyId colonyId);
 
-	void colonizeSystem(FleetId fleetId);
+	void colonizeSystem(FleetId fleetId, boolean skip);
 
-	void annexSystem(FleetId fleetId);
+	void annexSystem(FleetId fleetId, boolean skip);
 
 	void deployFleet(FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships);
 
 	void selectTech(TechId techId);
+
+	//
+	// End player turn. Round ends as soon as all players have finished their turns.
+	//
+
+	TurnStatus finishTurn();
 }

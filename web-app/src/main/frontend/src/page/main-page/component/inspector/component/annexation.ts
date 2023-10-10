@@ -12,6 +12,9 @@ export default class Annexation extends HTMLElement {
 	#systemNameEl: SystemName;
 	#habitabilityEl: Habitability;
 
+	#cancelButtonEl: HTMLButtonElement;
+	#annexButtonEl: HTMLButtonElement;
+
 	#annexAction;
 	#cancelAction;
 
@@ -43,6 +46,9 @@ export default class Annexation extends HTMLElement {
 		this.#systemNameEl = this.shadowRoot.querySelector(SystemName.NAME);
 		this.#habitabilityEl = this.shadowRoot.querySelector(Habitability.NAME);
 
+		this.#cancelButtonEl = this.shadowRoot.querySelector('#cancel-button');
+		this.#annexButtonEl = this.shadowRoot.querySelector('#annex-button');
+
 		this.shadowRoot.querySelector('#cancel-button').addEventListener('click', (e) => {
 			HypermediaUtil.submitAction(this.#cancelAction, {});
 		});
@@ -56,6 +62,17 @@ export default class Annexation extends HTMLElement {
 		if (!Reconciler.isHiddenAfterPropertyReconciliation(this, !data)) {
 			this.#annexAction = HypermediaUtil.getAction(data, 'annex');
 			this.#cancelAction = HypermediaUtil.getAction(data, 'cancel');
+
+			if (data.annexCommand === true) {
+				this.#cancelButtonEl.disabled = false;
+				this.#annexButtonEl.disabled = true;
+			} else if (data.annexCommand === false) {
+				this.#cancelButtonEl.disabled = true;
+				this.#annexButtonEl.disabled = false;
+			} else {
+				this.#cancelButtonEl.disabled = false;
+				this.#annexButtonEl.disabled = false;
+			}
 
 			this.#systemNameEl.render(data.systemName);
 			this.#habitabilityEl.render(data.habitability);

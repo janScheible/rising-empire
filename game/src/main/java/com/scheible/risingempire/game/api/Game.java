@@ -20,5 +20,8 @@ public interface Game {
 
 	void unregisterAi(Player player);
 
+	/**
+	 * The round of the game. It is incremented every time all players finished theirs turns.
+	 */
 	int getRound();
 }

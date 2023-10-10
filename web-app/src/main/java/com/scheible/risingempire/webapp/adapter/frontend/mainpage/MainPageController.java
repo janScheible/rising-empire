@@ -93,6 +93,11 @@ class MainPageController {
 		SystemId selectedStarId;
 		FleetId fleetId;
 		Optional<List<String>> colonizableSystemId = Optional.empty();
+
+		// The presence of a skip value is a terrible way to indicate that the action was invoked in the command phase
+		// and not as part of the flow at the begin of a player's turn.
+		Optional<Boolean> skip = Optional.empty();
+		Optional<String> fields = Optional.empty();
 	}
 
 	@PostMapping(path = "/main-page/inspector/colonizations", consumes = APPLICATION_JSON_VALUE)
@@ -101,19 +106,27 @@ class MainPageController {
 			@RequestBody final ColonizeSystemBodyDto body) {
 		final FleetView fleet = context.getGameView().getFleet(body.fleetId);
 
-		context.getPlayerGame().colonizeSystem(fleet.getId());
+		context.getPlayerGame().colonizeSystem(fleet.getId(), body.skip.orElse(Boolean.FALSE));
 
-		return ResponseEntity.status(HttpStatus.SEE_OTHER).header(HttpHeaders.LOCATION, context
-				.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page")
-				.with(body.colonizableSystemId.orElseGet(() -> emptyList()).stream()
-						.map(csId -> new ActionField("colonizableSystemId", csId)))
-				.with(context.getGameView().getAnnexableSystemIds().stream()
-						.map(asId -> new ActionField("annexableSystemId", asId.getValue())))
-				.with(context.getGameView().getSystemNotifications().stream()
-						.map(nsId -> new ActionField("notificationSystemId", nsId.getSystemId().getValue())))
-				.with(body.colonizableSystemId.isEmpty() && context.getGameView().getAnnexableSystemIds().isEmpty()
-						&& context.getGameView().getSystemNotifications().isEmpty(), "newTurn", () -> Boolean.TRUE)
-				.toGetUri()).build();
+		if (!body.skip.isPresent()) {
+			return ResponseEntity.status(HttpStatus.SEE_OTHER).header(HttpHeaders.LOCATION, context
+					.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page")
+					.with(body.colonizableSystemId.orElseGet(() -> emptyList()).stream()
+							.map(csId -> new ActionField("colonizableSystemId", csId)))
+					.with(context.getGameView().getAnnexableSystemIds().stream()
+							.map(asId -> new ActionField("annexableSystemId", asId.getValue())))
+					.with(context.getGameView().getSystemNotifications().stream() // CPD-OFF
+							.map(nsId -> new ActionField("notificationSystemId", nsId.getSystemId().getValue())))
+					.with(body.colonizableSystemId.isEmpty() && context.getGameView().getAnnexableSystemIds().isEmpty()
+							&& context.getGameView().getSystemNotifications().isEmpty(), "newTurn", () -> Boolean.TRUE)
+					.toGetUri()).build();
+		} else {
+			return ResponseEntity.status(HttpStatus.SEE_OTHER)
+					.header(HttpHeaders.LOCATION,
+							context.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page")
+									.with(body.fields.isPresent(), "fields", () -> body.fields.get()).toGetUri())
+					.build();
+		} // CPD-ON
 	}
 
 	static class AnnexSystemBodyDto {
@@ -121,6 +134,11 @@ class MainPageController {
 		SystemId selectedStarId;
 		FleetId fleetId;
 		Optional<List<String>> annexableSystemId = Optional.empty();
+
+		// The presence of a skip value is a terrible way to indicate that the action was invoked in the command phase
+		// and not as part of the flow at the begin of a player's turn.
+		Optional<Boolean> skip = Optional.empty();
+		Optional<String> fields = Optional.empty();
 	}
 
 	@PostMapping(path = "/main-page/inspector/annexations", consumes = APPLICATION_JSON_VALUE)
@@ -128,17 +146,25 @@ class MainPageController {
 			@RequestBody final AnnexSystemBodyDto body) {
 		final FleetView fleet = context.getGameView().getFleet(body.fleetId);
 
-		context.getPlayerGame().annexSystem(fleet.getId());
+		context.getPlayerGame().annexSystem(fleet.getId(), body.skip.orElse(Boolean.FALSE));
 
-		return ResponseEntity.status(HttpStatus.SEE_OTHER).header(HttpHeaders.LOCATION, context
-				.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page")
-				.with(body.annexableSystemId.orElseGet(() -> emptyList()).stream()
-						.map(asId -> new ActionField("annexableSystemId", asId)))
-				.with(context.getGameView().getSystemNotifications().stream()
-						.map(nsId -> new ActionField("notificationSystemId", nsId.getSystemId().getValue())))
-				.with(body.annexableSystemId.isEmpty() && context.getGameView().getSystemNotifications().isEmpty(),
-						"newTurn", () -> Boolean.TRUE)
-				.toGetUri()).build();
+		if (!body.skip.isPresent()) {
+			return ResponseEntity.status(HttpStatus.SEE_OTHER).header(HttpHeaders.LOCATION, context
+					.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page")
+					.with(body.annexableSystemId.orElseGet(() -> emptyList()).stream()
+							.map(asId -> new ActionField("annexableSystemId", asId)))
+					.with(context.getGameView().getSystemNotifications().stream()
+							.map(nsId -> new ActionField("notificationSystemId", nsId.getSystemId().getValue())))
+					.with(body.annexableSystemId.isEmpty() && context.getGameView().getSystemNotifications().isEmpty(),
+							"newTurn", () -> Boolean.TRUE)
+					.toGetUri()).build();
+		} else {
+			return ResponseEntity.status(HttpStatus.SEE_OTHER)
+					.header(HttpHeaders.LOCATION,
+							context.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page")
+									.with(body.fields.isPresent(), "fields", () -> body.fields.get()).toGetUri())
+					.build();
+		}
 	}
 
 	@PostMapping(path = "/main-page/inspector/deployments", consumes = APPLICATION_JSON_VALUE)

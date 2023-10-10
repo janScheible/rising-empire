@@ -174,44 +174,103 @@ public class MainPageDtoPopulator {
 		turnSelectedStarId = selectedSystem.getId();
 		if (state.isStarInspectionState() || state.isNotificationState()) {
 			if (selectedSystem.getStarName().isPresent()) {
-				mainPage.inspector.systemDetails = new SystemDetailsDto(selectedSystem.getStarName().get(),
-						new HabitabilityDto(
-								selectedSystem.getPlanetType().get(), selectedSystem.getPlanetSpecial()
-										.get(),
-								selectedSystem.getPlanetMaxPopulation().get()),
-						selectedSystem.getColonyView()
-								.map(c -> new ColonyDto(
-										Optional.ofNullable(c.getPlayer() != gameView.getPlayer()
-												? new ForeignColonyOwner(c.getRace(), c.getPlayer())
-												: null),
-										c.getPopulation(), c.getRatios().map(r -> new ProductionDto(42, 78)))),
-						selectedSystem.getColonyView().filter(c -> c.getPlayer() == gameView.getPlayer())
-								.map(c -> new EntityModel<>(new AllocationsDto(Map.of( //
-										"ship", new AllocationCategoryDto(10, "None"), //
-										"defence", new AllocationCategoryDto(15, "None"), //
-										"industry", new AllocationCategoryDto(20, "2.7/y"), //
-										"ecology", new AllocationCategoryDto(25, "Clean"), //
-										"technology", new AllocationCategoryDto(30, "0RP")), state.getLockedCategory()))
-												.with(Action
-														.jsonPost("allocate-spending",
-																context.toFrontendUri("main-page", "inspector",
-																		"spendings"))
-														.with("selectedStarId", selectedSystem.getId().getValue()))),
-						selectedSystem.getColonyView().filter(c -> c.getPlayer() == gameView.getPlayer())
-								.map(c -> new EntityModel<>(new BuildQueueDto(c.getSpaceDock().get().getName(),
-										c.getSpaceDock().get().getSize(), gameView.getPlayer(), 1))
-												.with(Action
-														.jsonPost("next-ship-type",
-																context.toFrontendUri("main-page", "inspector",
-																		"ship-types"))
-														.with("selectedStarId", selectedSystem.getId().getValue())
-														.with(state.getLockedCategory().isPresent(), "locked",
-																() -> state.getLockedCategory().get())
-														.with("colonyId", c.getId().getValue()))),
-						selectedSystem.getRange());
+				final HabitabilityDto habitabilityDto = new HabitabilityDto(selectedSystem.getPlanetType().get(),
+						selectedSystem.getPlanetSpecial().get(), selectedSystem.getPlanetMaxPopulation().get());
+
+				if (selectedSystem.isColonizable()) {
+					final FleetId orbiting = gameView.getOrbiting(selectedSystem.getId()).get().getId();
+
+					mainPage.inspector.colonization = new EntityModel<>(
+							new ColonizationDto(selectedSystem.getStarName().get(), habitabilityDto,
+									selectedSystem.hasColonizeCommand().orElse(Boolean.FALSE)))
+											.with(Action
+													.jsonPost("colonize",
+															context.toFrontendUri("main-page", "inspector",
+																	"colonizations"))
+													.with("selectedStarId", selectedSystem.getId().getValue())
+													.with("fleetId", orbiting.getValue()).with("skip", Boolean.FALSE))
+											.with(Action
+													.jsonPost("cancel",
+															context.toFrontendUri("main-page", "inspector",
+																	"colonizations"))
+													.with("selectedStarId", selectedSystem.getId().getValue())
+													.with("fleetId", orbiting.getValue()).with("skip", Boolean.TRUE));
+				} else if (selectedSystem.isAnnexable()) {
+					final FleetId orbiting = gameView.getOrbiting(selectedSystem.getId()).get().getId();
+
+					mainPage.inspector.annexation = new EntityModel<>(
+							new AnnexationDto(selectedSystem.getStarName().get(), habitabilityDto,
+									selectedSystem.hasAnnexCommand().orElse(Boolean.FALSE)))
+											.with(Action
+													.jsonPost("annex",
+															context.toFrontendUri("main-page", "inspector",
+																	"annexations"))
+													.with("selectedStarId", selectedSystem.getId().getValue())
+													.with("fleetId", orbiting.getValue()).with("skip", Boolean.FALSE))
+											.with(Action
+													.jsonPost("cancel",
+															context.toFrontendUri("main-page", "inspector",
+																	"annexations"))
+													.with("selectedStarId", selectedSystem.getId().getValue())
+													.with("fleetId", orbiting.getValue()).with("skip", Boolean.TRUE));
+				} else {
+					mainPage.inspector.systemDetails = new SystemDetailsDto(selectedSystem.getStarName().get(),
+							habitabilityDto,
+							selectedSystem.getColonyView()
+									.map(c -> new ColonyDto(
+											Optional.ofNullable(c.getPlayer() != gameView.getPlayer()
+													? new ForeignColonyOwner(c.getRace(), c.getPlayer())
+													: null),
+											c.getPopulation(), c.getRatios().map(r -> new ProductionDto(42, 78)))),
+							selectedSystem.getColonyView().filter(c -> c.getPlayer() == gameView.getPlayer())
+									.map(c -> new EntityModel<>(new AllocationsDto(Map.of( //
+											"ship", new AllocationCategoryDto(10, "None"), //
+											"defence", new AllocationCategoryDto(15, "None"), //
+											"industry", new AllocationCategoryDto(20, "2.7/y"), //
+											"ecology", new AllocationCategoryDto(25, "Clean"), //
+											"technology", new AllocationCategoryDto(30, "0RP")),
+											state.getLockedCategory()))
+													.with(Action
+															.jsonPost("allocate-spending",
+																	context.toFrontendUri("main-page", "inspector",
+																			"spendings"))
+															.with("selectedStarId",
+																	selectedSystem.getId().getValue()))),
+							selectedSystem.getColonyView().filter(c -> c.getPlayer() == gameView.getPlayer())
+									.map(c -> new EntityModel<>(new BuildQueueDto(c.getSpaceDock().get().getName(),
+											c.getSpaceDock().get().getSize(), gameView.getPlayer(), 1))
+													.with(Action
+															.jsonPost("next-ship-type",
+																	context.toFrontendUri("main-page", "inspector",
+																			"ship-types"))
+															.with("selectedStarId", selectedSystem.getId().getValue())
+															.with(state.getLockedCategory().isPresent(), "locked",
+																	() -> state.getLockedCategory().get())
+															.with("colonyId", c.getId().getValue()))),
+							selectedSystem.getRange());
+				}
 			} else {
 				mainPage.inspector.unexplored = new UnexploredDto(selectedSystem.getStarType(),
 						selectedSystem.getRange().orElseThrow());
+			}
+
+			if (state.isNotificationState()) {
+				final SystemView notificationSystem = gameView.getSystem(state.getSelectedSystemId().orElseThrow());
+				final SystemNotificationView notification = gameView.getSystemNotifications().stream()
+						.filter(sn -> sn.getSystemId().equals(notificationSystem.getId())).findFirst().get();
+				mainPage.starMap.getContent()
+						.setStarNotification(new EntityModel<>(new StarNotificationDto(
+								notificationSystem.getLocation().getX(), notificationSystem.getLocation().getY(),
+								notification.getMessages().iterator().next())).with(Action
+										.get("confirm", context.toFrontendUri("main-page")) //
+										.with("selectedStarId",
+												state.asNotificationState().getActualSelectedSystemId().getValue())
+										.with(state.asNotificationState().hasRemainingNotificationSystems(),
+												"notificationSystemId",
+												() -> state.asNotificationState().getRemainingNotificationSystemIds()
+														.stream().map(SystemId::getValue))
+										.with(willBeNewTurn(state.asNotificationState()), "newTurn",
+												() -> Boolean.TRUE)));
 			}
 		} else if (state.isSpaceCombatSystemState()) {
 			final SpaceCombatView spaceCombat = gameView.getSpaceCombats().stream()
@@ -271,16 +330,15 @@ public class MainPageDtoPopulator {
 					new ColonizationDto(selectedSystem.getStarName().orElseThrow(),
 							new HabitabilityDto(selectedSystem.getPlanetType().get(),
 									selectedSystem.getPlanetSpecial().get(),
-									selectedSystem.getPlanetMaxPopulation().get())))
-											.with(colonizeAction = Action
-													.jsonPost("colonize",
-															context.toFrontendUri("main-page", "inspector",
-																	"colonizations"))
-													.with("fleetId",
-															gameView.getOrbiting(selectedSystem.getId()).orElseThrow()
-																	.getId().getValue()))
-											.with(cancelAction = Action.get("cancel",
-													context.toFrontendUri("main-page")));
+									selectedSystem.getPlanetMaxPopulation().get()),
+							null)).with(
+									colonizeAction = Action
+											.jsonPost("colonize",
+													context.toFrontendUri("main-page", "inspector", "colonizations"))
+											.with("fleetId",
+													gameView.getOrbiting(selectedSystem.getId()).orElseThrow().getId()
+															.getValue()))
+									.with(cancelAction = Action.get("cancel", context.toFrontendUri("main-page")));
 
 			final boolean willBeNewTurn = willBeNewTurn(state.asColonizationState(), gameView.getAnnexableSystemIds(),
 					gameView.getSystemNotifications());
@@ -303,16 +361,15 @@ public class MainPageDtoPopulator {
 					new AnnexationDto(selectedSystem.getStarName().orElseThrow(),
 							new HabitabilityDto(selectedSystem.getPlanetType().get(),
 									selectedSystem.getPlanetSpecial().get(),
-									selectedSystem.getPlanetMaxPopulation().get())))
-											.with(annexAction = Action
-													.jsonPost("annex",
-															context.toFrontendUri("main-page", "inspector",
-																	"annexations"))
-													.with("fleetId",
-															gameView.getOrbiting(selectedSystem.getId()).orElseThrow()
-																	.getId().getValue()))
-											.with(cancelAction = Action.get("cancel",
-													context.toFrontendUri("main-page")));
+									selectedSystem.getPlanetMaxPopulation().get()),
+							null)).with(
+									annexAction = Action
+											.jsonPost("annex",
+													context.toFrontendUri("main-page", "inspector", "annexations"))
+											.with("fleetId",
+													gameView.getOrbiting(selectedSystem.getId()).orElseThrow().getId()
+															.getValue()))
+									.with(cancelAction = Action.get("cancel", context.toFrontendUri("main-page")));
 
 			final boolean willBeNewTurn = willBeNewTurn(state.asAnnexationState(), gameView.getSystemNotifications());
 
@@ -325,21 +382,6 @@ public class MainPageDtoPopulator {
 							.with(gameView.getSystemNotifications().stream().map(SystemNotificationView::getSystemId)
 									.map(nsId -> new ActionField("notificationSystemId", nsId.getValue())))
 							.with(willBeNewTurn, "newTurn", () -> Boolean.TRUE));
-		}
-
-		if (state.isNotificationState()) { // was also handled above but now we have to add the notifications
-			final SystemView notificationSystem = gameView.getSystem(state.getSelectedSystemId().orElseThrow());
-			final SystemNotificationView notification = gameView.getSystemNotifications().stream()
-					.filter(sn -> sn.getSystemId().equals(notificationSystem.getId())).findFirst().get();
-			mainPage.starMap.getContent().setStarNotification(new EntityModel<>(new StarNotificationDto(
-					notificationSystem.getLocation().getX(), notificationSystem.getLocation().getY(),
-					notification.getMessages().iterator().next())).with(Action
-							.get("confirm", context.toFrontendUri("main-page")) //
-							.with("selectedStarId", state.asNotificationState().getActualSelectedSystemId().getValue())
-							.with(state.asNotificationState().hasRemainingNotificationSystems(), "notificationSystemId",
-									() -> state.asNotificationState().getRemainingNotificationSystemIds().stream()
-											.map(SystemId::getValue))
-							.with(willBeNewTurn(state.asNotificationState()), "newTurn", () -> Boolean.TRUE)));
 		}
 
 		return turnSelectedStarId;

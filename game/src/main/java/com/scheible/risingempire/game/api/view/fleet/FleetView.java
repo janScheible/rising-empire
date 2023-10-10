@@ -71,16 +71,13 @@ public class FleetView {
 
 	@Nullable
 	private final Boolean justLeaving;
-	@Nullable
-	private final Boolean canColonize;
 
 	private FleetView(final FleetId id, final FleetViewType type, final Player player, final Race race,
 			final Map<ShipTypeView, Integer> ships, final Location location, final boolean deployable,
 			@Nullable final Integer scannerRange, @Nullable final SystemId source, @Nullable final SystemId destination,
 			@Nullable final Integer speed, @Nullable final SystemId closest,
 			@Nullable final HorizontalDirection horizontalDirection, @Nullable final SystemId orbiting,
-			@Nullable final Set<FleetBeforeArrival> fleetsBeforeArrival, @Nullable final Boolean justLeaving,
-			@Nullable final Boolean canColonize) {
+			@Nullable final Set<FleetBeforeArrival> fleetsBeforeArrival, @Nullable final Boolean justLeaving) {
 		this.id = id;
 
 		this.type = type;
@@ -100,7 +97,6 @@ public class FleetView {
 		this.orbiting = orbiting;
 		this.fleetsBeforeArrival = fleetsBeforeArrival != null ? unmodifiableSet(fleetsBeforeArrival) : emptySet();
 		this.justLeaving = justLeaving;
-		this.canColonize = canColonize;
 	}
 
 	public static FleetView createDeployed(final FleetId id, final Player player, final Race race,
@@ -109,15 +105,15 @@ public class FleetView {
 			final HorizontalDirection orientation, final boolean deployable, @Nullable final Integer scannerRange,
 			@Nullable final Set<FleetBeforeArrival> fleetsBeforeArrival, final boolean justLeaving) {
 		return new FleetView(id, DEPLOYED, player, race, ships, location, deployable, scannerRange, source, destination,
-				speed, closest, orientation, null, fleetsBeforeArrival, justLeaving, null);
+				speed, closest, orientation, null, fleetsBeforeArrival, justLeaving);
 	}
 
 	public static FleetView createOrbiting(final FleetId id, final Player player, final Race race,
 			final Map<ShipTypeView, Integer> ships, final SystemId orbiting, final Location location,
 			@Nullable final Set<FleetBeforeArrival> fleetsBeforeArrival, final boolean deployable,
-			@Nullable final Integer scannerRange, final boolean canColonize) {
+			@Nullable final Integer scannerRange) {
 		return new FleetView(id, ORBITING, player, race, ships, location, deployable, scannerRange, null, null, null,
-				null, null, orbiting, fleetsBeforeArrival, null, canColonize);
+				null, null, orbiting, fleetsBeforeArrival, null);
 	}
 
 	public FleetId getId() {
@@ -193,10 +189,6 @@ public class FleetView {
 		return fleetsBeforeArrival;
 	}
 
-	public Optional<Boolean> canColonize() {
-		return Optional.ofNullable(canColonize);
-	}
-
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj) {
@@ -242,10 +234,6 @@ public class FleetView {
 
 		if (justLeaving != null) {
 			values.add("justLeaving=" + justLeaving);
-		}
-
-		if (canColonize != null) {
-			values.add("canColonize=" + canColonize);
 		}
 
 		values.add("ships=" + getShips().entrySet().stream()

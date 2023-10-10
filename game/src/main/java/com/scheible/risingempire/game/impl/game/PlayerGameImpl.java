@@ -38,13 +38,13 @@ public class PlayerGameImpl implements PlayerGame {
 	}
 
 	@Override
-	public void colonizeSystem(final FleetId fleetId) {
-		game.colonizeSystem(player, fleetId);
+	public void colonizeSystem(final FleetId fleetId, final boolean skip) {
+		game.colonizeSystem(player, fleetId, skip);
 	}
 
 	@Override
-	public void annexSystem(final FleetId fleetId) {
-		game.annexSystem(player, fleetId);
+	public void annexSystem(final FleetId fleetId, final boolean skip) {
+		game.annexSystem(player, fleetId, skip);
 	}
 
 	@Override

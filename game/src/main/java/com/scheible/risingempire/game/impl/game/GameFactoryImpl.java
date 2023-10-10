@@ -138,7 +138,7 @@ public class GameFactoryImpl implements GameFactory {
 			final int maxStartRegionDistanceRadius = Math.min(gameOptions.getGalaxySize().getWidth() / 5,
 					gameOptions.getGalaxySize().getHeight() / 5);
 
-			final Set<Location> locations = BigBang.get().getSystemLocations(gameOptions.getGalaxySize(), 180);
+			final Set<Location> locations = BigBang.get().getSystemLocations(gameOptions.getGalaxySize(), 160);
 			int i = 0;
 			for (final Location location : locations) {
 				if (solSystem == null && location.getDistance(blueStartRegionCenter) < maxStartRegionDistanceRadius) {

@@ -46,17 +46,17 @@ public class GameManager {
 	}
 
 	public void turnFinished(final String gameId, final Player player, final TurnStatus turnStatus) {
-		if (turnStatus.wasTurnFinished()) {
-			turnStatus.getPlayerStatus().keySet().stream().filter(c -> c != player)
+		if (turnStatus.roundFinished()) {
+			turnStatus.playerStatus().keySet().stream().filter(c -> c != player)
 					.forEach(p -> notificationService.send(gameId, p, "turn-finished"));
 
 			notificationService.broadcast("game-change");
 		} else {
-			for (final Entry<Player, Boolean> playerTurnStatus : turnStatus.getPlayerStatus().entrySet()) {
+			for (final Entry<Player, Boolean> playerTurnStatus : turnStatus.playerStatus().entrySet()) {
 				if (playerTurnStatus.getValue() && playerTurnStatus.getKey() != player) {
 					notificationService.send(gameId, playerTurnStatus.getKey(), "turn-finish-status",
 							Map.of("playerStatus",
-									turnStatus.getPlayerStatus().entrySet().stream().map(
+									turnStatus.playerStatus().entrySet().stream().map(
 											cts -> TurnFinishedStatusPlayerDto.fromPlayer(cts.getKey(), cts.getValue()))
 											.collect(Collectors.toList())));
 				}

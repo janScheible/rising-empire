@@ -34,6 +34,10 @@ export default class HypermediaUtil {
 		return model['_actions'].filter((a) => a.name === name)[0];
 	}
 
+	static getActions(model) {
+		return model['_actions'];
+	}
+
 	static getField(model, actionName, fieldName) {
 		const action = model['_actions'].filter((a) => a.name === actionName)[0];
 		const field = action?.fields.filter((f) => f.name === fieldName);

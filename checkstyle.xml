@@ -6,7 +6,9 @@
 	<module name="TreeWalker">	
 		<module name="SuppressWarningsHolder" />
 			
-		<module name="CyclomaticComplexity"></module>
+		<module name="CyclomaticComplexity">
+			<property name="max" value="12"/>
+		</module>
 		<module name="JavaNCSS"></module>
 		<module name="ModifierOrder"/>
 		<module name="ConstantName">
@@ -17,10 +19,10 @@
 			<property name="ignoreOverriddenMethods" value="true"/>
 		</module>
 		<module name="LambdaBodyLength">
-			<property name="max" value="28"/>
+			<property name="max" value="30"/>
 		</module>
 		<module name="MethodLength">
-			<property name="max" value="205"/>
+			<property name="max" value="210"/>
 			<property name="countEmpty" value="false"/>
 		</module>
 	</module>

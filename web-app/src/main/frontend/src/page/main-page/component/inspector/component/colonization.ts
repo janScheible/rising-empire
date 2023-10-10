@@ -12,6 +12,9 @@ export default class Colonization extends HTMLElement {
 	#systemNameEl: SystemName;
 	#habitabilityEl: Habitability;
 
+	#cancelButtonEl: HTMLButtonElement;
+	#colonizeButtonEl: HTMLButtonElement;
+
 	#colonizeAction;
 	#cancelAction;
 
@@ -43,6 +46,9 @@ export default class Colonization extends HTMLElement {
 		this.#systemNameEl = this.shadowRoot.querySelector(SystemName.NAME);
 		this.#habitabilityEl = this.shadowRoot.querySelector(Habitability.NAME);
 
+		this.#cancelButtonEl = this.shadowRoot.querySelector('#cancel-button');
+		this.#colonizeButtonEl = this.shadowRoot.querySelector('#colonize-button');
+
 		this.shadowRoot.querySelector('#cancel-button').addEventListener('click', (e) => {
 			HypermediaUtil.submitAction(this.#cancelAction, {});
 		});
@@ -56,6 +62,17 @@ export default class Colonization extends HTMLElement {
 		if (!Reconciler.isHiddenAfterPropertyReconciliation(this, !data)) {
 			this.#colonizeAction = HypermediaUtil.getAction(data, 'colonize');
 			this.#cancelAction = HypermediaUtil.getAction(data, 'cancel');
+
+			if (data.colonizeCommand === true) {
+				this.#cancelButtonEl.disabled = false;
+				this.#colonizeButtonEl.disabled = true;
+			} else if (data.colonizeCommand === false) {
+				this.#cancelButtonEl.disabled = true;
+				this.#colonizeButtonEl.disabled = false;
+			} else {
+				this.#cancelButtonEl.disabled = false;
+				this.#colonizeButtonEl.disabled = false;
+			}
 
 			this.#systemNameEl.render(data.systemName);
 			this.#habitabilityEl.render(data.habitability);
