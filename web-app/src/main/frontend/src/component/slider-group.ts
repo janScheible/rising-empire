@@ -2,7 +2,6 @@ import FlowLayout from '~/component/flow-layout';
 import GridLayout from '~/component/grid-layout';
 import SliderGroupCategory from '~/component/silder-group-category';
 import Slider from '~/component/slider';
-import Action from '~/util/action';
 import cssUrl from '~/util/cssUrl';
 import HypermediaUtil from '~/util/hypermedia-util';
 import Reconciler from '~/util/reconciler';

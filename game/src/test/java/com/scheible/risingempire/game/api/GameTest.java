@@ -18,6 +18,7 @@ import com.scheible.risingempire.game.api.view.fleet.FleetView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.system.SystemId;
+import com.scheible.risingempire.game.api.view.system.SystemView;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
 import com.scheible.risingempire.game.api.view.universe.Location;
 import com.scheible.risingempire.game.api.view.universe.Player;
@@ -132,7 +133,7 @@ class GameTest {
 				// make the whole map reachable in a single turn for a simpler test setup
 				.fleetRangeFactor(2000.0).fleetSpeedFactor(2000.0)
 				// decrease the number of turns of siege required to annex a system to 1
-				.annexationSiegeTurns(1));
+				.annexationSiegeRounds(1));
 		game.registerAi(Player.WHITE);
 		game.registerAi(Player.YELLOW);
 
@@ -145,9 +146,9 @@ class GameTest {
 		blueGame.finishTurn();
 
 		blueGameView = blueGame.getView();
-		final FleetView colonyFleet = blueGameView.getOrbiting(blueGameView.getSystem(new SystemId("s180x220")).getId())
-				.orElseThrow();
-		blueGame.colonizeSystem(colonyFleet.getId(), false);
+		final SystemView systemToColonize = blueGameView.getSystem(new SystemId("s180x220"));
+		final FleetView colonyFleet = blueGameView.getOrbiting(systemToColonize.getId()).get();
+		blueGame.colonizeSystem(systemToColonize.getId(), colonyFleet.getId(), false);
 		assertThat(blueGameView.getSystem(new SystemId("s180x220")).getColonyView()).isEmpty();
 		blueGame.finishTurn();
 
@@ -162,7 +163,7 @@ class GameTest {
 				// make the whole map reachable in a single turn for a simpler test setup
 				.fleetRangeFactor(2000.0).fleetSpeedFactor(2000.0)
 				// decrease the number of turns of siege required to annex a system to 1
-				.annexationSiegeTurns(1));
+				.annexationSiegeRounds(1));
 		game.registerAi(Player.WHITE);
 		game.registerAi(Player.YELLOW);
 
@@ -180,7 +181,9 @@ class GameTest {
 		blueGame.finishTurn();
 
 		blueGameView = blueGame.getView();
-		blueGame.annexSystem(blueGameView.getOrbiting(new SystemId("s240x440")).get().getId(), false);
+		final SystemView systemToAnnex = blueGameView.getSystem(new SystemId("s240x440"));
+		final FleetView annexFleet = blueGameView.getOrbiting(systemToAnnex.getId()).get();
+		blueGame.annexSystem(systemToAnnex.getColonyView().get().getId(), annexFleet.getId(), false);
 		blueGame.finishTurn();
 
 		blueGameView = blueGame.getView();

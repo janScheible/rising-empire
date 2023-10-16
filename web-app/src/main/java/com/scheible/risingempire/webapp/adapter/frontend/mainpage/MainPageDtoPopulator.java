@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import org.springframework.http.HttpMethod;
 
 import com.scheible.risingempire.game.api.view.GameView;
+import com.scheible.risingempire.game.api.view.colony.AnnexationStatusView;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
@@ -127,19 +128,35 @@ public class MainPageDtoPopulator {
 									.with("selectedStarId", finalTurnSelectedStarId.getValue()));
 		}
 
-		mainPage.starMap.getContent().stars = gameView.getSystems().stream().map(s -> new EntityModel<>(new StarDto(
-				s.getId().getValue(), s.getStarName(), s.getStarType(), s.isSmall(),
-				s.getColonyView().map(ColonyView::getPlayer), s.getLocation().getX(), s.getLocation().getY())).with(
-						state.isSystemSelectable(s.getId()),
-						() -> Action.get("select", context.toFrontendUri("main-page")) //
-								.with("selectedStarId", s.getId().getValue())
-								.with(state.getSelectedFleetId().isPresent()
-										&& gameView.getFleet(state.getSelectedFleetId().orElseThrow()).isDeployable(),
-										"selectedFleetId",
-										() -> state.getSelectedFleetId().map(FleetId::getValue).orElseThrow())
-								.with(maybeShips.isPresent(),
-										() -> maybeShips.map(ships -> toDtoShipList(ships)).orElseThrow().stream()
-												.map(sh -> new ActionField(sh.id, sh.count)))))
+		mainPage.starMap.getContent().stars = gameView
+				.getSystems().stream().map(
+						s -> new EntityModel<>(new StarDto(s.getId().getValue(), s.getStarName(), s.getStarType(),
+								s.isSmall(), s.getColonyView().map(ColonyView::getPlayer),
+								s.getColonyView().flatMap(ColonyView::getAnnexationStatus)
+										.flatMap(AnnexationStatusView::siegingPlayer),
+								s.getColonyView().flatMap(ColonyView::getAnnexationStatus).flatMap(
+										as -> as.siegeRounds().isPresent() && as.roundsUntilAnnexable().isPresent()
+												? Optional
+														.of(Math.round(
+																as.siegeRounds().get()
+																		/ (float) (as.siegeRounds().get()
+																				+ as.roundsUntilAnnexable().get())
+																		* 100.0f))
+												: Optional.empty()),
+								s.getLocation().getX(), s.getLocation().getY()))
+										.with(state.isSystemSelectable(s.getId()),
+												() -> Action.get("select", context.toFrontendUri("main-page")) //
+														.with("selectedStarId", s.getId().getValue()).with(
+																state.getSelectedFleetId().isPresent()
+																		&& gameView.getFleet(state.getSelectedFleetId()
+																				.orElseThrow()).isDeployable(),
+																"selectedFleetId",
+																() -> state.getSelectedFleetId().map(FleetId::getValue)
+																		.orElseThrow())
+														.with(maybeShips.isPresent(),
+																() -> maybeShips.map(ships -> toDtoShipList(ships))
+																		.orElseThrow().stream()
+																		.map(sh -> new ActionField(sh.id, sh.count)))))
 				.collect(Collectors.toList());
 
 		mainPage.starMap.getContent().fleets = Stream
@@ -195,24 +212,28 @@ public class MainPageDtoPopulator {
 																	"colonizations"))
 													.with("selectedStarId", selectedSystem.getId().getValue())
 													.with("fleetId", orbiting.getValue()).with("skip", Boolean.TRUE));
-				} else if (selectedSystem.isAnnexable()) {
+				} else if (selectedSystem.getColonyView().flatMap(ColonyView::getAnnexationStatus)
+						.flatMap(AnnexationStatusView::annexable).orElse(Boolean.FALSE)) {
 					final FleetId orbiting = gameView.getOrbiting(selectedSystem.getId()).get().getId();
 
 					mainPage.inspector.annexation = new EntityModel<>(
 							new AnnexationDto(selectedSystem.getStarName().get(), habitabilityDto,
-									selectedSystem.hasAnnexCommand().orElse(Boolean.FALSE)))
-											.with(Action
-													.jsonPost("annex",
-															context.toFrontendUri("main-page", "inspector",
-																	"annexations"))
-													.with("selectedStarId", selectedSystem.getId().getValue())
-													.with("fleetId", orbiting.getValue()).with("skip", Boolean.FALSE))
-											.with(Action
-													.jsonPost("cancel",
-															context.toFrontendUri("main-page", "inspector",
-																	"annexations"))
-													.with("selectedStarId", selectedSystem.getId().getValue())
-													.with("fleetId", orbiting.getValue()).with("skip", Boolean.TRUE));
+									selectedSystem.getColonyView().get().getAnnexationStatus().get().annexCommand()
+											.orElse(Boolean.FALSE)))
+													.with(Action
+															.jsonPost("annex",
+																	context.toFrontendUri("main-page", "inspector",
+																			"annexations"))
+															.with("selectedStarId", selectedSystem.getId().getValue())
+															.with("fleetId", orbiting.getValue())
+															.with("skip", Boolean.FALSE))
+													.with(Action
+															.jsonPost("cancel",
+																	context.toFrontendUri("main-page", "inspector",
+																			"annexations"))
+															.with("selectedStarId", selectedSystem.getId().getValue())
+															.with("fleetId", orbiting.getValue())
+															.with("skip", Boolean.TRUE));
 				} else {
 					mainPage.inspector.systemDetails = new SystemDetailsDto(selectedSystem.getStarName().get(),
 							habitabilityDto,

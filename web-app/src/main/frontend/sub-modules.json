@@ -49,6 +49,7 @@
 				"select-tech-page",
 				"space-combat-page.component",
 				"main-page.star-map",
+				"main-page.star-map.component",
 				"space-combat-page",
 				"main-page.inspector.component.system-details",
 				"main-page.inspector.component.system-details.component",

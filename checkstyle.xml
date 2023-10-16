@@ -19,15 +19,15 @@
 			<property name="ignoreOverriddenMethods" value="true"/>
 		</module>
 		<module name="LambdaBodyLength">
-			<property name="max" value="30"/>
+			<property name="max" value="36"/>
 		</module>
 		<module name="MethodLength">
-			<property name="max" value="210"/>
+			<property name="max" value="213"/>
 			<property name="countEmpty" value="false"/>
 		</module>
 	</module>
 
 	<module name="FileLength">
-		<property name="max" value="500"/>
+		<property name="max" value="505"/>
 	</module>
 </module>

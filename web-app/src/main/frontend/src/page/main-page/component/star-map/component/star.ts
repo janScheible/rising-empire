@@ -12,6 +12,7 @@ export default class Star extends HTMLElement {
 	#starEl: HTMLDivElement;
 	#starImageEl: HTMLImageElement;
 	#nameEl: HTMLSpanElement;
+	#siegeProgressEl: HTMLSpanElement;
 
 	#selectAction;
 
@@ -55,7 +56,7 @@ export default class Star extends HTMLElement {
 					filter: grayscale(100%);
 				}
 
-				#name {
+				#name-wrapper {
 					margin-left: calc(-50%);
 					margin-top: 36px;
 
@@ -64,12 +65,16 @@ export default class Star extends HTMLElement {
 			</style>
 			<div id="star"></div>
 			<img id="star-image"></img>
-			<span id="name"></span>`;
+			<span id="name-wrapper">
+				<span id="name"></span>
+				<span id="siege-progress"> <span style="background-image: conic-gradient(var(--star-siege-player-color) var(--star-siege-progress), var(--star-player-color) var(--star-siege-progress)); border-radius: 50%;">   </span></span>
+			</span>`;
 
 		this.#starEl = this.shadowRoot.querySelector('#star');
 		this.#starImageEl = this.shadowRoot.querySelector('#star-image');
 
 		this.#nameEl = this.shadowRoot.querySelector('#name');
+		this.#siegeProgressEl = this.shadowRoot.querySelector('#siege-progress');
 
 		[this.#starEl, this.#starImageEl].forEach((starEl) =>
 			starEl.addEventListener('click', (e) => {
@@ -115,13 +120,27 @@ export default class Star extends HTMLElement {
 			Reconciler.reconcileProperty(this.#starImageEl, 'hidden', true);
 		}
 
-		if (!Reconciler.isHiddenAfterPropertyReconciliation(this, !data)) {
-			Reconciler.reconcileProperty(this.#nameEl, 'innerText', data.name ? data.name : '');
-			Reconciler.reconcileStyle(
-				this.#nameEl,
-				'color',
-				data.playerColor ? `var(--${data.playerColor}-player-color)` : '#3F3F3F',
-				(elValue, value) => elValue.toLowerCase() !== value.toLowerCase()
+		Reconciler.reconcileProperty(this.#nameEl, 'innerText', data.name ? data.name : '');
+		Reconciler.reconcileStyle(
+			this.#nameEl,
+			'color',
+			data.playerColor ? `var(--${data.playerColor}-player-color)` : '#3F3F3F',
+			(elValue, value) => elValue.toLowerCase() !== value.toLowerCase()
+		);
+
+		if (!Reconciler.isHiddenAfterPropertyReconciliation(this.#siegeProgressEl, !data.siegeProgress)) {
+			Reconciler.reconcileCssVariable(this.#siegeProgressEl, 'star-siege-progress', data.siegeProgress + '%');
+
+			Reconciler.reconcileCssVariable(
+				this.#siegeProgressEl,
+				'star-player-color',
+				`var(--${data.playerColor}-player-color)`
+			);
+
+			Reconciler.reconcileCssVariable(
+				this.#siegeProgressEl,
+				'star-siege-player-color',
+				`var(--${data.siegePlayerColor}-player-color)`
 			);
 		}
 	}

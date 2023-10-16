@@ -33,9 +33,9 @@ public interface PlayerGame {
 
 	void nextShipType(ColonyId colonyId);
 
-	void colonizeSystem(FleetId fleetId, boolean skip);
+	void colonizeSystem(SystemId systemId, FleetId fleetId, boolean skip);
 
-	void annexSystem(FleetId fleetId, boolean skip);
+	void annexSystem(ColonyId colonyId, FleetId fleetId, boolean skip);
 
 	void deployFleet(FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships);
 

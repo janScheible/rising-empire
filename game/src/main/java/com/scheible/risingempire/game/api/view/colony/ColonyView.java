@@ -25,15 +25,17 @@ public class ColonyView {
 	private final Race race;
 	private final Integer population;
 	@Nullable
-	private ShipTypeView spaceDock;
+	private final ShipTypeView spaceDock;
 	@Nullable
 	private final Map<ProductionArea, Integer> ratios;
+	@Nullable
+	private final AnnexationStatusView annexationStatus;
 
 	final ColonyManager colonyManager;
 
 	public ColonyView(final ColonyId id, final Player player, final Race race, final Integer population,
 			@Nullable final ShipTypeView spaceDock, @Nullable final Map<ProductionArea, Integer> ratios,
-			final ColonyManager colonyManager) {
+			@Nullable final AnnexationStatusView annexationStatus, final ColonyManager colonyManager) {
 		this.id = id;
 
 		this.player = player;
@@ -41,6 +43,7 @@ public class ColonyView {
 		this.population = population;
 		this.spaceDock = spaceDock;
 		this.ratios = ratios != null ? new EnumMap<>(ratios) : null;
+		this.annexationStatus = annexationStatus;
 
 		this.colonyManager = colonyManager;
 	}
@@ -78,6 +81,10 @@ public class ColonyView {
 		return population;
 	}
 
+	public Optional<AnnexationStatusView> getAnnexationStatus() {
+		return Optional.ofNullable(annexationStatus);
+	}
+
 	@Override
 	public String toString() {
 		final StringJoiner values = new StringJoiner(", ", "ColonyView[", "]").add("player=" + player)
@@ -93,6 +100,10 @@ public class ColonyView {
 
 		if (ratios != null) {
 			values.add("ratios=" + ratios);
+		}
+
+		if (annexationStatus != null) {
+			values.add("annexationStatus=" + annexationStatus);
 		}
 
 		return values.toString();

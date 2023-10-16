@@ -30,12 +30,14 @@ import com.scheible.risingempire.game.api.Game;
 import com.scheible.risingempire.game.api.TurnStatus;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
+import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
 import com.scheible.risingempire.game.api.view.notification.SystemNotificationView;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
+import com.scheible.risingempire.game.api.view.system.SystemView;
 import com.scheible.risingempire.webapp.adapter.frontend.annotation.FrontendController;
 import com.scheible.risingempire.webapp.adapter.frontend.context.FrontendContext;
 import com.scheible.risingempire.webapp.game.GameHolder;
@@ -105,8 +107,9 @@ class MainPageController {
 	ResponseEntity<Void> colonizeSystem(@ModelAttribute final FrontendContext context,
 			@RequestBody final ColonizeSystemBodyDto body) {
 		final FleetView fleet = context.getGameView().getFleet(body.fleetId);
-
-		context.getPlayerGame().colonizeSystem(fleet.getId(), body.skip.orElse(Boolean.FALSE));
+		final SystemView systemToColonize = context.getGameView().getSystem(fleet.getOrbiting().get());
+		context.getPlayerGame().colonizeSystem(systemToColonize.getId(), fleet.getId(),
+				body.skip.orElse(Boolean.FALSE));
 
 		if (!body.skip.isPresent()) {
 			return ResponseEntity.status(HttpStatus.SEE_OTHER).header(HttpHeaders.LOCATION, context
@@ -145,8 +148,9 @@ class MainPageController {
 	ResponseEntity<Void> annexSystem(@ModelAttribute final FrontendContext context,
 			@RequestBody final AnnexSystemBodyDto body) {
 		final FleetView fleet = context.getGameView().getFleet(body.fleetId);
-
-		context.getPlayerGame().annexSystem(fleet.getId(), body.skip.orElse(Boolean.FALSE));
+		final ColonyView colonyToAnnex = context.getGameView().getSystem(fleet.getOrbiting().get()).getColonyView()
+				.get();
+		context.getPlayerGame().annexSystem(colonyToAnnex.getId(), fleet.getId(), body.skip.orElse(Boolean.FALSE));
 
 		if (!body.skip.isPresent()) {
 			return ResponseEntity.status(HttpStatus.SEE_OTHER).header(HttpHeaders.LOCATION, context

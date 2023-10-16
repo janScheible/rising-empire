@@ -150,7 +150,7 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 				// make the whole map reachable in a single turn for a simpler test setup
 				.fleetRangeFactor(2000.0).fleetSpeedFactor(2000.0)
 				// decrease the number of turns of siege required to annex a system to 1
-				.annexationSiegeTurns(1)
+				.annexationSiegeRounds(1)
 				// make a technology selectable in round 4 (but only if select tech step is included)
 				.fakeTechProvider((player, round) -> (steps.contains(SELECT_TECH_PAGE) && round == 4)
 						? Collections.singleton(new TechGroupView(Arrays2.asSet( //

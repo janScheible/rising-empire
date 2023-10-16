@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.view.FleetManager;
 import com.scheible.risingempire.game.api.view.GameView;
+import com.scheible.risingempire.game.api.view.colony.AnnexationStatusView;
 import com.scheible.risingempire.game.api.view.colony.ColonyManager;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
@@ -66,7 +67,8 @@ public class GameViewBuilder {
 			final Map<FleetId, Set<FleetBeforeArrival>> orbitingArrivingMapping,
 			final BiFunction<Player, SystemId, Optional<SystemSnapshot>> snapshotProvider, final Technology technology,
 			final Set<SpaceCombat> spaceCombats, final FleetManager fleetManager, final ColonyManager colonyManager,
-			final TechManager techManager, final Set<SystemNotificationView> systemNotifications) {
+			final TechManager techManager, final Set<SystemNotificationView> systemNotifications,
+			final int annexationSiegeRounds) {
 		final Set<SystemView> systemViews = new HashSet<>(systems.size());
 		final Set<FleetView> fleetViews = new HashSet<>(30);
 
@@ -79,20 +81,30 @@ public class GameViewBuilder {
 			return orbiting != null && orbiting.getPlayer() == player && fleetManager.canColonize(orbiting.getId());
 		};
 
-		final Predicate<System> hasColonizeCommand = system -> {
-			return isColonizable.test(system) && fleetManager.hasColonizeCommand(player, system.getId(),
-					orbitingFleets.get(system.getId()).getId());
-		};
+		final Predicate<System> hasColonizeCommand = system -> isColonizable.test(system)
+				&& fleetManager.hasColonizeCommand(player, system.getId(), orbitingFleets.get(system.getId()).getId());
 
 		final Predicate<System> isAnnexable = system -> {
 			final OrbitingFleet orbiting = orbitingFleets.get(system.getId());
 			return orbiting != null && orbiting.getPlayer() == player && fleetManager.canAnnex(orbiting.getId());
 		};
 
-		final Predicate<System> hasAnnexCommand = system -> {
-			return isAnnexable.test(system)
-					&& fleetManager.hasAnnexCommand(player, system.getId(), orbitingFleets.get(system.getId()).getId());
-		};
+		final Predicate<System> hasAnnexCommand = system -> isAnnexable.test(system)
+				&& fleetManager.hasAnnexCommand(player, system.getId(), orbitingFleets.get(system.getId()).getId());
+
+		final Function<System, Integer> siegeProgress = (system) -> orbitingFleets.containsKey(system.getId())
+				? fleetManager.getSiegeProgress(orbitingFleets.get(system.getId()).getId()).orElse(null)
+				: null;
+
+		final Function<System, Integer> siegeRounds = (system) -> siegeProgress.apply(system) != null
+				? Math.round((siegeProgress.apply(system) / 100.f) * annexationSiegeRounds)
+				: null;
+
+		final Function<System, Integer> roundsUntilAnnexable = (
+				system) -> siegeRounds.apply(system) != null ? annexationSiegeRounds - siegeRounds.apply(system) : null;
+
+		final Function<System, Player> siegePlayer = (
+				system) -> siegeProgress.apply(system) != null ? orbitingFleets.get(system.getId()).getPlayer() : null;
 
 		for (final System system : systems) {
 			systemViews.add(system.getColony(player).map(c -> SystemSnapshot.forKnown(round, system))
@@ -105,11 +117,18 @@ public class GameViewBuilder {
 								.map(ds -> ds.toShipType(designs.get(player).get(ds))).orElse(null);
 						final Map<ProductionArea, Integer> ratios = colony.map(Colony::getRatios).orElse(null);
 
-						final ColonyView colonyView = colonyPlayer
-								.map(cc -> new ColonyView(snapshot.getId().toColonyId(), colonyPlayer.get(),
-										playerRaceMapping.get(colonyPlayer.get()), snapshot.getColonyPopulation().get(),
-										spaceDock, ratios, colonyManager))
-								.orElse(null);
+						final ColonyView colonyView = colonyPlayer.map(cc -> new ColonyView(
+								snapshot.getId().toColonyId(), colonyPlayer.get(),
+								playerRaceMapping.get(colonyPlayer.get()), snapshot.getColonyPopulation().get(),
+								spaceDock, ratios,
+								!(siegePlayer.apply(system) == null && !isAnnexable.test(system))
+										? new AnnexationStatusView(Optional.ofNullable(siegeRounds.apply(system)),
+												Optional.ofNullable(roundsUntilAnnexable.apply(system)),
+												Optional.ofNullable(siegePlayer.apply(system)),
+												Optional.of(isAnnexable.test(system)),
+												Optional.of(hasAnnexCommand.test(system)))
+										: null,
+								colonyManager)).orElse(null);
 
 						final Integer seenInTurn = Optional.of(snapshot.getLastSeenTurn()).filter(t -> t != round)
 								.orElse(null);
@@ -124,8 +143,7 @@ public class GameViewBuilder {
 								colonyView, system.getColony(player).map(c -> technology.getFleetRange()).orElse(null),
 								system.getColony(player).map(c -> technology.getExtendedFleetRange()).orElse(null),
 								system.getColony(player).map(c -> technology.getColonyScannerRange()).orElse(null),
-								isColonizable.test(system), hasColonizeCommand.test(system), isAnnexable.test(system),
-								hasAnnexCommand.test(system));
+								isColonizable.test(system), hasColonizeCommand.test(system));
 					}).orElseThrow());
 		}
 

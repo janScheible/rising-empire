@@ -48,11 +48,6 @@ public class SystemView {
 	@Nullable
 	private final Boolean colonizeCommand;
 
-	@Nullable
-	private final Boolean annexable;
-	@Nullable
-	private final Boolean annexCommand;
-
 	@SuppressWarnings("checkstyle:ParameterNumber")
 	public SystemView(final SystemId id, final boolean justExplored, final Location location, final StarType starType,
 			final boolean small, final boolean homeSystem, @Nullable final Integer range,
@@ -61,8 +56,7 @@ public class SystemView {
 			@Nullable final Integer planetMaxPopulation, @Nullable final ColonyView colony,
 			@Nullable final Integer fleetRange, @Nullable final Integer extendedFleetRange,
 			@Nullable final Integer scannerRange, @Nullable final Boolean colonizable,
-			@Nullable final Boolean colonizeCommand, @Nullable final Boolean annexable,
-			@Nullable final Boolean annexCommand) {
+			@Nullable final Boolean colonizeCommand) {
 		this.id = id;
 
 		this.justExplored = justExplored;
@@ -86,12 +80,6 @@ public class SystemView {
 		}
 		this.colonizable = colonizable;
 		this.colonizeCommand = colonizeCommand;
-
-		if (Boolean.TRUE.equals(annexable) && annexCommand == null) {
-			throw new IllegalArgumentException("annexationCommand can't be null when canAnnex = true!");
-		}
-		this.annexable = annexable;
-		this.annexCommand = annexCommand;
 	}
 
 	public SystemId getId() {
@@ -174,14 +162,6 @@ public class SystemView {
 		return Optional.ofNullable(colonizeCommand);
 	}
 
-	public boolean isAnnexable() {
-		return annexable;
-	}
-
-	public Optional<Boolean> hasAnnexCommand() {
-		return Optional.ofNullable(annexCommand);
-	}
-
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj) {
@@ -231,10 +211,6 @@ public class SystemView {
 
 		if (colonizable != null) {
 			values.add("colonizable=" + colonizable).add("colonizeCommand=" + colonizeCommand);
-		}
-
-		if (annexable != null) {
-			values.add("annexable=" + annexable).add("annexCommand=" + annexCommand);
 		}
 
 		if (colony != null) {

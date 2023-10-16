@@ -41,7 +41,7 @@ public class GameOptions {
 	private double fleetSpeedFactor = 1.0;
 	private Outcome spaceCombatOutcome = null;
 
-	private int annexationSiegeTurns = 5;
+	private int annexationSiegeRounds = 5;
 
 	public GameOptions(final GalaxySize galaxySize, final int playerCount) {
 		this(galaxySize, playerCount, false);
@@ -83,8 +83,8 @@ public class GameOptions {
 		return this;
 	}
 
-	public GameOptions annexationSiegeTurns(final int annexationSiegeTurns) {
-		this.annexationSiegeTurns = annexationSiegeTurns;
+	public GameOptions annexationSiegeRounds(final int annexationSiegeRounds) {
+		this.annexationSiegeRounds = annexationSiegeRounds;
 		return this;
 	}
 
@@ -120,7 +120,7 @@ public class GameOptions {
 		return testGameScenario;
 	}
 
-	public int getAnnexationSiegeTurns() {
-		return annexationSiegeTurns;
+	public int getAnnexationSiegeRounds() {
+		return annexationSiegeRounds;
 	}
 }

@@ -87,16 +87,23 @@ class StarMapDto {
 		final boolean small;
 		@Nullable
 		final PlayerDto playerColor;
+		@Nullable
+		final PlayerDto siegePlayerColor;
+		@Nullable
+		final Integer siegeProgress; // 0..100
 		final int x;
 		final int y;
 
 		StarDto(final String id, final Optional<String> name, final StarType type, final boolean small,
-				final Optional<Player> playerColor, final int x, final int y) {
+				final Optional<Player> playerColor, final Optional<Player> siegePlayerColor,
+				final Optional<Integer> siegeProgress, final int x, final int y) {
 			this.id = id;
 			this.name = name.orElse(null);
 			this.type = type;
 			this.small = small;
 			this.playerColor = playerColor.map(PlayerDto::fromPlayer).orElse(null);
+			this.siegePlayerColor = siegePlayerColor.map(PlayerDto::fromPlayer).orElse(null);
+			this.siegeProgress = siegeProgress.orElse(null);
 			this.x = x;
 			this.y = y;
 		}

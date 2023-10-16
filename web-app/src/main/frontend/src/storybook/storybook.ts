@@ -1,44 +1,45 @@
 import Container from '~/component/container';
-import ContainerTtile from '~/component/container-title';
 import ContainerButtons from '~/component/container-buttons';
+import ContainerTtile from '~/component/container-title';
 import FlowLayout from '~/component/flow-layout';
+import Inspector from '~/page/main-page/component/inspector/inspector';
+import Story from '~/storybook/stories/story';
+import cssUrl from '~/util/cssUrl';
 import ErrorUtil from '~/util/error-util';
 import HypermediaUtil from '~/util/hypermedia-util';
-import Story from '~/storybook/stories/story';
-import Inspector from '~/page/main-page/component/inspector/inspector';
-import cssUrl from '~/util/cssUrl';
 
-import SystemDetailsStories from '~/storybook/stories/system-details-stories';
-import FleetDeploymentStories from '~/storybook/stories/fleet-deployment-stories';
-import TechPageStories from '~/storybook/stories/tech-page-stories';
-import ShipsStories from '~/storybook/stories/ships-stories';
-import TurnFinishedDialogStories from '~/storybook/stories/turn-finished-dialog-stories';
-import SelectTechPageStories from '~/storybook/stories/select-tech-page-stories';
-import SpaceCombatPageStories from '~/storybook/stories/space-combat-page-stories';
-import StarMapStories from '~/storybook/stories/star-map-stories';
-import ColonizationStories from '~/storybook/stories/colonization-stories';
-import ExplorationStories from '~/storybook/stories/exploration-stories';
-import FleetViewStories from '~/storybook/stories/fleet-view-stories';
-import SpaceCombatStories from '~/storybook/stories/space-combat-stories';
-import ShipSpecStories from '~/storybook/stories/ship-spec-stories';
-import HabitabilityStories from '~/storybook/stories/habitability-stories';
-import UnexploredStories from '~/storybook/stories/unexplored-stories';
-import BuildQueueStories from '~/storybook/stories/build-queue-stories';
-import SystemNameStories from '~/storybook/stories/system-name-stories';
-import ColonyStories from '~/storybook/stories/colony-stories';
 import AllocationsStories from '~/storybook/stories/allocations-stories';
-import StarBackgroundStories from '~/storybook/stories/star-background-stories';
-import SliderGroupStories from '~/storybook/stories/slider-group-stories';
+import AnnexationStories from '~/storybook/stories/annexation-stories';
+import BuildQueueStories from '~/storybook/stories/build-queue-stories';
+import ColonizationStories from '~/storybook/stories/colonization-stories';
+import ColonyStories from '~/storybook/stories/colony-stories';
 import ConnectionIndicatorStories from '~/storybook/stories/connection-indicator-stories';
+import ExplorationStories from '~/storybook/stories/exploration-stories';
+import FleetDeploymentStories from '~/storybook/stories/fleet-deployment-stories';
+import FleetViewStories from '~/storybook/stories/fleet-view-stories';
+import GameLauncherStories from '~/storybook/stories/game-launcher-stories';
+import HabitabilityStories from '~/storybook/stories/habitability-stories';
 import ListBoxStories from '~/storybook/stories/list-box-stories';
 import NewGamePageStories from '~/storybook/stories/new-game-page-stories';
 import OutcomeStories from '~/storybook/stories/outcome-stories';
+import RisingEmpireLogoStories from '~/storybook/stories/rising-empire-logo-stories';
+import RunningGameStories from '~/storybook/stories/running-game-stories';
+import SelectTechPageStories from '~/storybook/stories/select-tech-page-stories';
+import ShipSpecStories from '~/storybook/stories/ship-spec-stories';
+import ShipsStories from '~/storybook/stories/ships-stories';
+import SliderGroupStories from '~/storybook/stories/slider-group-stories';
+import SpaceCombatPageStories from '~/storybook/stories/space-combat-page-stories';
+import SpaceCombatStories from '~/storybook/stories/space-combat-stories';
+import StarBackgroundStories from '~/storybook/stories/star-background-stories';
+import StarMapStories from '~/storybook/stories/star-map-stories';
+import StarStories from '~/storybook/stories/star-stories';
+import SystemDetailsStories from '~/storybook/stories/system-details-stories';
+import SystemNameStories from '~/storybook/stories/system-name-stories';
+import TechPageStories from '~/storybook/stories/tech-page-stories';
 import ThemeManagerStories from '~/storybook/stories/theme-manager-stories';
 import ThemeStories from '~/storybook/stories/theme-stories';
-import GameLauncherStories from '~/storybook/stories/game-launcher-stories';
-import RunningGameStories from '~/storybook/stories/running-game-stories';
-import RisingEmpireLogoStories from '~/storybook/stories/rising-empire-logo-stories';
-import AnnexationStories from '~/storybook/stories/annexation-stories';
+import TurnFinishedDialogStories from '~/storybook/stories/turn-finished-dialog-stories';
+import UnexploredStories from '~/storybook/stories/unexplored-stories';
 
 class Storybook extends HTMLElement {
 	static NAME = 're-storybook';
@@ -80,6 +81,7 @@ class Storybook extends HTMLElement {
 		'system-details-no-colony': (story) => SystemDetailsStories.showSystemDetailsNoColony(story),
 		unexplored: (story) => UnexploredStories.showUnexplored(story),
 		'star-map-notification': (story) => StarMapStories.showStarMapNotification(story),
+		star: (story) => StarStories.showStars(story),
 		'turn-finished-dialog-waiting-for-others': (story) =>
 			TurnFinishedDialogStories.showTurnFinishedDialogWaitingForOthers(story),
 	};
@@ -200,6 +202,7 @@ class Storybook extends HTMLElement {
 									<option value="unexplored" class="lv-3">unexplored</option>
 								<option disabled class="lv-2">star-map</option>
 									<option value="star-map-notification" class="lv-3">star-map notification</option>
+									<option value="star" class="lv-3">star</option>
 								<option value="turn-finished-dialog-waiting-for-others" class="lv-2">turn-finished-dialog waiting for others</option>
 					</select>
 

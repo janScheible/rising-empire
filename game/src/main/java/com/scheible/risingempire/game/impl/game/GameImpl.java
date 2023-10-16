@@ -98,7 +98,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	private final FleetFormer fleetFormer;
 	private final JourneyCalculator journeyCalculator;
 	private final FleetTurn fleetTurn;
-	private final int annexationSiegeTurns;
+	private final int annexationSiegeRounds;
 
 	private final EnumSet<Player> finishedTurn = EnumSet.noneOf(Player.class);
 	private int round = 1;
@@ -135,7 +135,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 						: new KnownInAdvanceWinnerSpaceCombatResolver(gameOptions.getSpaceCombatOutcome()),
 				shipDesignProvider);
 
-		this.annexationSiegeTurns = gameOptions.getAnnexationSiegeTurns();
+		this.annexationSiegeRounds = gameOptions.getAnnexationSiegeRounds();
 	}
 
 	private void nextTurn() {
@@ -344,7 +344,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		} else if (!isSiegeSuccessful(orbiting)) {
 			throw new IllegalArgumentException("The fleet '" + orbiting + "' can't annex the system '" + system.getId()
 					+ "' because the fleet is only there for " + (round - orbiting.getArrivalRound())
-					+ " but must be at least " + annexationSiegeTurns + "!");
+					+ " but must be at least " + annexationSiegeRounds + "!");
 		} else {
 			if (!skip) {
 				annexCommands.add(new AnnexCommand(player, system.getId(), orbiting.getId()));
@@ -362,7 +362,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	}
 
 	private boolean isSiegeSuccessful(final OrbitingFleet orbiting) {
-		return round - orbiting.getArrivalRound() >= annexationSiegeTurns;
+		return round - orbiting.getArrivalRound() >= annexationSiegeRounds;
 	}
 
 	@Override
@@ -389,6 +389,22 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	public boolean hasAnnexCommand(final Player player, final SystemId systemId, final FleetId fleetId) {
 		return annexCommands.stream().anyMatch(command -> command.player() == player
 				&& command.systemId().equals(systemId) && command.fleetId().equals(fleetId));
+	}
+
+	@Override
+	public Optional<Integer> getSiegeProgress(final FleetId fleetId) {
+		final Fleet fleet = fleets.get(fleetId);
+		if (fleet != null && fleet.isOrbiting()) {
+			final OrbitingFleet orbiting = fleet.asOrbiting();
+			final System system = systems.get(orbiting.getSystem().getId());
+
+			if (system.getColony().isPresent() && system.getColony().get().getPlayer() != orbiting.getPlayer()) {
+				return Optional
+						.of((int) Math.min(100, 100.0 * (round - orbiting.getArrivalRound()) / annexationSiegeRounds));
+			}
+		}
+
+		return Optional.empty();
 	}
 
 	@Override
@@ -449,7 +465,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		return GameViewBuilder.buildView(galaxySize, round, getTurnFinishedStatus(), player, playerRaceMapping,
 				systems.values(), fleets.values(), designs, orbitingArrivingMapping,
 				(c, sid) -> fractions.get(c).getSnapshot(sid), fractions.get(player).getTechnology(), spaceCombats,
-				this, this, this, systemNotifications);
+				this, this, this, systemNotifications, annexationSiegeRounds);
 	}
 
 	@Override
