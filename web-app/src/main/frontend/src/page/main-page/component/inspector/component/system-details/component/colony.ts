@@ -19,6 +19,12 @@ export default class Colony extends HTMLElement {
 	#netProductionEl: HTMLSpanElement;
 	#grossProductionEl: HTMLSpanElement;
 
+	#siegeProgressEl: HTMLDivElement;
+	#roundsUntilAnnexableEl: HTMLDivElement;
+	#ownColonySiegedEl: HTMLDivElement;
+	#siegeRaceEl: HTMLDivElement;
+	#foreigenColonySiegedEl: HTMLDivElement;
+
 	constructor() {
 		super();
 
@@ -32,6 +38,11 @@ export default class Colony extends HTMLElement {
 
 				#gross-production {
 					color: forestgreen;
+				}
+
+				#siege-progress {
+					font-weight: bold;
+					text-align: center;
 				}
 			</style>
 			<${FlowLayout.NAME} id="wrapper" direction="column" gap="XL">
@@ -55,6 +66,12 @@ export default class Colony extends HTMLElement {
 						<span id="net-production" class="bold"></span>&nbsp;<span id="gross-production" class="bold">()</span>
 					</${FlowLayout.NAME}>
 				</${GridLayout.NAME}>
+
+				<div id="siege-progress" data-cross-axis-align="center">
+					Annexation possible <span id="rounds-until-annexable"></span><!--
+					--><span id="own-colony-sieged"> by the <span id="siege-race"></span>!</span><!--
+					--><span id="foreigen-colony-sieged">.</span>
+				</div>
 			</${FlowLayout.NAME}>`;
 
 		this.#wrapperEl = this.shadowRoot.querySelector('#wrapper');
@@ -69,13 +86,23 @@ export default class Colony extends HTMLElement {
 		this.#basesEl = this.shadowRoot.querySelector('#bases');
 		this.#netProductionEl = this.shadowRoot.querySelector('#net-production');
 		this.#grossProductionEl = this.shadowRoot.querySelector('#gross-production');
+
+		this.#siegeProgressEl = this.shadowRoot.querySelector('#siege-progress');
+		this.#roundsUntilAnnexableEl = this.shadowRoot.querySelector('#rounds-until-annexable');
+		this.#ownColonySiegedEl = this.shadowRoot.querySelector('#own-colony-sieged');
+		this.#siegeRaceEl = this.shadowRoot.querySelector('#siege-race');
+		this.#foreigenColonySiegedEl = this.shadowRoot.querySelector('#foreigen-colony-sieged');
 	}
 
 	render(data) {
-		if (Reconciler.reconcileProperty(this.#colonyEl, 'hidden', data && !data.race)) {
-			this.#wrapperEl.updateMargins();
-		}
-		if (!this.#colonyEl.hidden) {
+		const visibilities = [
+			this.#colonyEl.hidden,
+			this.#figuresEl.hidden,
+			this.#siegeProgressEl.hidden,
+			this.#ownColonySiegedEl.hidden,
+		];
+
+		if (!Reconciler.isHiddenAfterPropertyReconciliation(this.#colonyEl, data && !data.race)) {
 			Reconciler.reconcileClass(this.#colonyRaceEl, 'bold', data && data.race);
 			Reconciler.reconcileProperty(this.#colonyRaceEl, 'innerText', data && data.race ? data.race : 'No');
 			Reconciler.reconcileStyle(
@@ -98,6 +125,37 @@ export default class Colony extends HTMLElement {
 				Reconciler.reconcileProperty(this.#netProductionEl, 'innerText', data.production.net);
 				Reconciler.reconcileProperty(this.#grossProductionEl, 'innerText', '(' + data.production.gross + ')');
 			}
+		}
+
+		if (
+			!Reconciler.isHiddenAfterPropertyReconciliation(
+				this.#siegeProgressEl,
+				!(data && data.roundsUntilAnnexable >= 0)
+			)
+		) {
+			Reconciler.reconcileProperty(
+				this.#roundsUntilAnnexableEl,
+				'innerText',
+				data.roundsUntilAnnexable > 0 ? `in ${data.roundsUntilAnnexable} rounds` : 'now'
+			);
+
+			const foreigenSiegePresent = data.siegePlayerColor && data.siegeRace;
+			Reconciler.reconcileProperty(this.#foreigenColonySiegedEl, 'hidden', foreigenSiegePresent);
+			if (!Reconciler.isHiddenAfterPropertyReconciliation(this.#ownColonySiegedEl, !foreigenSiegePresent)) {
+				Reconciler.reconcileProperty(this.#siegeRaceEl, 'innerText', data.siegeRace);
+				Reconciler.reconcileStyle(this.#siegeRaceEl, 'color', `var(--${data.siegePlayerColor}-player-color)`);
+			}
+		}
+
+		if (
+			![
+				this.#colonyEl.hidden,
+				this.#figuresEl.hidden,
+				this.#siegeProgressEl.hidden,
+				this.#ownColonySiegedEl.hidden,
+			].every((val, i) => val === visibilities[i])
+		) {
+			this.#wrapperEl.updateMargins();
 		}
 	}
 }

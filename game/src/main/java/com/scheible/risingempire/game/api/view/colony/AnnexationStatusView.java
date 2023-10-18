@@ -1,6 +1,7 @@
 package com.scheible.risingempire.game.api.view.colony;
 
 import com.scheible.risingempire.game.api.view.universe.Player;
+import com.scheible.risingempire.game.api.view.universe.Race;
 import java.util.Optional;
 
 /**
@@ -8,7 +9,7 @@ import java.util.Optional;
  * @author sj
  */
 public record AnnexationStatusView(Optional<Integer> siegeRounds, Optional<Integer> roundsUntilAnnexable,
-		Optional<Player> siegingPlayer,	Optional<Boolean> annexable, Optional<Boolean> annexCommand) {
+		Optional<Player> siegingPlayer,	Optional<Race> siegingRace, Optional<Boolean> annexable, Optional<Boolean> annexCommand) {
 
 	public AnnexationStatusView {
 		final boolean siegeState = siegeRounds.isPresent() && roundsUntilAnnexable.isPresent() 

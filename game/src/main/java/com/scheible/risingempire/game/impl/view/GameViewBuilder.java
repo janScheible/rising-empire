@@ -125,6 +125,8 @@ public class GameViewBuilder {
 										? new AnnexationStatusView(Optional.ofNullable(siegeRounds.apply(system)),
 												Optional.ofNullable(roundsUntilAnnexable.apply(system)),
 												Optional.ofNullable(siegePlayer.apply(system)),
+												Optional.ofNullable(siegePlayer.apply(system)).map(
+														playerRaceMapping::get),
 												Optional.of(isAnnexable.test(system)),
 												Optional.of(hasAnnexCommand.test(system)))
 										: null,

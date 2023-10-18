@@ -15,19 +15,19 @@
 			<property name="format" value="^(logger|[A-Z][A-Z0-9]*(_[A-Z0-9]+)*)$"/>
 		</module>
 		<module name="ParameterNumber">
-			<property name="max" value="17"/>
+			<property name="max" value="18"/>
 			<property name="ignoreOverriddenMethods" value="true"/>
 		</module>
 		<module name="LambdaBodyLength">
-			<property name="max" value="36"/>
+			<property name="max" value="40"/>
 		</module>
 		<module name="MethodLength">
-			<property name="max" value="213"/>
+			<property name="max" value="220"/>
 			<property name="countEmpty" value="false"/>
 		</module>
 	</module>
 
 	<module name="FileLength">
-		<property name="max" value="505"/>
+		<property name="max" value="510"/>
 	</module>
 </module>

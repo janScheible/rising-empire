@@ -270,14 +270,27 @@ class InspectorDto {
 		final PlayerDto playerColor;
 		final int population;
 		final int bases = 0;
-		final Optional<ProductionDto> production;
+		@Nullable
+		final ProductionDto production;
+
+		@Nullable
+		final Integer roundsUntilAnnexable;
+		@Nullable
+		final PlayerDto siegePlayerColor;
+		@Nullable
+		final RaceDto siegeRace;
 
 		ColonyDto(final Optional<ForeignColonyOwner> foreignColonyOwner, final int population,
-				final Optional<ProductionDto> production) {
+				final Optional<ProductionDto> production, final Optional<Integer> roundsUntilAnnexable,
+				final Optional<Player> siegePlayer, final Optional<Race> siegeRace) {
 			this.playerColor = foreignColonyOwner.map(co -> PlayerDto.fromPlayer(co.playerColor)).orElse(null);
 			this.race = foreignColonyOwner.map(co -> RaceDto.fromRace(co.race)).orElse(null);
 			this.population = population;
-			this.production = production;
+			this.production = production.orElse(null);
+
+			this.roundsUntilAnnexable = roundsUntilAnnexable.orElse(null);
+			this.siegePlayerColor = siegePlayer.map(PlayerDto::fromPlayer).orElse(null);
+			this.siegeRace = siegeRace.map(RaceDto::fromRace).orElse(null);
 		}
 	}
 

@@ -242,7 +242,12 @@ public class MainPageDtoPopulator {
 											Optional.ofNullable(c.getPlayer() != gameView.getPlayer()
 													? new ForeignColonyOwner(c.getRace(), c.getPlayer())
 													: null),
-											c.getPopulation(), c.getRatios().map(r -> new ProductionDto(42, 78)))),
+											c.getPopulation(), c.getRatios().map(r -> new ProductionDto(42, 78)),
+											c.getAnnexationStatus().flatMap(AnnexationStatusView::roundsUntilAnnexable),
+											c.getAnnexationStatus().filter(as -> context.getPlayer() == c.getPlayer())
+													.flatMap(AnnexationStatusView::siegingPlayer),
+											c.getAnnexationStatus().filter(as -> context.getPlayer() == c.getPlayer())
+													.flatMap(AnnexationStatusView::siegingRace))),
 							selectedSystem.getColonyView().filter(c -> c.getPlayer() == gameView.getPlayer())
 									.map(c -> new EntityModel<>(new AllocationsDto(Map.of( //
 											"ship", new AllocationCategoryDto(10, "None"), //
