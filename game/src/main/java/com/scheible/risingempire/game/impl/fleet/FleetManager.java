@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.api.view;
+package com.scheible.risingempire.game.impl.fleet;
 
 import java.util.Map;
 import java.util.Optional;

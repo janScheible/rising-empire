@@ -27,12 +27,10 @@ import com.scheible.risingempire.game.api.GameOptions.FakeSystemNotificationProv
 import com.scheible.risingempire.game.api.GameOptions.FakeTechProvider;
 import com.scheible.risingempire.game.api.PlayerGame;
 import com.scheible.risingempire.game.api.TurnStatus;
-import com.scheible.risingempire.game.api.view.FleetManager;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.ai.Ai;
 import com.scheible.risingempire.game.api.view.ai.AiFactory;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
-import com.scheible.risingempire.game.api.view.colony.ColonyManager;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
@@ -41,15 +39,16 @@ import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.tech.TechId;
-import com.scheible.risingempire.game.api.view.tech.TechManager;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.api.view.universe.Race;
 import com.scheible.risingempire.game.impl.colony.Colony;
+import com.scheible.risingempire.game.impl.colony.ColonyManager;
 import com.scheible.risingempire.game.impl.fleet.Fleet;
 import com.scheible.risingempire.game.impl.fleet.FleetChanges;
 import com.scheible.risingempire.game.impl.fleet.FleetFinder;
 import com.scheible.risingempire.game.impl.fleet.FleetFormer;
 import com.scheible.risingempire.game.impl.fleet.FleetIdGenerator;
+import com.scheible.risingempire.game.impl.fleet.FleetManager;
 import com.scheible.risingempire.game.impl.fleet.FleetTurn;
 import com.scheible.risingempire.game.impl.fleet.JourneyCalculator;
 import com.scheible.risingempire.game.impl.fleet.OrbitingFleet;
@@ -63,6 +62,7 @@ import com.scheible.risingempire.game.impl.spacecombat.resolver.predetermined.Kn
 import com.scheible.risingempire.game.impl.spacecombat.resolver.simulated.SimulatingSpaceCombatResolver;
 import com.scheible.risingempire.game.impl.system.System;
 import com.scheible.risingempire.game.impl.system.SystemOrb;
+import com.scheible.risingempire.game.impl.tech.TechManager;
 import com.scheible.risingempire.game.impl.view.GameViewBuilder;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -465,7 +465,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		return GameViewBuilder.buildView(galaxySize, round, getTurnFinishedStatus(), player, playerRaceMapping,
 				systems.values(), fleets.values(), designs, orbitingArrivingMapping,
 				(c, sid) -> fractions.get(c).getSnapshot(sid), fractions.get(player).getTechnology(), spaceCombats,
-				this, this, this, systemNotifications, annexationSiegeRounds);
+				this, this, systemNotifications, annexationSiegeRounds);
 	}
 
 	@Override

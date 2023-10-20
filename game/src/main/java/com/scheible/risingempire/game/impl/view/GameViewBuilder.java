@@ -19,10 +19,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.scheible.risingempire.game.api.GalaxySize;
-import com.scheible.risingempire.game.api.view.FleetManager;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.colony.AnnexationStatusView;
-import com.scheible.risingempire.game.api.view.colony.ColonyManager;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
@@ -36,13 +34,13 @@ import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.system.SystemView;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
-import com.scheible.risingempire.game.api.view.tech.TechManager;
 import com.scheible.risingempire.game.api.view.tech.TechView;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.api.view.universe.Race;
 import com.scheible.risingempire.game.impl.colony.Colony;
 import com.scheible.risingempire.game.impl.fleet.DeployedFleet;
 import com.scheible.risingempire.game.impl.fleet.Fleet;
+import com.scheible.risingempire.game.impl.fleet.FleetManager;
 import com.scheible.risingempire.game.impl.fleet.OrbitingFleet;
 import com.scheible.risingempire.game.impl.fraction.Technology;
 import com.scheible.risingempire.game.impl.ship.AbstractSpecial;
@@ -52,6 +50,7 @@ import com.scheible.risingempire.game.impl.spacecombat.FireExchange;
 import com.scheible.risingempire.game.impl.spacecombat.SpaceCombat;
 import com.scheible.risingempire.game.impl.system.System;
 import com.scheible.risingempire.game.impl.system.SystemSnapshot;
+import com.scheible.risingempire.game.impl.tech.TechManager;
 
 /**
  *
@@ -66,9 +65,8 @@ public class GameViewBuilder {
 			final Map<Player, Map<DesignSlot, ShipDesign>> designs,
 			final Map<FleetId, Set<FleetBeforeArrival>> orbitingArrivingMapping,
 			final BiFunction<Player, SystemId, Optional<SystemSnapshot>> snapshotProvider, final Technology technology,
-			final Set<SpaceCombat> spaceCombats, final FleetManager fleetManager, final ColonyManager colonyManager,
-			final TechManager techManager, final Set<SystemNotificationView> systemNotifications,
-			final int annexationSiegeRounds) {
+			final Set<SpaceCombat> spaceCombats, final FleetManager fleetManager, final TechManager techManager,
+			final Set<SystemNotificationView> systemNotifications, final int annexationSiegeRounds) {
 		final Set<SystemView> systemViews = new HashSet<>(systems.size());
 		final Set<FleetView> fleetViews = new HashSet<>(30);
 
@@ -117,20 +115,21 @@ public class GameViewBuilder {
 								.map(ds -> ds.toShipType(designs.get(player).get(ds))).orElse(null);
 						final Map<ProductionArea, Integer> ratios = colony.map(Colony::getRatios).orElse(null);
 
-						final ColonyView colonyView = colonyPlayer.map(cc -> new ColonyView(
-								snapshot.getId().toColonyId(), colonyPlayer.get(),
-								playerRaceMapping.get(colonyPlayer.get()), snapshot.getColonyPopulation().get(),
-								spaceDock, ratios,
-								!(siegePlayer.apply(system) == null && !isAnnexable.test(system))
-										? new AnnexationStatusView(Optional.ofNullable(siegeRounds.apply(system)),
-												Optional.ofNullable(roundsUntilAnnexable.apply(system)),
-												Optional.ofNullable(siegePlayer.apply(system)),
-												Optional.ofNullable(siegePlayer.apply(system)).map(
-														playerRaceMapping::get),
-												Optional.of(isAnnexable.test(system)),
-												Optional.of(hasAnnexCommand.test(system)))
-										: null,
-								colonyManager)).orElse(null);
+						final ColonyView colonyView = colonyPlayer
+								.map(cc -> new ColonyView(snapshot.getId().toColonyId(), colonyPlayer.get(),
+										playerRaceMapping.get(colonyPlayer.get()), snapshot.getColonyPopulation().get(),
+										spaceDock, ratios,
+										!(siegePlayer.apply(system) == null && !isAnnexable.test(system))
+												? new AnnexationStatusView(
+														Optional.ofNullable(siegeRounds.apply(system)),
+														Optional.ofNullable(roundsUntilAnnexable.apply(system)),
+														Optional.ofNullable(siegePlayer.apply(system)),
+														Optional.ofNullable(siegePlayer.apply(system))
+																.map(playerRaceMapping::get),
+														Optional.of(isAnnexable.test(system)),
+														Optional.of(hasAnnexCommand.test(system)))
+												: null))
+								.orElse(null);
 
 						final Integer seenInTurn = Optional.of(snapshot.getLastSeenTurn()).filter(t -> t != round)
 								.orElse(null);

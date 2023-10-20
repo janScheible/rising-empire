@@ -31,11 +31,9 @@ public class ColonyView {
 	@Nullable
 	private final AnnexationStatusView annexationStatus;
 
-	final ColonyManager colonyManager;
-
 	public ColonyView(final ColonyId id, final Player player, final Race race, final Integer population,
 			@Nullable final ShipTypeView spaceDock, @Nullable final Map<ProductionArea, Integer> ratios,
-			@Nullable final AnnexationStatusView annexationStatus, final ColonyManager colonyManager) {
+			@Nullable final AnnexationStatusView annexationStatus) {
 		this.id = id;
 
 		this.player = player;
@@ -44,17 +42,6 @@ public class ColonyView {
 		this.spaceDock = spaceDock;
 		this.ratios = ratios != null ? new EnumMap<>(ratios) : null;
 		this.annexationStatus = annexationStatus;
-
-		this.colonyManager = colonyManager;
-	}
-
-	public void adjustRatio(final ProductionArea area, final int percentage) {
-		if (percentage < 0 || percentage > 100) {
-			throw new IllegalArgumentException(
-					"The percentage " + percentage + " for the area " + area + " is not valid!");
-		}
-
-		ratios.putAll(colonyManager.adjustRatio(player, id, area, percentage));
 	}
 
 	public Optional<ShipTypeView> getSpaceDock() {

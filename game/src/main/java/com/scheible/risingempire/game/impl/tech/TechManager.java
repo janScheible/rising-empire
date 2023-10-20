@@ -1,8 +1,9 @@
-package com.scheible.risingempire.game.api.view.tech;
+package com.scheible.risingempire.game.impl.tech;
 
 import java.util.List;
 import java.util.Map;
 
+import com.scheible.risingempire.game.api.view.tech.TechId;
 import com.scheible.risingempire.game.api.view.universe.Player;
 
 /**
