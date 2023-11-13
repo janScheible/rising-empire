@@ -15,7 +15,7 @@
 		 <module name="AvoidStarImport"/>
 		<!-- Excludes mainly test libraries: https://github.com/spring-io/spring-javaformat/blob/main/spring-javaformat/spring-javaformat-checkstyle/src/main/java/io/spring/javaformat/checkstyle/check/SpringAvoidStaticImportCheck.java -->
 		<module name="io.spring.javaformat.checkstyle.check.SpringAvoidStaticImportCheck">
-			<property name="excludes" value="java.nio.charset.StandardCharsets.*,com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*, com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.*" />
+			<property name="excludes" value="java.nio.charset.StandardCharsets.*,com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*, com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.*,java.util.Objects.requireNonNull" />
 		</module>
 		
 		<module name="ModifierOrder"/>

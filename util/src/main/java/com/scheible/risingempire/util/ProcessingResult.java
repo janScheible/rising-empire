@@ -27,15 +27,15 @@ public class ProcessingResult<T> {
 	}
 
 	public T get() {
-		return value;
+		return this.value;
 	}
 
 	public boolean didExist() {
-		return existing;
+		return this.existing;
 	}
 
 	public boolean wasCreated() {
-		return !existing;
+		return !this.existing;
 	}
 
 }

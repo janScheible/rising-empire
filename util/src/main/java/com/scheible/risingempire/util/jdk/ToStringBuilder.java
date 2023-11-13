@@ -25,27 +25,27 @@ public class ToStringBuilder {
 		final Optional<?> optionalValue = isOptional ? (Optional<?>) value : null;
 
 		if (!isOptional || optionalValue.isPresent()) {
-			joiner.add(key + "=" + quoteChar + (isOptional ? optionalValue.get() : value) + quoteChar);
+			this.joiner.add(key + "=" + quoteChar + (isOptional ? optionalValue.get() : value) + quoteChar);
 		}
 
 		return this;
 	}
 
 	public ToStringBuilder nest(final ToStringBuilder nested) {
-		joiner.add(nested.toString());
+		this.joiner.add(nested.toString());
 		return this;
 	}
 
 	public ToStringBuilder nest(final Optional<ToStringBuilder> nested) {
 		if (nested.isPresent()) {
-			joiner.add(nested.get().toString());
+			this.joiner.add(nested.get().toString());
 		}
 		return this;
 	}
 
 	@Override
 	public String toString() {
-		return type + "[" + joiner.toString() + "]";
+		return this.type + "[" + this.joiner.toString() + "]";
 	}
 
 }
