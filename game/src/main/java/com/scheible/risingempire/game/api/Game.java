@@ -5,7 +5,6 @@ import java.util.Set;
 import com.scheible.risingempire.game.api.view.universe.Player;
 
 /**
- * 
  * @author sj
  */
 public interface Game {
@@ -21,7 +20,9 @@ public interface Game {
 	void unregisterAi(Player player);
 
 	/**
-	 * The round of the game. It is incremented every time all players finished theirs turns.
+	 * The round of the game. It is incremented every time all players finished theirs
+	 * turns.
 	 */
 	int getRound();
+
 }

@@ -1,17 +1,8 @@
 package com.scheible.risingempire.game.impl.fleet;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
 
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.system.SystemId;
@@ -19,9 +10,16 @@ import com.scheible.risingempire.game.api.view.universe.Location;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.impl.ship.DesignSlot;
 import com.scheible.risingempire.game.impl.system.SystemOrb;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 /**
- *
  * @author sj
  */
 class FleetFormerTest {
@@ -63,4 +61,5 @@ class FleetFormerTest {
 		doAnswer(invocation -> FleetId.createRandom()).when(fleetIdGenerator).createRandom();
 		return fleetIdGenerator;
 	}
+
 }

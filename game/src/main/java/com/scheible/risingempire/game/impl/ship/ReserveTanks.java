@@ -3,7 +3,6 @@ package com.scheible.risingempire.game.impl.ship;
 import java.util.Objects;
 
 /**
- *
  * @author sj
  */
 public class ReserveTanks extends AbstractSpecial {
@@ -16,10 +15,12 @@ public class ReserveTanks extends AbstractSpecial {
 	public boolean equals(final Object obj) {
 		if (obj == this) {
 			return true;
-		} else if (obj != null && obj.getClass().equals(getClass())) {
+		}
+		else if (obj != null && obj.getClass().equals(getClass())) {
 			final ReserveTanks other = (ReserveTanks) obj;
 			return Objects.equals(name, other.name);
-		} else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -28,4 +29,5 @@ public class ReserveTanks extends AbstractSpecial {
 	public int hashCode() {
 		return Objects.hash(name);
 	}
+
 }

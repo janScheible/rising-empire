@@ -16,7 +16,6 @@ import com.scheible.risingempire.webapp.hypermedia.HypermediaSubModule;
 import com.scheible.risingempire.webapp.partial.PartialSubModule;
 
 /**
- *
  * @author sj
  */
 @SubModule(uses = { SpringFramework.class, RisingEmpireUtil.class, RisingEmpireGame.class, Jackson.class,
@@ -27,4 +26,5 @@ public final class MainPageFrontendAdapterSubModule {
 
 	private MainPageFrontendAdapterSubModule() {
 	}
+
 }

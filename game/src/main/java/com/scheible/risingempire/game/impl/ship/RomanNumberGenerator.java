@@ -1,7 +1,6 @@
 package com.scheible.risingempire.game.impl.ship;
 
 /**
- *
  * @author sj
  */
 class RomanNumberGenerator {
@@ -11,4 +10,5 @@ class RomanNumberGenerator {
 	static String getNumber(final int value) {
 		return LOOKUP_ARRAY[value];
 	}
+
 }

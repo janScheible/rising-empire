@@ -1,7 +1,6 @@
 package com.scheible.risingempire.mootheme.lbx;
 
 /**
- *
  * @author sj
  */
 public class LbxEntry {
@@ -29,11 +28,15 @@ public class LbxEntry {
 		public int getId() {
 			return id;
 		}
+
 	}
 
 	private final LbxInputStream input;
+
 	private final long entryStart;
+
 	private final long entryEnd;
+
 	private final Type type;
 
 	public LbxEntry(final LbxInputStream input, final long entryStart, final long entryEnd, final Type type) {
@@ -58,4 +61,5 @@ public class LbxEntry {
 	public Type getType() {
 		return type;
 	}
+
 }

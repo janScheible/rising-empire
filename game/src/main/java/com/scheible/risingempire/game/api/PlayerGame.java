@@ -12,7 +12,6 @@ import com.scheible.risingempire.game.api.view.tech.TechId;
 import com.scheible.risingempire.game.api.view.universe.Player;
 
 /**
- *
  * @author sj
  */
 public interface PlayerGame {
@@ -46,4 +45,5 @@ public interface PlayerGame {
 	//
 
 	TurnStatus finishTurn();
+
 }

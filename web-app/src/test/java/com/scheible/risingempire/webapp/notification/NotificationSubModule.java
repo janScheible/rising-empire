@@ -8,13 +8,13 @@ import com.scheible.risingempire.webapp.ExternalFunctionalities.Slf4j;
 import com.scheible.risingempire.webapp.ExternalFunctionalities.SpringFramework;
 
 /**
- *
  * @author sj
  */
-@SubModule(includeSubPackages = false, uses = { RisingEmpireGame.class, RisingEmpireUtil.class, SpringFramework.class,
-		Slf4j.class, Jackson.class })
+@SubModule(includeSubPackages = false,
+		uses = { RisingEmpireGame.class, RisingEmpireUtil.class, SpringFramework.class, Slf4j.class, Jackson.class })
 public final class NotificationSubModule {
 
 	private NotificationSubModule() {
 	}
+
 }

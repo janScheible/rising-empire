@@ -1,12 +1,5 @@
 package com.scheible.risingempire.webapp.adapter.frontend._scenario;
 
-import static java.util.Objects.requireNonNull;
-
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.NotificationEventCondition.notification;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -20,6 +13,17 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
+import com.jayway.jsonpath.JsonPath;
+import com.scheible.risingempire.game.api.Game;
+import com.scheible.risingempire.game.api.view.system.SystemId;
+import com.scheible.risingempire.game.api.view.universe.Player;
+import com.scheible.risingempire.webapp._hypermedia.HypermediaClient;
+import com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.GameHolderConfiguration;
+import com.scheible.risingempire.webapp.game.GameHolder;
+import com.scheible.risingempire.webapp.game.GameManager;
+import com.scheible.risingempire.webapp.notification.NotificationChannel;
+import com.scheible.risingempire.webapp.notification.NotificationService;
+import net.minidev.json.JSONObject;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Condition;
 import org.assertj.core.description.Description;
@@ -37,23 +41,16 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import com.jayway.jsonpath.JsonPath;
-import com.scheible.risingempire.game.api.Game;
-import com.scheible.risingempire.game.api.view.system.SystemId;
-import com.scheible.risingempire.game.api.view.universe.Player;
-import com.scheible.risingempire.webapp._hypermedia.HypermediaClient;
-import com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.GameHolderConfiguration;
-import com.scheible.risingempire.webapp.game.GameHolder;
-import com.scheible.risingempire.webapp.game.GameManager;
-import com.scheible.risingempire.webapp.notification.NotificationChannel;
-import com.scheible.risingempire.webapp.notification.NotificationService;
-
-import net.minidev.json.JSONObject;
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.NotificationEventCondition.notification;
+import static java.util.Objects.requireNonNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /**
- * Base class for main page tests with MockMvc. <code>SwappableGame</code> is used to control the game bean.
- * It can be either swap with a Mockito mock or a real game.
- * 
+ * Base class for main page tests with MockMvc. <code>SwappableGame</code> is used to
+ * control the game bean. It can be either swap with a Mockito mock or a real game.
+ *
  * @author sj
  */
 @WebMvcTest(properties = { "spring.main.banner-mode=off", "spring.test.mockmvc.print=none" })
@@ -69,6 +66,7 @@ abstract class AbstractMainPageIT {
 	static class NotificationEventCondition extends Condition<NotificationEvent> {
 
 		private final Player player;
+
 		private final String type;
 
 		NotificationEventCondition(final Player player, final String type) {
@@ -97,6 +95,7 @@ abstract class AbstractMainPageIT {
 		Player getPlayer() {
 			return player;
 		}
+
 	}
 
 	static class MainPageAssert extends AbstractAssert<MainPageAssert, HypermediaClient> {
@@ -137,11 +136,13 @@ abstract class AbstractMainPageIT {
 			}
 			return this;
 		}
+
 	}
 
 	static class JsonAssertCondition extends Condition<HypermediaClient> {
 
 		private final String json;
+
 		private final Optional<String> logJsonPath;
 
 		public JsonAssertCondition(final String json, final Optional<String> logJsonPath) {
@@ -156,7 +157,8 @@ abstract class AbstractMainPageIT {
 				if (logJsonPath.isPresent()) {
 					logger.info(JsonPath.parse(client.getPageContentAsString()).read(logJsonPath.get()).toString());
 				}
-			} catch (UnsupportedEncodingException | JSONException | AssertionError ex) {
+			}
+			catch (UnsupportedEncodingException | JSONException | AssertionError ex) {
 				return false;
 			}
 
@@ -180,13 +182,17 @@ abstract class AbstractMainPageIT {
 		static JsonAssertCondition round(final int round) {
 			return new JsonAssertCondition("{ round: " + round + " }", Optional.empty());
 		}
+
 	}
 
 	static class MainPageFleet {
 
 		final String id;
+
 		final String player;
+
 		final int x;
+
 		final int y;
 
 		MainPageFleet(final String id, final String player, final int x, final int y) {
@@ -205,11 +211,13 @@ abstract class AbstractMainPageIT {
 		public boolean equals(final Object obj) {
 			if (this == obj) {
 				return true;
-			} else if (obj instanceof MainPageFleet) {
+			}
+			else if (obj instanceof MainPageFleet) {
 				MainPageFleet other = (MainPageFleet) obj;
 				return Objects.equals(other.id, id) && Objects.equals(other.player, player)
 						&& Objects.equals(other.x, x) && Objects.equals(other.y, y);
-			} else {
+			}
+			else {
 				return false;
 			}
 		}
@@ -218,12 +226,15 @@ abstract class AbstractMainPageIT {
 		public String toString() {
 			return id + "@" + player + " at (" + x + "," + y + ")";
 		}
+
 	}
 
 	static class FleetCondition extends Condition<MainPageFleet> {
 
 		final String player;
+
 		final int x;
+
 		final int y;
 
 		FleetCondition(final String player, final int x, final int y) {
@@ -245,12 +256,14 @@ abstract class AbstractMainPageIT {
 		public Description description() {
 			return new TextDescription("being %s at (%d, %d)", player, x, y);
 		}
+
 	}
 
 	@SuppressWarnings("overloads")
 	static interface SwappableGame {
 
 		void swap(Game game);
+
 	}
 
 	@TestConfiguration
@@ -260,12 +273,15 @@ abstract class AbstractMainPageIT {
 		GameHolder gameHolder() {
 			return new GameHolder();
 		}
+
 	}
 
 	private final String TEST_GAME_ID = "main-page-integration-test-game";
 
 	final SystemId BLUE_HOME_SYSTEM_ID = new SystemId("s60x60");
+
 	final SystemId WHITE_HOME_SYSTEM_ID = new SystemId("s220x100");
+
 	final SystemId YELLOW_HOME_SYSTEM_ID = new SystemId("s140x340");
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractMainPageIT.class);
@@ -313,9 +329,9 @@ abstract class AbstractMainPageIT {
 	protected HypermediaClient finishTurn(final SystemId selectedStar, final int round) throws Exception {
 		return HypermediaClient.create(
 				post("/game/games/" + TEST_GAME_ID + "/BLUE/main-page/button-bar/finished-turns")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(JSONObject.toJSONString(
-								Map.of("selectedStarId", Arrays.asList(selectedStar.getValue()), "round", round))),
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(JSONObject.toJSONString(
+							Map.of("selectedStarId", Arrays.asList(selectedStar.getValue()), "round", round))),
 				mockMvc);
 	}
 
@@ -353,7 +369,8 @@ abstract class AbstractMainPageIT {
 
 				if (notification != null) {
 					assertThat(this.notifications).areExactly(1, notification);
-				} else {
+				}
+				else {
 					assertThat(this.notifications).areExactly(0, notification(player, type));
 				}
 			}
@@ -364,10 +381,12 @@ abstract class AbstractMainPageIT {
 
 	@SuppressWarnings("unchecked")
 	Set<MainPageFleet> extractFleets(final HypermediaClient blueClient) throws UnsupportedEncodingException {
-		return ((List<Map<String, Object>>) JsonPath.parse(blueClient.getPageContentAsString()).read("$.starMap.fleets",
-				List.class)).stream()
-						.map(e -> new MainPageFleet(e.get("id").toString(), e.get("playerColor").toString(),
-								(int) e.get("x"), (int) e.get("y")))
-						.collect(Collectors.toSet());
+		return ((List<Map<String, Object>>) JsonPath.parse(blueClient.getPageContentAsString())
+			.read("$.starMap.fleets", List.class))
+			.stream()
+			.map(e -> new MainPageFleet(e.get("id").toString(), e.get("playerColor").toString(), (int) e.get("x"),
+					(int) e.get("y")))
+			.collect(Collectors.toSet());
 	}
+
 }

@@ -10,13 +10,13 @@ import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.view.universe.Location;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Uniform system distribution created with
- * <a href="https://en.wikipedia.org/wiki/Supersampling#Poisson_disk"> Poisson disk sampling</a>.
- * 
+ * <a href="https://en.wikipedia.org/wiki/Supersampling#Poisson_disk"> Poisson disk
+ * sampling</a>.
+ *
  * @author sj
  */
 class UniformBigBang implements BigBang {
@@ -24,6 +24,7 @@ class UniformBigBang implements BigBang {
 	private static class Vector {
 
 		private double x;
+
 		private double y;
 
 		private Vector(final double x, final double y) {
@@ -59,21 +60,27 @@ class UniformBigBang implements BigBang {
 			final double dy = from.y - to.y;
 			return Math.sqrt(dx * dx + dy * dy);
 		}
+
 	}
 
-	// Inspired by: https://dev.to/christiankastner/poisson-disc-sampling-and-generative-art-2fpd
+	// Inspired by:
+	// https://dev.to/christiankastner/poisson-disc-sampling-and-generative-art-2fpd
 	private static class PoissonDiscSamplingAlogirthm {
 
 		private static final int K = 30;
 
 		private final double r;
+
 		private final double w;
 
 		private final int cols;
+
 		private final int rows;
+
 		private final Vector[] grid;
 
 		private final List<Vector> active;
+
 		private final Random random;
 
 		private PoissonDiscSamplingAlogirthm(final double r, final double w, final int cols, final int rows,
@@ -132,7 +139,8 @@ class UniformBigBang implements BigBang {
 						final int y = (int) Math.floor(sample.y / w);
 						grid[x + y * cols] = sample;
 						break;
-					} else if (j == K - 1) {
+					}
+					else if (j == K - 1) {
 						active.remove(i);
 					}
 				}
@@ -171,6 +179,7 @@ class UniformBigBang implements BigBang {
 
 			return false;
 		}
+
 	}
 
 	@Override
@@ -181,4 +190,5 @@ class UniformBigBang implements BigBang {
 
 		return samplePoints.stream().map(v -> new Location((int) v.x, (int) v.y)).collect(Collectors.toSet());
 	}
+
 }

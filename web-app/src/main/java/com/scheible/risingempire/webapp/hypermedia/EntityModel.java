@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.scheible.risingempire.util.jdk.Objects2;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class EntityModel<T> extends HypermediaModel<EntityModel<T>> {
@@ -26,7 +25,8 @@ public class EntityModel<T> extends HypermediaModel<EntityModel<T>> {
 	public EntityModel<T> with(final boolean predicate, final Supplier<Action> actionSupplier) {
 		if (predicate) {
 			return with(actionSupplier.get());
-		} else {
+		}
+		else {
 			return this;
 		}
 	}
@@ -47,4 +47,5 @@ public class EntityModel<T> extends HypermediaModel<EntityModel<T>> {
 		return Objects2.equals(this, obj,
 				other -> Objects.equals(actions, other.actions) && Objects.equals(content, other.content));
 	}
+
 }

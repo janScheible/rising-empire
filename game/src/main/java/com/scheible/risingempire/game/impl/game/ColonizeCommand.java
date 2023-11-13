@@ -5,7 +5,6 @@ import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.universe.Player;
 
 /**
- *
  * @author sj
  */
 record ColonizeCommand(Player player, SystemId systemId, FleetId fleetId) {

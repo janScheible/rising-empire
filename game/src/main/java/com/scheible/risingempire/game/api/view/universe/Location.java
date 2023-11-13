@@ -3,12 +3,12 @@ package com.scheible.risingempire.game.api.view.universe;
 import java.util.Objects;
 
 /**
- *
  * @author sj
  */
 public class Location {
 
 	private final int x;
+
 	private final int y;
 
 	public Location(final int x, final int y) {
@@ -44,10 +44,12 @@ public class Location {
 	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
-		} else if (obj != null && getClass().equals(obj.getClass())) {
+		}
+		else if (obj != null && getClass().equals(obj.getClass())) {
 			final Location other = (Location) obj;
 			return Objects.equals(x, other.x) && Objects.equals(y, other.y);
-		} else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -61,4 +63,5 @@ public class Location {
 	public String toString() {
 		return "(" + x + "," + y + ")";
 	}
+
 }

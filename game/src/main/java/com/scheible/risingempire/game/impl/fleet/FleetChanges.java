@@ -1,11 +1,5 @@
 package com.scheible.risingempire.game.impl.fleet;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.unmodifiableList;
-import static java.util.Collections.unmodifiableMap;
-import static java.util.Collections.unmodifiableSet;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,18 +8,25 @@ import java.util.function.Consumer;
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.impl.spacecombat.SpaceCombat;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.Collections.unmodifiableSet;
+
 /**
- *
  * @author sj
  */
 public class FleetChanges {
 
 	private final Set<Fleet> added;
+
 	private final Set<Fleet> removed;
+
 	private final List<SpaceCombat> combats;
+
 	private final Map<FleetId, Set<FleetBeforeArrival>> orbitingArrivingMapping;
 
 	public FleetChanges(final Set<Fleet> added, final Set<Fleet> removed) {
@@ -65,4 +66,5 @@ public class FleetChanges {
 	public Map<FleetId, Set<FleetBeforeArrival>> getOrbitingArrivingMapping() {
 		return orbitingArrivingMapping;
 	}
+
 }

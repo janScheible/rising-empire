@@ -8,7 +8,6 @@ import com.scheible.risingempire.mootheme.lbx.LbxEntry;
 import com.scheible.risingempire.mootheme.lbx.LbxInputStream;
 
 /**
- *
  * @author sj
  */
 public class PaletteReader {
@@ -25,7 +24,8 @@ public class PaletteReader {
 		final byte[] blue = new byte[256];
 
 		for (int i = 0; i < 256; i++) {
-			// all color values are in the range of 0..63 (6bpp per item) --> multiply by 4 (otherwise the colors
+			// all color values are in the range of 0..63 (6bpp per item) --> multiply by
+			// 4 (otherwise the colors
 			// are pretty dark)
 			red[i] = (byte) (input.readUByte() * 4);
 			green[i] = (byte) (input.readUByte() * 4);
@@ -34,4 +34,5 @@ public class PaletteReader {
 
 		return new IndexColorModel(8, 256, red, green, blue);
 	}
+
 }

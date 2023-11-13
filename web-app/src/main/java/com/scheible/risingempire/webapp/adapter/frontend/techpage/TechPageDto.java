@@ -5,7 +5,6 @@ import com.scheible.risingempire.webapp.adapter.frontend.dto.AllocationsDto;
 import com.scheible.risingempire.webapp.hypermedia.EntityModel;
 
 /**
- *
  * @author sj
  */
 class TechPageDto {
@@ -18,4 +17,5 @@ class TechPageDto {
 	TechPageDto(final EntityModel<AllocationsDto> allocations) {
 		this.allocations = allocations;
 	}
+
 }

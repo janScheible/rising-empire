@@ -5,7 +5,6 @@ import com.scheible.risingempire.game.impl.ship.ShipDesignProvider;
 import com.scheible.risingempire.game.impl.spacecombat.SpaceCombat;
 
 /**
- *
  * @author sj
  */
 @FunctionalInterface
@@ -13,4 +12,5 @@ public interface SpaceCombatResolver {
 
 	SpaceCombat resolve(SystemId systemId, OrbitingFleet defending, DeployedFleet attacking,
 			ShipDesignProvider shipDesignProvider);
+
 }

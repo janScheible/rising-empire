@@ -4,7 +4,7 @@ import java.util.ServiceLoader;
 
 /**
  * Factory for obtaining game instances.
- * 
+ *
  * @author sj
  */
 public interface GameFactory {
@@ -15,6 +15,7 @@ public interface GameFactory {
 	class LazyInstanceHolder {
 
 		private static final GameFactory INSTANCE = ServiceLoader.load(GameFactory.class).findFirst().get();
+
 	}
 
 	static GameFactory get() {
@@ -24,4 +25,5 @@ public interface GameFactory {
 	Game create(final GameOptions gameOptions);
 
 	Game load(final Object whatEver);
+
 }

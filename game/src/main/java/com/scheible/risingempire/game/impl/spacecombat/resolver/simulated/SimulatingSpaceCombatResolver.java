@@ -1,8 +1,5 @@
 package com.scheible.risingempire.game.impl.spacecombat.resolver.simulated;
 
-import static com.scheible.risingempire.game.impl.spacecombat.resolver.simulated.CombatStack.Side.ATTACKER;
-import static com.scheible.risingempire.game.impl.spacecombat.resolver.simulated.CombatStack.Side.DEFENDER;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -33,8 +30,10 @@ import com.scheible.risingempire.game.impl.spacecombat.SpaceCombat;
 import com.scheible.risingempire.game.impl.spacecombat.resolver.simulated.CombatStack.Side;
 import com.scheible.risingempire.util.jdk.Lists2;
 
+import static com.scheible.risingempire.game.impl.spacecombat.resolver.simulated.CombatStack.Side.ATTACKER;
+import static com.scheible.risingempire.game.impl.spacecombat.resolver.simulated.CombatStack.Side.DEFENDER;
+
 /**
- *
  * @author sj
  */
 public class SimulatingSpaceCombatResolver implements SpaceCombatResolver {
@@ -42,8 +41,11 @@ public class SimulatingSpaceCombatResolver implements SpaceCombatResolver {
 	static class SpaceCombatSummary {
 
 		final Outcome outcome;
+
 		final int fireExchangeCount;
+
 		final Map<ShipDesign, List<FireExchange>> attackerFireExchanges;
+
 		final Map<ShipDesign, List<FireExchange>> defenderFireExchanges;
 
 		private SpaceCombatSummary(final Outcome outcome, final int fireExchangeCount,
@@ -54,14 +56,16 @@ public class SimulatingSpaceCombatResolver implements SpaceCombatResolver {
 			this.attackerFireExchanges = attackerFireExchanges;
 			this.defenderFireExchanges = defenderFireExchanges;
 		}
+
 	}
 
 	@Override
 	public SpaceCombat resolve(final SystemId systemId, final OrbitingFleet defending, final DeployedFleet attacking,
 			final ShipDesignProvider shipDesignProvider) {
 		final BiFunction<Map<DesignSlot, Integer>, Player, Map<ShipDesign, Integer>> toShipDesignCounts = (ships,
-				player) -> ships.entrySet().stream().collect(
-						Collectors.toMap(e -> shipDesignProvider.get(player, e.getKey()), Map.Entry::getValue));
+				player) -> ships.entrySet()
+					.stream()
+					.collect(Collectors.toMap(e -> shipDesignProvider.get(player, e.getKey()), Map.Entry::getValue));
 
 		final SpaceCombatSummary summary = simulate(
 				toShipDesignCounts.apply(attacking.getShips(), attacking.getPlayer()),
@@ -77,8 +81,9 @@ public class SimulatingSpaceCombatResolver implements SpaceCombatResolver {
 		};
 
 		final BiFunction<Map<ShipDesign, List<FireExchange>>, Player, Map<DesignSlot, List<FireExchange>>> toDesignSlotsCombatantFireExchanges = (
-				designWithFireExchanges, player) -> designWithFireExchanges.entrySet().stream()
-						.collect(Collectors.toMap(e -> toDesginSlot.apply(e.getKey(), player), Entry::getValue));
+				designWithFireExchanges, player) -> designWithFireExchanges.entrySet()
+					.stream()
+					.collect(Collectors.toMap(e -> toDesginSlot.apply(e.getKey(), player), Entry::getValue));
 
 		return new SpaceCombat(systemId, summary.fireExchangeCount, attacking.getPlayer(),
 				new FleetBeforeArrival(attacking.getId(), attacking.getHorizontalDirection(), attacking.getSpeed()),
@@ -98,9 +103,9 @@ public class SimulatingSpaceCombatResolver implements SpaceCombatResolver {
 		final Set<CombatStack> defendingStacks = toStack(defender, DEFENDER);
 
 		final List<CombatStack> allStacksList = Stream.concat(attackingStacks.stream(), defendingStacks.stream())
-				.sorted(Comparator.<CombatStack>comparingInt(s -> s.design.getInitiative() + s.design.getCombatSpeed())
-						.reversed())
-				.collect(Collectors.toList());
+			.sorted(Comparator.<CombatStack>comparingInt(s -> s.design.getInitiative() + s.design.getCombatSpeed())
+				.reversed())
+			.collect(Collectors.toList());
 
 		int fireExchangeCount = 0;
 		for (int round = 0; round < 50; round++) {
@@ -110,24 +115,29 @@ public class SimulatingSpaceCombatResolver implements SpaceCombatResolver {
 				}
 
 				final List<CombatStack> otherSideStacks = (attackingStack.side == ATTACKER ? defendingStacks
-						: attackingStacks).stream().filter(s -> !s.isDestroyed()).collect(Collectors.toList());
+						: attackingStacks)
+					.stream()
+					.filter(s -> !s.isDestroyed())
+					.collect(Collectors.toList());
 
 				if (otherSideStacks.isEmpty()) {
 					outcome = attackingStack.side == ATTACKER ? Outcome.ATTACKER_WON : Outcome.DEFENDER_WON;
-				} else {
+				}
+				else {
 					final CombatStack defendingStack = Lists2.getRandomElement(otherSideStacks);
 					final int totalLostHitPoints = fireWeapons(attackingStack, defendingStack);
 
 					if (totalLostHitPoints > 0) {
 						/*
-						 * System.out.println(round + ": " + totalLostHitPoints + " damage on " + defendingStack.side +
-						 * " " + defendingStack.design.getName() + " (" + defendingStack.count + "/" +
-						 * defendingStack.previousCount + " ships)");
+						 * System.out.println(round + ": " + totalLostHitPoints +
+						 * " damage on " + defendingStack.side + " " +
+						 * defendingStack.design.getName() + " (" + defendingStack.count +
+						 * "/" + defendingStack.previousCount + " ships)");
 						 */
 
 						addMerged(
 								(defendingStack.side == ATTACKER ? attackerFireExchanges : defenderFireExchanges)
-										.computeIfAbsent(defendingStack.design, key -> new ArrayList<>()),
+									.computeIfAbsent(defendingStack.design, key -> new ArrayList<>()),
 								new FireExchange(round, totalLostHitPoints, defendingStack.getDamage(),
 										defendingStack.count));
 
@@ -176,8 +186,10 @@ public class SimulatingSpaceCombatResolver implements SpaceCombatResolver {
 	}
 
 	private static Set<CombatStack> toStack(final Map<ShipDesign, Integer> fleet, final Side side) {
-		return fleet.entrySet().stream().map(e -> new CombatStack(e.getKey(), e.getValue(), side))
-				.collect(Collectors.toSet());
+		return fleet.entrySet()
+			.stream()
+			.map(e -> new CombatStack(e.getKey(), e.getValue(), side))
+			.collect(Collectors.toSet());
 	}
 
 	/**
@@ -190,8 +202,10 @@ public class SimulatingSpaceCombatResolver implements SpaceCombatResolver {
 			exchanges.set(exchanges.size() - 1,
 					new FireExchange(current.getRound(), previous.getLostHitPoints() + current.getLostHitPoints(),
 							current.getDamage(), current.getShipCount()));
-		} else {
+		}
+		else {
 			exchanges.add(current);
 		}
 	}
+
 }

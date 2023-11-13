@@ -1,7 +1,5 @@
 package com.scheible.risingempire.game.impl.spacecombat;
 
-import static java.util.Collections.unmodifiableMap;
-
 import java.util.List;
 import java.util.Map;
 
@@ -12,8 +10,9 @@ import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.impl.ship.DesignSlot;
 
+import static java.util.Collections.unmodifiableMap;
+
 /**
- *
  * @author sj
  */
 public class SpaceCombat {
@@ -23,13 +22,19 @@ public class SpaceCombat {
 	private final int fireExchangeCount;
 
 	private final Player attacker;
+
 	private final FleetBeforeArrival attackerFleet;
+
 	private final Map<DesignSlot, Integer> attackerShipCounts;
+
 	private final Map<DesignSlot, List<FireExchange>> attackerFireExchanges;
 
 	private final Player defender;
+
 	private final FleetId defenderFleet;
+
 	private final Map<DesignSlot, Integer> defenderShipCounts;
+
 	private final Map<DesignSlot, List<FireExchange>> defenderFireExchanges;
 
 	private final Outcome outcome;
@@ -125,4 +130,5 @@ public class SpaceCombat {
 	public int getOrder() {
 		return order;
 	}
+
 }

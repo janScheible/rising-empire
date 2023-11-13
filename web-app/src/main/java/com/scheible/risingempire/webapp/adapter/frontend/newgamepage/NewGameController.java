@@ -1,21 +1,7 @@
 package com.scheible.risingempire.webapp.adapter.frontend.newgamepage;
 
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 import java.util.Arrays;
 import java.util.HashSet;
-
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.Game;
@@ -33,15 +19,27 @@ import com.scheible.risingempire.webapp.game.GameHolder;
 import com.scheible.risingempire.webapp.game.GameManager;
 import com.scheible.risingempire.webapp.hypermedia.Action;
 import com.scheible.risingempire.webapp.hypermedia.EntityModel;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
- *
  * @author sj
  */
 @FrontendController
 class NewGameController {
 
 	private final GameHolder gameHolder;
+
 	private final GameManager gameManager;
 
 	NewGameController(final GameHolder gameHolder, final GameManager gameManager) {
@@ -52,14 +50,16 @@ class NewGameController {
 	@GetMapping(path = "/new-game-page")
 	EntityModel<NewGamePageDto> newGame(@ModelAttribute final FrontendContext context) {
 		return new EntityModel<>(new NewGamePageDto(Arrays.asList(GalaxySize.values())))
-				.with(Action.jsonPost("create", context.toFrontendUri("new-game-page", "creations")) //
-						.with(isTestScenarioGameId(context.getGameId()), "auto-create", () -> Boolean.TRUE));
+			.with(Action.jsonPost("create", context.toFrontendUri("new-game-page", "creations")) //
+				.with(isTestScenarioGameId(context.getGameId()), "auto-create", () -> Boolean.TRUE));
 	}
 
 	static class GameCreationBodyDto {
 
 		GalaxySize galaxySize = GalaxySize.HUGE;
+
 		int playerCount = 3;
+
 	}
 
 	@PostMapping(path = "/new-game-page/creations", consumes = APPLICATION_JSON_VALUE)
@@ -69,7 +69,8 @@ class NewGameController {
 			Game game;
 
 			if (isTestScenarioGameId(context.getGameId())) {
-				game = GameFactory.get().create(GameOptions.forTestGameScenario() //
+				game = GameFactory.get()
+					.create(GameOptions.forTestGameScenario() //
 						.fakeTechProvider((player,
 								round) -> (round % 5 == 0) ? singleton(new TechGroupView(Arrays2.asSet( //
 										new TechView(new TechId("hl"), "Hand Lasers", "Bla..."),
@@ -85,11 +86,13 @@ class NewGameController {
 														"This is a notification for s984x728. Please do what ever it tells you...")),
 												new SystemNotificationView(new SystemId("s60x60"), singleton(
 														"This is a notification for s60x60. Please do what ever it tells you..."))));
-							} else {
+							}
+							else {
 								return emptySet();
 							}
 						}));
-			} else {
+			}
+			else {
 				game = GameFactory.get().create(new GameOptions(body.galaxySize, body.playerCount));
 			}
 
@@ -97,11 +100,13 @@ class NewGameController {
 		}
 
 		return ResponseEntity.status(HttpStatus.SEE_OTHER)
-				.header(HttpHeaders.LOCATION, context.toAction(HttpMethod.GET, "main-page").toGetUri()).build();
+			.header(HttpHeaders.LOCATION, context.toAction(HttpMethod.GET, "main-page").toGetUri())
+			.build();
 	}
 
 	private static boolean isTestScenarioGameId(final String gameId) {
 		final String normalizedGameId = gameId.replaceAll("\\-", "").toLowerCase();
 		return "testscenario".equals(normalizedGameId);
 	}
+
 }

@@ -1,18 +1,9 @@
 package com.scheible.risingempire.webapp.adapter.frontend;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.scheible.risingempire.game.api.Game;
 import com.scheible.risingempire.game.api.view.universe.Player;
@@ -26,11 +17,17 @@ import com.scheible.risingempire.webapp.game.GameManager;
 import com.scheible.risingempire.webapp.hypermedia.Action;
 import com.scheible.risingempire.webapp.hypermedia.EntityModel;
 import com.scheible.risingempire.webapp.notification.NotificationService;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
- *
  * @author sj
  */
 @RestController
@@ -41,7 +38,9 @@ class GameBrowserController {
 			"Galaxy", "Combat", "Universe", "System", "Technology", "Research", "Trade");
 
 	private final GameHolder gameHolder;
+
 	private final GameManager gameManager;
+
 	private final NotificationService notificationService;
 
 	GameBrowserController(final GameHolder gameHolder, final GameManager gameManager,
@@ -54,17 +53,22 @@ class GameBrowserController {
 	@GetMapping("/game-browser")
 	@SuppressFBWarnings(value = "PREDICTABLE_RANDOM", justification = "Random enough for game ids.")
 	ResponseEntity<GameBrowserDto> gameBrowser() {
-		final String defaultGameId = ThreadLocalRandom.current().ints(0, SPACE_WORDS.size()).distinct().limit(3)
-				.mapToObj(i -> SPACE_WORDS.get(i)).collect(Collectors.joining());
+		final String defaultGameId = ThreadLocalRandom.current()
+			.ints(0, SPACE_WORDS.size())
+			.distinct()
+			.limit(3)
+			.mapToObj(i -> SPACE_WORDS.get(i))
+			.collect(Collectors.joining());
 
 		return ResponseEntity.ok(new GameBrowserDto(new EntityModel<>(
-				new GameLauncherDto(defaultGameId, List.of(PlayerDto.YELLOW, PlayerDto.BLUE, PlayerDto.WHITE))).with(
-						Action.get("start", "games", "{gameId}", "{player}").with("gameId", null).with("player", null)),
-				gameHolder.getGameIds().stream()
-						.map(gameId -> new EntityModel<>(new RunningGameDto(gameId, toRunningGamePlayers(gameId),
-								gameHolder.get(gameId).get().getRound()))
-										.with(Action.delete("stop", "game-browser", "games", gameId)))
-						.toList()));
+				new GameLauncherDto(defaultGameId, List.of(PlayerDto.YELLOW, PlayerDto.BLUE, PlayerDto.WHITE)))
+			.with(Action.get("start", "games", "{gameId}", "{player}").with("gameId", null).with("player", null)),
+				gameHolder.getGameIds()
+					.stream()
+					.map(gameId -> new EntityModel<>(new RunningGameDto(gameId, toRunningGamePlayers(gameId),
+							gameHolder.get(gameId).get().getRound()))
+						.with(Action.delete("stop", "game-browser", "games", gameId)))
+					.toList()));
 	}
 
 	private List<EntityModel<RunningGamePlayerDto>> toRunningGamePlayers(final String gameId) {
@@ -77,11 +81,10 @@ class GameBrowserController {
 			result.add(new EntityModel<>(
 					new RunningGamePlayerDto(PlayerDto.fromPlayer(player), !game.isAiControlled(player),
 							notificationService.getPlayerSession(gameId, player).orElse(null), canReceiveNotifications))
-									.with(!game.isAiControlled(player) && !canReceiveNotifications,
-											() -> Action.delete("kick", "game-browser", "games", gameId,
-													player.name().toLowerCase()))
-									.with(game.isAiControlled(player),
-											() -> Action.get("join", "games", gameId, player.name().toLowerCase())));
+				.with(!game.isAiControlled(player) && !canReceiveNotifications,
+						() -> Action.delete("kick", "game-browser", "games", gameId, player.name().toLowerCase()))
+				.with(game.isAiControlled(player),
+						() -> Action.get("join", "games", gameId, player.name().toLowerCase())));
 		}
 
 		return result;
@@ -98,4 +101,5 @@ class GameBrowserController {
 		gameManager.stopGame(context.getGameId());
 		return ResponseEntity.ok(new Object());
 	}
+
 }

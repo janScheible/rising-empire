@@ -8,25 +8,31 @@ import com.scheible.risingempire.game.impl.ship.AbstractWeapon;
 import com.scheible.risingempire.game.impl.ship.BeamWeapon;
 import com.scheible.risingempire.game.impl.ship.Missile;
 import com.scheible.risingempire.game.impl.ship.ShipDesign;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
- *
  * @author sj
  */
 class CombatStack {
 
 	enum Side {
+
 		ATTACKER, DEFENDER
+
 	}
 
 	final ShipDesign design;
+
 	private final int hitPoints;
+
 	private int topShipHitPoints;
+
 	final int previousCount;
+
 	int count;
+
 	final Side side;
+
 	final Map<Missile, Integer> missileLaunches = new HashMap<>();
 
 	CombatStack(final ShipDesign design, final int count, final Side side) {
@@ -40,8 +46,8 @@ class CombatStack {
 
 	@SuppressFBWarnings(value = "PREDICTABLE_RANDOM", justification = "Should be random enough.")
 	int hitWith(final AbstractWeapon weapon) {
-		final int attackValue = ThreadLocalRandom.current().nextInt(weapon.getDamage().getMin(),
-				weapon.getDamage().getMax() + 1);
+		final int attackValue = ThreadLocalRandom.current()
+			.nextInt(weapon.getDamage().getMin(), weapon.getDamage().getMax() + 1);
 		final int effectiveAttackValue = attackValue - design.getHitsAbsorbedByShield()
 				- (weapon instanceof BeamWeapon ? design.getBeamDefence() : design.getMissileDefence());
 
@@ -63,4 +69,5 @@ class CombatStack {
 	int getDamage() {
 		return hitPoints - topShipHitPoints;
 	}
+
 }

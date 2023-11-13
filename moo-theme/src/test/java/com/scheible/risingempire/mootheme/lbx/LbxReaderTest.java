@@ -1,14 +1,13 @@
 package com.scheible.risingempire.mootheme.lbx;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 /**
- *
  * @author sj
  */
 class LbxReaderTest {
@@ -17,8 +16,8 @@ class LbxReaderTest {
 	void testInvalid() throws IOException {
 		assertThatThrownBy(
 				() -> LbxReader.read(getClass().getResourceAsStream("invalid.lbx"), 0, (LbxEntry lbxEntry) -> null))
-						.isInstanceOf(IllegalStateException.class)
-						.hasMessageContaining("No valid LBX header was found!");
+			.isInstanceOf(IllegalStateException.class)
+			.hasMessageContaining("No valid LBX header was found!");
 	}
 
 	@Test
@@ -28,4 +27,5 @@ class LbxReaderTest {
 		assertThat(entry.getEntryStart()).isEqualTo(122);
 		assertThat(entry.getEntryEnd()).isEqualTo(220);
 	}
+
 }

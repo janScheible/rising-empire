@@ -12,7 +12,6 @@ import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.impl.ship.DesignSlot;
 
 /**
- *
  * @author sj
  */
 public abstract class Fleet implements FleetOrb {
@@ -20,6 +19,7 @@ public abstract class Fleet implements FleetOrb {
 	protected final FleetId id;
 
 	private final Player player;
+
 	protected final Map<DesignSlot, Integer> ships = new EnumMap<>(DesignSlot.class);
 
 	public Fleet(final FleetId id, final Player player, final Map<DesignSlot, Integer> ships) {
@@ -33,7 +33,8 @@ public abstract class Fleet implements FleetOrb {
 			if (slotAndCount.getValue() > 0) {
 				ships.put(slotAndCount.getKey(),
 						ships.getOrDefault(slotAndCount.getKey(), 0) + slotAndCount.getValue());
-			} else if (slotAndCount.getValue() < 0) {
+			}
+			else if (slotAndCount.getValue() < 0) {
 				throw new IllegalArgumentException("Negative ship counts are invalid!");
 			}
 		});
@@ -50,9 +51,11 @@ public abstract class Fleet implements FleetOrb {
 			final int newCount = ships.getOrDefault(slotAndCount.getKey(), 0) - slotAndCount.getValue();
 			if (newCount > 0) {
 				ships.put(slotAndCount.getKey(), newCount);
-			} else if (newCount == 0) {
+			}
+			else if (newCount == 0) {
 				emptySlots.add(slotAndCount.getKey());
-			} else {
+			}
+			else {
 				throw new IllegalArgumentException("Negative ship counts are invalid!");
 			}
 		});
@@ -63,9 +66,12 @@ public abstract class Fleet implements FleetOrb {
 	public void retain(final Map<DesignSlot, Integer> shipCounts) {
 		if (ships.keySet().containsAll(shipCounts.keySet())) {
 			ships.clear();
-			shipCounts.entrySet().stream().filter(e -> e.getValue() > 0)
-					.forEach(e -> ships.put(e.getKey(), e.getValue()));
-		} else {
+			shipCounts.entrySet()
+				.stream()
+				.filter(e -> e.getValue() > 0)
+				.forEach(e -> ships.put(e.getKey(), e.getValue()));
+		}
+		else {
 			throw new IllegalArgumentException(
 					String.format("Can't remove ships in slots %s of a fleet that only has ships in slots %s.",
 							shipCounts.keySet(), ships.keySet()));
@@ -110,4 +116,5 @@ public abstract class Fleet implements FleetOrb {
 	public Player getPlayer() {
 		return player;
 	}
+
 }

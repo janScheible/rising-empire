@@ -1,7 +1,5 @@
 package com.scheible.risingempire.game;
 
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
-
 import com.tngtech.archunit.core.domain.Dependency;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.importer.ImportOption.DoNotIncludeTests;
@@ -12,8 +10,9 @@ import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+
 /**
- *
  * @author sj
  */
 @AnalyzeClasses(packagesOf = PackageLayeringTest.class, importOptions = DoNotIncludeTests.class)
@@ -40,12 +39,14 @@ public class PackageLayeringTest {
 			String targetSubPackagePrefix = target.getPackageName();
 			return targetSubPackagePrefix.contains(originPackageName + ".");
 		}
+
 	}
 
 	@ArchTest
 	static final ArchRule packageLayeringRule = noClasses().that()
-			.resideInAnyPackage("com.scheible.risingempire.game.impl.ship",
-					"com.scheible.risingempire.game.impl.spacecombat")
-			.should(new DependOnDescendantPackagesCondition())
-			.because("lower layers/packages shouldn't build on higher layers/packages");
+		.resideInAnyPackage("com.scheible.risingempire.game.impl.ship",
+				"com.scheible.risingempire.game.impl.spacecombat")
+		.should(new DependOnDescendantPackagesCondition())
+		.because("lower layers/packages shouldn't build on higher layers/packages");
+
 }

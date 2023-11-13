@@ -1,11 +1,10 @@
 package com.scheible.risingempire.util.jdk;
 
-import static java.util.Objects.requireNonNull;
-
 import java.util.function.Function;
 
+import static java.util.Objects.requireNonNull;
+
 /**
- *
  * @author sj
  */
 public class Objects2 {
@@ -18,11 +17,13 @@ public class Objects2 {
 			final Function<T, Boolean> equalsFunction) {
 		if (requireNonNull(self) == obj) {
 			return true;
-		} else if (obj != null && self.getClass().equals(equalClass)) {
+		}
+		else if (obj != null && self.getClass().equals(equalClass)) {
 			@SuppressWarnings("unchecked")
 			final T other = (T) obj;
 			return equalsFunction.apply(other);
-		} else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -41,4 +42,5 @@ public class Objects2 {
 	public static ToStringBuilder toStringBuilder(final Class<?> clazz) {
 		return new ToStringBuilder(clazz.getSimpleName());
 	}
+
 }

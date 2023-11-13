@@ -1,7 +1,8 @@
 package com.scheible.risingempire.webapp.adapter.frontend;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +19,11 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.scheible.esbuild.bindings.util.ImportMapGenerator;
+import com.scheible.esbuild.bindings.util.ImportMapper;
+import com.scheible.esbuild.spring.AppRevision;
+import com.scheible.risingempire.game.api.view.universe.Player;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -28,18 +34,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 
-import com.scheible.esbuild.bindings.util.ImportMapGenerator;
-import com.scheible.esbuild.bindings.util.ImportMapper;
-import com.scheible.esbuild.spring.AppRevision;
-import com.scheible.risingempire.game.api.view.universe.Player;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 
 /**
- *
  * @author sj
  */
 @Controller
@@ -49,6 +47,7 @@ class HtmlController {
 	static class TemplateView implements View {
 
 		private final String templatePath;
+
 		private final Collection<Entry<String, Function<Map<String, ?>, String>>> replacements;
 
 		public TemplateView(final String templatePath,
@@ -64,10 +63,12 @@ class HtmlController {
 				response.setContentType(getContentType());
 
 				final List<Entry<String, String>> evaluatedReplacement = replacements.stream()
-						.map(rep -> Map.entry(rep.getKey(), rep.getValue().apply(model))).collect(Collectors.toList());
+					.map(rep -> Map.entry(rep.getKey(), rep.getValue().apply(model)))
+					.collect(Collectors.toList());
 				final String renderedTemplate = render(new ClassPathResource(templatePath), evaluatedReplacement);
 				response.getWriter().append(renderedTemplate);
-			} else {
+			}
+			else {
 				response.sendError(INTERNAL_SERVER_ERROR.value());
 			}
 		}
@@ -89,10 +90,13 @@ class HtmlController {
 		public String getContentType() {
 			return TEXT_HTML_VALUE;
 		}
+
 	}
 
 	private final AppRevision appRevision;
+
 	private final ImportMapGenerator importMapGenerator;
+
 	private final ServletContext servletContext;
 
 	HtmlController(final AppRevision appRevision, final ImportMapGenerator importMapGenerator,
@@ -135,11 +139,13 @@ class HtmlController {
 				new SimpleImmutableEntry<>("${appRevision}", model -> appRevision.value())));
 	}
 
-	@SuppressFBWarnings(value = "EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS", justification = "If encoding works once, it will work forever.")
+	@SuppressFBWarnings(value = "EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS",
+			justification = "If encoding works once, it will work forever.")
 	private static String urlEncode(final String value) {
 		try {
 			return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
-		} catch (final UnsupportedEncodingException ex) {
+		}
+		catch (final UnsupportedEncodingException ex) {
 			throw new UncheckedIOException(ex);
 		}
 	}
@@ -158,4 +164,5 @@ class HtmlController {
 						ImportMapper.APP_REVISION_PLACEHOLDER, this.appRevision.value()))),
 				new SimpleImmutableEntry<>("${appRevision}", model -> appRevision.value())));
 	}
+
 }

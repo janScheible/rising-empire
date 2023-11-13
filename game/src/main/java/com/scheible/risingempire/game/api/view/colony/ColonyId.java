@@ -3,7 +3,6 @@ package com.scheible.risingempire.game.api.view.colony;
 import java.util.Objects;
 
 /**
- *
  * @author sj
  */
 public class ColonyId {
@@ -22,10 +21,12 @@ public class ColonyId {
 	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
-		} else if (obj != null && getClass().equals(obj.getClass())) {
+		}
+		else if (obj != null && getClass().equals(obj.getClass())) {
 			final ColonyId other = (ColonyId) obj;
 			return Objects.equals(value, other.value);
-		} else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -39,4 +40,5 @@ public class ColonyId {
 	public String toString() {
 		return value;
 	}
+
 }

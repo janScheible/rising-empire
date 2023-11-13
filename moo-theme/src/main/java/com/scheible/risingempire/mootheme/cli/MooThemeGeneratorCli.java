@@ -1,9 +1,5 @@
 package com.scheible.risingempire.mootheme.cli;
 
-import static java.util.Arrays.asList;
-
-import static com.scheible.risingempire.mootheme.processor.ImageProcessor.Scale.TRIPLE;
-
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.io.ByteArrayInputStream;
@@ -35,11 +31,12 @@ import com.scheible.risingempire.mootheme.lbx.entry.PaletteReader;
 import com.scheible.risingempire.mootheme.processor.ImageProcessor;
 import com.scheible.risingempire.mootheme.processor.ImageProcessor.Scale;
 import com.scheible.risingempire.mootheme.sprite.SpriteSheetGenerator;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import static com.scheible.risingempire.mootheme.processor.ImageProcessor.Scale.TRIPLE;
+import static java.util.Arrays.asList;
+
 /**
- *
  * @author sj
  */
 @SuppressFBWarnings("PATH_TRAVERSAL_IN")
@@ -51,7 +48,8 @@ public class MooThemeGeneratorCli {
 	private static final String[] LBX_FILES = { "FONTS.LBX", "PLANETS.LBX", "SHIPS.LBX", "SHIPS2.LBX", "COLONIES.LBX",
 			"STARMAP.LBX" };
 
-	// NOTE Java util logger is fine here because JAR should have no third-party dependencies.
+	// NOTE Java util logger is fine here because JAR should have no third-party
+	// dependencies.
 	private static final Logger logger = Logger.getLogger(MooThemeGeneratorCli.class.getName());
 
 	public static void main(final String... args) throws IOException {
@@ -64,7 +62,8 @@ public class MooThemeGeneratorCli {
 					Files.newInputStream(Path.of(orionDir.getAbsolutePath(), "FONTS.LBX")), 2, (LbxEntry lbxEntry) -> {
 						try {
 							return PaletteReader.read(lbxEntry);
-						} catch (IOException ex) {
+						}
+						catch (IOException ex) {
 							throw new UncheckedIOException(ex);
 						}
 					});
@@ -84,13 +83,15 @@ public class MooThemeGeneratorCli {
 					final BufferedImage result = LbxReader.read(input, entry, lbxEntry -> {
 						try {
 							return GfxReader.read(lbxEntry, palette, 0);
-						} catch (IOException ex) {
+						}
+						catch (IOException ex) {
 							throw new UncheckedIOException(ex);
 						}
 					});
 					input.reset();
 					return result;
-				} catch (IOException ex) {
+				}
+				catch (IOException ex) {
 					throw new UncheckedIOException(ex);
 				}
 			};
@@ -235,7 +236,8 @@ public class MooThemeGeneratorCli {
 							process(getImage.apply(planets, 34), TRIPLE, -16777216)));
 
 			final File targetDir = Optional.of(new File(".").getCanonicalFile())
-					.map(wd -> "target".equals(wd.getName().toLowerCase()) ? wd : new File(wd, "target")).get();
+				.map(wd -> "target".equals(wd.getName().toLowerCase()) ? wd : new File(wd, "target"))
+				.get();
 			final Path themeZip = Path.of(targetDir.getAbsolutePath(), "moo-theme.zip");
 
 			writeZipFile(themeZip, sheetEntry("fleets.png", fleetsSheet), sheetEntry("stars.png", starsSheet),
@@ -243,7 +245,8 @@ public class MooThemeGeneratorCli {
 					sheetEntry("ships-white.png", shipsWhiteSheet), sheetEntry("ships-yellow.png", shipsYellowSheet),
 					sheetEntry("planets.png", planetsSheet));
 			logger.log(Level.INFO, "Wrote ZIP file to ''{0}''.", themeZip);
-		} catch (UncheckedIOException ex) {
+		}
+		catch (UncheckedIOException ex) {
 			throw ex.getCause();
 		}
 	}
@@ -252,7 +255,8 @@ public class MooThemeGeneratorCli {
 	private static File getAndValidateOrionDir(final String[] args) {
 		final Optional<File> dfendReloadedDir = Optional.of(DFEND_RELOADED_ORION_DIR).filter(File::exists);
 		final Optional<File> argsDir = Optional
-				.ofNullable(args.length > 0 && args[0] != null ? new File(args[0]) : null).filter(File::exists);
+			.ofNullable(args.length > 0 && args[0] != null ? new File(args[0]) : null)
+			.filter(File::exists);
 
 		File orionDir = null;
 		if (argsDir.isEmpty() && dfendReloadedDir.isPresent()) {
@@ -260,17 +264,20 @@ public class MooThemeGeneratorCli {
 					"No valid orion dir was passed as argument but D-Fend Reloaded installation was found (''{0}'').",
 					dfendReloadedDir.get());
 			orionDir = dfendReloadedDir.get();
-		} else if (argsDir.isEmpty() && dfendReloadedDir.isEmpty()) {
+		}
+		else if (argsDir.isEmpty() && dfendReloadedDir.isEmpty()) {
 			logger.log(Level.SEVERE,
 					"Neither was a valid orion dir passed as argument nor was a D-Fend Reloaded installation found (''{0}'').",
 					dfendReloadedDir.get());
 			System.exit(-1);
-		} else if (argsDir.isPresent() && dfendReloadedDir.isPresent()) {
+		}
+		else if (argsDir.isPresent() && dfendReloadedDir.isPresent()) {
 			logger.log(Level.INFO,
 					"Orion dir passed as argument (''{0}'') is used. The D-Fend Reloaded installation (''{1}'') is ignored.",
 					new Object[] { argsDir.get(), dfendReloadedDir.get() });
 			orionDir = argsDir.get();
-		} else if (argsDir.isPresent() && dfendReloadedDir.isEmpty()) {
+		}
+		else if (argsDir.isPresent() && dfendReloadedDir.isEmpty()) {
 			logger.log(Level.INFO, "Orion dir passed as argument (''{0}'') is used.", argsDir.get());
 			orionDir = argsDir.get();
 		}
@@ -311,7 +318,8 @@ public class MooThemeGeneratorCli {
 						ImageIO.write(image, "png", baos);
 						zos.write(baos.toByteArray());
 						zos.closeEntry();
-					} else if (processed.add(currentPath)) {
+					}
+					else if (processed.add(currentPath)) {
 						final ZipEntry zipEntry = new ZipEntry(currentPath);
 						zos.putNextEntry(zipEntry);
 					}
@@ -327,4 +335,5 @@ public class MooThemeGeneratorCli {
 	private static Paintable process(final BufferedImage image, final Scale scale, final Integer transparentColor) {
 		return ImageProcessor.process(image, scale, transparentColor);
 	}
+
 }

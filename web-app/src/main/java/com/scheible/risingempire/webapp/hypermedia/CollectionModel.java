@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import com.scheible.risingempire.util.jdk.Objects2;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class CollectionModel<T> extends HypermediaModel<CollectionModel<T>> implements Iterable<T> {
@@ -28,7 +27,8 @@ public class CollectionModel<T> extends HypermediaModel<CollectionModel<T>> impl
 	public CollectionModel<T> with(final boolean predicate, final Supplier<Action> actionSupplier) {
 		if (predicate) {
 			return with(actionSupplier.get());
-		} else {
+		}
+		else {
 			return this;
 		}
 	}
@@ -53,4 +53,5 @@ public class CollectionModel<T> extends HypermediaModel<CollectionModel<T>> impl
 		return Objects2.equals(this, obj,
 				other -> Objects.equals(actions, other.actions) && Objects.equals(elements, other.elements));
 	}
+
 }

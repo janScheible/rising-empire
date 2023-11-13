@@ -7,11 +7,9 @@ import com.scheible.risingempire.game.api.view.notification.SystemNotificationVi
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
 import com.scheible.risingempire.game.api.view.universe.Player;
-
 import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
- *
  * @author sj
  */
 public class GameOptions {
@@ -20,25 +18,32 @@ public class GameOptions {
 	public interface FakeTechProvider {
 
 		Set<TechGroupView> get(Player player, int round);
+
 	}
 
 	@FunctionalInterface
 	public interface FakeSystemNotificationProvider {
 
 		Set<SystemNotificationView> get(Player player, int round);
+
 	}
 
 	private final GalaxySize galaxySize;
+
 	private final int playerCount;
+
 	private final boolean testGameScenario;
 
 	@Nullable
 	private FakeTechProvider fakeTechProvider;
+
 	@Nullable
 	private FakeSystemNotificationProvider fakeSystemNotificationProvider;
 
 	private double fleetRangeFactor = 1.0;
+
 	private double fleetSpeedFactor = 1.0;
+
 	private Outcome spaceCombatOutcome = null;
 
 	private int annexationSiegeRounds = 5;
@@ -123,4 +128,5 @@ public class GameOptions {
 	public int getAnnexationSiegeRounds() {
 		return annexationSiegeRounds;
 	}
+
 }

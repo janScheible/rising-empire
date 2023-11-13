@@ -1,7 +1,5 @@
 package com.scheible.risingempire.game.api.view.colony;
 
-import static java.util.Collections.unmodifiableMap;
-
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
@@ -10,11 +8,11 @@ import java.util.StringJoiner;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.api.view.universe.Race;
-
 import edu.umd.cs.findbugs.annotations.Nullable;
 
+import static java.util.Collections.unmodifiableMap;
+
 /**
- *
  * @author sj
  */
 public class ColonyView {
@@ -22,12 +20,17 @@ public class ColonyView {
 	private final ColonyId id;
 
 	private final Player player;
+
 	private final Race race;
+
 	private final Integer population;
+
 	@Nullable
 	private final ShipTypeView spaceDock;
+
 	@Nullable
 	private final Map<ProductionArea, Integer> ratios;
+
 	@Nullable
 	private final AnnexationStatusView annexationStatus;
 
@@ -75,7 +78,7 @@ public class ColonyView {
 	@Override
 	public String toString() {
 		final StringJoiner values = new StringJoiner(", ", "ColonyView[", "]").add("player=" + player)
-				.add("race=" + race);
+			.add("race=" + race);
 
 		if (population != null) {
 			values.add("population=" + population);
@@ -95,4 +98,5 @@ public class ColonyView {
 
 		return values.toString();
 	}
+
 }

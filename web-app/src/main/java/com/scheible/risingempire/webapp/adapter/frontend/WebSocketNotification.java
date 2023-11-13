@@ -4,19 +4,18 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.scheible.risingempire.webapp.notification.NotificationChannel;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.scheible.risingempire.webapp.notification.NotificationChannel;
-
 /**
- *
  * @author sj
  */
 class WebSocketNotification implements NotificationChannel {
 
 	private final WebSocketSession webSocketSession;
+
 	private final ObjectMapper objectMapper;
 
 	WebSocketNotification(final WebSocketSession webSocketSession, final ObjectMapper objectMapper) {
@@ -31,4 +30,5 @@ class WebSocketNotification implements NotificationChannel {
 		final String json = objectMapper.writeValueAsString(message);
 		webSocketSession.sendMessage(new TextMessage(json));
 	}
+
 }

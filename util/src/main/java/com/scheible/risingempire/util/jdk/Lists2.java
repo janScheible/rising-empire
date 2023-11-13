@@ -6,7 +6,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
- *
  * @author sj
  */
 public class Lists2 {
@@ -15,4 +14,5 @@ public class Lists2 {
 	public static <T> T getRandomElement(final List<T> list) {
 		return list.get(ThreadLocalRandom.current().nextInt(list.size()));
 	}
+
 }

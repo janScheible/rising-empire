@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Input stream to deal with LBX files. LBX files are stored in little endian byte order. The read methods use
- * the next bigger data type to return unsigned values. In addtion to a regular input stream also a read index
- * is maintained.
- * 
+ * Input stream to deal with LBX files. LBX files are stored in little endian byte order.
+ * The read methods use the next bigger data type to return unsigned values. In addtion to
+ * a regular input stream also a read index is maintained.
+ *
  * @author sj
  */
 public class LbxInputStream implements Closeable {
@@ -58,4 +58,5 @@ public class LbxInputStream implements Closeable {
 	public long getReadIndex() {
 		return readIndex;
 	}
+
 }

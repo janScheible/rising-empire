@@ -6,13 +6,14 @@ import java.util.StringJoiner;
 import com.scheible.risingempire.game.api.view.fleet.FleetView.HorizontalDirection;
 
 /**
- *
  * @author sj
  */
 public class FleetBeforeArrival {
 
 	private final FleetId id;
+
 	private final HorizontalDirection horizontalDirection;
+
 	private final int speed;
 
 	public FleetBeforeArrival(final FleetId id, final HorizontalDirection horizontalDirection, final int speed) {
@@ -37,11 +38,13 @@ public class FleetBeforeArrival {
 	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
-		} else if (obj != null && getClass().equals(obj.getClass())) {
+		}
+		else if (obj != null && getClass().equals(obj.getClass())) {
 			final FleetBeforeArrival other = (FleetBeforeArrival) obj;
 			return Objects.equals(id, other.id) && Objects.equals(horizontalDirection, other.horizontalDirection)
 					&& Objects.equals(speed, other.speed);
-		} else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -54,6 +57,9 @@ public class FleetBeforeArrival {
 	@Override
 	public String toString() {
 		return new StringJoiner(", ", "FleetBeforeArrival[", "]").add("id=" + id)
-				.add("horizontalDirection=" + horizontalDirection).add("speed=" + speed).toString();
+			.add("horizontalDirection=" + horizontalDirection)
+			.add("speed=" + speed)
+			.toString();
 	}
+
 }

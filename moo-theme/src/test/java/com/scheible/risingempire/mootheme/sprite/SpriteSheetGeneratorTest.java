@@ -1,7 +1,5 @@
 package com.scheible.risingempire.mootheme.sprite;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -9,12 +7,12 @@ import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
+import com.scheible.risingempire.mootheme.canvas.Paintable;
 import org.junit.jupiter.api.Test;
 
-import com.scheible.risingempire.mootheme.canvas.Paintable;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- *
  * @author sj
  */
 public class SpriteSheetGeneratorTest {
@@ -46,4 +44,5 @@ public class SpriteSheetGeneratorTest {
 		assertThat(result.getWidth()).isEqualTo(18);
 		assertThat(result.getHeight()).isEqualTo(12);
 	}
+
 }

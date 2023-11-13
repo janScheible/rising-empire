@@ -6,11 +6,9 @@ import java.util.StringJoiner;
 
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.universe.Location;
-
 import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
- *
  * @author sj
  */
 public class SystemView {
@@ -18,33 +16,48 @@ public class SystemView {
 	private final SystemId id;
 
 	private final boolean justExplored;
+
 	private final Location location;
+
 	private final StarType starType;
+
 	private final boolean small;
+
 	private final boolean homeSystem;
+
 	@Nullable
 	private final Integer range;
+
 	@Nullable
 	private final PlanetType planetType;
+
 	@Nullable
 	private final PlanetSpecial planetSpecial;
+
 	@Nullable
 	private final Integer seenInTurn;
+
 	@Nullable
 	private final String starName;
+
 	@Nullable
 	private final Integer planetMaxPopulation;
+
 	@Nullable
 	private final ColonyView colony;
+
 	@Nullable
 	private final Integer fleetRange;
+
 	@Nullable
 	private final Integer extendedFleetRange;
+
 	@Nullable
 	private final Integer scannerRange;
 
 	@Nullable
 	private final Boolean colonizable;
+
 	@Nullable
 	private final Boolean colonizeCommand;
 
@@ -166,10 +179,12 @@ public class SystemView {
 	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
-		} else if (obj != null && getClass().equals(obj.getClass())) {
+		}
+		else if (obj != null && getClass().equals(obj.getClass())) {
 			final SystemView other = (SystemView) obj;
 			return Objects.equals(id, other.id);
-		} else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -182,8 +197,10 @@ public class SystemView {
 	@Override
 	public String toString() {
 		final StringJoiner values = new StringJoiner(", ", "SystemView[", "]").add("id=" + id)
-				.add("justExplored=" + justExplored).add("location=" + location).add("starType=" + starType)
-				.add("small=" + small);
+			.add("justExplored=" + justExplored)
+			.add("location=" + location)
+			.add("starType=" + starType)
+			.add("small=" + small);
 
 		if (homeSystem) {
 			values.add("homeSytem=" + homeSystem);
@@ -235,4 +252,5 @@ public class SystemView {
 			values.add("scannerRange=" + scannerRange);
 		}
 	}
+
 }

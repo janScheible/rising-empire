@@ -1,42 +1,49 @@
 package com.scheible.risingempire.game.api.view.spacecombat;
 
-import static java.util.Collections.unmodifiableList;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import com.scheible.risingempire.game.api.view.ship.ShipSize;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
-
 import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import static java.util.Collections.unmodifiableList;
+
 /**
- *
  * @author sj
  */
 public class CombatantShipSpecsView {
 
 	private final ShipTypeId id;
+
 	private final String name;
 
 	private final int count;
+
 	private final int previousCount;
+
 	private final ShipSize size;
 
 	@Nullable
 	final Integer shield;
+
 	@Nullable
 	final Integer beamDefence;
+
 	@Nullable
 	final Integer attackLevel;
+
 	@Nullable
 	final Integer warp;
+
 	@Nullable
 	final Integer missleDefence;
+
 	@Nullable
 	final Integer hits;
+
 	@Nullable
 	final Integer speed;
 
@@ -131,12 +138,14 @@ public class CombatantShipSpecsView {
 	public boolean equals(final Object obj) {
 		if (obj == this) {
 			return true;
-		} else if (obj != null && obj.getClass().equals(getClass())) {
+		}
+		else if (obj != null && obj.getClass().equals(getClass())) {
 			final CombatantShipSpecsView other = (CombatantShipSpecsView) obj;
 			return Objects.equals(id, other.id) && Objects.equals(name, other.name)
 					&& Objects.equals(count, other.count) && Objects.equals(previousCount, other.previousCount)
 					&& Objects.equals(size, other.size) && Objects.equals(fireExchanges, other.fireExchanges);
-		} else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -145,4 +154,5 @@ public class CombatantShipSpecsView {
 	public int hashCode() {
 		return Objects.hash(id, name, count, previousCount, size, fireExchanges);
 	}
+
 }

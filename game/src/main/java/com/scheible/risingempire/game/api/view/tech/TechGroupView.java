@@ -1,13 +1,12 @@
 package com.scheible.risingempire.game.api.view.tech;
 
-import static java.util.Collections.unmodifiableSet;
-
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static java.util.Collections.unmodifiableSet;
+
 /**
- *
  * @author sj
  */
 public class TechGroupView implements Iterable<TechView> {
@@ -26,4 +25,5 @@ public class TechGroupView implements Iterable<TechView> {
 	public Stream<TechView> stream() {
 		return group.stream();
 	}
+
 }

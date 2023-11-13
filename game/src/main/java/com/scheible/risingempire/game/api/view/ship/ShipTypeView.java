@@ -4,7 +4,6 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 /**
- *
  * @author sj
  */
 public class ShipTypeView {
@@ -12,8 +11,11 @@ public class ShipTypeView {
 	private final ShipTypeId id;
 
 	private final int index;
+
 	private final String name;
+
 	private final ShipSize size;
+
 	private final int look;
 
 	public ShipTypeView(final ShipTypeId id, final int index, final String name, final ShipSize size, final int look) {
@@ -49,10 +51,12 @@ public class ShipTypeView {
 	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
-		} else if (obj != null && getClass().equals(obj.getClass())) {
+		}
+		else if (obj != null && getClass().equals(obj.getClass())) {
 			final ShipTypeView other = (ShipTypeView) obj;
 			return Objects.equals(id, other.id);
-		} else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -64,7 +68,12 @@ public class ShipTypeView {
 
 	@Override
 	public String toString() {
-		return new StringJoiner(", ", "ShipType[", "]").add("id=" + id).add("index=" + index).add("name=" + name)
-				.add("size=" + size).add("look=" + look).toString();
+		return new StringJoiner(", ", "ShipType[", "]").add("id=" + id)
+			.add("index=" + index)
+			.add("name=" + name)
+			.add("size=" + size)
+			.add("look=" + look)
+			.toString();
 	}
+
 }

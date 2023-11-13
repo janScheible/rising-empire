@@ -5,9 +5,6 @@
 
 package com.scheible.risingempire.webapp.adapter.frontend.mainpage;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.unmodifiableList;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -15,14 +12,18 @@ import java.util.function.Function;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
+
 /**
- *
  * @author sj
  */
 class OneByOneSystemsState<T> extends MainPageState {
 
 	private final SystemId selectedSystemId;
+
 	private final SystemId actualSelectedSystemId;
+
 	protected final List<T> systemIds;
 
 	OneByOneSystemsState(final SystemId selectedSystemId, final List<T> systemIds,
@@ -55,4 +56,5 @@ class OneByOneSystemsState<T> extends MainPageState {
 	boolean isFleetSelectable(final FleetId fleetId) {
 		return false;
 	}
+
 }

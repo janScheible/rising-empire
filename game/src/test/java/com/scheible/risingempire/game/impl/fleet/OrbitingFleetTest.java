@@ -1,21 +1,19 @@
 package com.scheible.risingempire.game.impl.fleet;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-
 import java.util.Map;
-
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.universe.Location;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.impl.ship.DesignSlot;
 import com.scheible.risingempire.game.impl.system.System;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 
 /**
- *
  * @author sj
  */
 class OrbitingFleetTest {
@@ -31,4 +29,5 @@ class OrbitingFleetTest {
 
 		assertThat(fleet.hasShips()).isFalse();
 	}
+
 }

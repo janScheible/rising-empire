@@ -1,7 +1,5 @@
 package com.scheible.risingempire.mootheme.processor;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -10,14 +8,14 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import org.junit.jupiter.api.Test;
-
 import com.scheible.risingempire.mootheme.canvas.Canvas;
 import com.scheible.risingempire.mootheme.canvas.Paintable;
 import com.scheible.risingempire.mootheme.processor.ImageProcessor.Scale;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- *
  * @author sj
  */
 public class ImageProcessorTest {
@@ -40,4 +38,5 @@ public class ImageProcessorTest {
 		assertThat(new Color(result.getImage().getRGB(1, 4), true).getAlpha()).isEqualTo(0);
 		assertThat(new Color(result.getImage().getRGB(4, 4))).isEqualTo(new Color(255, 0, 0));
 	}
+
 }

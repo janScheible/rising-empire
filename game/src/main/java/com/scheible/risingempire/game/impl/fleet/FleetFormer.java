@@ -1,8 +1,5 @@
 package com.scheible.risingempire.game.impl.fleet;
 
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,14 +8,18 @@ import com.scheible.risingempire.game.impl.ship.DesignSlot;
 import com.scheible.risingempire.game.impl.system.SystemOrb;
 import com.scheible.risingempire.util.ProcessingResult;
 
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
+
 /**
- *
  * @author sj
  */
 public class FleetFormer {
 
 	private final FleetIdGenerator fleetIdGenerator;
+
 	private final FleetFinder fleetFinder;
+
 	private final JourneyCalculator journeyCalculator;
 
 	public FleetFormer(final FleetIdGenerator fleetIdGenerator, final FleetFinder fleetFinder,
@@ -36,12 +37,14 @@ public class FleetFormer {
 				&& from.asDeployed().getSource().equals(destination);
 
 		final ProcessingResult<? extends Fleet> to = isJustLeaveSentBack
-				? fleetFinder.getOrbitingFleet(player, source).map(ProcessingResult::existing)
-						.orElseGet(() -> ProcessingResult.created(new OrbitingFleet(fleetIdGenerator.createRandom(),
-								player, new HashMap<>(), source, round)))
-				: fleetFinder.getJustLeavingFleets(player, source, destination, speed).map(ProcessingResult::existing)
-						.orElseGet(() -> ProcessingResult.created(new DeployedFleet(fleetIdGenerator.createRandom(),
-								player, new HashMap<>(), source, destination, speed)));
+				? fleetFinder.getOrbitingFleet(player, source)
+					.map(ProcessingResult::existing)
+					.orElseGet(() -> ProcessingResult.created(
+							new OrbitingFleet(fleetIdGenerator.createRandom(), player, new HashMap<>(), source, round)))
+				: fleetFinder.getJustLeavingFleets(player, source, destination, speed)
+					.map(ProcessingResult::existing)
+					.orElseGet(() -> ProcessingResult.created(new DeployedFleet(fleetIdGenerator.createRandom(), player,
+							new HashMap<>(), source, destination, speed)));
 
 		from.detach(ships);
 		updateSpeed(player, from);
@@ -66,10 +69,11 @@ public class FleetFormer {
 	public ProcessingResult<OrbitingFleet> welcomeFleet(final DeployedFleet fleet, final SystemOrb destination,
 			final int round) {
 		final ProcessingResult<OrbitingFleet> orbiting = fleetFinder.getOrbitingFleet(fleet.getPlayer(), destination)
-				.map(ProcessingResult::existing)
-				.orElseGet(() -> ProcessingResult.created(new OrbitingFleet(fleetIdGenerator.createRandom(),
-						fleet.getPlayer(), new HashMap<>(), destination, round)));
+			.map(ProcessingResult::existing)
+			.orElseGet(() -> ProcessingResult.created(new OrbitingFleet(fleetIdGenerator.createRandom(),
+					fleet.getPlayer(), new HashMap<>(), destination, round)));
 		orbiting.get().join(fleet.getShips());
 		return orbiting;
 	}
+
 }

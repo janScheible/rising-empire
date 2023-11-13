@@ -8,7 +8,6 @@ import com.scheible.risingempire.mootheme.canvas.Canvas;
 import com.scheible.risingempire.mootheme.canvas.Paintable;
 
 /**
- *
  * @author sj
  */
 public class ImageProcessor {
@@ -26,6 +25,7 @@ public class ImageProcessor {
 		public int getFactor() {
 			return factor;
 		}
+
 	}
 
 	public static Paintable process(final BufferedImage image, final Scale scale) {
@@ -47,10 +47,8 @@ public class ImageProcessor {
 
 	private static Paintable process(final BufferedImage image, final Scale scale,
 			final Optional<Integer> transparentColor, final Optional<Rectangle> cropRect) {
-		final BufferedImage source = cropRect.isPresent()
-				? image.getSubimage((int) cropRect.get().getX(), (int) cropRect.get().getY(),
-						(int) cropRect.get().getWidth(), (int) cropRect.get().getHeight())
-				: image;
+		final BufferedImage source = cropRect.isPresent() ? image.getSubimage((int) cropRect.get().getX(),
+				(int) cropRect.get().getY(), (int) cropRect.get().getWidth(), (int) cropRect.get().getHeight()) : image;
 
 		return new Paintable() {
 			@Override
@@ -66,7 +64,8 @@ public class ImageProcessor {
 
 								if (transparentColor.isEmpty() || transparentColor.get() != rgb) {
 									canvas.setRGB(xCanvas, yCanvas, rgb);
-								} else if (transparentColor.isPresent()) {
+								}
+								else if (transparentColor.isPresent()) {
 									canvas.setTransparent(xCanvas, yCanvas);
 								}
 							}
@@ -86,4 +85,5 @@ public class ImageProcessor {
 			}
 		};
 	}
+
 }

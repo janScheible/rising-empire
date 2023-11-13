@@ -4,7 +4,6 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 /**
- *
  * @author sj
  */
 public abstract class AbstractWeapon {
@@ -12,6 +11,7 @@ public abstract class AbstractWeapon {
 	public static class Damage {
 
 		private final int min;
+
 		private final int max;
 
 		public Damage(final int min, final int max) {
@@ -36,10 +36,12 @@ public abstract class AbstractWeapon {
 		public boolean equals(final Object obj) {
 			if (obj == this) {
 				return true;
-			} else if (obj != null && obj.getClass().equals(getClass())) {
+			}
+			else if (obj != null && obj.getClass().equals(getClass())) {
 				final Damage other = (Damage) obj;
 				return Objects.equals(min, other.min) && Objects.equals(max, other.max);
-			} else {
+			}
+			else {
 				return false;
 			}
 		}
@@ -53,9 +55,11 @@ public abstract class AbstractWeapon {
 		public String toString() {
 			return new StringJoiner(", ", "Damage[", "]").add("min=" + min).add("max=" + max).toString();
 		}
+
 	}
 
 	protected final String name;
+
 	protected final Damage damage;
 
 	public AbstractWeapon(final String name, final Damage damage) {
@@ -70,4 +74,5 @@ public abstract class AbstractWeapon {
 	public Damage getDamage() {
 		return damage;
 	}
+
 }

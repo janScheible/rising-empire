@@ -1,19 +1,9 @@
 package com.scheible.risingempire.webapp.adapter.frontend.selecttechpage;
 
-import static java.util.Collections.emptyList;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.notification.SystemNotificationView;
@@ -27,11 +17,17 @@ import com.scheible.risingempire.webapp.adapter.frontend.selecttechpage.SelectTe
 import com.scheible.risingempire.webapp.hypermedia.Action;
 import com.scheible.risingempire.webapp.hypermedia.ActionField;
 import com.scheible.risingempire.webapp.hypermedia.EntityModel;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import static java.util.Collections.emptyList;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
- *
  * @author sj
  */
 @FrontendController
@@ -44,20 +40,27 @@ class SelectTechPageController {
 
 		List<EntityModel<TechDto>> selectTechsEntities = emptyList();
 		if (!selectTechs.isEmpty()) {
-			selectTechsEntities = selectTechs.iterator().next().stream()
-					.map(tech -> new EntityModel<>(new TechDto(tech.getId().getValue(), tech.getName())).with(Action
-							.jsonPost("select", context.toFrontendUri("select-tech-page", "selects"))
-							.with("technologyId", tech.getId().getValue()) //
-							.with("selectedStarId", context.getSelectedStarId().get().getValue()) // CPD-OFF
-							.with(gameView.getJustExploredSystemIds().stream()
-									.map(esId -> new ActionField("exploredSystemId", esId.getValue())))
-							.with(gameView.getColonizableSystemIds().stream()
-									.map(csId -> new ActionField("colonizableSystemId", csId.getValue())))
-							.with(gameView.getAnnexableSystemIds().stream()
-									.map(asId -> new ActionField("annexableSystemId", asId.getValue())))
-							.with(gameView.getSystemNotifications().stream().map(SystemNotificationView::getSystemId)
-									.map(nsId -> new ActionField("notificationSystemId", nsId.getValue()))))) // CPD-ON
-					.collect(Collectors.toList());
+			selectTechsEntities = selectTechs.iterator()
+				.next()
+				.stream()
+				.map(tech -> new EntityModel<>(new TechDto(tech.getId().getValue(), tech.getName()))
+					.with(Action.jsonPost("select", context.toFrontendUri("select-tech-page", "selects"))
+						.with("technologyId", tech.getId().getValue()) //
+						.with("selectedStarId", context.getSelectedStarId().get().getValue()) // CPD-OFF
+						.with(gameView.getJustExploredSystemIds()
+							.stream()
+							.map(esId -> new ActionField("exploredSystemId", esId.getValue())))
+						.with(gameView.getColonizableSystemIds()
+							.stream()
+							.map(csId -> new ActionField("colonizableSystemId", csId.getValue())))
+						.with(gameView.getAnnexableSystemIds()
+							.stream()
+							.map(asId -> new ActionField("annexableSystemId", asId.getValue())))
+						.with(gameView.getSystemNotifications()
+							.stream()
+							.map(SystemNotificationView::getSystemId)
+							.map(nsId -> new ActionField("notificationSystemId", nsId.getValue()))))) // CPD-ON
+				.collect(Collectors.toList());
 		}
 
 		return new SelectTechPageDto(selectTechsEntities);
@@ -66,11 +69,17 @@ class SelectTechPageController {
 	static class SelectTechBodyDto {
 
 		TechId technologyId;
+
 		SystemId selectedStarId;
+
 		Optional<List<String>> exploredSystemId = Optional.empty();
+
 		Optional<List<String>> colonizableSystemId = Optional.empty();
+
 		Optional<List<String>> annexableSystemId = Optional.empty();
+
 		Optional<List<String>> notificationSystemId = Optional.empty();
+
 	}
 
 	@PostMapping(path = "/select-tech-page/selects", consumes = APPLICATION_JSON_VALUE)
@@ -83,4 +92,5 @@ class SelectTechPageController {
 				body.colonizableSystemId, body.annexableSystemId, body.notificationSystemId,
 				!context.getPlayerGame().getView().getSelectTechs().isEmpty());
 	}
+
 }

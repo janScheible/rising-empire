@@ -1,31 +1,29 @@
 package com.scheible.risingempire.webapp.adapter.frontend._scenario;
 
-import static java.util.Collections.emptySet;
-
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.JsonAssertCondition.mainPageState;
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.JsonAssertCondition.miniMap;
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.JsonAssertCondition.round;
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.NotificationEventCondition.notification;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import com.scheible.risingempire.game.api.Game;
 import com.scheible.risingempire.game.api.GameFactory;
 import com.scheible.risingempire.game.api.GameOptions;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.webapp._hypermedia.HypermediaClient;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.JsonAssertCondition.mainPageState;
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.JsonAssertCondition.miniMap;
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.JsonAssertCondition.round;
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.NotificationEventCondition.notification;
+import static java.util.Collections.emptySet;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- *
  * @author sj
  */
 class FinishTurnIT extends AbstractMainPageIT {
 
 	@BeforeEach
 	void beforeEach() {
-		startGameForBlue(GameFactory.get().create(GameOptions.forTestGameScenario()
+		startGameForBlue(GameFactory.get()
+			.create(GameOptions.forTestGameScenario()
 				// disable notifications
 				.fakeSystemNotificationProvider((player, round) -> emptySet())));
 	}
@@ -108,4 +106,5 @@ class FinishTurnIT extends AbstractMainPageIT {
 		unregisterChannel(Player.WHITE);
 		unregisterChannel(Player.YELLOW);
 	}
+
 }

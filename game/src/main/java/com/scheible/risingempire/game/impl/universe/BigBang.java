@@ -1,7 +1,5 @@
 package com.scheible.risingempire.game.impl.universe;
 
-import static java.util.Collections.unmodifiableList;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -9,8 +7,9 @@ import java.util.Set;
 import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.view.universe.Location;
 
+import static java.util.Collections.unmodifiableList;
+
 /**
- *
  * @author sj
  */
 public interface BigBang {
@@ -32,4 +31,5 @@ public interface BigBang {
 	}
 
 	Set<Location> getSystemLocations(GalaxySize galaxySize, int maxSystemDistance);
+
 }

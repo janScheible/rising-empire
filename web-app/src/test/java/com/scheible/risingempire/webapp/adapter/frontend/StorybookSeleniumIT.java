@@ -1,14 +1,5 @@
 package com.scheible.risingempire.webapp.adapter.frontend;
 
-import static com.scheible.risingempire.webapp._selenium.SeleniumHelper.ensureOptionVisible;
-import static com.scheible.risingempire.webapp._selenium.SeleniumHelper.findElementInShadowDom;
-import static com.scheible.risingempire.webapp._selenium.SeleniumHelper.getDefaultSlotFirstAssignedElement;
-import static com.scheible.risingempire.webapp._selenium.SeleniumHelper.hideElement;
-import static com.scheible.risingempire.webapp._selenium.SeleniumHelper.removeElement;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -25,6 +16,10 @@ import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
+import com.galenframework.rainbow4j.ComparisonOptions;
+import com.galenframework.rainbow4j.ImageCompareResult;
+import com.galenframework.rainbow4j.Rainbow4J;
+import com.scheible.risingempire.webapp._selenium.SeleniumHelper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -44,10 +39,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
 
-import com.galenframework.rainbow4j.ComparisonOptions;
-import com.galenframework.rainbow4j.ImageCompareResult;
-import com.galenframework.rainbow4j.Rainbow4J;
-import com.scheible.risingempire.webapp._selenium.SeleniumHelper;
+import static com.scheible.risingempire.webapp._selenium.SeleniumHelper.ensureOptionVisible;
+import static com.scheible.risingempire.webapp._selenium.SeleniumHelper.findElementInShadowDom;
+import static com.scheible.risingempire.webapp._selenium.SeleniumHelper.getDefaultSlotFirstAssignedElement;
+import static com.scheible.risingempire.webapp._selenium.SeleniumHelper.hideElement;
+import static com.scheible.risingempire.webapp._selenium.SeleniumHelper.removeElement;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
  * @author sj
@@ -59,6 +58,7 @@ class StorybookSeleniumIT {
 	static class StorybookPage {
 
 		private final Actions actions;
+
 		private final WebDriverWait wait;
 
 		@FindBy(tagName = "re-storybook")
@@ -93,22 +93,29 @@ class StorybookSeleniumIT {
 					index++;
 					final String value = optionEl.getAttribute("value");
 
-					// make sure that the current option is visible (otheriwse the double click would fail)
+					// make sure that the current option is visible (otheriwse the double
+					// click would fail)
 					ensureOptionVisible(driver, storiesEl, optionEl);
 
 					optionConsumer.accept(new StoryOption(wait, actions, optionEl, storybookEl, index, value));
 				}
 			}
 		}
+
 	}
 
 	static class StoryOption {
 
 		private final WebDriverWait wait;
+
 		private final Actions actions;
+
 		private final WebElement optionEl;
+
 		private final WebElement storybookEl;
+
 		private final int index;
+
 		private final String storyId;
 
 		StoryOption(WebDriverWait wait, Actions actions, WebElement optionEl, WebElement storybookEl, int index,
@@ -133,7 +140,8 @@ class StorybookSeleniumIT {
 
 			if (pageStoryWrapperEl == null) {
 				stageContentEl = findElementInShadowDom(driver, storybookEl, By.id("stage"));
-			} else {
+			}
+			else {
 				final WebElement pageEl = getDefaultSlotFirstAssignedElement(driver, pageStoryWrapperEl);
 				final WebElement pageModalDialogEl = findElementInShadowDom(driver, pageEl,
 						By.tagName("re-modal-dialog"));
@@ -155,6 +163,7 @@ class StorybookSeleniumIT {
 		String getStoryId() {
 			return storyId;
 		}
+
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(StorybookSeleniumIT.class);
@@ -162,7 +171,8 @@ class StorybookSeleniumIT {
 	private static final Function<BufferedImage, Rectangle> WHOLE_SCREENSHOT = image -> new Rectangle(0, 0,
 			image.getWidth(), image.getHeight());
 
-	// Workaround for displaced screenshots that include some outside parts and cause false positives.
+	// Workaround for displaced screenshots that include some outside parts and cause
+	// false positives.
 	private static final Map<String, Function<BufferedImage, Rectangle>> DISPLACED_SCREENSHOT_FIXER = Map.of( //
 			"new-game-page", image -> new Rectangle(1, 0, image.getWidth() - 1, image.getHeight()), "tech-page",
 			image -> new Rectangle(1, 0, image.getWidth() - 1, image.getHeight()),
@@ -191,7 +201,7 @@ class StorybookSeleniumIT {
 		storybookPage.forEachOption(storyOption -> storyOption.show((stageContentEl) -> {
 			try {
 				final BufferedImage currentScreenshot = ImageIO
-						.read(new ByteArrayInputStream(stageContentEl.getScreenshotAs(OutputType.BYTES)));
+					.read(new ByteArrayInputStream(stageContentEl.getScreenshotAs(OutputType.BYTES)));
 
 				final ClassPathResource previousScreenshotResource = new ClassPathResource(
 						storyOption.getStoryId() + ".png", getClass());
@@ -199,10 +209,10 @@ class StorybookSeleniumIT {
 					ImageIO.write(currentScreenshot, "png", new File("./target/" + storyOption.getStoryId() + ".png"));
 				}
 				assertThat(previousScreenshotResource.exists())
-						.as("Story screenshot with name '%s' exists in 'src/test/resources/%s'",
-								previousScreenshotResource.getFilename(),
-								getClass().getPackageName().replaceAll(Pattern.quote("."), "/"))
-						.isTrue();
+					.as("Story screenshot with name '%s' exists in 'src/test/resources/%s'",
+							previousScreenshotResource.getFilename(),
+							getClass().getPackageName().replaceAll(Pattern.quote("."), "/"))
+					.isTrue();
 
 				final BufferedImage previousScreenshot;
 				try (InputStream input = previousScreenshotResource.getInputStream()) {
@@ -215,8 +225,9 @@ class StorybookSeleniumIT {
 				final ComparisonOptions options = new ComparisonOptions();
 				options.setTolerance(5);
 				final Rectangle area = DISPLACED_SCREENSHOT_FIXER
-						.getOrDefault(storyOption.getStoryId(), WHOLE_SCREENSHOT).apply(currentScreenshot)
-						.intersection(WHOLE_SCREENSHOT.apply(previousScreenshot));
+					.getOrDefault(storyOption.getStoryId(), WHOLE_SCREENSHOT)
+					.apply(currentScreenshot)
+					.intersection(WHOLE_SCREENSHOT.apply(previousScreenshot));
 				final ImageCompareResult result = Rainbow4J.compare(previousScreenshot, currentScreenshot, area, area,
 						options);
 
@@ -226,7 +237,8 @@ class StorybookSeleniumIT {
 					ImageIO.write(currentScreenshot, "png", new File("./target/" + storyOption.getStoryId() + ".png"));
 					storyIdsWithChangedScreenshots.add(storyOption.getStoryId());
 				}
-			} catch (IOException ex) {
+			}
+			catch (IOException ex) {
 				logger.warn("Problem reading screenshot.", ex);
 			}
 		}));
@@ -238,4 +250,5 @@ class StorybookSeleniumIT {
 	static void afterAll() {
 		driver.quit();
 	}
+
 }

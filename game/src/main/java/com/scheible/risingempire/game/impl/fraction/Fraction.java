@@ -14,19 +14,21 @@ import com.scheible.risingempire.game.impl.ship.DesignSlot;
 import com.scheible.risingempire.game.impl.ship.ShipDesign;
 import com.scheible.risingempire.game.impl.system.SystemSnapshot;
 import com.scheible.risingempire.util.jdk.Objects2;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
- *
  * @author sj
  */
 public class Fraction {
 
 	private final Player player;
+
 	private final Race race;
+
 	private final Map<DesignSlot, ShipDesign> shipDesigns;
+
 	private final Technology technology;
+
 	private final Map<SystemId, SystemSnapshot> systemSnapshots = new HashMap<>();
 
 	public Fraction(final Player player, final Race race, final Map<DesignSlot, ShipDesign> shipDesigns,
@@ -59,10 +61,10 @@ public class Fraction {
 
 	public void updateSnapshot(final SystemId systemId, final SystemSnapshot snapshot) {
 		final int firstSeenTurn = Optional.ofNullable(systemSnapshots.get(systemId))
-				.flatMap(SystemSnapshot::getFirstSeenTurn).orElseGet(() -> snapshot.getLastSeenTurn());
-		systemSnapshots.put(systemId,
-				snapshot.getFirstSeenTurn().filter(fst -> fst == firstSeenTurn).isPresent() ? snapshot
-						: SystemSnapshot.withFirstSeenTurn(snapshot, firstSeenTurn));
+			.flatMap(SystemSnapshot::getFirstSeenTurn)
+			.orElseGet(() -> snapshot.getLastSeenTurn());
+		systemSnapshots.put(systemId, snapshot.getFirstSeenTurn().filter(fst -> fst == firstSeenTurn).isPresent()
+				? snapshot : SystemSnapshot.withFirstSeenTurn(snapshot, firstSeenTurn));
 	}
 
 	@SuppressFBWarnings(value = "EQ_UNUSUAL", justification = "Object2.equals() is allowed.")
@@ -80,4 +82,5 @@ public class Fraction {
 	public String toString() {
 		return Objects2.toStringBuilder(getClass()).add("player", player).add("race", race).toString();
 	}
+
 }

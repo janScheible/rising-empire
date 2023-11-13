@@ -1,17 +1,15 @@
 package com.scheible.risingempire.game.api.view;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.scheible.risingempire.game.api.view.universe.Location;
 import org.junit.jupiter.api.Test;
 
-import com.scheible.risingempire.game.api.view.universe.Location;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- *
  * @author sj
  */
 class LocationTest {
@@ -36,4 +34,5 @@ class LocationTest {
 				new Location(155, 155), new Location(190, 190), new Location(225, 225), new Location(250, 250),
 				new Location(250, 250)));
 	}
+
 }

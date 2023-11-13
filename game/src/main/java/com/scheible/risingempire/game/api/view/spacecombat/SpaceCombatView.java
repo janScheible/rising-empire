@@ -1,7 +1,5 @@
 package com.scheible.risingempire.game.api.view.spacecombat;
 
-import static java.util.Collections.unmodifiableList;
-
 import java.util.List;
 
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
@@ -10,8 +8,9 @@ import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.api.view.universe.Race;
 
+import static java.util.Collections.unmodifiableList;
+
 /**
- *
  * @author sj
  */
 public class SpaceCombatView {
@@ -19,6 +18,7 @@ public class SpaceCombatView {
 	public enum Outcome {
 
 		ATTACKER_WON, ATTACKER_RETREATED, DEFENDER_WON;
+
 	}
 
 	private final SystemId systemId;
@@ -28,13 +28,19 @@ public class SpaceCombatView {
 	private final int fireExchangeCount;
 
 	private final Race attacker;
+
 	private final Player attackerPlayer;
+
 	private final FleetBeforeArrival attackerFleet;
+
 	private final List<CombatantShipSpecsView> attackerShipSpecs;
 
 	private final Race defender;
+
 	private final Player defenderPlayer;
+
 	private final FleetId defenderFleet;
+
 	private final List<CombatantShipSpecsView> defenderShipSpecs;
 
 	private final Outcome outcome;
@@ -109,4 +115,5 @@ public class SpaceCombatView {
 	public Outcome getOutcome() {
 		return outcome;
 	}
+
 }

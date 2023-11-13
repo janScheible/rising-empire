@@ -7,24 +7,23 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.scheible.risingempire.game.api.view.universe.Player;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import com.scheible.risingempire.game.api.view.universe.Player;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
- *
  * @author sj
  */
 @Service
 public class NotificationService {
 
 	public enum ErrorCause {
+
 		SEND, GENERIC
+
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
@@ -32,6 +31,7 @@ public class NotificationService {
 	private final Map<String, NotificationChannel> broadcastChannels = new ConcurrentHashMap<>();
 
 	private final Map<String, Map<Player, NotificationChannel>> notificationChannels = new ConcurrentHashMap<>();
+
 	private final Map<String, Map<Player, String>> playerSessionIds = new ConcurrentHashMap<>();
 
 	private final ApplicationEventPublisher eventPublisher;
@@ -50,11 +50,13 @@ public class NotificationService {
 	public boolean registerChannel(final String gameId, final Player player, final String gameSessionId,
 			final NotificationChannel channel) throws IOException {
 		final String registeredGameSessionId = playerSessionIds
-				.computeIfAbsent(gameId, key -> new ConcurrentHashMap<>()).get(player);
+			.computeIfAbsent(gameId, key -> new ConcurrentHashMap<>())
+			.get(player);
 
 		if (registeredGameSessionId == null || registeredGameSessionId.equals(gameSessionId)) {
 			final NotificationChannel existingChannel = notificationChannels
-					.computeIfAbsent(gameId, key -> new ConcurrentHashMap<>()).put(player, channel);
+				.computeIfAbsent(gameId, key -> new ConcurrentHashMap<>())
+				.put(player, channel);
 			if (existingChannel == null) {
 				logger.info("Added notification channel for '{}' of gameId '{}'.", player, gameId);
 
@@ -66,10 +68,12 @@ public class NotificationService {
 
 				broadcast("game-change");
 				return true;
-			} else {
+			}
+			else {
 				logger.info("There is already a notification channel for '{}' of gameId '{}'.", player, gameId);
 			}
-		} else {
+		}
+		else {
 			logger.info("Notification channel for '{}' of gameId '{}' was already used.", player, gameId);
 		}
 
@@ -81,21 +85,23 @@ public class NotificationService {
 		return notificationChannels.getOrDefault(gameId, Collections.emptyMap()).get(player) != null;
 	}
 
-	@SuppressFBWarnings(value = { "EXS_EXCEPTION_SOFTENING_RETURN_FALSE",
-			"EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS" }, justification = "Notification channel is removed and exception is logged.")
+	@SuppressFBWarnings(value = { "EXS_EXCEPTION_SOFTENING_RETURN_FALSE", "EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS" },
+			justification = "Notification channel is removed and exception is logged.")
 	public final boolean send(final String gameId, final Player player, final String type,
 			final Map<String, Object> payload) {
 		final NotificationChannel channel = notificationChannels.getOrDefault(gameId, Collections.emptyMap())
-				.get(player);
+			.get(player);
 		if (channel != null) {
 			try {
 				channel.sendMessage(type, payload);
-			} catch (IOException ex) {
+			}
+			catch (IOException ex) {
 				throw new UncheckedIOException(ex);
 			}
 
 			return true;
-		} else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -104,12 +110,14 @@ public class NotificationService {
 		return send(gameId, player, type, Collections.emptyMap());
 	}
 
-	@SuppressFBWarnings(value = "EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS", justification = "Do not bother everybody with that IOException.")
+	@SuppressFBWarnings(value = "EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS",
+			justification = "Do not bother everybody with that IOException.")
 	public final void broadcast(final String type) {
 		for (final NotificationChannel broadcastChannel : broadcastChannels.values()) {
 			try {
 				broadcastChannel.sendMessage(type);
-			} catch (IOException ex) {
+			}
+			catch (IOException ex) {
 				throw new UncheckedIOException(ex);
 			}
 		}
@@ -133,4 +141,5 @@ public class NotificationService {
 
 		broadcast("game-change");
 	}
+
 }

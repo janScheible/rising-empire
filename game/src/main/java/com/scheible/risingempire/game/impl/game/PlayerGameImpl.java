@@ -14,12 +14,12 @@ import com.scheible.risingempire.game.api.view.tech.TechId;
 import com.scheible.risingempire.game.api.view.universe.Player;
 
 /**
- *
  * @author sj
  */
 public class PlayerGameImpl implements PlayerGame {
 
 	private final Player player;
+
 	private final GameImpl game;
 
 	public PlayerGameImpl(final Player player, final GameImpl game) {
@@ -72,4 +72,5 @@ public class PlayerGameImpl implements PlayerGame {
 	public Player getPlayer() {
 		return player;
 	}
+
 }

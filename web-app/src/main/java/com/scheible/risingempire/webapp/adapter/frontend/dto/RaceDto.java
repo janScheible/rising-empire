@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scheible.risingempire.game.api.view.universe.Race;
 
 /**
- *
  * @author sj
  */
 public enum RaceDto {
+
 	@JsonProperty("Human")
 	HUMAN,
 
@@ -20,4 +20,5 @@ public enum RaceDto {
 	public static RaceDto fromRace(final Race race) {
 		return RaceDto.valueOf(race.name());
 	}
+
 }

@@ -7,12 +7,12 @@ import java.util.Optional;
 import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
- *
  * @author sj
  */
 public class AllocationsDto {
 
 	final Map<String, AllocationCategoryDto> categories;
+
 	@Nullable
 	final String locked;
 
@@ -20,4 +20,5 @@ public class AllocationsDto {
 		this.categories = Collections.unmodifiableMap(categories);
 		this.locked = locked.orElse(null);
 	}
+
 }

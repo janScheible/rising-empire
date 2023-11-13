@@ -1,10 +1,5 @@
 package com.scheible.risingempire.game.impl.game;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.unmodifiableList;
-import static java.util.function.Function.identity;
-
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,14 +59,18 @@ import com.scheible.risingempire.game.impl.system.System;
 import com.scheible.risingempire.game.impl.system.SystemOrb;
 import com.scheible.risingempire.game.impl.tech.TechManager;
 import com.scheible.risingempire.game.impl.view.GameViewBuilder;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.unmodifiableList;
+import static java.util.function.Function.identity;
+
 /**
- *
  * @author sj
  */
-@SuppressFBWarnings(value = "FCCD_FIND_CLASS_CIRCULAR_DEPENDENCY", justification = "GameViewImpl must access game to perform all actions.")
+@SuppressFBWarnings(value = "FCCD_FIND_CLASS_CIRCULAR_DEPENDENCY",
+		justification = "GameViewImpl must access game to perform all actions.")
 public class GameImpl implements Game, FleetManager, ColonyManager, TechManager {
 
 	private final GalaxySize galaxySize;
@@ -81,26 +80,37 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	private final FleetIdGenerator fleetIdGenerator;
 
 	private final Map<SystemId, System> systems;
+
 	private final Map<Player, Fraction> fractions;
+
 	private final Map<FleetId, Fleet> fleets;
 
 	private final FakeTechProvider fakeTechProvider;
+
 	private final FakeSystemNotificationProvider fakeNotificationProvider;
 
 	private final Map<Player, List<List<Entry<TechId, String>>>> selectTechGroups = new EnumMap<>(Player.class);
+
 	private final Set<SpaceCombat> spaceCombats = new HashSet<>();
+
 	private final Map<FleetId, Set<FleetBeforeArrival>> orbitingArrivingMapping = new HashMap<>();
 
 	private final Set<ColonizeCommand> colonizeCommands = new HashSet<>();
+
 	private final Set<AnnexCommand> annexCommands = new HashSet<>();
 
 	private final ShipDesignProvider shipDesignProvider;
+
 	private final FleetFormer fleetFormer;
+
 	private final JourneyCalculator journeyCalculator;
+
 	private final FleetTurn fleetTurn;
+
 	private final int annexationSiegeRounds;
 
 	private final EnumSet<Player> finishedTurn = EnumSet.noneOf(Player.class);
+
 	private int round = 1;
 
 	public GameImpl(final Set<System> systems, final Set<Fraction> fractions, final Set<StartFleet> startFleets,
@@ -108,16 +118,15 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		this.galaxySize = gameOptions.getGalaxySize();
 
 		this.systems = Collections
-				.unmodifiableMap(systems.stream().collect(Collectors.toMap(System::getId, identity())));
+			.unmodifiableMap(systems.stream().collect(Collectors.toMap(System::getId, identity())));
 		this.fractions = Collections
-				.unmodifiableMap(fractions.stream().collect(Collectors.toMap(Fraction::getPlayer, identity())));
+			.unmodifiableMap(fractions.stream().collect(Collectors.toMap(Fraction::getPlayer, identity())));
 		this.fleets = new HashMap<>();
 		fleetIdGenerator = new FleetIdGenerator(this.fleets.keySet());
-		this.fleets
-				.putAll(startFleets
-						.stream().map(sf -> new OrbitingFleet(fleetIdGenerator.createRandom(), sf.getPlayer(),
-								sf.getShips(), sf.getSystem(), round))
-						.collect(Collectors.toMap(Fleet::getId, identity())));
+		this.fleets.putAll(startFleets.stream()
+			.map(sf -> new OrbitingFleet(fleetIdGenerator.createRandom(), sf.getPlayer(), sf.getShips(), sf.getSystem(),
+					round))
+			.collect(Collectors.toMap(Fleet::getId, identity())));
 
 		this.fakeTechProvider = gameOptions.getFakeTechProvider().orElse(null);
 		this.fakeNotificationProvider = gameOptions.getFakeNotificationProvider().orElse(null);
@@ -145,17 +154,19 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		orbitingArrivingMapping.clear();
 
 		final List<Fleet> sortedFleets = new ArrayList<>(fleets.values());
-		sortedFleets.sort(
-				(first, second) -> Double.compare(first.getDestinationDistance(), second.getDestinationDistance()));
+		sortedFleets
+			.sort((first, second) -> Double.compare(first.getDestinationDistance(), second.getDestinationDistance()));
 
 		for (final Fleet fleet : sortedFleets) {
 			final FleetChanges changes = fleetTurn.nextTurn(fleet);
 			changes.getAdded().forEach(f -> fleets.put(f.getId(), f));
 			changes.getRemoved().forEach(f -> fleets.remove(f.getId()));
 			changes.getCombats()
-					.forEach(spaceCombat -> spaceCombats.add(SpaceCombat.withOrder(spaceCombat, spaceCombats.size())));
-			changes.getOrbitingArrivingMapping().forEach((orbitingId, deployedIds) -> orbitingArrivingMapping
-					.computeIfAbsent(orbitingId, key -> new HashSet<>()).addAll(deployedIds));
+				.forEach(spaceCombat -> spaceCombats.add(SpaceCombat.withOrder(spaceCombat, spaceCombats.size())));
+			changes.getOrbitingArrivingMapping()
+				.forEach((orbitingId, deployedIds) -> orbitingArrivingMapping
+					.computeIfAbsent(orbitingId, key -> new HashSet<>())
+					.addAll(deployedIds));
 		}
 
 		colonizeCommands.stream().forEach(command -> {
@@ -167,8 +178,11 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 					final FleetId fleetId = fleet.getId();
 					final System system = systems.get(command.systemId());
 
-					final Optional<DesignSlot> colonyShipSlot = fleet.getShips().keySet().stream()
-							.filter(ds -> shipDesignProvider.get(fleet.getPlayer(), ds).hasColonyBase()).findFirst();
+					final Optional<DesignSlot> colonyShipSlot = fleet.getShips()
+						.keySet()
+						.stream()
+						.filter(ds -> shipDesignProvider.get(fleet.getPlayer(), ds).hasColonyBase())
+						.findFirst();
 
 					if (colonyShipSlot.isPresent()) {
 						orbiting.detach(Map.of(colonyShipSlot.get(), 1));
@@ -183,7 +197,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		colonizeCommands.clear();
 
 		annexCommands.stream()
-				.forEach(command -> systems.get(command.systemId()).annex(command.player(), DesignSlot.FIRST));
+			.forEach(command -> systems.get(command.systemId()).annex(command.player(), DesignSlot.FIRST));
 		annexCommands.clear();
 	}
 
@@ -226,9 +240,12 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 				selectTechGroups.clear();
 
 				finishedTurn.forEach(p -> selectTechGroups.put(p,
-						fakeTechProvider.get(p, round).stream().map(tgv -> tgv.stream()
+						fakeTechProvider.get(p, round)
+							.stream()
+							.map(tgv -> tgv.stream()
 								.map(tv -> (Entry<TechId, String>) new SimpleImmutableEntry<>(tv.getId(), tv.getName()))
-								.collect(Collectors.toList())).collect(Collectors.toList())));
+								.collect(Collectors.toList()))
+							.collect(Collectors.toList())));
 			}
 
 			finishedTurn.clear();
@@ -244,8 +261,10 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	}
 
 	private Map<Player, Boolean> getTurnFinishedStatus() {
-		return fractions.keySet().stream().collect(Collectors.toMap(identity(), c -> finishedTurn.contains(c),
-				(l, r) -> l, () -> new EnumMap<>(Player.class)));
+		return fractions.keySet()
+			.stream()
+			.collect(Collectors.toMap(identity(), c -> finishedTurn.contains(c), (l, r) -> l,
+					() -> new EnumMap<>(Player.class)));
 	}
 
 	@Override
@@ -257,8 +276,8 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		final SystemOrb destination = systems.get(destinationId);
 
 		fleetFormer.deployFleet(player, from, source, destination, DesignSlot.toSlotAndCounts(ships.entrySet()), round)
-				.consume(addedFleet -> fleets.put(addedFleet.getId(), addedFleet),
-						removedFleet -> fleets.remove(removedFleet.getId()));
+			.consume(addedFleet -> fleets.put(addedFleet.getId(), addedFleet),
+					removedFleet -> fleets.remove(removedFleet.getId()));
 	}
 
 	@Override
@@ -272,8 +291,11 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 
 		final OrbitingFleet orbiting = fleet.asOrbiting();
 
-		final Optional<DesignSlot> colonyShipSlot = fleet.getShips().keySet().stream()
-				.filter(ds -> shipDesignProvider.get(fleet.getPlayer(), ds).hasColonyBase()).findFirst();
+		final Optional<DesignSlot> colonyShipSlot = fleet.getShips()
+			.keySet()
+			.stream()
+			.filter(ds -> shipDesignProvider.get(fleet.getPlayer(), ds).hasColonyBase())
+			.findFirst();
 
 		if (colonyShipSlot.isEmpty()) {
 			throw new IllegalArgumentException("The fleet '" + fleetId + "' can't colonize the '"
@@ -284,7 +306,8 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 
 		if (!skip) {
 			colonizeCommands.add(new ColonizeCommand(player, system.getId(), orbiting.getId()));
-		} else {
+		}
+		else {
 			final Iterator<ColonizeCommand> commandIterator = colonizeCommands.iterator();
 			while (commandIterator.hasNext()) {
 				final ColonizeCommand command = commandIterator.next();
@@ -305,8 +328,11 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 			final SystemId systemId = orbiting.getSystem().getId();
 			final System system = systems.get(systemId);
 
-			final boolean hasColonyShip = orbiting.getShips().keySet().stream()
-					.map(fractions.get(orbiting.getPlayer()).getShipDesigns()::get).anyMatch(ShipDesign::hasColonyBase);
+			final boolean hasColonyShip = orbiting.getShips()
+				.keySet()
+				.stream()
+				.map(fractions.get(orbiting.getPlayer()).getShipDesigns()::get)
+				.anyMatch(ShipDesign::hasColonyBase);
 
 			if (hasColonyShip && system.getColony().isEmpty()) {
 				return true;
@@ -318,8 +344,9 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 
 	@Override
 	public boolean hasColonizeCommand(final Player player, final SystemId systemId, final FleetId fleetId) {
-		return colonizeCommands.stream().anyMatch(command -> command.player() == player
-				&& command.systemId().equals(systemId) && command.fleetId().equals(fleetId));
+		return colonizeCommands.stream()
+			.anyMatch(command -> command.player() == player && command.systemId().equals(systemId)
+					&& command.fleetId().equals(fleetId));
 
 	}
 
@@ -338,17 +365,21 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		if (system.getColony().isEmpty()) {
 			throw new IllegalArgumentException("The fleet '" + orbiting + "' can't annex the system '" + system.getId()
 					+ "' because there is no colony!");
-		} else if (system.getColony().get().getPlayer() == player) {
+		}
+		else if (system.getColony().get().getPlayer() == player) {
 			throw new IllegalArgumentException("The fleet '" + orbiting + "' can't annex the system '" + system.getId()
 					+ "' because the colony already belong to " + player + "!");
-		} else if (!isSiegeSuccessful(orbiting)) {
+		}
+		else if (!isSiegeSuccessful(orbiting)) {
 			throw new IllegalArgumentException("The fleet '" + orbiting + "' can't annex the system '" + system.getId()
 					+ "' because the fleet is only there for " + (round - orbiting.getArrivalRound())
 					+ " but must be at least " + annexationSiegeRounds + "!");
-		} else {
+		}
+		else {
 			if (!skip) {
 				annexCommands.add(new AnnexCommand(player, system.getId(), orbiting.getId()));
-			} else {
+			}
+			else {
 				final Iterator<AnnexCommand> annexIterator = annexCommands.iterator();
 				while (annexIterator.hasNext()) {
 					final AnnexCommand command = annexIterator.next();
@@ -387,8 +418,9 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 
 	@Override
 	public boolean hasAnnexCommand(final Player player, final SystemId systemId, final FleetId fleetId) {
-		return annexCommands.stream().anyMatch(command -> command.player() == player
-				&& command.systemId().equals(systemId) && command.fleetId().equals(fleetId));
+		return annexCommands.stream()
+			.anyMatch(command -> command.player() == player && command.systemId().equals(systemId)
+					&& command.fleetId().equals(fleetId));
 	}
 
 	@Override
@@ -400,7 +432,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 
 			if (system.getColony().isPresent() && system.getColony().get().getPlayer() != orbiting.getPlayer()) {
 				return Optional
-						.of((int) Math.min(100, 100.0 * (round - orbiting.getArrivalRound()) / annexationSiegeRounds));
+					.of((int) Math.min(100, 100.0 * (round - orbiting.getArrivalRound()) / annexationSiegeRounds));
 			}
 		}
 
@@ -454,13 +486,14 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	}
 
 	GameView getGameState(final Player player) {
-		final Map<Player, Race> playerRaceMapping = fractions.entrySet().stream()
-				.collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getRace()));
-		final Map<Player, Map<DesignSlot, ShipDesign>> designs = fractions.keySet().stream()
-				.collect(Collectors.toMap(identity(), p -> fractions.get(player).getShipDesigns()));
+		final Map<Player, Race> playerRaceMapping = fractions.entrySet()
+			.stream()
+			.collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getRace()));
+		final Map<Player, Map<DesignSlot, ShipDesign>> designs = fractions.keySet()
+			.stream()
+			.collect(Collectors.toMap(identity(), p -> fractions.get(player).getShipDesigns()));
 		final Set<SystemNotificationView> systemNotifications = fakeNotificationProvider != null
-				? fakeNotificationProvider.get(player, round)
-				: emptySet();
+				? fakeNotificationProvider.get(player, round) : emptySet();
 
 		return GameViewBuilder.buildView(galaxySize, round, getTurnFinishedStatus(), player, playerRaceMapping,
 				systems.values(), fleets.values(), designs, orbitingArrivingMapping,
@@ -493,11 +526,12 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	@Override
 	public Set<Player> getPlayers() {
 		return Collections
-				.unmodifiableSet(fractions.values().stream().map(Fraction::getPlayer).collect(Collectors.toSet()));
+			.unmodifiableSet(fractions.values().stream().map(Fraction::getPlayer).collect(Collectors.toSet()));
 	}
 
 	@Override
 	public int getRound() {
 		return round;
 	}
+
 }

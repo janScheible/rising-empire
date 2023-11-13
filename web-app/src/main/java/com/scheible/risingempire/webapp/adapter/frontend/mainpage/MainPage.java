@@ -4,11 +4,9 @@ import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView.HorizontalDirection;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.universe.Player;
-
 import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
- *
  * @author sj
  */
 public class MainPage {
@@ -16,6 +14,7 @@ public class MainPage {
 	static class StarMapFleetBeforeArrival {
 
 		final FleetId id;
+
 		@Nullable
 		HorizontalDirection horizontalDirection;
 
@@ -42,22 +41,29 @@ public class MainPage {
 		public Integer getSpeed() {
 			return speed;
 		}
+
 	}
 
 	static class StarMapFleet {
 
 		final FleetId id;
+
 		final Player player;
+
 		final int x;
+
 		final int y;
 
 		final boolean orbiting;
+
 		final boolean justLeaving;
 
 		@Nullable
 		final SystemId destination;
+
 		@Nullable
 		final Integer speed;
+
 		@Nullable
 		final HorizontalDirection horizontalDirection;
 
@@ -89,5 +95,7 @@ public class MainPage {
 				final int y) {
 			return new StarMapFleet(fleetId, player, x, y, true, false, null, null, null);
 		}
+
 	}
+
 }

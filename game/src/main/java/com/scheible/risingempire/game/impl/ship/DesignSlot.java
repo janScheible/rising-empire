@@ -10,7 +10,7 @@ import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 
 /**
  * The six available slots for ship designs.
- * 
+ *
  * @author sj
  */
 public enum DesignSlot {
@@ -27,7 +27,10 @@ public enum DesignSlot {
 	}
 
 	public static Map<DesignSlot, Integer> toSlotAndCounts(final Set<Entry<ShipTypeId, Integer>> apiShips) {
-		return apiShips.stream().filter(s -> s.getValue() > 0).collect(
-				Collectors.toMap(typeWithCount -> DesignSlot.valueOf(typeWithCount.getKey()), Map.Entry::getValue));
+		return apiShips.stream()
+			.filter(s -> s.getValue() > 0)
+			.collect(
+					Collectors.toMap(typeWithCount -> DesignSlot.valueOf(typeWithCount.getKey()), Map.Entry::getValue));
 	}
+
 }

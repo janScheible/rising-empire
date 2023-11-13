@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scheible.risingempire.game.api.view.universe.Player;
 
 /**
- *
  * @author sj
  */
 public enum PlayerDto {
+
 	@JsonProperty("blue")
 	BLUE,
 
@@ -29,4 +29,5 @@ public enum PlayerDto {
 	public static PlayerDto fromPlayer(final Player player) {
 		return PlayerDto.valueOf(player.name());
 	}
+
 }

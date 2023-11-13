@@ -1,16 +1,14 @@
 package com.scheible.risingempire.webapp;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import com.scheible.pocketsaw.impl.Pocketsaw;
 import com.scheible.pocketsaw.impl.Pocketsaw.AnalysisResult;
 import com.scheible.pocketsaw.impl.descriptor.annotation.ClassgraphClasspathScanner;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- *
  * @author sj
  */
 class BackendSubModulesTest {
@@ -36,4 +34,5 @@ class BackendSubModulesTest {
 	void testNoIllegalCodeDependencies() {
 		assertThat(result.getIllegalCodeDependencies()).isEmpty();
 	}
+
 }

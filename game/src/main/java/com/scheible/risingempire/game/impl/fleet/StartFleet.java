@@ -8,13 +8,14 @@ import com.scheible.risingempire.game.impl.ship.DesignSlot;
 import com.scheible.risingempire.game.impl.system.System;
 
 /**
- *
  * @author sj
  */
 public class StartFleet {
 
 	private final Player player;
+
 	private final System system;
+
 	private final Map<DesignSlot, Integer> ships;
 
 	public StartFleet(final Player player, final System system, final Map<DesignSlot, Integer> ships) {
@@ -34,4 +35,5 @@ public class StartFleet {
 	public Map<DesignSlot, Integer> getShips() {
 		return ships;
 	}
+
 }

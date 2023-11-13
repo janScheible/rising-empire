@@ -1,12 +1,5 @@
 package com.scheible.risingempire.game.api.view.fleet;
 
-import static java.util.Collections.emptySet;
-import static java.util.Collections.unmodifiableMap;
-import static java.util.Collections.unmodifiableSet;
-
-import static com.scheible.risingempire.game.api.view.fleet.FleetView.FleetViewType.DEPLOYED;
-import static com.scheible.risingempire.game.api.view.fleet.FleetView.FleetViewType.ORBITING;
-
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,12 +15,16 @@ import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.universe.Location;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.api.view.universe.Race;
-
 import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import static com.scheible.risingempire.game.api.view.fleet.FleetView.FleetViewType.DEPLOYED;
+import static com.scheible.risingempire.game.api.view.fleet.FleetView.FleetViewType.ORBITING;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.Collections.unmodifiableSet;
+
 /**
- *
  * @author sj
  */
 public class FleetView {
@@ -35,32 +32,44 @@ public class FleetView {
 	public enum FleetViewType {
 
 		ORBITING, DEPLOYED;
+
 	}
 
 	public enum HorizontalDirection {
 
 		LEFT, RIGHT;
+
 	}
 
 	private final FleetId id;
 
 	private final FleetViewType type;
+
 	private final Player player;
+
 	private final Race race;
+
 	private final Map<ShipTypeView, Integer> ships;
+
 	private final Location location;
+
 	private final boolean deployable;
+
 	@Nullable
 	private final Integer scannerRange;
 
 	@Nullable
 	private final SystemId source;
+
 	@Nullable
 	private final SystemId destination;
+
 	@Nullable
 	private final Integer speed;
+
 	@Nullable
 	private final SystemId closest;
+
 	@Nullable
 	private final HorizontalDirection horizontalDirection;
 
@@ -193,10 +202,12 @@ public class FleetView {
 	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
-		} else if (obj != null && getClass().equals(obj.getClass())) {
+		}
+		else if (obj != null && getClass().equals(obj.getClass())) {
 			final FleetView other = (FleetView) obj;
 			return Objects.equals(id, other.id);
-		} else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -213,9 +224,14 @@ public class FleetView {
 
 	public String toString(final Function<SystemId, String> starNameResolver) {
 		final StringJoiner values = new StringJoiner(", ",
-				(type == DEPLOYED ? "DeployedFleet" : "OrbitingFleet") + "View[", "]").add("id=" + id)
-						.add("type=" + type).add("player=" + player).add("race=" + race).add("location=" + location)
-						.add("horizontalDirection=" + horizontalDirection).add("deployable=" + deployable);
+				(type == DEPLOYED ? "DeployedFleet" : "OrbitingFleet") + "View[", "]")
+			.add("id=" + id)
+			.add("type=" + type)
+			.add("player=" + player)
+			.add("race=" + race)
+			.add("location=" + location)
+			.add("horizontalDirection=" + horizontalDirection)
+			.add("deployable=" + deployable);
 		if (scannerRange != null) {
 			values.add("scannerRange=" + scannerRange);
 		}
@@ -224,7 +240,8 @@ public class FleetView {
 			values.add("source=" + starNameResolver.apply(source));
 			values.add("destination=" + starNameResolver.apply(destination));
 			values.add("speed=" + speed);
-		} else if (type == ORBITING) {
+		}
+		else if (type == ORBITING) {
 			values.add("orbiting=" + starNameResolver.apply(orbiting));
 		}
 
@@ -236,11 +253,13 @@ public class FleetView {
 			values.add("justLeaving=" + justLeaving);
 		}
 
-		values.add("ships=" + getShips().entrySet().stream()
-				.map(typeAndAmmount -> new SimpleImmutableEntry<>(typeAndAmmount.getKey().getName(),
-						typeAndAmmount.getValue()))
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
+		values.add("ships=" + getShips().entrySet()
+			.stream()
+			.map(typeAndAmmount -> new SimpleImmutableEntry<>(typeAndAmmount.getKey().getName(),
+					typeAndAmmount.getValue()))
+			.collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
 
 		return values.toString();
 	}
+
 }

@@ -8,7 +8,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.scheible.risingempire.game.api.Game;
 
 /**
- *
  * @author sj
  */
 public class GameHolder {
@@ -30,4 +29,5 @@ public class GameHolder {
 	void removeGame(final String gameId) {
 		games.remove(gameId);
 	}
+
 }

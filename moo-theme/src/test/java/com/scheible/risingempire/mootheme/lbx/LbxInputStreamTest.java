@@ -1,16 +1,15 @@
 package com.scheible.risingempire.mootheme.lbx;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+
 /**
- *
  * @author sj
  */
 class LbxInputStreamTest {
@@ -32,4 +31,5 @@ class LbxInputStreamTest {
 
 		verify(byteArrayInputStream).close();
 	}
+
 }

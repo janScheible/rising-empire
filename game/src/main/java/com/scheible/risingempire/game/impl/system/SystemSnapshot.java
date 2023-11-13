@@ -10,33 +10,41 @@ import com.scheible.risingempire.game.api.view.universe.Location;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.impl.colony.Colony;
 import com.scheible.risingempire.util.jdk.Objects2;
-
 import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
- *
  * @author sj
  */
 public class SystemSnapshot {
 
 	private final SystemId id;
+
 	@Nullable
 	private final Integer firstSeenTurn;
+
 	private final int lastSeenTurn;
+
 	private final boolean known;
+
 	private final Location location;
+
 	private final StarType starType;
 
 	@Nullable
 	private final PlanetType planetType;
+
 	@Nullable
 	private final PlanetSpecial planetSpecial;
+
 	@Nullable
 	private final String starName;
+
 	@Nullable
 	private final Integer planetMaxPopulation;
+
 	@Nullable
 	private final Player colonyPlayer;
+
 	@Nullable
 	private final Integer colonyPopulation;
 
@@ -136,11 +144,20 @@ public class SystemSnapshot {
 
 	@Override
 	public String toString() {
-		return Objects2.toStringBuilder(getClass()).add("id", id).add("firstSeenTurn", firstSeenTurn)
-				.add("lastSeenTurn", lastSeenTurn).add("known", known).add("location", location)
-				.add("starType", starType).add("planetType", getPlanetType()).add("planetSpecial", getPlanetSpecial())
-				.add("starName", getStarName()).add("planetMaxPopulation", getPlanetMaxPopulation())
-				.add("colonyPlayer", getColonyPlayer().map(Player::toString))
-				.add("colonyPopulation", getColonyPopulation()).toString();
+		return Objects2.toStringBuilder(getClass())
+			.add("id", id)
+			.add("firstSeenTurn", firstSeenTurn)
+			.add("lastSeenTurn", lastSeenTurn)
+			.add("known", known)
+			.add("location", location)
+			.add("starType", starType)
+			.add("planetType", getPlanetType())
+			.add("planetSpecial", getPlanetSpecial())
+			.add("starName", getStarName())
+			.add("planetMaxPopulation", getPlanetMaxPopulation())
+			.add("colonyPlayer", getColonyPlayer().map(Player::toString))
+			.add("colonyPopulation", getColonyPopulation())
+			.toString();
 	}
+
 }

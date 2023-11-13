@@ -1,7 +1,8 @@
 package com.scheible.risingempire.webapp.adapter.frontend;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
+import com.blueconic.browscap.Capabilities;
+import com.blueconic.browscap.UserAgentParser;
+import com.scheible.risingempire.webapp.adapter.frontend.context.FrontendContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -11,12 +12,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.blueconic.browscap.Capabilities;
-import com.blueconic.browscap.UserAgentParser;
-import com.scheible.risingempire.webapp.adapter.frontend.context.FrontendContext;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
- *
  * @author sj
  */
 @RestController
@@ -24,11 +22,17 @@ import com.scheible.risingempire.webapp.adapter.frontend.context.FrontendContext
 class ErrorController {
 
 	static class FrontendErrorBodyDto {
+
 		int columnNumber;
+
 		String fileName;
+
 		int lineNumber;
+
 		String message;
+
 		// String stack;
+
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ErrorController.class);
@@ -39,8 +43,8 @@ class ErrorController {
 		this.userAgentParser = userAgentParser;
 	}
 
-	@PostMapping(path = { "/game-browser/errors",
-			"/game/games/{gameId}/{player}/errors" }, consumes = APPLICATION_JSON_VALUE)
+	@PostMapping(path = { "/game-browser/errors", "/game/games/{gameId}/{player}/errors" },
+			consumes = APPLICATION_JSON_VALUE)
 	void receiveError(@RequestHeader(value = "User-Agent") final String userAgent,
 			@ModelAttribute final FrontendContext context, @RequestBody final FrontendErrorBodyDto body) {
 		final Capabilities userAgentCapabilities = userAgentParser.parse(userAgent);
@@ -53,8 +57,10 @@ class ErrorController {
 
 			logger.error("Frontend error '{}' for {} in game '{}' with browser '{}' at {}", body.message,
 					context.getPlayer(), context.getGameId(), browser, errorLocation);
-		} else {
+		}
+		else {
 			logger.error("Frontend error '{}' with browser '{}' at {}", body.message, browser, errorLocation);
 		}
 	}
+
 }

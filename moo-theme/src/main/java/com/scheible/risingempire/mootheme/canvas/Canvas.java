@@ -6,7 +6,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 
 /**
- *
  * @author sj
  */
 public interface Canvas {
@@ -50,4 +49,5 @@ public interface Canvas {
 	void setTransparent(int x, int y);
 
 	BufferedImage getImage();
+
 }

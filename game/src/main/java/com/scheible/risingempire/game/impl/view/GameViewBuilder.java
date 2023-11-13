@@ -1,7 +1,5 @@
 package com.scheible.risingempire.game.impl.view;
 
-import static java.util.Collections.emptyMap;
-
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,8 +50,9 @@ import com.scheible.risingempire.game.impl.system.System;
 import com.scheible.risingempire.game.impl.system.SystemSnapshot;
 import com.scheible.risingempire.game.impl.tech.TechManager;
 
+import static java.util.Collections.emptyMap;
+
 /**
- *
  * @author sj
  */
 public class GameViewBuilder {
@@ -70,9 +69,10 @@ public class GameViewBuilder {
 		final Set<SystemView> systemViews = new HashSet<>(systems.size());
 		final Set<FleetView> fleetViews = new HashSet<>(30);
 
-		final Map<SystemId, OrbitingFleet> orbitingFleets = fleets.stream().filter(Fleet::isOrbiting)
-				.map(Fleet::asOrbiting)
-				.collect(Collectors.toMap(f -> f.getSystem().getId(), Function.identity(), (a, b) -> a));
+		final Map<SystemId, OrbitingFleet> orbitingFleets = fleets.stream()
+			.filter(Fleet::isOrbiting)
+			.map(Fleet::asOrbiting)
+			.collect(Collectors.toMap(f -> f.getSystem().getId(), Function.identity(), (a, b) -> a));
 
 		final Predicate<System> isColonizable = system -> {
 			final OrbitingFleet orbiting = orbitingFleets.get(system.getId());
@@ -91,61 +91,63 @@ public class GameViewBuilder {
 				&& fleetManager.hasAnnexCommand(player, system.getId(), orbitingFleets.get(system.getId()).getId());
 
 		final Function<System, Integer> siegeProgress = (system) -> orbitingFleets.containsKey(system.getId())
-				? fleetManager.getSiegeProgress(orbitingFleets.get(system.getId()).getId()).orElse(null)
-				: null;
+				? fleetManager.getSiegeProgress(orbitingFleets.get(system.getId()).getId()).orElse(null) : null;
 
 		final Function<System, Integer> siegeRounds = (system) -> siegeProgress.apply(system) != null
-				? Math.round((siegeProgress.apply(system) / 100.f) * annexationSiegeRounds)
-				: null;
+				? Math.round((siegeProgress.apply(system) / 100.f) * annexationSiegeRounds) : null;
 
-		final Function<System, Integer> roundsUntilAnnexable = (
-				system) -> siegeRounds.apply(system) != null ? annexationSiegeRounds - siegeRounds.apply(system) : null;
+		final Function<System, Integer> roundsUntilAnnexable = (system) -> siegeRounds.apply(system) != null
+				? annexationSiegeRounds - siegeRounds.apply(system) : null;
 
-		final Function<System, Player> siegePlayer = (
-				system) -> siegeProgress.apply(system) != null ? orbitingFleets.get(system.getId()).getPlayer() : null;
+		final Function<System, Player> siegePlayer = (system) -> siegeProgress.apply(system) != null
+				? orbitingFleets.get(system.getId()).getPlayer() : null;
 
 		for (final System system : systems) {
-			systemViews.add(system.getColony(player).map(c -> SystemSnapshot.forKnown(round, system))
-					.or(() -> snapshotProvider.apply(player, system.getId()))
-					.or(() -> Optional.of(SystemSnapshot.forUnknown(round, system))).map(snapshot -> {
-						final Optional<Player> colonyPlayer = snapshot.getColonyPlayer();
+			systemViews.add(system.getColony(player)
+				.map(c -> SystemSnapshot.forKnown(round, system))
+				.or(() -> snapshotProvider.apply(player, system.getId()))
+				.or(() -> Optional.of(SystemSnapshot.forUnknown(round, system)))
+				.map(snapshot -> {
+					final Optional<Player> colonyPlayer = snapshot.getColonyPlayer();
 
-						final Optional<Colony> colony = system.getColony(player);
-						final ShipTypeView spaceDock = colony.map(Colony::getSpaceDock)
-								.map(ds -> ds.toShipType(designs.get(player).get(ds))).orElse(null);
-						final Map<ProductionArea, Integer> ratios = colony.map(Colony::getRatios).orElse(null);
+					final Optional<Colony> colony = system.getColony(player);
+					final ShipTypeView spaceDock = colony.map(Colony::getSpaceDock)
+						.map(ds -> ds.toShipType(designs.get(player).get(ds)))
+						.orElse(null);
+					final Map<ProductionArea, Integer> ratios = colony.map(Colony::getRatios).orElse(null);
 
-						final ColonyView colonyView = colonyPlayer
-								.map(cc -> new ColonyView(snapshot.getId().toColonyId(), colonyPlayer.get(),
-										playerRaceMapping.get(colonyPlayer.get()), snapshot.getColonyPopulation().get(),
-										spaceDock, ratios,
-										!(siegePlayer.apply(system) == null && !isAnnexable.test(system))
-												? new AnnexationStatusView(
-														Optional.ofNullable(siegeRounds.apply(system)),
-														Optional.ofNullable(roundsUntilAnnexable.apply(system)),
-														Optional.ofNullable(siegePlayer.apply(system)),
-														Optional.ofNullable(siegePlayer.apply(system))
-																.map(playerRaceMapping::get),
-														Optional.of(isAnnexable.test(system)),
-														Optional.of(hasAnnexCommand.test(system)))
-												: null))
-								.orElse(null);
+					final ColonyView colonyView = colonyPlayer
+						.map(cc -> new ColonyView(snapshot.getId().toColonyId(), colonyPlayer.get(),
+								playerRaceMapping.get(colonyPlayer.get()), snapshot.getColonyPopulation().get(),
+								spaceDock, ratios,
+								!(siegePlayer.apply(system) == null && !isAnnexable.test(system))
+										? new AnnexationStatusView(Optional.ofNullable(siegeRounds.apply(system)),
+												Optional.ofNullable(roundsUntilAnnexable.apply(system)),
+												Optional.ofNullable(siegePlayer.apply(system)),
+												Optional.ofNullable(siegePlayer.apply(system))
+													.map(playerRaceMapping::get),
+												Optional.of(isAnnexable.test(system)),
+												Optional.of(hasAnnexCommand.test(system)))
+										: null))
+						.orElse(null);
 
-						final Integer seenInTurn = Optional.of(snapshot.getLastSeenTurn()).filter(t -> t != round)
-								.orElse(null);
-						final Integer range = system.getColony(player).isPresent() ? null
-								: system.calcRange(player, systems);
+					final Integer seenInTurn = Optional.of(snapshot.getLastSeenTurn())
+						.filter(t -> t != round)
+						.orElse(null);
+					final Integer range = system.getColony(player).isPresent() ? null
+							: system.calcRange(player, systems);
 
-						return new SystemView(snapshot.getId(), snapshot.wasJustExplored(round), snapshot.getLocation(),
-								snapshot.getStarType(), system.getName().toLowerCase().contains("u"),
-								system.isHomeSystem(player), range, snapshot.getPlanetType().orElse(null),
-								snapshot.getPlanetSpecial().orElse(null), seenInTurn,
-								snapshot.getStarName().orElse(null), snapshot.getPlanetMaxPopulation().orElse(null),
-								colonyView, system.getColony(player).map(c -> technology.getFleetRange()).orElse(null),
-								system.getColony(player).map(c -> technology.getExtendedFleetRange()).orElse(null),
-								system.getColony(player).map(c -> technology.getColonyScannerRange()).orElse(null),
-								isColonizable.test(system), hasColonizeCommand.test(system));
-					}).orElseThrow());
+					return new SystemView(snapshot.getId(), snapshot.wasJustExplored(round), snapshot.getLocation(),
+							snapshot.getStarType(), system.getName().toLowerCase().contains("u"),
+							system.isHomeSystem(player), range, snapshot.getPlanetType().orElse(null),
+							snapshot.getPlanetSpecial().orElse(null), seenInTurn, snapshot.getStarName().orElse(null),
+							snapshot.getPlanetMaxPopulation().orElse(null), colonyView,
+							system.getColony(player).map(c -> technology.getFleetRange()).orElse(null),
+							system.getColony(player).map(c -> technology.getExtendedFleetRange()).orElse(null),
+							system.getColony(player).map(c -> technology.getColonyScannerRange()).orElse(null),
+							isColonizable.test(system), hasColonizeCommand.test(system));
+				})
+				.orElseThrow());
 		}
 
 		final Set<SystemId> annexableSystemIds = new HashSet<>(30);
@@ -155,38 +157,41 @@ public class GameViewBuilder {
 			if (fleet.getPlayer() == player) {
 				if (fleetManager.canColonize(fleet.getId())) {
 					colonizableSystemIds.add(fleet.asOrbiting().getSystem().getId());
-				} else if (fleetManager.canAnnex(fleet.getId())) {
+				}
+				else if (fleetManager.canAnnex(fleet.getId())) {
 					annexableSystemIds.add(fleet.asOrbiting().getSystem().getId());
 				}
 
 				fleetViews.add(toOwnFleetView(fleet, orbitingArrivingMapping.get(fleet.getId()),
 						playerRaceMapping.get(fleet.getPlayer()), designs.get(player), player,
 						fleetManager.getClosest(fleet.getId()), technology.getFleetScannerRange()));
-			} else if (isForeigenFleetVisible(systems, player, fleet, technology, fleets)) {
+			}
+			else if (isForeigenFleetVisible(systems, player, fleet, technology, fleets)) {
 				fleetViews.add(toForeignFleetView(fleet, orbitingArrivingMapping.get(fleet.getId()),
 						playerRaceMapping.get(fleet.getPlayer()), fleetManager.getClosest(fleet.getId())));
 			}
 		}
 
 		final Set<SpaceCombatView> spaceCombatViews = spaceCombats.stream()
-				.filter(sc -> sc.getAttacker() == player || sc.getDefender() == player)
-				.map(sc -> new SpaceCombatView(sc.getSystemId(), sc.getOrder(), sc.getFireExchangeCount(),
-						playerRaceMapping.get(sc.getAttacker()), sc.getAttacker(), sc.getAttackerFleet(),
-						toCombatantShipSpecs(sc.getAttackerShipCounts(), sc.getAttackerFireExchanges(),
-								designs.get(sc.getAttacker())),
-						playerRaceMapping.get(sc.getDefender()), sc.getDefender(), sc.getDefenderFleet(),
-						toCombatantShipSpecs(sc.getDefenderShipCounts(), sc.getDefenderFireExchanges(),
-								designs.get(sc.getDefender())),
-						sc.getOutcome()))
-				.collect(Collectors.toSet());
+			.filter(sc -> sc.getAttacker() == player || sc.getDefender() == player)
+			.map(sc -> new SpaceCombatView(sc.getSystemId(), sc.getOrder(), sc.getFireExchangeCount(),
+					playerRaceMapping.get(sc.getAttacker()), sc.getAttacker(), sc.getAttackerFleet(),
+					toCombatantShipSpecs(sc.getAttackerShipCounts(), sc.getAttackerFireExchanges(),
+							designs.get(sc.getAttacker())),
+					playerRaceMapping.get(sc.getDefender()), sc.getDefender(), sc.getDefenderFleet(),
+					toCombatantShipSpecs(sc.getDefenderShipCounts(), sc.getDefenderFireExchanges(),
+							designs.get(sc.getDefender())),
+					sc.getOutcome()))
+			.collect(Collectors.toSet());
 
 		final Set<SystemId> justExploredSystem = getJustExploredSystem(player, systemViews, colonizableSystemIds,
 				spaceCombatViews.stream().map(SpaceCombatView::getSystemId).collect(Collectors.toSet()));
 
-		final Set<TechGroupView> technologies = techManager.getSelectTechs(player).stream()
-				.map(g -> new TechGroupView(
-						g.stream().map(t -> new TechView(t.getKey(), t.getValue(), "-")).collect(Collectors.toSet())))
-				.collect(Collectors.toSet());
+		final Set<TechGroupView> technologies = techManager.getSelectTechs(player)
+			.stream()
+			.map(g -> new TechGroupView(
+					g.stream().map(t -> new TechView(t.getKey(), t.getValue(), "-")).collect(Collectors.toSet())))
+			.collect(Collectors.toSet());
 
 		return new GameView(galaxySize.getWidth(), galaxySize.getHeight(), player, playerRaceMapping.get(player),
 				playerRaceMapping.keySet(), round, turnFinishedStatus, systemViews, fleetViews, colonizableSystemIds,
@@ -207,19 +212,19 @@ public class GameViewBuilder {
 					: shipsFireExchange.get(shipsFireExchange.size() - 1).getShipCount();
 
 			final List<String> equipment = Stream
-					.concat(shipDesign.getWeaponSlots().stream()
-							.map(ws -> ws.getCount() + " " + ws.getWeapon().getName()),
-							shipDesign.getSpecials().stream().map(AbstractSpecial::getName))
-					.collect(Collectors.toList());
+				.concat(shipDesign.getWeaponSlots().stream().map(ws -> ws.getCount() + " " + ws.getWeapon().getName()),
+						shipDesign.getSpecials().stream().map(AbstractSpecial::getName))
+				.collect(Collectors.toList());
 
 			result.add(new CombatantShipSpecsView(shipType.getId(), shipType.getName(), count, previousCount,
 					shipType.getSize(), shipDesign.getHitsAbsorbedByShield(), shipDesign.getBeamDefence(),
 					shipDesign.getAttackLevel(), shipDesign.getWarpSpeed(), shipDesign.getMissileDefence(),
 					shipDesign.getHitPoints(), shipDesign.getCombatSpeed(), equipment,
 					count == previousCount ? Collections.emptyList()
-							: shipsFireExchange.stream().map(fe -> new FireExchangeView(fe.getRound(),
-									fe.getLostHitPoints(), fe.getDamage(), fe.getShipCount()))
-									.collect(Collectors.toList())));
+							: shipsFireExchange.stream()
+								.map(fe -> new FireExchangeView(fe.getRound(), fe.getLostHitPoints(), fe.getDamage(),
+										fe.getShipCount()))
+								.collect(Collectors.toList())));
 		}
 
 		return result;
@@ -227,19 +232,23 @@ public class GameViewBuilder {
 
 	private static Set<SystemId> getJustExploredSystem(final Player player, final Set<SystemView> systemViews,
 			final Set<SystemId> colonizableSystemIds, final Set<SystemId> spaceCombatSystemIds) {
-		return systemViews.stream().filter(s -> s.getColonyView().filter(c -> c.getPlayer() == player).isEmpty())
-				.filter(SystemView::wasJustExplored).map(SystemView::getId)
-				.filter(esId -> !colonizableSystemIds.contains(esId) && !spaceCombatSystemIds.contains(esId))
-				.collect(Collectors.toSet());
+		return systemViews.stream()
+			.filter(s -> s.getColonyView().filter(c -> c.getPlayer() == player).isEmpty())
+			.filter(SystemView::wasJustExplored)
+			.map(SystemView::getId)
+			.filter(esId -> !colonizableSystemIds.contains(esId) && !spaceCombatSystemIds.contains(esId))
+			.collect(Collectors.toSet());
 	}
 
 	private static FleetView toOwnFleetView(final Fleet fleet, final Set<FleetBeforeArrival> fleetsBeforeArrival,
 			final Race race, final Map<DesignSlot, ShipDesign> designs, final Player player, final SystemId closest,
 			final int scannerRange) {
-		final Map<ShipTypeView, Integer> shipTypesAndCounts = fleet.getShips().entrySet().stream()
-				.map(slotAndCount -> new AbstractMap.SimpleImmutableEntry<>(
-						slotAndCount.getKey().toShipType(designs.get(slotAndCount.getKey())), slotAndCount.getValue()))
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		final Map<ShipTypeView, Integer> shipTypesAndCounts = fleet.getShips()
+			.entrySet()
+			.stream()
+			.map(slotAndCount -> new AbstractMap.SimpleImmutableEntry<>(
+					slotAndCount.getKey().toShipType(designs.get(slotAndCount.getKey())), slotAndCount.getValue()))
+			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
 		if (fleet.isDeployed()) {
 			final DeployedFleet deployedFleet = fleet.asDeployed();
@@ -249,7 +258,8 @@ public class GameViewBuilder {
 					deployedFleet.getLocation(), deployedFleet.getSpeed(), closest,
 					deployedFleet.getHorizontalDirection(), deployedFleet.isJustLeaving(), scannerRange,
 					fleetsBeforeArrival, deployedFleet.isJustLeaving());
-		} else if (fleet.isOrbiting()) {
+		}
+		else if (fleet.isOrbiting()) {
 			final OrbitingFleet orbitingFleet = fleet.asOrbiting();
 
 			return FleetView.createOrbiting(fleet.getId(), player, race, shipTypesAndCounts,
@@ -262,12 +272,16 @@ public class GameViewBuilder {
 
 	private static boolean isForeigenFleetVisible(final Collection<System> systems, final Player player,
 			final Fleet fleet, final Technology technology, final Collection<Fleet> fleets) {
-		final boolean scannedByColony = systems.stream().filter(s -> s.getColony(player).isPresent())
-				.mapToDouble(s -> s.getLocation().getDistance(fleet.getLocation())).min().stream()
-				.anyMatch(d -> d <= technology.getColonyScannerRange());
+		final boolean scannedByColony = systems.stream()
+			.filter(s -> s.getColony(player).isPresent())
+			.mapToDouble(s -> s.getLocation().getDistance(fleet.getLocation()))
+			.min()
+			.stream()
+			.anyMatch(d -> d <= technology.getColonyScannerRange());
 
-		final boolean scannedByFleet = fleets.stream().filter(f -> f.getPlayer() == player)
-				.anyMatch(f -> f.getLocation().getDistance(fleet.getLocation()) < technology.getFleetScannerRange());
+		final boolean scannedByFleet = fleets.stream()
+			.filter(f -> f.getPlayer() == player)
+			.anyMatch(f -> f.getLocation().getDistance(fleet.getLocation()) < technology.getFleetScannerRange());
 
 		return scannedByColony || scannedByFleet;
 	}
@@ -278,7 +292,8 @@ public class GameViewBuilder {
 			return FleetView.createDeployed(fleet.getId(), fleet.getPlayer(), race, emptyMap(), null, null,
 					fleet.getLocation(), fleet.asDeployed().getSpeed(), closest,
 					fleet.asDeployed().getHorizontalDirection(), false, null, fleetsBeforeArrival, false);
-		} else if (fleet.isOrbiting()) {
+		}
+		else if (fleet.isOrbiting()) {
 			final OrbitingFleet orbitingFleet = fleet.asOrbiting();
 
 			return FleetView.createOrbiting(fleet.getId(), fleet.getPlayer(), race, emptyMap(),
@@ -288,4 +303,5 @@ public class GameViewBuilder {
 
 		throw new IllegalStateException("Unknown fleet type!");
 	}
+
 }

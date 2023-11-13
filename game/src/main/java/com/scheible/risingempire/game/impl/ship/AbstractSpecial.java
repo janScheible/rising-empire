@@ -1,7 +1,6 @@
 package com.scheible.risingempire.game.impl.ship;
 
 /**
- *
  * @author sj
  */
 public abstract class AbstractSpecial {
@@ -20,4 +19,5 @@ public abstract class AbstractSpecial {
 	public String toString() {
 		return name;
 	}
+
 }

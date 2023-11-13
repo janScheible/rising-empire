@@ -1,7 +1,5 @@
 package com.scheible.risingempire.webapp.adapter.frontend.mainpage;
 
-import static java.util.Collections.unmodifiableMap;
-
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.List;
 import java.util.Map;
@@ -13,11 +11,11 @@ import java.util.stream.Collectors;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
-
 import edu.umd.cs.findbugs.annotations.Nullable;
 
+import static java.util.Collections.unmodifiableMap;
+
 /**
- *
  * @author sj
  */
 abstract class MainPageState {
@@ -47,9 +45,11 @@ abstract class MainPageState {
 		int getOrder() {
 			return order;
 		}
+
 	}
 
 	static class ExplorationState extends OneByOneSystemsState<SystemId> {
+
 		private ExplorationState(final SystemId selectedSystemId, final List<SystemId> exploredSystemIds) {
 			super(selectedSystemId, exploredSystemIds, Function.identity());
 		}
@@ -61,9 +61,11 @@ abstract class MainPageState {
 		boolean hasRemainingExploredSystems() {
 			return !systemIds.isEmpty();
 		}
+
 	}
 
 	static class ColonizationState extends OneByOneSystemsState<SystemId> {
+
 		private ColonizationState(final SystemId selectedSystemId, final List<SystemId> colonizableSystemIds) {
 			super(selectedSystemId, colonizableSystemIds, Function.identity());
 		}
@@ -75,9 +77,11 @@ abstract class MainPageState {
 		boolean hasRemainingColonizableSystems() {
 			return !systemIds.isEmpty();
 		}
+
 	}
 
 	static class AnnexationState extends OneByOneSystemsState<SystemId> {
+
 		private AnnexationState(final SystemId selectedSystemId, final List<SystemId> annexableSystemIds) {
 			super(selectedSystemId, annexableSystemIds, Function.identity());
 		}
@@ -89,9 +93,11 @@ abstract class MainPageState {
 		boolean hasRemainingAnnexableSystemIds() {
 			return !systemIds.isEmpty();
 		}
+
 	}
 
 	static class NotificationState extends OneByOneSystemsState<SystemId> {
+
 		public NotificationState(final SystemId selectedSystemId, final List<SystemId> systemIds) {
 			super(selectedSystemId, systemIds, Function.identity());
 		}
@@ -108,10 +114,13 @@ abstract class MainPageState {
 		boolean isMiniMap() {
 			return false;
 		}
+
 	}
 
 	static class StarInspectionState extends MainPageState {
+
 		private final SystemId selectedSystemId;
+
 		private final Optional<String> lockedCategory;
 
 		private StarInspectionState(final SystemId selectedSystemId, final Optional<String> lockedCategory) {
@@ -138,6 +147,7 @@ abstract class MainPageState {
 		Optional<String> getLockedCategory() {
 			return lockedCategory;
 		}
+
 	}
 
 	static class NewTurnState extends StarInspectionState {
@@ -145,6 +155,7 @@ abstract class MainPageState {
 		private NewTurnState(final SystemId selectedSystemId) {
 			super(selectedSystemId, Optional.empty());
 		}
+
 	}
 
 	static class TurnFinishedState extends StarInspectionState {
@@ -167,6 +178,7 @@ abstract class MainPageState {
 		boolean isFleetSelectable(final FleetId fleetId) {
 			return false;
 		}
+
 	}
 
 	static class FleetMovementState extends StarInspectionState {
@@ -189,14 +201,17 @@ abstract class MainPageState {
 		boolean isFleetSelectable(final FleetId fleetId) {
 			return false;
 		}
+
 	}
 
 	static class FleetInspectionState extends MainPageState {
 
 		private final FleetId selectedFleetId;
+
 		private final Map<ShipTypeView, Integer> ships;
 
 		private final DeployableFleetProvider deployableFleetProvider;
+
 		private final OrbitingSystemProvider orbitingSystemProvider;
 
 		private FleetInspectionState(final FleetId selectedFleetId, final Map<ShipTypeView, Integer> ships,
@@ -229,12 +244,15 @@ abstract class MainPageState {
 		Optional<Map<ShipTypeView, Integer>> getShips() {
 			return Optional.ofNullable(ships);
 		}
+
 	}
 
 	static class FleetDeploymentState extends MainPageState {
 
 		private final SystemId selectedSystemId;
+
 		private final FleetId selectedFleetId;
+
 		private final Map<ShipTypeView, Integer> ships;
 
 		private final OrbitingSystemProvider orbitingSystemProvider;
@@ -272,21 +290,28 @@ abstract class MainPageState {
 		Optional<Map<ShipTypeView, Integer>> getShips() {
 			return Optional.ofNullable(ships);
 		}
+
 	}
 
 	@FunctionalInterface
 	interface ShipProvider {
+
 		Map<ShipTypeView, Integer> get(FleetId fleetId, Map<String, String> parameters);
+
 	}
 
 	@FunctionalInterface
 	interface OrbitingSystemProvider {
+
 		boolean is(FleetId fleetId, SystemId orbitingSystemId);
+
 	}
 
 	@FunctionalInterface
 	interface DeployableFleetProvider {
+
 		boolean is(FleetId fleetId);
+
 	}
 
 	private static boolean onlyStar(@Nullable final SystemId selectedSystemId,
@@ -310,10 +335,12 @@ abstract class MainPageState {
 
 			if (finishedTurnInCurrentRound.get()) {
 				return new TurnFinishedState(selectedSystemId);
-			} else {
+			}
+			else {
 				return new FleetMovementState(selectedSystemId);
 			}
-		} else {
+		}
+		else {
 
 			return new StarInspectionState(selectedSystemId, lockedCategory);
 		}
@@ -333,38 +360,57 @@ abstract class MainPageState {
 
 		if (rawSpaceCombatSystemIds.isPresent()) {
 			final List<Entry<SystemId, Integer>> spaceCombatSystemIds = rawSpaceCombatSystemIds
-					.map(ids -> ids.stream()
-							.map(id -> new SimpleImmutableEntry<>(new SystemId(id.split("@")[0]),
-									Integer.valueOf(id.split("@")[1]))))
-					.get().sorted((a, b) -> a.getValue().compareTo(b.getValue())).collect(Collectors.toList());
+				.map(ids -> ids.stream()
+					.map(id -> new SimpleImmutableEntry<>(new SystemId(id.split("@")[0]),
+							Integer.valueOf(id.split("@")[1]))))
+				.get()
+				.sorted((a, b) -> a.getValue().compareTo(b.getValue()))
+				.collect(Collectors.toList());
 			return new SpaceCombatSystemState(selectedSystemId, spaceCombatSystemIds);
-		} else if (rawExploredSystemIds.isPresent()) {
+		}
+		else if (rawExploredSystemIds.isPresent()) {
 			final List<SystemId> exploredSystemIds = rawExploredSystemIds
-					.map(ids -> ids.stream().map(id -> new SystemId(id))).get().collect(Collectors.toList());
+				.map(ids -> ids.stream().map(id -> new SystemId(id)))
+				.get()
+				.collect(Collectors.toList());
 			return new ExplorationState(selectedSystemId, exploredSystemIds);
-		} else if (rawColonizableSystemIds.isPresent()) {
+		}
+		else if (rawColonizableSystemIds.isPresent()) {
 			final List<SystemId> colonizableSystemIds = rawColonizableSystemIds
-					.map(ids -> ids.stream().map(id -> new SystemId(id))).get().collect(Collectors.toList());
+				.map(ids -> ids.stream().map(id -> new SystemId(id)))
+				.get()
+				.collect(Collectors.toList());
 			return new ColonizationState(selectedSystemId, colonizableSystemIds);
-		} else if (rawAnnexableSystemIds.isPresent()) {
+		}
+		else if (rawAnnexableSystemIds.isPresent()) {
 			final List<SystemId> annexableSystemIds = rawAnnexableSystemIds
-					.map(ids -> ids.stream().map(id -> new SystemId(id))).get().collect(Collectors.toList());
+				.map(ids -> ids.stream().map(id -> new SystemId(id)))
+				.get()
+				.collect(Collectors.toList());
 			return new AnnexationState(selectedSystemId, annexableSystemIds);
-		} else if (rawNotificationSystemIds.isPresent()) {
+		}
+		else if (rawNotificationSystemIds.isPresent()) {
 			final List<SystemId> notificationSystemIds = rawNotificationSystemIds
-					.map(ids -> ids.stream().map(id -> new SystemId(id))).get().collect(Collectors.toList());
+				.map(ids -> ids.stream().map(id -> new SystemId(id)))
+				.get()
+				.collect(Collectors.toList());
 			return new NotificationState(selectedSystemId, notificationSystemIds);
-		} else if (newTurn && onlyStar(selectedSystemId, selectedFleetId)) {
+		}
+		else if (newTurn && onlyStar(selectedSystemId, selectedFleetId)) {
 			return new NewTurnState(selectedSystemId);
-		} else if (onlyStar(selectedSystemId, selectedFleetId)) {
+		}
+		else if (onlyStar(selectedSystemId, selectedFleetId)) {
 			return createStarInspectionState(selectedSystemId, lockedCategory, finishedTurnInCurrentRound);
-		} else if (onlyFleet(selectedSystemId, selectedFleetId)) {
+		}
+		else if (onlyFleet(selectedSystemId, selectedFleetId)) {
 			return new FleetInspectionState(selectedFleetId, shipProvider.get(selectedFleetId, rawShipTypeIdsAndCounts),
 					deployableFleetProvider, orbitingSystemProvider);
-		} else if (starAndFleet(selectedSystemId, selectedFleetId)) {
+		}
+		else if (starAndFleet(selectedSystemId, selectedFleetId)) {
 			return new FleetDeploymentState(selectedFleetId, selectedSystemId,
 					shipProvider.get(selectedFleetId, rawShipTypeIdsAndCounts), orbitingSystemProvider);
-		} else {
+		}
+		else {
 			return new InitState();
 		}
 	}
@@ -468,4 +514,5 @@ abstract class MainPageState {
 	boolean isNewTurnState() {
 		return this instanceof NewTurnState;
 	}
+
 }

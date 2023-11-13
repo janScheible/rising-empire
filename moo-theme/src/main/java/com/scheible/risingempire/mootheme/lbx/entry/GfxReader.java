@@ -9,11 +9,9 @@ import java.io.IOException;
 
 import com.scheible.risingempire.mootheme.lbx.LbxEntry;
 import com.scheible.risingempire.mootheme.lbx.LbxInputStream;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
- *
  * @author sj
  */
 public class GfxReader {
@@ -72,7 +70,8 @@ public class GfxReader {
 
 			if (mode == 0xff) {
 				// skip this column
-			} else {
+			}
+			else {
 				final boolean compressed = mode == 0x80;
 				long sequenceLength = input.readUByte();
 
@@ -95,12 +94,15 @@ public class GfxReader {
 							partLength--;
 							drawRun(runLength, raster, x, y, color);
 							y += runLength;
-						} else {
+						}
+						else {
 							drawSingle(raster, x, y, color);
 							y++;
 						}
-					} while (partLength > 0);
-				} while (sequenceLength > 0);
+					}
+					while (partLength > 0);
+				}
+				while (sequenceLength > 0);
 			}
 
 			x++;
@@ -120,4 +122,5 @@ public class GfxReader {
 	private static void drawSingle(final WritableRaster raster, final int x, final int y, final int color) {
 		raster.setSample(x, y, 0, color);
 	}
+
 }

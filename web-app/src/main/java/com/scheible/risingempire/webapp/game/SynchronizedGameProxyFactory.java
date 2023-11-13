@@ -7,9 +7,9 @@ import com.scheible.risingempire.game.api.Game;
 import com.scheible.risingempire.game.api.PlayerGame;
 
 /**
- * Synchronizes a game instance (and it's returned PlayerGame instances) to make it ready for concurrent
- * usage.
- * 
+ * Synchronizes a game instance (and it's returned PlayerGame instances) to make it ready
+ * for concurrent usage.
+ *
  * @author sj
  */
 public class SynchronizedGameProxyFactory {
@@ -21,7 +21,8 @@ public class SynchronizedGameProxyFactory {
 						final Object result = method.invoke(game, args);
 						if (result instanceof PlayerGame) {
 							return synchronizePlayerGame((PlayerGame) result, game);
-						} else {
+						}
+						else {
 							return result;
 						}
 					}
@@ -36,4 +37,5 @@ public class SynchronizedGameProxyFactory {
 					}
 				});
 	}
+
 }

@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- *
  * @author sj
  */
 public class Arrays2 {
@@ -15,4 +14,5 @@ public class Arrays2 {
 	public static <T> Set<T> asSet(final T... a) {
 		return new HashSet<>(Arrays.asList(a));
 	}
+
 }

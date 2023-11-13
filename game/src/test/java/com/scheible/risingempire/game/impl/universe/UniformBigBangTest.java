@@ -1,7 +1,5 @@
 package com.scheible.risingempire.game.impl.universe;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -12,13 +10,13 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import javax.imageio.ImageIO;
 
-import org.junit.jupiter.api.Test;
-
 import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.view.universe.Location;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- *
  * @author sj
  */
 public class UniformBigBangTest {
@@ -47,4 +45,5 @@ public class UniformBigBangTest {
 
 		assertThat(locations).hasSizeGreaterThan(30);
 	}
+
 }

@@ -1,21 +1,5 @@
 package com.scheible.risingempire.webapp.adapter.frontend._scenario;
 
-import static java.util.Collections.emptySet;
-
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.JsonAssertCondition.mainPageState;
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.MainPageAssert.assertThat;
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.ANNEXATION;
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.COLONIZATION;
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.EXPLORATION;
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.NEW_TURN;
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.NOTIFICATION;
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.SELECT_TECH_PAGE;
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.SPACE_COMBAT;
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.SPACE_COMBAT_PAGE;
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.StepsParameter.StartType.FINISH_TURN;
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.StepsParameter.StartType.RELOAD;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,11 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
@@ -52,9 +31,27 @@ import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.util.jdk.Arrays2;
 import com.scheible.risingempire.webapp._hypermedia.HypermediaClient;
 import com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.StepsParameter.StartType;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.JsonAssertCondition.mainPageState;
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.MainPageAssert.assertThat;
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.ANNEXATION;
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.COLONIZATION;
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.EXPLORATION;
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.NEW_TURN;
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.NOTIFICATION;
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.SELECT_TECH_PAGE;
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.SPACE_COMBAT;
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.Step.SPACE_COMBAT_PAGE;
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.StepsParameter.StartType.FINISH_TURN;
+import static com.scheible.risingempire.webapp.adapter.frontend._scenario.NewTurnStepsIT.StepsParameter.StartType.RELOAD;
+import static java.util.Collections.emptySet;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- *
  * @author sj
  */
 class NewTurnStepsIT extends AbstractMainPageIT {
@@ -62,6 +59,7 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 	private static final Logger logger = LoggerFactory.getLogger(NewTurnStepsIT.class);
 
 	enum Step {
+
 		SPACE_COMBAT(0b100000), SPACE_COMBAT_PAGE(0b100000), SELECT_TECH_PAGE(0b010000), EXPLORATION(0b001000),
 		COLONIZATION(0b000100), ANNEXATION(0b000010), NOTIFICATION(0b000001), NEW_TURN(0);
 
@@ -74,21 +72,26 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 		private int getBitMask() {
 			return bitMask;
 		}
+
 	}
 
 	static class StepsParameter {
 
 		enum StartType {
+
 			FINISH_TURN, RELOAD
+
 		}
 
 		final List<Step> steps;
+
 		final StartType startType;
 
 		StepsParameter(List<Step> steps, StartType startType) {
 			this.steps = steps;
 			this.startType = startType;
 		}
+
 	}
 
 	private interface TestPlayerGame {
@@ -102,12 +105,14 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 		int getRound();
 
 		void finishTurn();
+
 	}
 
 	@FunctionalInterface
 	private interface TurnActions {
 
 		void turn(TestPlayerGame bluePlayerGame, TestPlayerGame yellowPlayerGame, TestPlayerGame whitePlayerGame);
+
 	}
 
 	private static final Map<String, Step> MAIN_PAGE_STATE_STEP_MAPPING = Map.of(//
@@ -146,12 +151,15 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 		// given
 		//
 
-		startGameForBlue(GameFactory.get().create(GameOptions.forTestGameScenario()
+		startGameForBlue(GameFactory.get()
+			.create(GameOptions.forTestGameScenario()
 				// make the whole map reachable in a single turn for a simpler test setup
-				.fleetRangeFactor(2000.0).fleetSpeedFactor(2000.0)
+				.fleetRangeFactor(2000.0)
+				.fleetSpeedFactor(2000.0)
 				// decrease the number of turns of siege required to annex a system to 1
 				.annexationSiegeRounds(1)
-				// make a technology selectable in round 4 (but only if select tech step is included)
+				// make a technology selectable in round 4 (but only if select tech step
+				// is included)
 				.fakeTechProvider((player, round) -> (steps.contains(SELECT_TECH_PAGE) && round == 4)
 						? Collections.singleton(new TechGroupView(Arrays2.asSet( //
 								new TechView(new TechId("hl"), "Hand Lasers", "Bla..."),
@@ -184,7 +192,8 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 		if (steps.contains(SPACE_COMBAT) && steps.contains(SPACE_COMBAT_PAGE)) {
 			bluePlayerGame.deployHomeFleet("Colony Ship", 1, WHITE_HOME_SYSTEM_ID);
 			bluePlayerGame.deployHomeFleet("Colony Ship", 1, YELLOW_HOME_SYSTEM_ID);
-		} else if (!(!steps.contains(SPACE_COMBAT) && !steps.contains(SPACE_COMBAT_PAGE))) {
+		}
+		else if (!(!steps.contains(SPACE_COMBAT) && !steps.contains(SPACE_COMBAT_PAGE))) {
 			throw new IllegalArgumentException("Either both SPACE_COMBAT and SPACE_COMBAT_COMMAND or none at all!");
 		}
 		if (steps.contains(EXPLORATION)) {
@@ -205,11 +214,13 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 		HypermediaClient startTypeSpecificBlueClient = null;
 		if (stepsParameter.startType == FINISH_TURN) {
 			startTypeSpecificBlueClient = finishTurn(BLUE_HOME_SYSTEM_ID, bluePlayerGame.getRound());
-			assertThat(startTypeSpecificBlueClient).is2xxSuccessful().isNotNewTurn()
-					.is(mainPageState("FleetMovementState"));
+			assertThat(startTypeSpecificBlueClient).is2xxSuccessful()
+				.isNotNewTurn()
+				.is(mainPageState("FleetMovementState"));
 
 			beginNewTurn(startTypeSpecificBlueClient);
-		} else if (stepsParameter.startType == RELOAD) {
+		}
+		else if (stepsParameter.startType == RELOAD) {
 			// turn has to be finished manually because 'finish-turn' action is not called
 			bluePlayerGame.finishTurn();
 
@@ -234,24 +245,29 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 				assertThat(blueClient).is2xxSuccessful().isNotNewTurn();
 
 				blueClient.submit("$._actions[?(@.name=='continue')]");
-			} else if (current == SELECT_TECH_PAGE) {
+			}
+			else if (current == SELECT_TECH_PAGE) {
 				blueClient.submit("$.techs[0]._actions[0]");
-			} else if (current == EXPLORATION) {
+			}
+			else if (current == EXPLORATION) {
 				blueClient.submit("$.inspector.exploration._actions[?(@.name=='continue')]");
 				assertThat(blueClient).is2xxSuccessful().isNotNewTurn().is(mainPageState("ExplorationState"));
 
 				blueClient.submit("$.inspector.exploration._actions[?(@.name=='continue')]");
-			} else if (current == COLONIZATION) {
+			}
+			else if (current == COLONIZATION) {
 				blueClient.submit("$.inspector.colonization._actions[?(@.name=='cancel')]");
 				assertThat(blueClient).is2xxSuccessful().isNotNewTurn().is(mainPageState("ColonizationState"));
 
 				blueClient.submit("$.inspector.colonization._actions[?(@.name=='colonize')]");
-			} else if (current == ANNEXATION) {
+			}
+			else if (current == ANNEXATION) {
 				blueClient.submit("$.inspector.annexation._actions[?(@.name=='cancel')]");
 				assertThat(blueClient).is2xxSuccessful().isNotNewTurn().is(mainPageState("AnnexationState"));
 
 				blueClient.submit("$.inspector.annexation._actions[?(@.name=='annex')]");
-			} else if (current == NOTIFICATION) {
+			}
+			else if (current == NOTIFICATION) {
 				blueClient.submit("$.starMap.starNotification._actions[?(@.name=='confirm')]");
 				assertThat(blueClient).is2xxSuccessful().isNotNewTurn().is(mainPageState("NotificationState"));
 
@@ -268,7 +284,7 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 		}
 
 		final Map<String, Integer> starSelection = JsonPath.parse(blueClient.getPageContentAsString())
-				.read("$.starMap.starSelection");
+			.read("$.starMap.starSelection");
 
 		//
 		// then every expected step is executed
@@ -281,23 +297,27 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 
 	Step identifyStep(final HypermediaClient hypermediaClient) throws UnsupportedEncodingException {
 		final ParseContext parseContext = JsonPath
-				.using(Configuration.builder().options(Option.SUPPRESS_EXCEPTIONS).build());
+			.using(Configuration.builder().options(Option.SUPPRESS_EXCEPTIONS).build());
 		final DocumentContext documentContext = parseContext.parse(hypermediaClient.getPageContentAsString());
 
 		final String type = documentContext.read("$.@type");
 		if ("SelectTechPageDto".equals(type)) {
 			return SELECT_TECH_PAGE;
-		} else if ("SpaceCombatPageDto".equals(type)) {
+		}
+		else if ("SpaceCombatPageDto".equals(type)) {
 			return SPACE_COMBAT_PAGE;
-		} else if ("MainPageDto".equals(type)) {
+		}
+		else if ("MainPageDto".equals(type)) {
 			final String stateName = documentContext.read("$.stateDescription.stateName");
 
 			if (MAIN_PAGE_STATE_STEP_MAPPING.containsKey(stateName)) {
 				return MAIN_PAGE_STATE_STEP_MAPPING.get(stateName);
-			} else {
+			}
+			else {
 				throw new IllegalStateException("Unknown main page state '" + stateName + "'!");
 			}
-		} else {
+		}
+		else {
 			throw new IllegalStateException("Unknown page type '" + type + "'!");
 		}
 	}
@@ -312,8 +332,11 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 		final PlayerGame playerGame = game.forPlayer(Player.BLUE);
 		final GameView gameView = playerGame.getView();
 		final SystemView homeSystem = gameView.getHomeSystem();
-		final FleetView homeFleet = gameView.getFleets().stream()
-				.filter(f -> homeSystem.getId().equals(f.getOrbiting().orElse(null))).findFirst().orElseThrow();
+		final FleetView homeFleet = gameView.getFleets()
+			.stream()
+			.filter(f -> homeSystem.getId().equals(f.getOrbiting().orElse(null)))
+			.findFirst()
+			.orElseThrow();
 
 		return new TestPlayerGame() {
 			@Override
@@ -343,4 +366,5 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 			}
 		};
 	}
+
 }

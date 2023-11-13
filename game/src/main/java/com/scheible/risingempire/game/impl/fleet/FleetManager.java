@@ -9,7 +9,6 @@ import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.universe.Player;
 
 /**
- *
  * @author sj
  */
 public interface FleetManager {
@@ -33,4 +32,5 @@ public interface FleetManager {
 	Optional<Integer> calcEta(Player player, FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships);
 
 	SystemId getClosest(FleetId fleetId);
+
 }

@@ -10,15 +10,13 @@ import java.io.UncheckedIOException;
 
 import javax.imageio.ImageIO;
 
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
 import com.scheible.risingempire.mootheme.cli.MooThemeGeneratorCli;
 import com.scheible.risingempire.mootheme.lbx.entry.GfxReader;
 import com.scheible.risingempire.mootheme.lbx.entry.PaletteReader;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
- *
  * @author sj
  */
 public class LbxReaderIT {
@@ -31,7 +29,8 @@ public class LbxReaderIT {
 				(LbxEntry lbxEntry) -> {
 					try {
 						return PaletteReader.read(lbxEntry);
-					} catch (IOException ex) {
+					}
+					catch (IOException ex) {
 						throw new UncheckedIOException(ex);
 					}
 				});
@@ -41,10 +40,12 @@ public class LbxReaderIT {
 				(LbxEntry lbxEntry) -> {
 					try {
 						return GfxReader.read(lbxEntry, palette, 0);
-					} catch (IOException ex) {
+					}
+					catch (IOException ex) {
 						throw new UncheckedIOException(ex);
 					}
 				});
 		ImageIO.write(image, "png", new File("./target/ship.png"));
 	}
+
 }

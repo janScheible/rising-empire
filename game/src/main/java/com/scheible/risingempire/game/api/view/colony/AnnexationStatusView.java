@@ -1,23 +1,24 @@
 package com.scheible.risingempire.game.api.view.colony;
 
-import com.scheible.risingempire.game.api.view.universe.Player;
-import com.scheible.risingempire.game.api.view.universe.Race;
 import java.util.Optional;
 
+import com.scheible.risingempire.game.api.view.universe.Player;
+import com.scheible.risingempire.game.api.view.universe.Race;
+
 /**
- *
  * @author sj
  */
 public record AnnexationStatusView(Optional<Integer> siegeRounds, Optional<Integer> roundsUntilAnnexable,
-		Optional<Player> siegingPlayer,	Optional<Race> siegingRace, Optional<Boolean> annexable, Optional<Boolean> annexCommand) {
+		Optional<Player> siegingPlayer, Optional<Race> siegingRace, Optional<Boolean> annexable,
+		Optional<Boolean> annexCommand) {
 
 	public AnnexationStatusView {
-		final boolean siegeState = siegeRounds.isPresent() && roundsUntilAnnexable.isPresent() 
+		final boolean siegeState = siegeRounds.isPresent() && roundsUntilAnnexable.isPresent()
 				&& siegingPlayer.isPresent() && annexable.isEmpty() && annexCommand.isEmpty();
-		final boolean annexableState = siegeRounds.isPresent() && roundsUntilAnnexable.isPresent() 
+		final boolean annexableState = siegeRounds.isPresent() && roundsUntilAnnexable.isPresent()
 				&& siegingPlayer.isPresent() && annexable.isPresent() && annexCommand.isPresent();
 
-		if(!siegeState && !annexableState) {
+		if (!siegeState && !annexableState) {
 			throw new IllegalArgumentException("Must be either siege or annexable state!");
 		}
 	}

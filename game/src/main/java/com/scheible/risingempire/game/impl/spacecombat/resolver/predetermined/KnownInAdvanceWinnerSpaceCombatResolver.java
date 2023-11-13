@@ -1,10 +1,5 @@
 package com.scheible.risingempire.game.impl.spacecombat.resolver.predetermined;
 
-import static java.util.Collections.emptyMap;
-
-import static com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome.ATTACKER_WON;
-import static com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome.DEFENDER_WON;
-
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
@@ -22,8 +17,11 @@ import com.scheible.risingempire.game.impl.ship.ShipDesignProvider;
 import com.scheible.risingempire.game.impl.spacecombat.FireExchange;
 import com.scheible.risingempire.game.impl.spacecombat.SpaceCombat;
 
+import static com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome.ATTACKER_WON;
+import static com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome.DEFENDER_WON;
+import static java.util.Collections.emptyMap;
+
 /**
- *
  * @author sj
  */
 public class KnownInAdvanceWinnerSpaceCombatResolver implements SpaceCombatResolver {
@@ -45,8 +43,10 @@ public class KnownInAdvanceWinnerSpaceCombatResolver implements SpaceCombatResol
 	}
 
 	static Map<DesignSlot, List<FireExchange>> toAllLost(final Map<DesignSlot, Integer> shipCounts) {
-		return shipCounts.entrySet().stream()
-				.map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), List.of(new FireExchange(0, 42, 0, 0))))
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+		return shipCounts.entrySet()
+			.stream()
+			.map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), List.of(new FireExchange(0, 42, 0, 0))))
+			.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	}
+
 }

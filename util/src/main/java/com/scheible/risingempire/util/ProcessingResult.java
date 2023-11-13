@@ -1,9 +1,10 @@
 package com.scheible.risingempire.util;
 
 /**
- * Wrapper class for marking an object instance as new or already existing. Can for example be used with
- * <code>Optional#map(...)</code> and <code>Optional#orElseGet(...)</code>.
- * 
+ * Wrapper class for marking an object instance as new or already existing. Can for
+ * example be used with <code>Optional#map(...)</code> and
+ * <code>Optional#orElseGet(...)</code>.
+ *
  * @author sj
  */
 public class ProcessingResult<T> {
@@ -36,4 +37,5 @@ public class ProcessingResult<T> {
 	public boolean wasCreated() {
 		return !existing;
 	}
+
 }

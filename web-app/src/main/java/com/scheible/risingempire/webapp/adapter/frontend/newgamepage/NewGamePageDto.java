@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scheible.risingempire.game.api.GalaxySize;
 
 /**
- *
  * @author sj
  */
 class NewGamePageDto {
@@ -19,4 +18,5 @@ class NewGamePageDto {
 	NewGamePageDto(final List<GalaxySize> galaxySizes) {
 		this.galaxySizes = galaxySizes;
 	}
+
 }

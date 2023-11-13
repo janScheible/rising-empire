@@ -5,6 +5,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.scheible.risingempire.game.api.view.universe.Player;
+import com.scheible.risingempire.webapp.notification.NotificationChannel;
+import com.scheible.risingempire.webapp.notification.NotificationService;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.MultiValueMap;
@@ -14,15 +19,7 @@ import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorato
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.scheible.risingempire.game.api.view.universe.Player;
-import com.scheible.risingempire.webapp.notification.NotificationChannel;
-import com.scheible.risingempire.webapp.notification.NotificationService;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
- *
  * @author sj
  */
 public class GameNotificationWebSocketHandler extends TextWebSocketHandler {
@@ -30,11 +27,12 @@ public class GameNotificationWebSocketHandler extends TextWebSocketHandler {
 	private static final Logger logger = LoggerFactory.getLogger(GameNotificationWebSocketHandler.class);
 
 	private final ObjectMapper objectMapper;
+
 	private final NotificationService notificationService;
 
 	/**
-	 * A particular WebSocket session can be rejected because another player session is already active for a game
-	 * and player.
+	 * A particular WebSocket session can be rejected because another player session is
+	 * already active for a game and player.
 	 */
 	private final Set<String> rejectedWebSockerSessionIds = new ConcurrentSkipListSet<>();
 
@@ -56,7 +54,8 @@ public class GameNotificationWebSocketHandler extends TextWebSocketHandler {
 					sessionContext.playerSessionId(), notificationChannel)) {
 				rejectedWebSockerSessionIds.add(session.getId());
 			}
-		} else {
+		}
+		else {
 			logger.warn("Unable to get session context from '{}'.", session.getUri());
 		}
 	}
@@ -67,7 +66,8 @@ public class GameNotificationWebSocketHandler extends TextWebSocketHandler {
 		if (sessionContext != null) {
 			logger.warn("WebSocket transport error for '{}' ({}) of gameId '{}'.", sessionContext.player(),
 					sessionContext.playerSessionId(), sessionContext.gameId(), exception);
-		} else {
+		}
+		else {
 			logger.warn("WebSocket transport error for '{}'.", session.getUri(), exception);
 		}
 	}
@@ -78,18 +78,22 @@ public class GameNotificationWebSocketHandler extends TextWebSocketHandler {
 			final SessionContext sessionContext = getFromSession(session);
 			if (sessionContext != null) {
 				notificationService.unregisterChannel(sessionContext.gameId(), sessionContext.player());
-			} else {
+			}
+			else {
 				logger.warn("Unable to get session context from '{}'.", session.getUri());
 			}
-		} else {
+		}
+		else {
 			rejectedWebSockerSessionIds.remove(session.getId());
 		}
 	}
 
-	@SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "No idea what else than a NullPointerException can be the result.")
+	@SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE",
+			justification = "No idea what else than a NullPointerException can be the result.")
 	private static SessionContext getFromSession(final WebSocketSession session) {
-		final MultiValueMap<String, String> queryParams = UriComponentsBuilder.fromUri(session.getUri()).build()
-				.getQueryParams();
+		final MultiValueMap<String, String> queryParams = UriComponentsBuilder.fromUri(session.getUri())
+			.build()
+			.getQueryParams();
 		final String gameId = queryParams.getFirst("gameId");
 		final String playerString = queryParams.getFirst("player");
 		final String sessionId = queryParams.getFirst("sessionId");
@@ -97,7 +101,8 @@ public class GameNotificationWebSocketHandler extends TextWebSocketHandler {
 		if (gameId != null && playerString != null && sessionId != null) {
 			final Player player = Player.valueOf(URLDecoder.decode(playerString, StandardCharsets.UTF_8));
 			return new SessionContext(URLDecoder.decode(gameId, StandardCharsets.UTF_8), player, sessionId);
-		} else {
+		}
+		else {
 			return null;
 		}
 	}
@@ -105,4 +110,5 @@ public class GameNotificationWebSocketHandler extends TextWebSocketHandler {
 	private record SessionContext(String gameId, Player player, String playerSessionId) {
 
 	}
+
 }

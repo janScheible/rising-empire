@@ -6,7 +6,6 @@ import com.scheible.risingempire.game.api.view.ai.Ai;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
 
 /**
- *
  * @author sj
  */
 public class SimpleAi implements Ai {
@@ -21,4 +20,5 @@ public class SimpleAi implements Ai {
 			}
 		}
 	}
+
 }

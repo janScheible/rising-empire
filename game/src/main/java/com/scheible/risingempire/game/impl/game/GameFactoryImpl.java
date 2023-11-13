@@ -1,22 +1,5 @@
 package com.scheible.risingempire.game.impl.game;
 
-import static com.scheible.risingempire.game.api.view.ship.ShipSize.LARGE;
-import static com.scheible.risingempire.game.api.view.ship.ShipSize.MEDIUM;
-import static com.scheible.risingempire.game.api.view.ship.ShipSize.SMALL;
-import static com.scheible.risingempire.game.api.view.system.PlanetType.ARID;
-import static com.scheible.risingempire.game.api.view.system.PlanetType.JUNGLE;
-import static com.scheible.risingempire.game.api.view.system.PlanetType.MINIMAL;
-import static com.scheible.risingempire.game.api.view.system.PlanetType.OCEAN;
-import static com.scheible.risingempire.game.api.view.system.PlanetType.TERRAN;
-import static com.scheible.risingempire.game.api.view.system.PlanetType.TOXIC;
-import static com.scheible.risingempire.game.api.view.system.PlanetType.TUNDRA;
-import static com.scheible.risingempire.game.api.view.system.StarType.BLUE;
-import static com.scheible.risingempire.game.api.view.system.StarType.GREEN;
-import static com.scheible.risingempire.game.api.view.system.StarType.PURPLE;
-import static com.scheible.risingempire.game.api.view.system.StarType.RED;
-import static com.scheible.risingempire.game.api.view.system.StarType.WHITE;
-import static com.scheible.risingempire.game.api.view.system.StarType.YELLOW;
-
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,8 +35,24 @@ import com.scheible.risingempire.game.impl.ship.ShipDesign;
 import com.scheible.risingempire.game.impl.system.System;
 import com.scheible.risingempire.game.impl.universe.BigBang;
 import com.scheible.risingempire.util.jdk.Arrays2;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+import static com.scheible.risingempire.game.api.view.ship.ShipSize.LARGE;
+import static com.scheible.risingempire.game.api.view.ship.ShipSize.MEDIUM;
+import static com.scheible.risingempire.game.api.view.ship.ShipSize.SMALL;
+import static com.scheible.risingempire.game.api.view.system.PlanetType.ARID;
+import static com.scheible.risingempire.game.api.view.system.PlanetType.JUNGLE;
+import static com.scheible.risingempire.game.api.view.system.PlanetType.MINIMAL;
+import static com.scheible.risingempire.game.api.view.system.PlanetType.OCEAN;
+import static com.scheible.risingempire.game.api.view.system.PlanetType.TERRAN;
+import static com.scheible.risingempire.game.api.view.system.PlanetType.TOXIC;
+import static com.scheible.risingempire.game.api.view.system.PlanetType.TUNDRA;
+import static com.scheible.risingempire.game.api.view.system.StarType.BLUE;
+import static com.scheible.risingempire.game.api.view.system.StarType.GREEN;
+import static com.scheible.risingempire.game.api.view.system.StarType.PURPLE;
+import static com.scheible.risingempire.game.api.view.system.StarType.RED;
+import static com.scheible.risingempire.game.api.view.system.StarType.WHITE;
+import static com.scheible.risingempire.game.api.view.system.StarType.YELLOW;
 
 /**
  * @author sj
@@ -63,25 +62,68 @@ public class GameFactoryImpl implements GameFactory {
 	@SuppressFBWarnings(value = "PREDICTABLE_RANDOM", justification = "Unique enough for a generated universe.")
 	@Override
 	public Game create(final GameOptions gameOptions) {
-		final Supplier<ShipDesign> scoutDesginFactory = () -> ShipDesign.builder().name("Scout").size(SMALL).look(0)
-				.computer(0).shield(0).ecm(0).armor("Titanium", 1.0).engine("Nuclear", 2).maneuver(1).weapons()
-				.specials(new ReserveTanks());
-		final Supplier<ShipDesign> colonyShipDesginFactory = () -> ShipDesign.builder().name("Colony Ship").size(LARGE)
-				.look(0).computer(0).shield(0).ecm(0).armor("Titanium", 1.0).engine("Retro", 1).maneuver(1).weapons()
-				.specials(new ColonyBase());
-		final Supplier<ShipDesign> fighterShipDesginFactory = () -> ShipDesign.builder().name("Fighter").size(SMALL)
-				.look(0).computer(0).shield(0).ecm(0).armor("Titanium", 1.0).engine("Retro", 1).maneuver(1)
-				.weapons(1, new BeamWeapon("Laser", new Damage(1, 4))).specials();
-		final Supplier<ShipDesign> destroyerShipDesginFactory = () -> ShipDesign.builder().name("Destroyer")
-				.size(MEDIUM).look(0).computer(0).shield(0).ecm(0).armor("Titanium", 1.0).engine("Retro", 1).maneuver(1)
-				.weapons(3, new BeamWeapon("Laser", new Damage(1, 4)), //
-						1, new Missile("Nuclear Missile", new Damage(4), Missile.RackSize.TWO))
-				.specials();
-		final Supplier<ShipDesign> cruiserShipDesginFactory = () -> ShipDesign.builder().name("Cruiser").size(LARGE)
-				.look(0).computer(0).shield(0).ecm(0).armor("Titanium", 1.0).engine("Retro", 1).maneuver(1)
-				.weapons(11, new BeamWeapon("Laser", new Damage(1, 4)), //
-						5, new Missile("Nuclear Missile", new Damage(4), Missile.RackSize.TWO))
-				.specials();
+		final Supplier<ShipDesign> scoutDesginFactory = () -> ShipDesign.builder()
+			.name("Scout")
+			.size(SMALL)
+			.look(0)
+			.computer(0)
+			.shield(0)
+			.ecm(0)
+			.armor("Titanium", 1.0)
+			.engine("Nuclear", 2)
+			.maneuver(1)
+			.weapons()
+			.specials(new ReserveTanks());
+		final Supplier<ShipDesign> colonyShipDesginFactory = () -> ShipDesign.builder()
+			.name("Colony Ship")
+			.size(LARGE)
+			.look(0)
+			.computer(0)
+			.shield(0)
+			.ecm(0)
+			.armor("Titanium", 1.0)
+			.engine("Retro", 1)
+			.maneuver(1)
+			.weapons()
+			.specials(new ColonyBase());
+		final Supplier<ShipDesign> fighterShipDesginFactory = () -> ShipDesign.builder()
+			.name("Fighter")
+			.size(SMALL)
+			.look(0)
+			.computer(0)
+			.shield(0)
+			.ecm(0)
+			.armor("Titanium", 1.0)
+			.engine("Retro", 1)
+			.maneuver(1)
+			.weapons(1, new BeamWeapon("Laser", new Damage(1, 4)))
+			.specials();
+		final Supplier<ShipDesign> destroyerShipDesginFactory = () -> ShipDesign.builder()
+			.name("Destroyer")
+			.size(MEDIUM)
+			.look(0)
+			.computer(0)
+			.shield(0)
+			.ecm(0)
+			.armor("Titanium", 1.0)
+			.engine("Retro", 1)
+			.maneuver(1)
+			.weapons(3, new BeamWeapon("Laser", new Damage(1, 4)), //
+					1, new Missile("Nuclear Missile", new Damage(4), Missile.RackSize.TWO))
+			.specials();
+		final Supplier<ShipDesign> cruiserShipDesginFactory = () -> ShipDesign.builder()
+			.name("Cruiser")
+			.size(LARGE)
+			.look(0)
+			.computer(0)
+			.shield(0)
+			.ecm(0)
+			.armor("Titanium", 1.0)
+			.engine("Retro", 1)
+			.maneuver(1)
+			.weapons(11, new BeamWeapon("Laser", new Damage(1, 4)), //
+					5, new Missile("Nuclear Missile", new Damage(4), Missile.RackSize.TWO))
+			.specials();
 
 		final Map<DesignSlot, ShipDesign> humanDesigns = Map.of(DesignSlot.FIRST, scoutDesginFactory.get(),
 				DesignSlot.SECOND, colonyShipDesginFactory.get(), DesignSlot.THIRD, fighterShipDesginFactory.get(),
@@ -125,7 +167,8 @@ public class GameFactoryImpl implements GameFactory {
 					spicaSystem = new System("Spicia", new Location(300, 140), BLUE, ARID, PlanetSpecial.NONE, 50));
 			rigelSystem.colonize(Player.YELLOW, DesignSlot.FIRST);
 			spicaSystem.colonize(Player.WHITE, DesignSlot.FIRST);
-		} else {
+		}
+		else {
 			systems = new HashSet<>();
 
 			final Location blueStartRegionCenter = new Location(gameOptions.getGalaxySize().getWidth() / 4,
@@ -145,17 +188,20 @@ public class GameFactoryImpl implements GameFactory {
 					solSystem = System.createHomeSystem("Sol", location, YELLOW, JUNGLE, PlanetSpecial.NONE, 100,
 							Player.BLUE, firstUsedSlot.apply(humanDesigns));
 					systems.add(solSystem);
-				} else if (fierasSystem == null
+				}
+				else if (fierasSystem == null
 						&& location.getDistance(whiteStartRegionCenter) < maxStartRegionDistanceRadius) {
 					fierasSystem = System.createHomeSystem("Fieras", location, RED, TERRAN, PlanetSpecial.NONE, 100,
 							Player.WHITE, firstUsedSlot.apply(mrrshanDesigns));
 					systems.add(fierasSystem);
-				} else if (centauriSystem == null
+				}
+				else if (centauriSystem == null
 						&& location.getDistance(yellowStartRegionCenter) < maxStartRegionDistanceRadius) {
 					centauriSystem = System.createHomeSystem("Centauri", location, PURPLE, OCEAN, PlanetSpecial.NONE,
 							110, Player.YELLOW, firstUsedSlot.apply(psilonDesigns));
 					systems.add(centauriSystem);
-				} else {
+				}
+				else {
 					systems.add(new System(BigBang.STAR_NAMES.get(i), location,
 							StarType.values()[ThreadLocalRandom.current().nextInt(StarType.values().length)],
 							PlanetType.values()[ThreadLocalRandom.current().nextInt(PlanetType.values().length)],
@@ -191,10 +237,12 @@ public class GameFactoryImpl implements GameFactory {
 		if (solSystem == null || fierasSystem == null || centauriSystem == null) {
 			throw new IllegalStateException(
 					"It was not possible to find locations for the following home systems: " + Stream
-							.of(new SimpleImmutableEntry<>("solSystem", solSystem),
-									new SimpleImmutableEntry<>("fierasSystem", fierasSystem),
-									new SimpleImmutableEntry<>("centauriSystem", centauriSystem))
-							.filter(e -> e.getValue() == null).map(Entry::getKey).collect(Collectors.joining(", ")));
+						.of(new SimpleImmutableEntry<>("solSystem", solSystem),
+								new SimpleImmutableEntry<>("fierasSystem", fierasSystem),
+								new SimpleImmutableEntry<>("centauriSystem", centauriSystem))
+						.filter(e -> e.getValue() == null)
+						.map(Entry::getKey)
+						.collect(Collectors.joining(", ")));
 		}
 	}
 
@@ -202,4 +250,5 @@ public class GameFactoryImpl implements GameFactory {
 	public Game load(final Object whatEver) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
+
 }

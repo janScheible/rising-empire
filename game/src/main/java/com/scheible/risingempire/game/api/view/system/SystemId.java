@@ -5,7 +5,6 @@ import java.util.Objects;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 
 /**
- *
  * @author sj
  */
 public class SystemId {
@@ -32,10 +31,12 @@ public class SystemId {
 	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
-		} else if (obj != null && getClass().equals(obj.getClass())) {
+		}
+		else if (obj != null && getClass().equals(obj.getClass())) {
 			final SystemId other = (SystemId) obj;
 			return Objects.equals(value, other.value);
-		} else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -49,4 +50,5 @@ public class SystemId {
 	public String toString() {
 		return value;
 	}
+
 }

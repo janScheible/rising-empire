@@ -10,16 +10,13 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import com.scheible.risingempire.util.jdk.Objects2;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.http.MediaType;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.scheible.risingempire.util.jdk.Objects2;
-
-import edu.umd.cs.findbugs.annotations.Nullable;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
- *
  * @author sj
  */
 public class Action {
@@ -27,18 +24,22 @@ public class Action {
 	private final List<ActionField> fields = new ArrayList<>();
 
 	private final String name;
+
 	/**
-	 * Always encoded hyperlink reference suitable for serialization and sending to the Browser.
+	 * Always encoded hyperlink reference suitable for serialization and sending to the
+	 * Browser.
 	 */
 	private final String href;
+
 	private final ActionHttpMethod method;
+
 	@Nullable
 	private final String contentType;
 
 	/**
-	 * @param name        a name
-	 * @param href        the already encoded hyperlink reference
-	 * @param method      the HTTP method
+	 * @param name a name
+	 * @param href the already encoded hyperlink reference
+	 * @param method the HTTP method
 	 * @param contentType the content type
 	 */
 	public Action(final String name, final String href, final ActionHttpMethod method, final String contentType) {
@@ -53,8 +54,8 @@ public class Action {
 	}
 
 	/**
-	 * @param name   a name
-	 * @param href   the already encoded hyperlink reference
+	 * @param name a name
+	 * @param href the already encoded hyperlink reference
 	 * @param method the HTTP method
 	 */
 	public Action(final String name, final String href, final ActionHttpMethod method) {
@@ -104,7 +105,8 @@ public class Action {
 				((Stream<?>) value).forEach(v -> {
 					with(name, v);
 				});
-			} else {
+			}
+			else {
 				with(name, value);
 			}
 		}
@@ -115,7 +117,8 @@ public class Action {
 	public Action with(final boolean predicate, final Supplier<Stream<ActionField>> fieldStreamSupplier) {
 		if (predicate) {
 			return with(fieldStreamSupplier.get());
-		} else {
+		}
+		else {
 			return this;
 		}
 	}
@@ -130,7 +133,8 @@ public class Action {
 			throw new IllegalStateException("Only GET actions can be converted to an Uri!");
 		}
 
-		// href (which is always encoded) is decoded first because it is encoded again by UriComponentsBuilder
+		// href (which is always encoded) is decoded first because it is encoded again by
+		// UriComponentsBuilder
 		final String decodedHref = URLDecoder.decode(href, StandardCharsets.UTF_8);
 
 		final UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(decodedHref);
@@ -156,7 +160,8 @@ public class Action {
 	}
 
 	@Override
-	@SuppressFBWarnings(value = "COM_PARENT_DELEGATED_CALL", justification = "To satisfy the rule of having hashCode() implemented.")
+	@SuppressFBWarnings(value = "COM_PARENT_DELEGATED_CALL",
+			justification = "To satisfy the rule of having hashCode() implemented.")
 	public int hashCode() {
 		return Objects.hash(fields, name, href, method, contentType);
 	}
@@ -169,4 +174,5 @@ public class Action {
 						&& Objects.equals(href, other.href) && Objects.equals(method, other.method)
 						&& Objects.equals(contentType, other.contentType));
 	}
+
 }

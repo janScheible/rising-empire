@@ -9,7 +9,6 @@ import com.scheible.risingempire.webapp.adapter.frontend.dto.FrontendAdapterDtoS
 import com.scheible.risingempire.webapp.notification.NotificationSubModule;
 
 /**
- *
  * @author sj
  */
 @SubModule(includeSubPackages = false, uses = { RisingEmpireGame.class, RisingEmpireUtil.class,
@@ -18,4 +17,5 @@ public final class GameSubModule {
 
 	private GameSubModule() {
 	}
+
 }

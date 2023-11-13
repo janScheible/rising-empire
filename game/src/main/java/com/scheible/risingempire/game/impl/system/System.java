@@ -1,7 +1,5 @@
 package com.scheible.risingempire.game.impl.system;
 
-import static com.scheible.risingempire.util.jdk.Objects2.toStringBuilder;
-
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
@@ -15,11 +13,11 @@ import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.impl.colony.Colony;
 import com.scheible.risingempire.game.impl.ship.DesignSlot;
 import com.scheible.risingempire.util.jdk.Objects2;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import static com.scheible.risingempire.util.jdk.Objects2.toStringBuilder;
+
 /**
- *
  * @author sj
  */
 public class System implements SystemOrb {
@@ -27,11 +25,17 @@ public class System implements SystemOrb {
 	private final SystemId id;
 
 	private final String starName;
+
 	private final Location location;
+
 	private final StarType starType;
+
 	private final Player homeSystem;
+
 	private final PlanetType planetType;
+
 	private final PlanetSpecial planetSpecial;
+
 	private final int planetMaxPopulation;
 
 	private Colony colony = null;
@@ -77,8 +81,8 @@ public class System implements SystemOrb {
 	}
 
 	/**
-	 * @return if system has colony of given player 0 is return, otherwise the shortest distance to any star with
-	 *         a colony of the given player
+	 * @return if system has colony of given player 0 is return, otherwise the shortest
+	 * distance to any star with a colony of the given player
 	 */
 	public int calcRange(final Player player, final Collection<System> systems) {
 		int range = Integer.MAX_VALUE;
@@ -148,9 +152,15 @@ public class System implements SystemOrb {
 
 	@Override
 	public String toString() {
-		return toStringBuilder(getClass()).add("id/starName", starName, "'").add("location", location)
-				.add("starType", starType).add("homeSystem", homeSystem).add("planetType", planetType)
-				.add("planetSpecial", planetSpecial).add("planetMaxPopulation", planetMaxPopulation)
-				.add("colony", getColony().map(Colony::toString)).toString();
+		return toStringBuilder(getClass()).add("id/starName", starName, "'")
+			.add("location", location)
+			.add("starType", starType)
+			.add("homeSystem", homeSystem)
+			.add("planetType", planetType)
+			.add("planetSpecial", planetSpecial)
+			.add("planetMaxPopulation", planetMaxPopulation)
+			.add("colony", getColony().map(Colony::toString))
+			.toString();
 	}
+
 }

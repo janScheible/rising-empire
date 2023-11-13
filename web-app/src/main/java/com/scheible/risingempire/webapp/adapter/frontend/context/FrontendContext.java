@@ -4,19 +4,16 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.springframework.http.HttpMethod;
-
 import com.scheible.risingempire.game.api.PlayerGame;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.webapp.hypermedia.Action;
-
 import edu.umd.cs.findbugs.annotations.Nullable;
+import org.springframework.http.HttpMethod;
 
 /**
- *
  * @author sj
  */
 public class FrontendContext {
@@ -51,15 +48,20 @@ public class FrontendContext {
 		public boolean isEmpty() {
 			return true;
 		}
+
 	}
 
 	private final String gameId;
+
 	private final Player player;
+
 	private final PlayerGame playerGame;
+
 	private final GameView gameView;
 
 	@Nullable
 	private final SystemId selectedStarId;
+
 	@Nullable
 	private final FleetId selectedFleetId;
 
@@ -128,10 +130,8 @@ public class FrontendContext {
 			final boolean includeFleetId, final String... pathSegments) {
 		return (httpMethod == HttpMethod.GET ? Action.get(name, toFrontendUri(pathSegments))
 				: Action.jsonPost(name, toFrontendUri(pathSegments)))
-						.with(includeStarId && selectedStarId != null, "selectedStarId",
-								() -> selectedStarId.getValue())
-						.with(includeFleetId && selectedFleetId != null, "selectedFleetId",
-								() -> selectedFleetId.getValue());
+			.with(includeStarId && selectedStarId != null, "selectedStarId", () -> selectedStarId.getValue())
+			.with(includeFleetId && selectedFleetId != null, "selectedFleetId", () -> selectedFleetId.getValue());
 	}
 
 	public Action toAction(final HttpMethod httpMethod, final String... pathSegments) {
@@ -141,4 +141,5 @@ public class FrontendContext {
 	public boolean isEmpty() {
 		return false;
 	}
+
 }

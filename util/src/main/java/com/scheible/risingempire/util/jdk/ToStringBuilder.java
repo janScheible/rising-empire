@@ -4,12 +4,12 @@ import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
- *
  * @author sj
  */
 public class ToStringBuilder {
 
 	private final StringJoiner joiner = new StringJoiner(", ");
+
 	private final String type;
 
 	ToStringBuilder(final String type) {
@@ -47,4 +47,5 @@ public class ToStringBuilder {
 	public String toString() {
 		return type + "[" + joiner.toString() + "]";
 	}
+
 }

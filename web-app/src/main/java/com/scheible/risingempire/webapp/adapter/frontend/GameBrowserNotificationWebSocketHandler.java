@@ -1,5 +1,9 @@
 package com.scheible.risingempire.webapp.adapter.frontend;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.scheible.risingempire.webapp.notification.NotificationChannel;
+import com.scheible.risingempire.webapp.notification.NotificationService;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.CloseStatus;
@@ -7,14 +11,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.scheible.risingempire.webapp.notification.NotificationChannel;
-import com.scheible.risingempire.webapp.notification.NotificationService;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
- *
  * @author sj
  */
 public class GameBrowserNotificationWebSocketHandler extends TextWebSocketHandler {
@@ -22,6 +19,7 @@ public class GameBrowserNotificationWebSocketHandler extends TextWebSocketHandle
 	private static final Logger logger = LoggerFactory.getLogger(GameBrowserNotificationWebSocketHandler.class);
 
 	private final ObjectMapper objectMapper;
+
 	private final NotificationService notificationService;
 
 	@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "The objects are not mutated.")
@@ -47,4 +45,5 @@ public class GameBrowserNotificationWebSocketHandler extends TextWebSocketHandle
 	public void handleTransportError(final WebSocketSession session, final Throwable exception) throws Exception {
 		logger.warn("WebSocket transport error.", exception);
 	}
+
 }

@@ -3,7 +3,6 @@ package com.scheible.risingempire.game.api.view.ai;
 import java.util.ServiceLoader;
 
 /**
- *
  * @author sj
  */
 public interface AiFactory {
@@ -14,6 +13,7 @@ public interface AiFactory {
 	class LazyInstanceHolder {
 
 		private static final AiFactory INSTANCE = ServiceLoader.load(AiFactory.class).findFirst().get();
+
 	}
 
 	static AiFactory get() {
@@ -21,4 +21,5 @@ public interface AiFactory {
 	}
 
 	Ai create();
+
 }

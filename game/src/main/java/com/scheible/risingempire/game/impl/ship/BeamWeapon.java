@@ -4,7 +4,6 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 /**
- *
  * @author sj
  */
 public class BeamWeapon extends AbstractWeapon {
@@ -17,10 +16,12 @@ public class BeamWeapon extends AbstractWeapon {
 	public boolean equals(final Object obj) {
 		if (obj == this) {
 			return true;
-		} else if (obj != null && obj.getClass().equals(getClass())) {
+		}
+		else if (obj != null && obj.getClass().equals(getClass())) {
 			final BeamWeapon other = (BeamWeapon) obj;
 			return Objects.equals(name, other.name) && Objects.equals(damage, other.damage);
-		} else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -34,4 +35,5 @@ public class BeamWeapon extends AbstractWeapon {
 	public String toString() {
 		return new StringJoiner(", ", "BeamWeapon[", "]").add("name='" + name + "'").add("damage=" + damage).toString();
 	}
+
 }

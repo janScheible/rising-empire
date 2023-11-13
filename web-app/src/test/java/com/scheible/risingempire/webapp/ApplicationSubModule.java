@@ -13,15 +13,16 @@ import com.scheible.risingempire.webapp.game.GameSubModule;
 import com.scheible.risingempire.webapp.notification.NotificationSubModule;
 
 /**
- *
  * @author sj
  */
-@SubModule(includeSubPackages = false, uses = { RisingEmpireGame.class, FrontendAdapterSubModule.class,
-		NotificationSubModule.class, SpringFramework.class, Jackson.class, RisingEmpireUtil.class, GameSubModule.class,
-		Browscap.class, JakartaServletApi.class,
-		/* used by super-class of WebContentInterceptor */ ApacheCommonsLogging.class })
+@SubModule(includeSubPackages = false,
+		uses = { RisingEmpireGame.class, FrontendAdapterSubModule.class, NotificationSubModule.class,
+				SpringFramework.class, Jackson.class, RisingEmpireUtil.class, GameSubModule.class, Browscap.class,
+				JakartaServletApi.class,
+				/* used by super-class of WebContentInterceptor */ ApacheCommonsLogging.class })
 public final class ApplicationSubModule {
 
 	private ApplicationSubModule() {
 	}
+
 }

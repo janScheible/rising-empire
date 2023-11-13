@@ -1,14 +1,16 @@
 package com.scheible.risingempire.game.impl.spacecombat;
 
 /**
- *
  * @author sj
  */
 public class FireExchange {
 
 	private final int round;
+
 	private final int lostHitPoints;
+
 	private final int damage;
+
 	private final int shipCount;
 
 	public FireExchange(final int round, final int lostHitPoints, final int damage, final int shipCount) {
@@ -33,4 +35,5 @@ public class FireExchange {
 	public int getShipCount() {
 		return shipCount;
 	}
+
 }

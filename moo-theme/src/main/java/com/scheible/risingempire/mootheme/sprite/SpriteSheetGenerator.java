@@ -7,7 +7,6 @@ import com.scheible.risingempire.mootheme.canvas.Canvas;
 import com.scheible.risingempire.mootheme.canvas.Paintable;
 
 /**
- *
  * @author sj
  */
 public class SpriteSheetGenerator {
@@ -44,4 +43,5 @@ public class SpriteSheetGenerator {
 
 		return result.getImage();
 	}
+
 }

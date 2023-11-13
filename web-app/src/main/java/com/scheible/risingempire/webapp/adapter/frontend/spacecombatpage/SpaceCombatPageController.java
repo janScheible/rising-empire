@@ -5,11 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import com.scheible.risingempire.game.api.view.spacecombat.CombatantShipSpecsView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
@@ -24,9 +19,12 @@ import com.scheible.risingempire.webapp.adapter.frontend.spacecombatpage.SpaceCo
 import com.scheible.risingempire.webapp.adapter.frontend.spacecombatpage.SpaceCombatPageDto.ShipsDto;
 import com.scheible.risingempire.webapp.hypermedia.ActionField;
 import com.scheible.risingempire.webapp.hypermedia.EntityModel;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- *
  * @author sj
  */
 @FrontendController
@@ -40,8 +38,12 @@ class SpaceCombatPageController {
 			@RequestParam(name = "colonizableSystemId") final Optional<List<String>> colonizableSystemIds,
 			@RequestParam(name = "annexableSystemId") final Optional<List<String>> annexableSystemIds,
 			@RequestParam(name = "notificationSystemId") final Optional<List<String>> notificationSystemIds) {
-		final SpaceCombatView spaceCombatView = context.getGameView().getSpaceCombats().stream()
-				.filter(sc -> sc.getSystemId().getValue().equals(currentSpaceCombatSystemId)).findAny().orElseThrow();
+		final SpaceCombatView spaceCombatView = context.getGameView()
+			.getSpaceCombats()
+			.stream()
+			.filter(sc -> sc.getSystemId().getValue().equals(currentSpaceCombatSystemId))
+			.findAny()
+			.orElseThrow();
 
 		return new EntityModel<>(new SpaceCombatPageDto(
 				context.getGameView().getSystem(new SystemId(currentSpaceCombatSystemId)).getStarName().orElseThrow(),
@@ -52,12 +54,11 @@ class SpaceCombatPageController {
 				spaceCombatView.getFireExchangeCount(),
 				new CombatOutcomeDto(OutcomeDto.toOutcomeDto(context.getPlayer(), spaceCombatView.getAttackerPlayer(),
 						spaceCombatView.getDefenderPlayer(), spaceCombatView.getOutcome()))))
-								.with(TurnSteps.getMainPageAction(context, "continue",
-										context.getSelectedStarId().get(), spaceCombatSystemIds, exploredSystemIds,
-										colonizableSystemIds, annexableSystemIds, notificationSystemIds,
-										!context.getGameView().getSelectTechs().isEmpty())
-										.with(new ActionField("currentSpaceCombatSystemId",
-												currentSpaceCombatSystemId)));
+			.with(TurnSteps
+				.getMainPageAction(context, "continue", context.getSelectedStarId().get(), spaceCombatSystemIds,
+						exploredSystemIds, colonizableSystemIds, annexableSystemIds, notificationSystemIds,
+						!context.getGameView().getSelectTechs().isEmpty())
+				.with(new ActionField("currentSpaceCombatSystemId", currentSpaceCombatSystemId)));
 	}
 
 	List<CombatantShipSpecsDto> toCombatantShipSpecsDtos(final Player player,
@@ -67,8 +68,11 @@ class SpaceCombatPageController {
 					css.getBeamDefence().orElse(null), css.getAttackLevel().orElse(null),
 					css.getMissleDefence().orElse(null), css.getHits().orElse(null), css.getSpeed().orElse(null),
 					css.getEquipment(), new ShipsDto(css.getCount(), css.getPreviousCount(), css.getSize(), player),
-					css.getFireExchanges().stream().collect(Collectors.toMap(fe -> fe.getRound(),
-							fe -> new FireExchangeDto(fe.getLostHitPoints(), fe.getDamage(), fe.getCount()))));
+					css.getFireExchanges()
+						.stream()
+						.collect(Collectors.toMap(fe -> fe.getRound(),
+								fe -> new FireExchangeDto(fe.getLostHitPoints(), fe.getDamage(), fe.getCount()))));
 		}).collect(Collectors.toList());
 	}
+
 }

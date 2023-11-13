@@ -17,16 +17,16 @@ import com.scheible.risingempire.webapp.hypermedia.HypermediaSubModule;
 import com.scheible.risingempire.webapp.notification.NotificationSubModule;
 
 /**
- *
  * @author sj
  */
-@SubModule(includeSubPackages = false, uses = { RisingEmpireGame.class, EsBuildSpringDevServer.class,
-		FrontendAdapterContextSubModule.class, AnnotationFrontendAdapterSubModule.class, GameSubModule.class,
-		NotificationSubModule.class, FrontendAdapterDtoSubModule.class, HypermediaSubModule.class,
-		SpringFramework.class, JakartaServletApi.class, Slf4j.class, Browscap.class, EsBuildBindings.class,
-		Jackson.class })
+@SubModule(includeSubPackages = false,
+		uses = { RisingEmpireGame.class, EsBuildSpringDevServer.class, FrontendAdapterContextSubModule.class,
+				AnnotationFrontendAdapterSubModule.class, GameSubModule.class, NotificationSubModule.class,
+				FrontendAdapterDtoSubModule.class, HypermediaSubModule.class, SpringFramework.class,
+				JakartaServletApi.class, Slf4j.class, Browscap.class, EsBuildBindings.class, Jackson.class })
 public final class FrontendAdapterSubModule {
 
 	private FrontendAdapterSubModule() {
 	}
+
 }

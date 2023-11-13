@@ -19,4 +19,5 @@ public abstract class HypermediaModel<T extends HypermediaModel<? extends T>> {
 	public List<Action> getActions() {
 		return Collections.unmodifiableList(actions);
 	}
+
 }

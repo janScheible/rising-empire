@@ -3,7 +3,6 @@ package com.scheible.risingempire.mootheme.canvas;
 import java.awt.image.BufferedImage;
 
 /**
- *
  * @author sj
  */
 public interface Paintable {
@@ -36,4 +35,5 @@ public interface Paintable {
 	int getWidth();
 
 	int getHeight();
+
 }

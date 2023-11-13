@@ -3,7 +3,6 @@ package com.scheible.risingempire.util.jdk;
 import java.util.Collection;
 
 /**
- *
  * @author sj
  */
 public class Collections2 {
@@ -18,4 +17,5 @@ public class Collections2 {
 			collection.add(element);
 		}
 	}
+
 }

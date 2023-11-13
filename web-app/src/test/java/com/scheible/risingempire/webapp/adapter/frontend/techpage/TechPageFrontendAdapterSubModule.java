@@ -10,7 +10,6 @@ import com.scheible.risingempire.webapp.adapter.frontend.dto.FrontendAdapterDtoS
 import com.scheible.risingempire.webapp.hypermedia.HypermediaSubModule;
 
 /**
- *
  * @author sj
  */
 @SubModule(uses = { SpringFramework.class, RisingEmpireGame.class, Jackson.class, HypermediaSubModule.class,
@@ -20,4 +19,5 @@ public final class TechPageFrontendAdapterSubModule {
 
 	private TechPageFrontendAdapterSubModule() {
 	}
+
 }

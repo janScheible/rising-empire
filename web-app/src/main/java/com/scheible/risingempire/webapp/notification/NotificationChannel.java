@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- *
  * @author sj
  */
 @FunctionalInterface
@@ -16,4 +15,5 @@ public interface NotificationChannel {
 	default void sendMessage(final String type) throws IOException {
 		sendMessage(type, Collections.emptyMap());
 	}
+
 }

@@ -3,16 +3,15 @@ package com.scheible.risingempire.webapp.hypermedia;
 import java.util.Objects;
 
 import com.scheible.risingempire.util.jdk.Objects2;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
- *
  * @author sj
  */
 public class ActionField {
 
 	private final String name;
+
 	private final Object value;
 
 	public ActionField(final String name, final Object value) {
@@ -39,4 +38,5 @@ public class ActionField {
 		return Objects2.equals(this, obj,
 				other -> Objects.equals(name, other.name) && Objects.equals(value, other.value));
 	}
+
 }

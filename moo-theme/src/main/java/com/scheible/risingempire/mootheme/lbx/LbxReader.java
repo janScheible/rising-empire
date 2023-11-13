@@ -7,7 +7,6 @@ import java.util.function.Function;
 import com.scheible.risingempire.mootheme.lbx.LbxEntry.Type;
 
 /**
- *
  * @author sj
  */
 public class LbxReader {
@@ -38,4 +37,5 @@ public class LbxReader {
 			return entryFunction.apply(new LbxEntry(input, entryStart, entryEnd, type));
 		}
 	}
+
 }

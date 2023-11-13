@@ -3,12 +3,12 @@ package com.scheible.risingempire.game.impl.ship;
 import java.util.Objects;
 
 /**
- *
  * @author sj
  */
 public class WeaponSlot {
 
 	private final int count;
+
 	private final AbstractWeapon weapon;
 
 	public WeaponSlot(final int count, final AbstractWeapon weapon) {
@@ -32,10 +32,12 @@ public class WeaponSlot {
 	public boolean equals(final Object obj) {
 		if (obj == this) {
 			return true;
-		} else if (obj != null && obj.getClass().equals(getClass())) {
+		}
+		else if (obj != null && obj.getClass().equals(getClass())) {
 			final WeaponSlot other = (WeaponSlot) obj;
 			return Objects.equals(count, other.count) && Objects.equals(weapon, other.weapon);
-		} else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -49,4 +51,5 @@ public class WeaponSlot {
 	public String toString() {
 		return count + " " + weapon;
 	}
+
 }

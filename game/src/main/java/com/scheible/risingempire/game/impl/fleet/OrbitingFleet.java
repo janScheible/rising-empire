@@ -1,7 +1,5 @@
 package com.scheible.risingempire.game.impl.fleet;
 
-import static com.scheible.risingempire.util.jdk.Objects2.toStringBuilder;
-
 import java.util.Map;
 import java.util.Objects;
 
@@ -11,17 +9,18 @@ import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.impl.ship.DesignSlot;
 import com.scheible.risingempire.game.impl.system.SystemOrb;
 import com.scheible.risingempire.util.jdk.Objects2;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import static com.scheible.risingempire.util.jdk.Objects2.toStringBuilder;
+
 /**
- *
  * @author sj
  */
 @SuppressFBWarnings(value = "UEC_USE_ENUM_COLLECTIONS", justification = "Can't be used with unmodifiableMap(...).")
 public class OrbitingFleet extends Fleet {
 
 	private final SystemOrb system;
+
 	private final int arrivalRound;
 
 	public OrbitingFleet(final FleetId id, final Player player, final Map<DesignSlot, Integer> ships,
@@ -63,7 +62,11 @@ public class OrbitingFleet extends Fleet {
 
 	@Override
 	public String toString() {
-		return toStringBuilder(getClass()).add("id", id).add("system", system).add("ships", ships)
-				.add("arrivalRound", arrivalRound).toString();
+		return toStringBuilder(getClass()).add("id", id)
+			.add("system", system)
+			.add("ships", ships)
+			.add("arrivalRound", arrivalRound)
+			.toString();
 	}
+
 }

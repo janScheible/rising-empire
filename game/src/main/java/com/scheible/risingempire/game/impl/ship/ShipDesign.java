@@ -1,7 +1,5 @@
 package com.scheible.risingempire.game.impl.ship;
 
-import static java.util.Collections.unmodifiableSet;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -10,29 +8,32 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.scheible.risingempire.game.api.view.ship.ShipSize;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import static java.util.Collections.unmodifiableSet;
+
 /**
- *
  * @author sj
  */
 public class ShipDesign {
 
 	public static Builder builder() {
-		return name -> size -> look -> computerLevel -> shieldLevel -> ecmLevel -> (armorName, armorFactor) -> (
-				engineName,
-				engineWarpSpeed) -> maneuverLevel -> (count1, weapon1, count2, weapon2, count3, weapon3, count4,
-						weapon4) -> (special1, special2, special3) -> new ShipDesign(name, size, look,
-								Computer.create(computerLevel), Shield.create(shieldLevel), Ecm.create(ecmLevel),
-								new Armor(armorName, armorFactor), new Engine(engineName, engineWarpSpeed),
-								Maneuver.create(maneuverLevel),
-								unmodifiableSet(List
-										.of(new WeaponSlot(count1, weapon1), new WeaponSlot(count2, weapon2),
-												new WeaponSlot(count3, weapon3), new WeaponSlot(count4, weapon4))
-										.stream().filter(WeaponSlot::isNotEmpty).collect(Collectors.toSet())),
-								Stream.of(special1, special2, special3).filter(Objects::nonNull)
-										.collect(Collectors.toSet()));
+		return name -> size -> look -> computerLevel -> shieldLevel -> ecmLevel -> (armorName,
+				armorFactor) -> (engineName,
+						engineWarpSpeed) -> maneuverLevel -> (count1, weapon1, count2, weapon2, count3, weapon3, count4,
+								weapon4) -> (special1, special2, special3) -> new ShipDesign(name, size, look,
+										Computer.create(computerLevel), Shield.create(shieldLevel),
+										Ecm.create(ecmLevel), new Armor(armorName, armorFactor),
+										new Engine(engineName, engineWarpSpeed), Maneuver.create(maneuverLevel),
+										unmodifiableSet(List
+											.of(new WeaponSlot(count1, weapon1), new WeaponSlot(count2, weapon2),
+													new WeaponSlot(count3, weapon3), new WeaponSlot(count4, weapon4))
+											.stream()
+											.filter(WeaponSlot::isNotEmpty)
+											.collect(Collectors.toSet())),
+										Stream.of(special1, special2, special3)
+											.filter(Objects::nonNull)
+											.collect(Collectors.toSet()));
 	}
 
 	public interface Builder {
@@ -42,41 +43,49 @@ public class ShipDesign {
 		interface SizeStep {
 
 			LookStep size(ShipSize size);
+
 		}
 
 		interface LookStep {
 
 			ComputerStep look(int look);
+
 		}
 
 		interface ComputerStep {
 
 			ShieldStep computer(int level);
+
 		}
 
 		interface ShieldStep {
 
 			EcmStep shield(int level);
+
 		}
 
 		interface EcmStep {
 
 			ArmorStep ecm(int level);
+
 		}
 
 		interface ArmorStep {
 
 			EngineStep armor(String name, double factor);
+
 		}
 
 		interface EngineStep {
 
 			ManeuverStep engine(String name, int warpSpeed);
+
 		}
 
 		interface ManeuverStep {
 
 			WeaponsStep maneuver(int level);
+
 		}
 
 		interface WeaponsStep {
@@ -101,6 +110,7 @@ public class ShipDesign {
 
 			SpecialsStep weapons(int count1, AbstractWeapon weapon1, int count2, AbstractWeapon weapon2, int count3,
 					AbstractWeapon weapon3, int count4, AbstractWeapon weapon4);
+
 		}
 
 		interface SpecialsStep {
@@ -118,12 +128,15 @@ public class ShipDesign {
 			}
 
 			ShipDesign specials(AbstractSpecial special1, AbstractSpecial special2, AbstractSpecial special3);
+
 		}
+
 	}
 
 	private abstract static class AbstractLeveledPart {
 
 		protected final String name;
+
 		protected final int level;
 
 		protected AbstractLeveledPart(final String partName, final int level) {
@@ -145,6 +158,7 @@ public class ShipDesign {
 		public String toString() {
 			return getClass().getSimpleName() + "[name = '" + name + "', level = " + level + "]";
 		}
+
 	}
 
 	private static class Computer extends AbstractLeveledPart {
@@ -156,6 +170,7 @@ public class ShipDesign {
 		private static Computer create(final int level) {
 			return new Computer(requireLevelGreaterThanOrEquals(Computer.class, level, 0));
 		}
+
 	}
 
 	private static class Shield extends AbstractLeveledPart {
@@ -167,6 +182,7 @@ public class ShipDesign {
 		private static Shield create(final int level) {
 			return new Shield(requireLevelGreaterThanOrEquals(Shield.class, level, 0));
 		}
+
 	}
 
 	private static class Ecm extends AbstractLeveledPart {
@@ -178,12 +194,14 @@ public class ShipDesign {
 		private static Ecm create(final int level) {
 			return new Ecm(requireLevelGreaterThanOrEquals(Ecm.class, level, 0));
 		}
+
 	}
 
 	private static class Armor {
 
 		@SuppressFBWarnings(value = "FCBL_FIELD_COULD_BE_LOCAL", justification = "False positive, is used...")
 		private final String name;
+
 		@SuppressFBWarnings(value = "FCBL_FIELD_COULD_BE_LOCAL", justification = "False positive, is used...")
 		private final double factor;
 
@@ -191,12 +209,14 @@ public class ShipDesign {
 			this.name = name;
 			this.factor = factor;
 		}
+
 	}
 
 	private static class Engine {
 
 		@SuppressFBWarnings(value = "FCBL_FIELD_COULD_BE_LOCAL", justification = "False positive, is used...")
 		private final String name;
+
 		@SuppressFBWarnings(value = "FCBL_FIELD_COULD_BE_LOCAL", justification = "False positive, is used...")
 		private final int warp;
 
@@ -204,6 +224,7 @@ public class ShipDesign {
 			this.name = name;
 			this.warp = warp;
 		}
+
 	}
 
 	private static class Maneuver extends AbstractLeveledPart {
@@ -215,20 +236,29 @@ public class ShipDesign {
 		private static Maneuver create(final int level) {
 			return new Maneuver(requireLevelGreaterThanOrEquals(Ecm.class, level, 1));
 		}
+
 	}
 
 	private final String name;
+
 	private final ShipSizeWithBaseValues size;
+
 	private final int look;
 
 	private final Computer computer;
+
 	private final Shield shield;
+
 	private final Ecm ecm;
+
 	private final Armor armor;
+
 	private final Engine engine;
+
 	private final Maneuver maneuver;
 
 	private final Set<WeaponSlot> weapons;
+
 	private final Set<AbstractSpecial> specials;
 
 	private ShipDesign(final String name, final ShipSize size, final int look, final Computer computer,
@@ -320,13 +350,24 @@ public class ShipDesign {
 	@Override
 	public String toString() {
 		final StringJoiner values = new StringJoiner(", ", "ShipDesign[", "]").add("name='" + name + "'")
-				.add("size=" + size).add("look=" + look).add("computer='" + computer.name + "'")
-				.add("attackLevel=" + getAttackLevel()).add("shield='" + shield.name + "'")
-				.add("hitsAbsorbedByShield=" + getHitsAbsorbedByShield()).add("ecm='" + ecm.name + "'")
-				.add("missileDefence=" + getMissileDefence()).add("armor='" + armor.name + "'")
-				.add("hitPoints=" + getHitPoints()).add("engine='" + engine.name + "'").add("warp=" + engine.warp)
-				.add("beamDefence=" + getBeamDefence()).add("maneuver='" + maneuver.level + "'")
-				.add("combatSpeed=" + getCombatSpeed()).add("weapons=" + weapons).add("specials=" + specials);
+			.add("size=" + size)
+			.add("look=" + look)
+			.add("computer='" + computer.name + "'")
+			.add("attackLevel=" + getAttackLevel())
+			.add("shield='" + shield.name + "'")
+			.add("hitsAbsorbedByShield=" + getHitsAbsorbedByShield())
+			.add("ecm='" + ecm.name + "'")
+			.add("missileDefence=" + getMissileDefence())
+			.add("armor='" + armor.name + "'")
+			.add("hitPoints=" + getHitPoints())
+			.add("engine='" + engine.name + "'")
+			.add("warp=" + engine.warp)
+			.add("beamDefence=" + getBeamDefence())
+			.add("maneuver='" + maneuver.level + "'")
+			.add("combatSpeed=" + getCombatSpeed())
+			.add("weapons=" + weapons)
+			.add("specials=" + specials);
 		return values.toString();
 	}
+
 }

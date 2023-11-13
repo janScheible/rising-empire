@@ -1,9 +1,5 @@
 package com.scheible.risingempire.game.impl.fleet;
 
-import static com.scheible.risingempire.game.api.view.fleet.FleetView.HorizontalDirection.LEFT;
-import static com.scheible.risingempire.game.api.view.fleet.FleetView.HorizontalDirection.RIGHT;
-import static com.scheible.risingempire.util.jdk.Objects2.toStringBuilder;
-
 import java.util.Map;
 import java.util.Objects;
 
@@ -14,16 +10,19 @@ import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.impl.ship.DesignSlot;
 import com.scheible.risingempire.game.impl.system.SystemOrb;
 import com.scheible.risingempire.util.jdk.Objects2;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import static com.scheible.risingempire.game.api.view.fleet.FleetView.HorizontalDirection.LEFT;
+import static com.scheible.risingempire.game.api.view.fleet.FleetView.HorizontalDirection.RIGHT;
+import static com.scheible.risingempire.util.jdk.Objects2.toStringBuilder;
+
 /**
- *
  * @author sj
  */
 public class DeployedFleet extends Fleet {
 
 	private final SystemOrb source;
+
 	private final SystemOrb destination;
 
 	private Location location;
@@ -101,9 +100,14 @@ public class DeployedFleet extends Fleet {
 
 	@Override
 	public String toString() {
-		return toStringBuilder(getClass()).add("id", id).add("source", source.getName())
-				.add("destination", destination.getName()).add("location", location)
-				.add("horizontalDirection", getHorizontalDirection()).add("speed", speed).add("ships", ships)
-				.toString();
+		return toStringBuilder(getClass()).add("id", id)
+			.add("source", source.getName())
+			.add("destination", destination.getName())
+			.add("location", location)
+			.add("horizontalDirection", getHorizontalDirection())
+			.add("speed", speed)
+			.add("ships", ships)
+			.toString();
 	}
+
 }

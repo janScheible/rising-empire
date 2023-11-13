@@ -3,7 +3,6 @@ package com.scheible.risingempire.game.impl.ship;
 import com.scheible.risingempire.game.api.view.ship.ShipSize;
 
 /**
- *
  * @author sj
  */
 enum ShipSizeWithBaseValues {
@@ -12,7 +11,9 @@ enum ShipSizeWithBaseValues {
 	HUGE(ShipSize.HUGE, -1, 600);
 
 	final ShipSize shipSize;
+
 	final int baseDefense;
+
 	final int baseHits;
 
 	ShipSizeWithBaseValues(final ShipSize shipSize, final int baseDefense, final int baseHits) {
@@ -24,4 +25,5 @@ enum ShipSizeWithBaseValues {
 	static ShipSizeWithBaseValues of(final ShipSize shipSize) {
 		return ShipSizeWithBaseValues.valueOf(shipSize.name());
 	}
+
 }

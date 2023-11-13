@@ -1,7 +1,5 @@
 package com.scheible.risingempire.webapp;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -12,17 +10,17 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import com.scheible.esbuild.bindings.EsBuild;
 import com.scheible.pocketsaw.esbuild.EsBuildMetadata;
 import com.scheible.pocketsaw.esbuild.EsBuildMetadata.ParameterBuilder;
 import com.scheible.pocketsaw.impl.Pocketsaw;
 import com.scheible.pocketsaw.impl.code.PackageDependencies;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- *
  * @author sj
  */
 class FrontendSubModulesTest {
@@ -31,13 +29,15 @@ class FrontendSubModulesTest {
 
 	private static final Entry<String, Path> ES_BUILD_GAME_BROWSER = Map.entry("./src/game-browser/game-browser.ts",
 			Path.of("./target/esbuild-game-browser-metadata.json"));
+
 	private static final Entry<String, Path> ES_BUILD_GAME = Map.entry("./src/bootstrap.ts",
 			Path.of("./target/esbuild-game-metadata.json"));
+
 	private static final Entry<String, Path> ES_BUILD_STORYBOOK = Map.entry("./src/storybook/storybook.ts",
 			Path.of("./target/esbuild-storybook-metadata.json"));
 
 	private static final Set<Entry<String, String>> ES_BUILD_META_DATA_PARAMETERS = ParameterBuilder
-			.rootPackageAlias(new HashSet<>(), "frontend");
+		.rootPackageAlias(new HashSet<>(), "frontend");
 
 	private static Pocketsaw.AnalysisResult result;
 
@@ -77,4 +77,5 @@ class FrontendSubModulesTest {
 	void testNoIllegalCodeDependencies() {
 		assertThat(result.getIllegalCodeDependencies()).isEmpty();
 	}
+
 }

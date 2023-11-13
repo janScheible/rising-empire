@@ -10,11 +10,9 @@ import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.api.view.universe.Race;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.PlayerDto;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.RaceDto;
-
 import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
- *
  * @author sj
  */
 class SpaceCombatPageDto {
@@ -22,7 +20,9 @@ class SpaceCombatPageDto {
 	static class FireExchangeDto {
 
 		final int lostHitPoints;
+
 		final int damage;
+
 		final int count;
 
 		FireExchangeDto(final int lostHitPoints, final int damage, final int count) {
@@ -30,25 +30,33 @@ class SpaceCombatPageDto {
 			this.damage = damage;
 			this.count = count;
 		}
+
 	}
 
 	static class CombatantShipSpecsDto {
 
 		final String id;
+
 		final String name;
 
 		@Nullable
 		final Integer shield;
+
 		@Nullable
 		final Integer beamDefence;
+
 		@Nullable
 		final Integer attackLevel;
+
 		@Nullable
 		final Integer damage = 0; // will be updated in the fire exchanges
+
 		@Nullable
 		final Integer missleDefence;
+
 		@Nullable
 		final Integer hits;
+
 		@Nullable
 		final Integer speed;
 
@@ -56,6 +64,7 @@ class SpaceCombatPageDto {
 		final List<String> equipment;
 
 		final ShipsDto ships;
+
 		final Map<Integer, FireExchangeDto> fireExchanges;
 
 		CombatantShipSpecsDto(final String id, final String name, @Nullable final Integer shield,
@@ -78,13 +87,17 @@ class SpaceCombatPageDto {
 			this.ships = ships;
 			this.fireExchanges = fireExchanges;
 		}
+
 	}
 
 	static class ShipsDto {
 
 		final int count;
+
 		final int previousCount;
+
 		final ShipSize size;
+
 		final PlayerDto playerColor;
 
 		ShipsDto(final int count, final int previousCount, final ShipSize size, final Player player) {
@@ -93,11 +106,13 @@ class SpaceCombatPageDto {
 			this.size = size;
 			this.playerColor = PlayerDto.fromPlayer(player);
 		}
+
 	}
 
 	static class CombatOutcomeDto {
 
 		enum OutcomeDto {
+
 			VICTORY, DEFEAT, RETREAT;
 
 			static OutcomeDto toOutcomeDto(final Player player, final Player attackerPlayer,
@@ -105,15 +120,19 @@ class SpaceCombatPageDto {
 				if (player == attackerPlayer) {
 					if (outcome == SpaceCombatView.Outcome.ATTACKER_WON) {
 						return OutcomeDto.VICTORY;
-					} else if (outcome == SpaceCombatView.Outcome.DEFENDER_WON) {
+					}
+					else if (outcome == SpaceCombatView.Outcome.DEFENDER_WON) {
 						return OutcomeDto.DEFEAT;
-					} else if (outcome == SpaceCombatView.Outcome.ATTACKER_RETREATED) {
+					}
+					else if (outcome == SpaceCombatView.Outcome.ATTACKER_RETREATED) {
 						return OutcomeDto.RETREAT;
 					}
-				} else if (player == defenderPlayer) {
+				}
+				else if (player == defenderPlayer) {
 					if (outcome == SpaceCombatView.Outcome.ATTACKER_WON) {
 						return OutcomeDto.DEFEAT;
-					} else if (outcome == SpaceCombatView.Outcome.DEFENDER_WON
+					}
+					else if (outcome == SpaceCombatView.Outcome.DEFENDER_WON
 							|| outcome == SpaceCombatView.Outcome.ATTACKER_RETREATED) {
 						return OutcomeDto.VICTORY;
 					}
@@ -121,6 +140,7 @@ class SpaceCombatPageDto {
 
 				throw new IllegalStateException("Player must either be attacker or defender!");
 			}
+
 		}
 
 		final OutcomeDto outcome;
@@ -128,6 +148,7 @@ class SpaceCombatPageDto {
 		CombatOutcomeDto(final OutcomeDto outcome) {
 			this.outcome = outcome;
 		}
+
 	}
 
 	@JsonProperty(value = "@type")
@@ -136,9 +157,11 @@ class SpaceCombatPageDto {
 	final String systemName;
 
 	final RaceDto attacker;
+
 	final List<CombatantShipSpecsDto> attackerShipSpecs;
 
 	final RaceDto defender;
+
 	final List<CombatantShipSpecsDto> defenderShipSpecs;
 
 	final int fireExchangeCount;
@@ -161,4 +184,5 @@ class SpaceCombatPageDto {
 
 		this.combatOutcome = combatOutcome;
 	}
+
 }
