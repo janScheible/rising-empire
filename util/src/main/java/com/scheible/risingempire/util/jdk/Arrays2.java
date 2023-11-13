@@ -11,7 +11,7 @@ public class Arrays2 {
 
 	@SafeVarargs
 	@SuppressWarnings("varargs")
-	public static <T> Set<T> asSet(final T... a) {
+	public static <T> Set<T> asSet(T... a) {
 		return new HashSet<>(Arrays.asList(a));
 	}
 

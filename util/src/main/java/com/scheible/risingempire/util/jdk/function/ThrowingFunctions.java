@@ -7,13 +7,13 @@ import java.util.function.Supplier;
  */
 public class ThrowingFunctions {
 
-	public static <T, E extends Exception> Supplier<T> catchException(final ThrowingSupplier<T, E> throwingSupplier) {
+	public static <T, E extends Exception> Supplier<T> catchException(ThrowingSupplier<T, E> throwingSupplier) {
 
 		return () -> {
 			try {
 				return throwingSupplier.get();
 			}
-			catch (final Exception ex) {
+			catch (Exception ex) {
 				throw new IllegalStateException(ex);
 			}
 		};

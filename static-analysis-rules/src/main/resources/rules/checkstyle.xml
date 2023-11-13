@@ -43,5 +43,6 @@
 		<module name="MutableException"/>
 		<module name="NeedBraces"/>
 		<module name="OneStatementPerLine"/>
+		<module name="UpperEll"/>
 	</module>
 </module>

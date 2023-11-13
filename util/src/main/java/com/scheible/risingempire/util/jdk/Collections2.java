@@ -11,9 +11,9 @@ public class Collections2 {
 	 * Replaces all elements of a collection with the passed new ones.
 	 */
 	@SafeVarargs
-	public static <T> void replaceAll(final Collection<T> collection, final T... newElements) {
+	public static <T> void replaceAll(Collection<T> collection, T... newElements) {
 		collection.clear();
-		for (final T element : newElements) {
+		for (T element : newElements) {
 			collection.add(element);
 		}
 	}

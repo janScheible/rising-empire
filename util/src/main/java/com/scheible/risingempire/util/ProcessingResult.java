@@ -13,16 +13,16 @@ public class ProcessingResult<T> {
 
 	private final boolean existing;
 
-	private ProcessingResult(final T value, final boolean existing) {
+	private ProcessingResult(T value, boolean existing) {
 		this.value = value;
 		this.existing = existing;
 	}
 
-	public static <T> ProcessingResult<T> existing(final T value) {
+	public static <T> ProcessingResult<T> existing(T value) {
 		return new ProcessingResult<>(value, true);
 	}
 
-	public static <T> ProcessingResult<T> created(final T value) {
+	public static <T> ProcessingResult<T> created(T value) {
 		return new ProcessingResult<>(value, false);
 	}
 

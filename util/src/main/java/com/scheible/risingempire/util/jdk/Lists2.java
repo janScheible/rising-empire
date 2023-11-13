@@ -8,7 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class Lists2 {
 
-	public static <T> T getRandomElement(final List<T> list) {
+	public static <T> T getRandomElement(List<T> list) {
 		return list.get(ThreadLocalRandom.current().nextInt(list.size()));
 	}
 

@@ -7,7 +7,7 @@ import java.util.function.Consumer;
  */
 public class With {
 
-	static <T> T with(final T obj, final Consumer<T> c) {
+	static <T> T with(T obj, Consumer<T> c) {
 		c.accept(obj);
 		return obj;
 	}
