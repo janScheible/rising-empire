@@ -4,18 +4,15 @@
 
 	<parent>
 		<groupId>com.scheible.risingempire</groupId>
-		<artifactId>rising-empire</artifactId>
+		<artifactId>rising-empire-static-analysis-plugins-parent</artifactId>
 		<version>${revision}</version>
+		<relativePath>../static-analysis-plugins-parent/pom.xml</relativePath>
 	</parent>
 
 	<artifactId>rising-empire-web-app</artifactId>
 
 	<packaging>jar</packaging>
 	<name>rising-empire :: web-app</name>
-
-	<properties>
-		<multiModuleRootRelativeUp>..</multiModuleRootRelativeUp>
-	</properties>
 
 	<dependencies>
 		<dependency>
@@ -144,13 +141,6 @@
 			<plugin>
 				<groupId>com.scheible.esbuild</groupId>
 				<artifactId>esbuild-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>com.github.spotbugs</groupId>
-				<artifactId>spotbugs-maven-plugin</artifactId>
-				<configuration>
-					<excludeFilterFile>${project.basedir}/spotbugs-exclude.xml</excludeFilterFile>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

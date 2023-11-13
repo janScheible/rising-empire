@@ -37,13 +37,13 @@
 		</goals>
 		<properties>
 			<jpda.listen>true</jpda.listen>
-			<spring-boot.run.jvmArguments>-noverify -XX:TieredStopAtLevel=1 -Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address}</spring-boot.run.jvmArguments>
+			<spring-boot.run.jvmArguments>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address}</spring-boot.run.jvmArguments>
 			<Env.SPRING_OUTPUT_ANSI_ENABLED>always</Env.SPRING_OUTPUT_ANSI_ENABLED>
 		</properties>
 		<activatedProfiles>
 			<activatedProfile>skip-all-but-compilation-and-resources-and-unit-tests</activatedProfile>
-			<activatedProfile>skip-compilation-and-resources</activatedProfile>
 			<activatedProfile>skip-unit-tests</activatedProfile>
+			<activatedProfile>skip-flattening</activatedProfile>
 		</activatedProfiles>
 	</action>
 	<action>
@@ -55,13 +55,12 @@
 			<goal>spring-boot:run</goal>
 		</goals>
 		<properties>
-			<spring-boot.run.jvmArguments>-noverify -XX:TieredStopAtLevel=1</spring-boot.run.jvmArguments>
 			<Env.SPRING_OUTPUT_ANSI_ENABLED>always</Env.SPRING_OUTPUT_ANSI_ENABLED>
 		</properties>
 		<activatedProfiles>
 			<activatedProfile>skip-all-but-compilation-and-resources-and-unit-tests</activatedProfile>
-			<activatedProfile>skip-compilation-and-resources</activatedProfile>
 			<activatedProfile>skip-unit-tests</activatedProfile>
+			<activatedProfile>skip-flattening</activatedProfile>
 		</activatedProfiles>
 	</action>
 	<action>
@@ -74,7 +73,7 @@
 		</goals>
 		<activatedProfiles>
 			<activatedProfile>skip-all-but-compilation-and-resources-and-unit-tests</activatedProfile>
-			<activatedProfile>skip-compilation-and-resources</activatedProfile>
+			<activatedProfile>skip-flattening</activatedProfile>
 		</activatedProfiles>
 	</action>
 	<action>
@@ -83,12 +82,17 @@
 			<packaging>*</packaging>
 		</packagings>
 		<goals>
+			<goal>process-test-classes</goal>
 			<goal>surefire:test</goal>
 		</goals>
 		<properties>
 			<test>${packageClassName}</test>
 			<argLine>-Dlogback.root.log.level=INFO</argLine>
 		</properties>
+		<activatedProfiles>
+			<activatedProfile>skip-all-but-compilation-and-resources-and-unit-tests</activatedProfile>
+			<activatedProfile>skip-flattening</activatedProfile>
+		</activatedProfiles>
 	</action>
 	<action>
 		<actionName>debug.test.single</actionName>
@@ -96,6 +100,7 @@
 			<packaging>*</packaging>
 		</packagings>
 		<goals>
+			<goal>process-test-classes</goal>
 			<goal>surefire:test</goal>
 		</goals>
 		<properties>
@@ -105,25 +110,29 @@
 			<jpda.listen>true</jpda.listen>
 			<argLine>-Dlogback.root.log.level=INFO</argLine>
 		</properties>
-	</action>
+		<activatedProfiles>
+			<activatedProfile>skip-all-but-compilation-and-resources-and-unit-tests</activatedProfile>
+			<activatedProfile>skip-flattening</activatedProfile>
+		</activatedProfiles>
+	</action>	
 	<action>
 		<actionName>integration-test.single</actionName>
 		<packagings>
 			<packaging>*</packaging>
 		</packagings>
 		<goals>
-			<goal>pre-integration-test</goal>
+			<goal>process-test-classes</goal>
 			<goal>failsafe:integration-test</goal>
 		</goals>
 		<properties>
 			<test>DummyToSkipUnitTests</test>
 			<failIfNoTests>false</failIfNoTests>
-			<surefire.failIfNoSpecifiedTests>false</surefire.failIfNoSpecifiedTests>
 			<it.test>${packageClassName}</it.test>
+			<argLine>-Dlogback.root.log.level=INFO</argLine>
 		</properties>
 		<activatedProfiles>
 			<activatedProfile>skip-all-but-compilation-and-resources-and-unit-tests</activatedProfile>
-			<activatedProfile>skip-compilation-and-resources</activatedProfile>
+			<activatedProfile>skip-flattening</activatedProfile>
 		</activatedProfiles>
 	</action>
 	<action>
@@ -132,13 +141,12 @@
 			<packaging>*</packaging>
 		</packagings>
 		<goals>
-			<goal>pre-integration-test</goal>
+			<goal>process-test-classes</goal>
 			<goal>failsafe:integration-test</goal>
 		</goals>
 		<properties>
 			<test>DummyToSkipUnitTests</test>
 			<failIfNoTests>false</failIfNoTests>
-			<surefire.failIfNoSpecifiedTests>false</surefire.failIfNoSpecifiedTests>
 			<it.test>${packageClassName}</it.test>
 			<forkMode>once</forkMode>
 			<maven.failsafe.debug>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address}</maven.failsafe.debug>
@@ -146,9 +154,9 @@
 		</properties>
 		<activatedProfiles>
 			<activatedProfile>skip-all-but-compilation-and-resources-and-unit-tests</activatedProfile>
-			<activatedProfile>skip-compilation-and-resources</activatedProfile>
+			<activatedProfile>skip-flattening</activatedProfile>
 		</activatedProfiles>
-	</action>
+	</action>	
 	<action>
 		<actionName>CUSTOM-Full Build</actionName>
 		<displayName>Full Build</displayName>
@@ -173,7 +181,7 @@
 		<displayName>Format Code</displayName>
 		<goals>
 			<goal>impsort:sort</goal>
-			<goal>formatter:format</goal>
+			<goal>spring-javaformat:apply</goal>
 		</goals>
 	</action>
 	<action>
@@ -181,10 +189,10 @@
 		<displayName>Format Code</displayName>
 		<goals>
 			<goal>impsort:sort</goal>
-			<goal>formatter:format</goal>
+			<goal>spring-javaformat:apply</goal>
 		</goals>
 		<properties>
-			<formatter.includes>**/${classNameWithExtension}</formatter.includes>
+			<spring-javaformat.includes>**/${classNameWithExtension}</spring-javaformat.includes>
 			<impsort.includes>**/${classNameWithExtension}</impsort.includes>
 		</properties>
 	</action> 
@@ -192,42 +200,47 @@
 		<actionName>CUSTOM-Integration Test</actionName>
 		<displayName>Integration Test</displayName>
 		<goals>
+			<goal>process-test-classes</goal>
 			<goal>failsafe:integration-test</goal>
 		</goals>
+		<activatedProfiles>
+			<activatedProfile>skip-all-but-compilation-and-resources-and-unit-tests</activatedProfile>
+		</activatedProfiles>
 	</action>
 	<action>
 		<actionName>CUSTOM-Integration Test (without Selenium)</actionName>
 		<displayName>Integration Test (without Selenium)</displayName>
 		<goals>
+			<goal>process-test-classes</goal>
 			<goal>failsafe:integration-test</goal>
 		</goals>
 		<properties>
 			<Env.DISABLE_SELENIUM>true</Env.DISABLE_SELENIUM>
 		</properties>
-	</action>
+	</action>	
 	<action>
 		<actionName>CUSTOM-Test Gap Analysis (Unit Test only)</actionName>
 		<displayName>Test Gap Analysis (Unit Test only)</displayName>
 		<goals>
-			<goal>com.scheible.testgapanalysis:test-gap-analysis-maven-plugin:1.1.3:clean-jacoco-reports</goal>
+			<goal>com.scheible.testgapanalysis:test-gap-analysis-maven-plugin:1.2.1:clean-jacoco-reports</goal>
 			<goal>jacoco:prepare-agent</goal>
 			<goal>surefire:test</goal>
 			<goal>jacoco:report</goal>
-			<goal>com.scheible.testgapanalysis:test-gap-analysis-maven-plugin:1.1.3:perform</goal>
+			<goal>com.scheible.testgapanalysis:test-gap-analysis-maven-plugin:1.2.1:perform</goal>
 		</goals>
 	</action>		
 	<action>
 		<actionName>CUSTOM-Test Gap Analysis</actionName>
 		<displayName>Test Gap Analysis</displayName>
 		<goals>
-			<goal>com.scheible.testgapanalysis:test-gap-analysis-maven-plugin:1.1.3:clean-jacoco-reports</goal>
+			<goal>com.scheible.testgapanalysis:test-gap-analysis-maven-plugin:1.2.1:clean-jacoco-reports</goal>
 			<goal>jacoco:prepare-agent</goal>
 			<goal>surefire:test</goal>
 			<goal>jacoco:prepare-agent-integration</goal>
 			<goal>failsafe:integration-test</goal>
 			<goal>jacoco:report</goal>
 			<goal>jacoco:report-integration</goal>
-			<goal>com.scheible.testgapanalysis:test-gap-analysis-maven-plugin:1.1.3:perform</goal>
+			<goal>com.scheible.testgapanalysis:test-gap-analysis-maven-plugin:1.2.1:perform</goal>
 		</goals>
 	</action>
 	<action>
@@ -241,25 +254,12 @@
 		<actionName>CUSTOM-Static Code Analysis</actionName>
 		<displayName>Static Code Analysis</displayName>
 		<goals>
-			<goal>spotbugs:check</goal>
 			<goal>checkstyle:check</goal>
 			<goal>pmd:cpd-check</goal>
 			<goal>pmd:check</goal>
 			<goal>arch-unit:arch-test</goal>
-		</goals>
-	</action>
-	<action>
-		<actionName>CUSTOM-SpotBugs</actionName>
-		<displayName>SpotBugs</displayName>
-		<goals>
-			<goal>spotbugs:check</goal>
-		</goals>
-	</action>
-	<action>
-		<actionName>CUSTOM-SpotBugs GUI</actionName>
-		<displayName>SpotBugs GUI</displayName>
-		<goals>
-			<goal>spotbugs:gui</goal>
+			<goal>de.thetaphi:forbiddenapis:check@check-forbiddenapis</goal>
+			<goal>de.thetaphi:forbiddenapis:check@check-forbidden-test-apis</goal>
 		</goals>
 	</action>
 	<action>
@@ -288,6 +288,14 @@
 		<displayName>ArchUnit Maven plugin</displayName>
 		<goals>
 			<goal>arch-unit:arch-test</goal>
+		</goals>
+	</action>
+	<action>
+		<actionName>CUSTOM-Forbidden API Checker</actionName>
+		<displayName>Forbidden API Checker</displayName>
+		<goals>
+			<goal>de.thetaphi:forbiddenapis:check@check-forbiddenapis</goal>
+			<goal>de.thetaphi:forbiddenapis:check@check-forbidden-test-apis</goal>			
 		</goals>
 	</action>
 	<action>
@@ -331,19 +339,26 @@
 		<goals>
 			<goal>enforcer:enforce@dependency-convergence</goal>
 		</goals>
-	</action>	
+	</action>
 	<action>
 		<actionName>CUSTOM-Available Dependency Updates</actionName>
 		<displayName>Available Dependency Updates</displayName>
 		<goals>
 			<goal>versions:display-dependency-updates</goal>
 		</goals>
-	</action>	
+	</action>
 	<action>
 		<actionName>CUSTOM-Source Lines of Code</actionName>
 		<displayName>Source Lines of Code</displayName>
 		<goals>
 			<goal>kupusoglu.orhan:sloc-maven-plugin:sloc</goal>
+		</goals>
+	</action>
+	<action>
+		<actionName>CUSTOM-PIT Mutation Test</actionName>
+		<displayName>PIT Mutation Test</displayName>
+		<goals>
+			<goal>org.pitest:pitest-maven:mutationCoverage</goal>
 		</goals>
 	</action>
 	<action>

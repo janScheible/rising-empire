@@ -1,0 +1,33 @@
+@defaultMessage Use 'List.of()', 'Map.of()', 'Set.of()' etc. instead.
+java.util.Collections#emptyList()
+java.util.Collections#emptyMap()
+java.util.Collections#emptySet()
+
+java.util.Hashtable @ Use 'HashMap' instead.
+java.util.Vector @ Use 'ArrayList' instead.
+java.util.Enumeration @ Use 'Iterator' instead.
+
+@defaultMessage Use Date and Time API for Java.
+java.util.Date
+java.util.Calendar
+org.joda.time.**
+
+java.lang.StringBuffer @ Use 'StringBuilder' instead.
+
+@defaultMessage Use SLF4J instead.
+java.util.logging.**
+org.apache.log4j.**
+org.apache.logging.log4j.**
+
+@defaultMessage Do not call garbage collection explicitly.
+java.lang.System#gc()
+java.lang.Runtime#gc()
+java.lang.System#runFinalization()
+
+@defaultMessage Use 'String#formatted(...)' instead.
+java.lang.String#format(java.lang.String, java.lang.Object[])
+java.lang.String#format(java.util.Locale, java.lang.String, java.lang.Object[])
+
+java.lang.System#exit(int) @ What do you want to do? ;-)
+
+java.lang.Class#getClassLoader() @ Use 'Thread.currentThread().getContextClassLoader()' instead.

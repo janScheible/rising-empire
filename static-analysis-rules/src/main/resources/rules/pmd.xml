@@ -1,0 +1,53 @@
+<ruleset name="Custom Rules"
+		 xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+	<description>
+		Custom ruleset with hand-picked rules.
+	</description>
+
+	<rule ref="category/java/bestpractices.xml/AvoidReassigningParameters"/>
+	<rule ref="category/java/bestpractices.xml/AvoidReassigningLoopVariables"/>
+	<rule ref="category/java/bestpractices.xml/AvoidReassigningCatchVariables"/>
+
+	<rule ref="category/java/bestpractices.xml/UnusedFormalParameter"/>
+	<rule ref="category/java/bestpractices.xml/UnusedLocalVariable"/>
+	<rule ref="category/java/bestpractices.xml/UnusedPrivateField"/>
+	<rule ref="category/java/bestpractices.xml/UnusedPrivateMethod"/>
+
+	<rule ref="category/java/errorprone.xml/EmptyCatchBlock">
+		<properties>
+			<property name="allowCommentedBlocks" value="true" />
+		</properties>
+	</rule>
+	<rule ref="category/java/codestyle.xml/EmptyControlStatement" />
+
+	<rule ref="category/java/bestpractices.xml/ForLoopVariableCount" />
+	<rule ref="category/java/errorprone.xml/ProperLogger">
+		<properties>
+			<property name="staticLoggerName" value="logger" />
+			<property name="loggerName" value="_SHOULD_NOT_BE_USED" />
+			<property name="loggerClass" value="org.slf4j.Logger" />
+		</properties>
+	</rule>
+	<rule ref="category/java/design.xml/SimplifyConditional" />
+	<!-- <rule ref="category/java/codestyle.xml/UnnecessaryBoxing" /> needs PMD 7.0 -->
+	<rule ref="category/java/codestyle.xml/UnnecessaryCast" />
+	<rule ref="category/java/errorprone.xml/UnnecessaryConversionTemporary" />
+	<rule ref="category/java/codestyle.xml/UnnecessaryReturn" />
+	<rule ref="category/java/performance.xml/UseArraysAsList" />
+	<rule ref="category/java/bestpractices.xml/UseTryWithResources" />
+	<rule ref="category/java/codestyle.xml/UseUnderscoresInNumericLiterals" />
+	<rule ref="category/java/bestpractices.xml/UseVarargs" />
+
+
+	<rule ref="category/java/errorprone.xml/AvoidDecimalLiteralsInBigDecimalConstructor" />
+	<rule ref="category/java/performance.xml/BigIntegerInstantiation" />
+	<rule ref="category/java/errorprone.xml/ComparisonWithNaN" />
+	<rule ref="category/java/multithreading.xml/DontCallThreadRun" />
+	<rule ref="category/java/errorprone.xml/SuspiciousOctalEscape" />
+	<rule ref="category/java/errorprone.xml/UnnecessaryCaseChange" />
+
+
+	<rule ref="category/java/bestpractices.xml/JUnit5TestShouldBePackagePrivate"/>
+</ruleset>

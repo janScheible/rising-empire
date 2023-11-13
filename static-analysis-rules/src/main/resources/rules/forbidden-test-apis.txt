@@ -1,0 +1,6 @@
+# starting from here list all classes that might not be on the classpath
+@ignoreMissingClasses
+
+org.junit.jupiter.api.Assertions @ Use AssertJ instead.
+
+org.junit.Test @ Use JUnit 5 instead.

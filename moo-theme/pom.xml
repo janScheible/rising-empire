@@ -4,18 +4,15 @@
 
 	<parent>
 		<groupId>com.scheible.risingempire</groupId>
-		<artifactId>rising-empire</artifactId>
+		<artifactId>rising-empire-static-analysis-plugins-parent</artifactId>
 		<version>${revision}</version>
+		<relativePath>../static-analysis-plugins-parent/pom.xml</relativePath>
 	</parent>
 
 	<artifactId>rising-empire-moo-theme</artifactId>
 
 	<packaging>jar</packaging>
 	<name>rising-empire :: moo theme</name>
-
-	<properties>
-		<multiModuleRootRelativeUp>..</multiModuleRootRelativeUp>
-	</properties>
 
 	<build>
 		<plugins>

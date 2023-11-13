@@ -4,26 +4,25 @@
 
 	<parent>
 		<groupId>com.scheible.risingempire</groupId>
-		<artifactId>rising-empire-static-analysis-plugins-parent</artifactId>
+		<artifactId>rising-empire</artifactId>
 		<version>${revision}</version>
-		<relativePath>../static-analysis-plugins-parent/pom.xml</relativePath>
 	</parent>
 
-	<artifactId>rising-empire-game</artifactId>
+	<artifactId>rising-empire-static-analysis-rules</artifactId>
 
 	<packaging>jar</packaging>
-	<name>rising-empire :: game</name>
+	<name>rising-empire :: static-analysis rules</name>
 
 	<dependencies>
 		<dependency>
-			<groupId>com.scheible.risingempire</groupId>
-			<artifactId>rising-empire-util</artifactId>
-			<version>${project.version}</version>
+			<groupId>com.tngtech.archunit</groupId>
+			<artifactId>archunit</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
+			<groupId>io.spring.javaformat</groupId>
+			<artifactId>spring-javaformat-checkstyle</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 </project>

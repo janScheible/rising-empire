@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
+        "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+
+<module name="Checker">
+	<module name="TreeWalker">
+		<module name="InnerTypeLast"/>
+		<module name="OneTopLevelClass"/>
+		<module name="DeclarationOrder"/>
+		<module name="io.spring.javaformat.checkstyle.check.SpringMethodOrderCheck"/>
+		<module name="EqualsHashCode"/>
+
+		<module name="RedundantImport"/>
+		<module name="UnusedImports"/>
+		 <module name="AvoidStarImport"/>
+		<!-- Excludes mainly test libraries: https://github.com/spring-io/spring-javaformat/blob/main/spring-javaformat/spring-javaformat-checkstyle/src/main/java/io/spring/javaformat/checkstyle/check/SpringAvoidStaticImportCheck.java -->
+		<module name="io.spring.javaformat.checkstyle.check.SpringAvoidStaticImportCheck">
+			<property name="excludes" value="java.nio.charset.StandardCharsets.*,com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*, com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.*" />
+		</module>
+		
+		<module name="ModifierOrder"/>
+		<module name="RedundantModifier"/>
+
+		<module name="PackageDeclaration"/>
+		<module name="PackageName">
+			<property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+		</module>
+
+		<module name="com.puppycrawl.tools.checkstyle.checks.coding.RequireThisCheck">
+			<property name="checkMethods" value="false"/>
+			<property name="validateOnlyOverlapping" value="false"/>
+		</module>
+
+		<module name="AvoidDoubleBraceInitialization"/>
+		<module name="io.spring.javaformat.checkstyle.check.SpringMethodVisibilityCheck"/>
+		<module name="DefaultComesLast"/>
+		<module name="EqualsAvoidNull"/>
+		<module name="StringLiteralEquality"/>
+		<module name="MissingDeprecated"/>
+		<module name="MissingOverride"/>
+		<module name="MissingSwitchDefault"/>
+		<module name="MultipleVariableDeclarations"/>
+		<module name="MutableException"/>
+		<module name="NeedBraces"/>
+		<module name="OneStatementPerLine"/>
+	</module>
+</module>
