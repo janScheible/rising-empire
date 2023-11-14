@@ -10,7 +10,7 @@ public interface Paintable {
 	static Paintable wrap(BufferedImage image) {
 		return new Paintable() {
 			@Override
-			public void paint(final Canvas canvas, final int offsetX, final int offsetY) {
+			public void paint(Canvas canvas, int offsetX, int offsetY) {
 				for (int x = 0; x < image.getWidth(); x++) {
 					for (int y = 0; y < image.getHeight(); y++) {
 						canvas.setRGB(x + offsetX, y + offsetY, image.getRGB(x, y));

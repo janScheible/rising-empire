@@ -18,13 +18,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author sj
  */
-public class ImageProcessorTest {
+class ImageProcessorTest {
 
 	@Test
 	void testScaleWithCropAndTransparency() throws IOException {
 		BufferedImage testImage = ImageIO.read(getClass().getResourceAsStream("processor-test-image.png"));
 
-		Paintable paintable = ImageProcessor.process(testImage, Scale.TRIPLE, -65316, new Rectangle(1, 1, 2, 2));
+		Paintable paintable = ImageProcessor.process(testImage, Scale.TRIPLE, -65_316, new Rectangle(1, 1, 2, 2));
 		Canvas result = Canvas.createWithPinkBackground(paintable.getWidth(), paintable.getHeight());
 		paintable.paint(result, 0, 0);
 

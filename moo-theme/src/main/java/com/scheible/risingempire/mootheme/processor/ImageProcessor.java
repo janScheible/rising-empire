@@ -18,49 +18,48 @@ public class ImageProcessor {
 
 		final int factor;
 
-		Scale(final int factor) {
+		Scale(int factor) {
 			this.factor = factor;
 		}
 
 		public int getFactor() {
-			return factor;
+			return this.factor;
 		}
 
 	}
 
-	public static Paintable process(final BufferedImage image, final Scale scale) {
+	public static Paintable process(BufferedImage image, Scale scale) {
 		return process(image, scale, Optional.empty(), Optional.empty());
 	}
 
-	public static Paintable process(final BufferedImage image, final Scale scale, final Integer transparentColor) {
+	public static Paintable process(BufferedImage image, Scale scale, Integer transparentColor) {
 		return process(image, scale, Optional.of(transparentColor), Optional.empty());
 	}
 
-	public static Paintable process(final BufferedImage image, final Scale scale, final Rectangle cropRect) {
+	public static Paintable process(BufferedImage image, Scale scale, Rectangle cropRect) {
 		return process(image, scale, Optional.empty(), Optional.of(cropRect));
 	}
 
-	public static Paintable process(final BufferedImage image, final Scale scale, final Integer transparentColor,
-			final Rectangle cropRect) {
+	public static Paintable process(BufferedImage image, Scale scale, Integer transparentColor, Rectangle cropRect) {
 		return process(image, scale, Optional.of(transparentColor), Optional.of(cropRect));
 	}
 
-	private static Paintable process(final BufferedImage image, final Scale scale,
-			final Optional<Integer> transparentColor, final Optional<Rectangle> cropRect) {
-		final BufferedImage source = cropRect.isPresent() ? image.getSubimage((int) cropRect.get().getX(),
+	private static Paintable process(BufferedImage image, Scale scale, Optional<Integer> transparentColor,
+			Optional<Rectangle> cropRect) {
+		BufferedImage source = cropRect.isPresent() ? image.getSubimage((int) cropRect.get().getX(),
 				(int) cropRect.get().getY(), (int) cropRect.get().getWidth(), (int) cropRect.get().getHeight()) : image;
 
 		return new Paintable() {
 			@Override
-			public void paint(final Canvas canvas, final int offsetX, final int offsetY) {
+			public void paint(Canvas canvas, int offsetX, int offsetY) {
 				for (int x = 0; x < source.getWidth(); x++) {
 					for (int y = 0; y < source.getHeight(); y++) {
-						final int rgb = source.getRGB(x, y);
+						int rgb = source.getRGB(x, y);
 
 						for (int x1 = 0; x1 < scale.getFactor(); x1++) {
 							for (int y1 = 0; y1 < scale.getFactor(); y1++) {
-								final int xCanvas = offsetX + x * scale.getFactor() + x1;
-								final int yCanvas = offsetY + y * scale.getFactor() + y1;
+								int xCanvas = offsetX + x * scale.getFactor() + x1;
+								int yCanvas = offsetY + y * scale.getFactor() + y1;
 
 								if (transparentColor.isEmpty() || transparentColor.get() != rgb) {
 									canvas.setRGB(xCanvas, yCanvas, rgb);

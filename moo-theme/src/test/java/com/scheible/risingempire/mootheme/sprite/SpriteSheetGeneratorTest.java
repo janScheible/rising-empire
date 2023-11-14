@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author sj
  */
-public class SpriteSheetGeneratorTest {
+class SpriteSheetGeneratorTest {
 
 	@Test
 	void testSpriteSheetGeneration() throws IOException {

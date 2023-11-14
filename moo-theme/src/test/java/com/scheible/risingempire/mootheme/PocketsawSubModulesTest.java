@@ -5,23 +5,19 @@ import com.scheible.pocketsaw.impl.descriptor.annotation.ClassgraphClasspathScan
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * @author sj
  */
-class MooThemeSubModulesTest {
-
-	private static Pocketsaw.AnalysisResult result;
+class PocketsawSubModulesTest {
 
 	@BeforeAll
 	static void beforeClass() {
-		result = Pocketsaw.analizeClasspath(ClassgraphClasspathScanner.create(MooThemeSubModulesTest.class));
+		Pocketsaw
+			.analizeClasspath(ClassgraphClasspathScanner.create(PocketsawSubModulesTest.class).enableAutoMatching());
 	}
 
 	@Test
-	void testNoCodeCycle() {
-		assertThat(result.getAnyCodeCycle()).isEmpty();
+	void justMakeItRunAsTestToCreateTheVisualization() {
 	}
 
 }

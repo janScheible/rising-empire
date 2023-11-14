@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author sj
  */
-public class LbxReaderIT {
+class LbxReaderIT {
 
 	@Test
 	@Disabled("Required a D-Fend Reloaded installation (on Windows) and is more of an integration test.")

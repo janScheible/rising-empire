@@ -22,7 +22,7 @@ class LbxReaderTest {
 
 	@Test
 	void testValid() throws IOException {
-		final LbxEntry entry = LbxReader.read(getClass().getResourceAsStream("valid.lbx"), 1,
+		LbxEntry entry = LbxReader.read(getClass().getResourceAsStream("valid.lbx"), 1,
 				(LbxEntry lbxEntry) -> lbxEntry);
 		assertThat(entry.getEntryStart()).isEqualTo(122);
 		assertThat(entry.getEntryEnd()).isEqualTo(220);

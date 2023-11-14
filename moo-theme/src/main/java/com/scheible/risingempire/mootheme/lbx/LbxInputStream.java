@@ -17,46 +17,46 @@ public class LbxInputStream implements Closeable {
 
 	private long readIndex = 0;
 
-	public LbxInputStream(final InputStream in) {
+	public LbxInputStream(InputStream in) {
 		this.in = in;
 	}
 
 	public short readUByte() throws IOException {
-		readIndex += 1;
+		this.readIndex += 1;
 
-		return (short) (in.read() & 0xFF);
+		return (short) (this.in.read() & 0xFF);
 	}
 
 	public int readUShort() throws IOException {
-		readIndex += 2;
+		this.readIndex += 2;
 
-		final int byte0 = in.read() & 0xFF;
-		final int byte1 = in.read() & 0xFF;
+		int byte0 = this.in.read() & 0xFF;
+		int byte1 = this.in.read() & 0xFF;
 		return (byte1 << 8) + byte0;
 	}
 
 	public long readUInt() throws IOException {
-		readIndex += 4;
+		this.readIndex += 4;
 
-		final int byte0 = in.read() & 0xFF;
-		final int byte1 = in.read() & 0xFF;
-		final int byte2 = in.read() & 0xFF;
-		final int byte3 = in.read() & 0xFF;
+		int byte0 = this.in.read() & 0xFF;
+		int byte1 = this.in.read() & 0xFF;
+		int byte2 = this.in.read() & 0xFF;
+		int byte3 = this.in.read() & 0xFF;
 		return (byte3 << 24) + (byte2 << 16) + (byte1 << 8) + byte0;
 	}
 
-	public long skip(final long n) throws IOException {
-		readIndex += n;
-		return in.skip(n);
+	public long skip(long n) throws IOException {
+		this.readIndex += n;
+		return this.in.skip(n);
 	}
 
 	@Override
 	public void close() throws IOException {
-		in.close();
+		this.in.close();
 	}
 
 	public long getReadIndex() {
-		return readIndex;
+		return this.readIndex;
 	}
 
 }

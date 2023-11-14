@@ -16,13 +16,13 @@ class LbxInputStreamTest {
 
 	@Test
 	void testRead() throws IOException {
-		final ByteArrayInputStream byteArrayInputStream = spy(
+		ByteArrayInputStream byteArrayInputStream = spy(
 				new ByteArrayInputStream(new byte[] { 42, 42, 42, 42, 42, 42, 42, 0, 42 }));
 		try (LbxInputStream input = new LbxInputStream(byteArrayInputStream)) {
 
 			assertThat(input.readUByte()).isEqualTo((short) 42);
-			assertThat(input.readUShort()).isEqualTo(10794);
-			assertThat(input.readUInt()).isEqualTo(707406378l);
+			assertThat(input.readUShort()).isEqualTo(10_794);
+			assertThat(input.readUInt()).isEqualTo(707_406_378L);
 
 			assertThat(input.skip(1)).isEqualTo(1);
 

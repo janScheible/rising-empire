@@ -9,38 +9,35 @@ import java.io.IOException;
 
 import com.scheible.risingempire.mootheme.lbx.LbxEntry;
 import com.scheible.risingempire.mootheme.lbx.LbxInputStream;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * @author sj
  */
 public class GfxReader {
 
-	@SuppressWarnings({ "PMD.UnusedLocalVariable", "PMD.EmptyIfStmt" })
-	@SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
-	public static BufferedImage read(final LbxEntry lbxEntry, final ColorModel palette, final int frame)
-			throws IOException {
+	@SuppressWarnings("PMD.UnusedLocalVariable")
+	public static BufferedImage read(LbxEntry lbxEntry, ColorModel palette, int frame) throws IOException {
 		if (LbxEntry.Type.GFX != lbxEntry.getType()) {
 			throw new IllegalArgumentException("The lbx entry must be of type Gfx!");
 		}
 
-		final LbxInputStream input = lbxEntry.getInput();
-		final long entryStart = lbxEntry.getEntryStart();
+		LbxInputStream input = lbxEntry.getInput();
+		long entryStart = lbxEntry.getEntryStart();
 
-		final int width = input.readUShort();
-		final int height = input.readUShort();
-		final int currentFrame = input.readUShort();
-		final int frames = input.readUShort();
-		final int resetFrame = input.readUShort();
+		int width = input.readUShort();
+		int height = input.readUShort();
+		int currentFrame = input.readUShort();
+		int frames = input.readUShort();
+		int resetFrame = input.readUShort();
 
 		input.skip(4); // space for runtime data
 
-		final int paletteOffset = input.readUShort();
+		int paletteOffset = input.readUShort();
 		if (paletteOffset != 0) {
 			throw new UnsupportedOperationException("Internal palettes are not yet supported!");
 		}
-		final boolean independentFrames = input.readUByte() != 0x0;
-		final boolean councilSpecialFormat = input.readUByte() != 0x0;
+		boolean independentFrames = input.readUByte() != 0x0;
+		boolean councilSpecialFormat = input.readUByte() != 0x0;
 
 		long frameStart = 0;
 		long frameEnd = -1;
@@ -56,40 +53,39 @@ public class GfxReader {
 		return drawImage(input, entryStart, frameStart, frameEnd, width, height, palette);
 	}
 
-	@SuppressWarnings({ "PMD.UnusedLocalVariable", "PMD.EmptyIfStmt", "PMD.EmptyControlStatement" })
-	@SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
-	private static BufferedImage drawImage(final LbxInputStream input, final long entryStart, final long frameStart,
-			final long frameEnd, final int width, final int height, final ColorModel palette) throws IOException {
+	@SuppressWarnings({ "PMD.UnusedLocalVariable", "PMD.EmptyControlStatement" })
+	private static BufferedImage drawImage(LbxInputStream input, long entryStart, long frameStart, long frameEnd,
+			int width, int height, ColorModel palette) throws IOException {
 		input.skip((int) (entryStart + frameStart - input.getReadIndex()));
-		final WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, width, height, 1, null);
-		final BufferedImage image = new BufferedImage(palette, raster, false, null);
-		final boolean clearBuffer = input.readUByte() == 0x1;
+		WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, width, height, 1, null);
+		BufferedImage image = new BufferedImage(palette, raster, false, null);
+		boolean clearBuffer = input.readUByte() == 0x1;
 		int x = 0;
 		while (input.getReadIndex() < entryStart + frameEnd) {
-			final int mode = input.readUByte();
+			int mode = input.readUByte();
 
 			if (mode == 0xff) {
 				// skip this column
 			}
 			else {
-				final boolean compressed = mode == 0x80;
+				boolean compressed = mode == 0x80;
 				long sequenceLength = input.readUByte();
 
 				int y = 0;
 				do {
 					int partLength = input.readUByte();
 
-					final int skipPixels = input.readUByte();
+					int skipPixels = input.readUByte();
 					y += skipPixels;
 
 					sequenceLength -= partLength + 2;
 
 					do {
-						final int colorOrRunLength = input.readUByte();
+						int colorOrRunLength = input.readUByte();
 						partLength--;
 						int color = colorOrRunLength;
 						if (compressed && colorOrRunLength > 0xdf) {
-							final int runLength = colorOrRunLength - 0xdf;
+							int runLength = colorOrRunLength - 0xdf;
 							color = input.readUByte();
 							partLength--;
 							drawRun(runLength, raster, x, y, color);
@@ -110,8 +106,7 @@ public class GfxReader {
 		return image;
 	}
 
-	private static void drawRun(final int length, final WritableRaster raster, final int x, final int yStart,
-			final int color) {
+	private static void drawRun(int length, WritableRaster raster, int x, int yStart, int color) {
 		int y = yStart;
 		for (int i = 0; i < length; i++) {
 			raster.setSample(x, y, 0, color);
@@ -119,7 +114,7 @@ public class GfxReader {
 		}
 	}
 
-	private static void drawSingle(final WritableRaster raster, final int x, final int y, final int color) {
+	private static void drawSingle(WritableRaster raster, int x, int y, int color) {
 		raster.setSample(x, y, 0, color);
 	}
 

@@ -9,16 +9,16 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import com.scheible.risingempire.mootheme.lbx.LbxEntry;
+import com.scheible.risingempire.mootheme.lbx.LbxEntry.Type;
 import com.scheible.risingempire.mootheme.lbx.LbxInputStream;
 import org.junit.jupiter.api.Test;
 
-import static com.scheible.risingempire.mootheme.lbx.LbxEntry.Type.GFX;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author sj
  */
-public class GfxReaderTest {
+class GfxReaderTest {
 
 	@Test
 	void testSmileyGfx() throws IOException {
@@ -30,7 +30,8 @@ public class GfxReaderTest {
 		 * 1 part - all columns except the last one are compressed
 		 */
 		BufferedImage actual = GfxReader.read(
-				new LbxEntry(new LbxInputStream(getClass().getResourceAsStream("smiley.gfx")), 0, 42, GFX), palette, 0);
+				new LbxEntry(new LbxInputStream(getClass().getResourceAsStream("smiley.gfx")), 0, 42, Type.GFX),
+				palette, 0);
 		ImageIO.write(actual, "png", new File("./target/smiley.png"));
 
 		BufferedImage expected = ImageIO.read(getClass().getResourceAsStream("smiley.png"));

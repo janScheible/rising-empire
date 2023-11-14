@@ -11,12 +11,12 @@ public class LbxEntry {
 
 		private final int id;
 
-		Type(final int id) {
+		Type(int id) {
 			this.id = id;
 		}
 
-		public static Type valueOf(final int id) {
-			for (final Type type : Type.values()) {
+		public static Type valueOf(int id) {
+			for (Type type : Type.values()) {
 				if (type.id == id) {
 					return type;
 				}
@@ -26,7 +26,7 @@ public class LbxEntry {
 		}
 
 		public int getId() {
-			return id;
+			return this.id;
 		}
 
 	}
@@ -39,7 +39,7 @@ public class LbxEntry {
 
 	private final Type type;
 
-	public LbxEntry(final LbxInputStream input, final long entryStart, final long entryEnd, final Type type) {
+	public LbxEntry(LbxInputStream input, long entryStart, long entryEnd, Type type) {
 		this.input = input;
 		this.entryStart = entryStart;
 		this.entryEnd = entryEnd;
@@ -47,19 +47,19 @@ public class LbxEntry {
 	}
 
 	public LbxInputStream getInput() {
-		return input;
+		return this.input;
 	}
 
 	public long getEntryStart() {
-		return entryStart;
+		return this.entryStart;
 	}
 
 	public long getEntryEnd() {
-		return entryEnd;
+		return this.entryEnd;
 	}
 
 	public Type getType() {
-		return type;
+		return this.type;
 	}
 
 }

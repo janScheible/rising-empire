@@ -11,15 +11,14 @@ import com.scheible.risingempire.mootheme.lbx.LbxEntry.Type;
  */
 public class LbxReader {
 
-	public static <T> T read(final InputStream rawInput, final int entry, final Function<LbxEntry, T> entryFunction)
-			throws IOException {
+	public static <T> T read(InputStream rawInput, int entry, Function<LbxEntry, T> entryFunction) throws IOException {
 		try (LbxInputStream input = new LbxInputStream(rawInput)) {
-			final int entries = input.readUShort();
+			int entries = input.readUShort();
 			if (!(input.readUByte() == 0xad && input.readUByte() == 0xfe)) {
 				throw new IllegalStateException("No valid LBX header was found!");
 			}
 			input.skip(2);
-			final Type type = Type.valueOf(input.readUShort());
+			Type type = Type.valueOf(input.readUShort());
 
 			long entryStart = 0;
 			long entryEnd = -1;

@@ -12,12 +12,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.AbstractMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -31,15 +30,12 @@ import com.scheible.risingempire.mootheme.lbx.entry.PaletteReader;
 import com.scheible.risingempire.mootheme.processor.ImageProcessor;
 import com.scheible.risingempire.mootheme.processor.ImageProcessor.Scale;
 import com.scheible.risingempire.mootheme.sprite.SpriteSheetGenerator;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
-import static com.scheible.risingempire.mootheme.processor.ImageProcessor.Scale.TRIPLE;
-import static java.util.Arrays.asList;
+import com.scheible.risingempire.mootheme.util.ExitUtils;
+import com.scheible.risingempire.mootheme.util.WrappedLogger;
 
 /**
  * @author sj
  */
-@SuppressFBWarnings("PATH_TRAVERSAL_IN")
 public class MooThemeGeneratorCli {
 
 	public static final File DFEND_RELOADED_ORION_DIR = new File(
@@ -50,16 +46,16 @@ public class MooThemeGeneratorCli {
 
 	// NOTE Java util logger is fine here because JAR should have no third-party
 	// dependencies.
-	private static final Logger logger = Logger.getLogger(MooThemeGeneratorCli.class.getName());
+	private static final WrappedLogger logger = WrappedLogger.getLogger(MooThemeGeneratorCli.class);
 
-	public static void main(final String... args) throws IOException {
+	public static void main(String... args) throws IOException {
 		System.setProperty("java.util.logging.SimpleFormatter.format", "%5$s%n");
 
 		try {
-			final File orionDir = getAndValidateOrionDir(args);
+			File orionDir = getAndValidateOrionDir(args);
 
-			final ColorModel palette = LbxReader.read(
-					Files.newInputStream(Path.of(orionDir.getAbsolutePath(), "FONTS.LBX")), 2, (LbxEntry lbxEntry) -> {
+			ColorModel palette = LbxReader.read(Files.newInputStream(Path.of(orionDir.getAbsolutePath(), "FONTS.LBX")),
+					2, (LbxEntry lbxEntry) -> {
 						try {
 							return PaletteReader.read(lbxEntry);
 						}
@@ -68,19 +64,19 @@ public class MooThemeGeneratorCli {
 						}
 					});
 
-			final InputStream planets = new ByteArrayInputStream(
+			InputStream planets = new ByteArrayInputStream(
 					Files.readAllBytes(Path.of(orionDir.getAbsolutePath(), "PLANETS.LBX")));
-			final InputStream ships = new ByteArrayInputStream(
+			InputStream ships = new ByteArrayInputStream(
 					Files.readAllBytes(Path.of(orionDir.getAbsolutePath(), "SHIPS.LBX")));
-			final InputStream ships2 = new ByteArrayInputStream(
+			InputStream ships2 = new ByteArrayInputStream(
 					Files.readAllBytes(Path.of(orionDir.getAbsolutePath(), "SHIPS2.LBX")));
-			final InputStream starmap = new ByteArrayInputStream(
+			InputStream starmap = new ByteArrayInputStream(
 					Files.readAllBytes(Path.of(orionDir.getAbsolutePath(), "STARMAP.LBX")));
 
-			final BiFunction<InputStream, Integer, BufferedImage> getImage = (input, entry) -> {
+			BiFunction<InputStream, Integer, BufferedImage> getImage = (input, entry) -> {
 				try {
 					input.mark(0);
-					final BufferedImage result = LbxReader.read(input, entry, lbxEntry -> {
+					BufferedImage result = LbxReader.read(input, entry, lbxEntry -> {
 						try {
 							return GfxReader.read(lbxEntry, palette, 0);
 						}
@@ -96,199 +92,197 @@ public class MooThemeGeneratorCli {
 				}
 			};
 
-			final BufferedImage fleetsSheet = SpriteSheetGenerator.generate(3, true,
-					asList(process(getImage.apply(starmap, 67), TRIPLE, -16777216),
-							process(getImage.apply(starmap, 68), TRIPLE, -16777216),
-							process(getImage.apply(starmap, 69), TRIPLE, -16777216),
-							process(getImage.apply(starmap, 70), TRIPLE, -16777216),
-							process(getImage.apply(starmap, 71), TRIPLE, -16777216),
-							process(getImage.apply(starmap, 72), TRIPLE, -16777216)));
+			BufferedImage fleetsSheet = SpriteSheetGenerator.generate(3, true,
+					List.of(process(getImage.apply(starmap, 67), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 68), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 69), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 70), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 71), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 72), Scale.TRIPLE, -16_777_216)));
 
-			final BufferedImage starsSheet = SpriteSheetGenerator.generate(3, true,
-					asList(process(getImage.apply(starmap, 9), TRIPLE, -16777216),
-							process(getImage.apply(starmap, 10), TRIPLE, -16777216),
-							process(getImage.apply(starmap, 11), TRIPLE, -16777216),
-							process(getImage.apply(starmap, 12), TRIPLE, -16777216),
-							process(getImage.apply(starmap, 13), TRIPLE, -16777216),
-							process(getImage.apply(starmap, 14), TRIPLE, -16777216)));
+			BufferedImage starsSheet = SpriteSheetGenerator.generate(3, true,
+					List.of(process(getImage.apply(starmap, 9), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 10), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 11), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 12), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 13), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 14), Scale.TRIPLE, -16_777_216)));
 
-			final BufferedImage starsSmallSheet = SpriteSheetGenerator.generate(3, true,
-					asList(process(getImage.apply(starmap, 3), TRIPLE, -16777216),
-							process(getImage.apply(starmap, 4), TRIPLE, -16777216),
-							process(getImage.apply(starmap, 5), TRIPLE, -16777216),
-							process(getImage.apply(starmap, 6), TRIPLE, -16777216),
-							process(getImage.apply(starmap, 7), TRIPLE, -16777216),
-							process(getImage.apply(starmap, 8), TRIPLE, -16777216)));
+			BufferedImage starsSmallSheet = SpriteSheetGenerator.generate(3, true,
+					List.of(process(getImage.apply(starmap, 3), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 4), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 5), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 6), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 7), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 8), Scale.TRIPLE, -16_777_216)));
 
-			final BufferedImage shipsBlueSheet = SpriteSheetGenerator.generate(3, true,
-					asList(process(getImage.apply(ships2, 0), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 1), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 2), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 3), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 4), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 5), TRIPLE, -16777216)),
-					asList(process(getImage.apply(ships2, 6), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 7), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 8), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 9), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 10), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 11), TRIPLE, -16777216)),
-					asList(process(getImage.apply(ships2, 12), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 13), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 14), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 15), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 16), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 17), TRIPLE, -16777216)),
-					asList(process(getImage.apply(ships2, 18), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 19), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 20), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 21), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 22), TRIPLE, -16777216),
-							process(getImage.apply(ships2, 23), TRIPLE, -16777216)));
+			BufferedImage shipsBlueSheet = SpriteSheetGenerator.generate(3, true,
+					List.of(process(getImage.apply(ships2, 0), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 1), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 2), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 3), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 4), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 5), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships2, 6), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 7), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 8), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 9), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 10), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 11), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships2, 12), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 13), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 14), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 15), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 16), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 17), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships2, 18), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 19), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 20), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 21), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 22), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 23), Scale.TRIPLE, -16_777_216)));
 
-			final BufferedImage shipsWhiteSheet = SpriteSheetGenerator.generate(3, true,
-					asList(process(getImage.apply(ships, 24), TRIPLE, -16777216),
-							process(getImage.apply(ships, 25), TRIPLE, -16777216),
-							process(getImage.apply(ships, 26), TRIPLE, -16777216),
-							process(getImage.apply(ships, 27), TRIPLE, -16777216),
-							process(getImage.apply(ships, 28), TRIPLE, -16777216),
-							process(getImage.apply(ships, 29), TRIPLE, -16777216)),
-					asList(process(getImage.apply(ships, 30), TRIPLE, -16777216),
-							process(getImage.apply(ships, 31), TRIPLE, -16777216),
-							process(getImage.apply(ships, 32), TRIPLE, -16777216),
-							process(getImage.apply(ships, 33), TRIPLE, -16777216),
-							process(getImage.apply(ships, 34), TRIPLE, -16777216),
-							process(getImage.apply(ships, 35), TRIPLE, -16777216)),
-					asList(process(getImage.apply(ships, 36), TRIPLE, -16777216),
-							process(getImage.apply(ships, 37), TRIPLE, -16777216),
-							process(getImage.apply(ships, 38), TRIPLE, -16777216),
-							process(getImage.apply(ships, 39), TRIPLE, -16777216),
-							process(getImage.apply(ships, 40), TRIPLE, -16777216),
-							process(getImage.apply(ships, 41), TRIPLE, -16777216)),
-					asList(process(getImage.apply(ships, 42), TRIPLE, -16777216),
-							process(getImage.apply(ships, 43), TRIPLE, -16777216),
-							process(getImage.apply(ships, 44), TRIPLE, -16777216),
-							process(getImage.apply(ships, 45), TRIPLE, -16777216),
-							process(getImage.apply(ships, 46), TRIPLE, -16777216),
-							process(getImage.apply(ships, 47), TRIPLE, -16777216)));
+			BufferedImage shipsWhiteSheet = SpriteSheetGenerator.generate(3, true,
+					List.of(process(getImage.apply(ships, 24), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 25), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 26), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 27), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 28), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 29), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships, 30), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 31), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 32), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 33), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 34), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 35), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships, 36), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 37), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 38), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 39), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 40), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 41), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships, 42), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 43), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 44), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 45), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 46), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 47), Scale.TRIPLE, -16_777_216)));
 
-			final BufferedImage shipsYellowSheet = SpriteSheetGenerator.generate(3, true,
-					asList(process(getImage.apply(ships, 48), TRIPLE, -16777216),
-							process(getImage.apply(ships, 49), TRIPLE, -16777216),
-							process(getImage.apply(ships, 50), TRIPLE, -16777216),
-							process(getImage.apply(ships, 51), TRIPLE, -16777216),
-							process(getImage.apply(ships, 52), TRIPLE, -16777216),
-							process(getImage.apply(ships, 53), TRIPLE, -16777216)),
-					asList(process(getImage.apply(ships, 54), TRIPLE, -16777216),
-							process(getImage.apply(ships, 55), TRIPLE, -16777216),
-							process(getImage.apply(ships, 56), TRIPLE, -16777216),
-							process(getImage.apply(ships, 57), TRIPLE, -16777216),
-							process(getImage.apply(ships, 58), TRIPLE, -16777216),
-							process(getImage.apply(ships, 59), TRIPLE, -16777216)),
-					asList(process(getImage.apply(ships, 60), TRIPLE, -16777216),
-							process(getImage.apply(ships, 61), TRIPLE, -16777216),
-							process(getImage.apply(ships, 62), TRIPLE, -16777216),
-							process(getImage.apply(ships, 63), TRIPLE, -16777216),
-							process(getImage.apply(ships, 64), TRIPLE, -16777216),
-							process(getImage.apply(ships, 65), TRIPLE, -16777216)),
-					asList(process(getImage.apply(ships, 67), TRIPLE, -16777216),
-							process(getImage.apply(ships, 68), TRIPLE, -16777216),
-							process(getImage.apply(ships, 69), TRIPLE, -16777216),
-							process(getImage.apply(ships, 70), TRIPLE, -16777216),
-							process(getImage.apply(ships, 71), TRIPLE, -16777216),
-							process(getImage.apply(ships, 72), TRIPLE, -16777216)));
+			BufferedImage shipsYellowSheet = SpriteSheetGenerator.generate(3, true,
+					List.of(process(getImage.apply(ships, 48), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 49), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 50), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 51), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 52), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 53), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships, 54), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 55), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 56), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 57), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 58), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 59), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships, 60), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 61), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 62), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 63), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 64), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 65), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships, 67), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 68), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 69), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 70), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 71), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 72), Scale.TRIPLE, -16_777_216)));
 
-			final BufferedImage planetsSheet = SpriteSheetGenerator.generate(3, true,
-					asList(process(getImage.apply(planets, 0), TRIPLE, -16777216),
-							process(getImage.apply(planets, 1), TRIPLE, -16777216),
-							process(getImage.apply(planets, 2), TRIPLE, -16777216),
-							process(getImage.apply(planets, 3), TRIPLE, -16777216),
-							process(getImage.apply(planets, 4), TRIPLE, -16777216),
-							process(getImage.apply(planets, 5), TRIPLE, -16777216),
-							process(getImage.apply(planets, 6), TRIPLE, -16777216)),
-					asList(process(getImage.apply(planets, 7), TRIPLE, -16777216),
-							process(getImage.apply(planets, 8), TRIPLE, -16777216),
-							process(getImage.apply(planets, 9), TRIPLE, -16777216),
-							process(getImage.apply(planets, 10), TRIPLE, -16777216),
-							process(getImage.apply(planets, 11), TRIPLE, -16777216),
-							process(getImage.apply(planets, 12), TRIPLE, -16777216),
-							process(getImage.apply(planets, 13), TRIPLE, -16777216)),
-					asList(process(getImage.apply(planets, 14), TRIPLE, -16777216),
-							process(getImage.apply(planets, 15), TRIPLE, -16777216),
-							process(getImage.apply(planets, 16), TRIPLE, -16777216),
-							process(getImage.apply(planets, 17), TRIPLE, -16777216),
-							process(getImage.apply(planets, 18), TRIPLE, -16777216),
-							process(getImage.apply(planets, 19), TRIPLE, -16777216),
-							process(getImage.apply(planets, 20), TRIPLE, -16777216)),
-					asList(process(getImage.apply(planets, 21), TRIPLE, -16777216),
-							process(getImage.apply(planets, 22), TRIPLE, -16777216),
-							process(getImage.apply(planets, 23), TRIPLE, -16777216),
-							process(getImage.apply(planets, 24), TRIPLE, -16777216),
-							process(getImage.apply(planets, 25), TRIPLE, -16777216),
-							process(getImage.apply(planets, 26), TRIPLE, -16777216),
-							process(getImage.apply(planets, 27), TRIPLE, -16777216)),
-					asList(process(getImage.apply(planets, 28), TRIPLE, -16777216),
-							process(getImage.apply(planets, 29), TRIPLE, -16777216),
-							process(getImage.apply(planets, 30), TRIPLE, -16777216),
-							process(getImage.apply(planets, 31), TRIPLE, -16777216),
-							process(getImage.apply(planets, 32), TRIPLE, -16777216),
-							process(getImage.apply(planets, 33), TRIPLE, -16777216),
-							process(getImage.apply(planets, 34), TRIPLE, -16777216)));
+			BufferedImage planetsSheet = SpriteSheetGenerator.generate(3, true,
+					List.of(process(getImage.apply(planets, 0), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 1), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 2), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 3), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 4), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 5), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 6), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(planets, 7), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 8), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 9), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 10), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 11), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 12), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 13), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(planets, 14), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 15), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 16), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 17), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 18), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 19), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 20), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(planets, 21), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 22), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 23), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 24), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 25), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 26), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 27), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(planets, 28), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 29), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 30), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 31), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 32), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 33), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 34), Scale.TRIPLE, -16_777_216)));
 
-			final File targetDir = Optional.of(new File(".").getCanonicalFile())
-				.map(wd -> "target".equals(wd.getName().toLowerCase()) ? wd : new File(wd, "target"))
+			File targetDir = Optional.of(new File(".").getCanonicalFile())
+				.map(wd -> "target".equalsIgnoreCase(wd.getName()) ? wd : new File(wd, "target"))
 				.get();
-			final Path themeZip = Path.of(targetDir.getAbsolutePath(), "moo-theme.zip");
+			Path themeZip = Path.of(targetDir.getAbsolutePath(), "moo-theme.zip");
 
 			writeZipFile(themeZip, sheetEntry("fleets.png", fleetsSheet), sheetEntry("stars.png", starsSheet),
 					sheetEntry("stars-small.png", starsSmallSheet), sheetEntry("ships-blue.png", shipsBlueSheet),
 					sheetEntry("ships-white.png", shipsWhiteSheet), sheetEntry("ships-yellow.png", shipsYellowSheet),
 					sheetEntry("planets.png", planetsSheet));
-			logger.log(Level.INFO, "Wrote ZIP file to ''{0}''.", themeZip);
+			logger.info("Wrote ZIP file to ''{0}''.", themeZip);
 		}
 		catch (UncheckedIOException ex) {
 			throw ex.getCause();
 		}
 	}
 
-	@SuppressWarnings("checkstyle:CyclomaticComplexity")
-	private static File getAndValidateOrionDir(final String[] args) {
-		final Optional<File> dfendReloadedDir = Optional.of(DFEND_RELOADED_ORION_DIR).filter(File::exists);
-		final Optional<File> argsDir = Optional
-			.ofNullable(args.length > 0 && args[0] != null ? new File(args[0]) : null)
+	private static File getAndValidateOrionDir(String... args) {
+		Optional<File> dfendReloadedDir = Optional.of(DFEND_RELOADED_ORION_DIR).filter(File::exists);
+		Optional<File> argsDir = Optional.ofNullable(args.length > 0 && args[0] != null ? new File(args[0]) : null)
 			.filter(File::exists);
 
 		File orionDir = null;
 		if (argsDir.isEmpty() && dfendReloadedDir.isPresent()) {
-			logger.log(Level.INFO,
+			logger.info(
 					"No valid orion dir was passed as argument but D-Fend Reloaded installation was found (''{0}'').",
 					dfendReloadedDir.get());
 			orionDir = dfendReloadedDir.get();
 		}
 		else if (argsDir.isEmpty() && dfendReloadedDir.isEmpty()) {
-			logger.log(Level.SEVERE,
+			logger.error(
 					"Neither was a valid orion dir passed as argument nor was a D-Fend Reloaded installation found (''{0}'').",
 					dfendReloadedDir.get());
-			System.exit(-1);
+			ExitUtils.exitFailed();
 		}
 		else if (argsDir.isPresent() && dfendReloadedDir.isPresent()) {
-			logger.log(Level.INFO,
+			logger.info(
 					"Orion dir passed as argument (''{0}'') is used. The D-Fend Reloaded installation (''{1}'') is ignored.",
 					new Object[] { argsDir.get(), dfendReloadedDir.get() });
 			orionDir = argsDir.get();
 		}
 		else if (argsDir.isPresent() && dfendReloadedDir.isEmpty()) {
-			logger.log(Level.INFO, "Orion dir passed as argument (''{0}'') is used.", argsDir.get());
+			logger.info("Orion dir passed as argument (''{0}'') is used.", argsDir.get());
 			orionDir = argsDir.get();
 		}
 
-		for (final String lbxFileName : LBX_FILES) {
-			final File lbxFile = new File(orionDir, lbxFileName);
+		for (String lbxFileName : LBX_FILES) {
+			File lbxFile = new File(orionDir, lbxFileName);
 			if (!lbxFile.exists()) {
-				logger.log(Level.SEVERE,
+				logger.error(
 						"The LBX file ''{0}'' was not found in the orion directory. Is the directory a valid Master of Orion installation?",
 						lbxFileName);
-				System.exit(-1);
+				ExitUtils.exitFailed();
 			}
 		}
 
@@ -296,31 +290,29 @@ public class MooThemeGeneratorCli {
 	}
 
 	@SafeVarargs
-	private static void writeZipFile(final Path targetDir, final Entry<String, BufferedImage>... entries)
-			throws IOException {
+	private static void writeZipFile(Path targetDir, Entry<String, BufferedImage>... entries) throws IOException {
 		try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(targetDir))) {
-			final Set<String> processed = new HashSet<>();
+			Set<String> processed = new HashSet<>();
 
-			for (final Entry<String, BufferedImage> entry : entries) {
-				final String path = entry.getKey();
+			for (Entry<String, BufferedImage> entry : entries) {
+				String path = entry.getKey();
 
 				String currentPath = "";
-				for (final String fragment : path.split("/")) {
+				for (String fragment : path.split("/")) {
 					currentPath = currentPath + fragment + (!fragment.contains(".") ? "/" : "");
 
 					if (fragment.contains(".")) {
-						final ZipEntry zipEntry = new ZipEntry(currentPath);
+						ZipEntry zipEntry = new ZipEntry(currentPath);
 						zos.putNextEntry(zipEntry);
 
-						final BufferedImage image = entry.getValue();
-						final ByteArrayOutputStream baos = new ByteArrayOutputStream(
-								image.getWidth() * image.getHeight());
+						BufferedImage image = entry.getValue();
+						ByteArrayOutputStream baos = new ByteArrayOutputStream(image.getWidth() * image.getHeight());
 						ImageIO.write(image, "png", baos);
 						zos.write(baos.toByteArray());
 						zos.closeEntry();
 					}
 					else if (processed.add(currentPath)) {
-						final ZipEntry zipEntry = new ZipEntry(currentPath);
+						ZipEntry zipEntry = new ZipEntry(currentPath);
 						zos.putNextEntry(zipEntry);
 					}
 				}
@@ -328,11 +320,11 @@ public class MooThemeGeneratorCli {
 		}
 	}
 
-	private static Entry<String, BufferedImage> sheetEntry(final String path, final BufferedImage image) {
+	private static Entry<String, BufferedImage> sheetEntry(String path, BufferedImage image) {
 		return new AbstractMap.SimpleImmutableEntry<>(path, image);
 	}
 
-	private static Paintable process(final BufferedImage image, final Scale scale, final Integer transparentColor) {
+	private static Paintable process(BufferedImage image, Scale scale, Integer transparentColor) {
 		return ImageProcessor.process(image, scale, transparentColor);
 	}
 
