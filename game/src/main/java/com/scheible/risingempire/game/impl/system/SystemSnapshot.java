@@ -10,7 +10,6 @@ import com.scheible.risingempire.game.api.view.universe.Location;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.impl.colony.Colony;
 import com.scheible.risingempire.util.jdk.Objects2;
-import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * @author sj
@@ -19,8 +18,7 @@ public class SystemSnapshot {
 
 	private final SystemId id;
 
-	@Nullable
-	private final Integer firstSeenTurn;
+	private final Optional<Integer> firstSeenTurn;
 
 	private final int lastSeenTurn;
 
@@ -30,29 +28,22 @@ public class SystemSnapshot {
 
 	private final StarType starType;
 
-	@Nullable
-	private final PlanetType planetType;
+	private final Optional<PlanetType> planetType;
 
-	@Nullable
-	private final PlanetSpecial planetSpecial;
+	private final Optional<PlanetSpecial> planetSpecial;
 
-	@Nullable
-	private final String starName;
+	private final Optional<String> starName;
 
-	@Nullable
-	private final Integer planetMaxPopulation;
+	private final Optional<Integer> planetMaxPopulation;
 
-	@Nullable
-	private final Player colonyPlayer;
+	private final Optional<Player> colonyPlayer;
 
-	@Nullable
-	private final Integer colonyPopulation;
+	private final Optional<Integer> colonyPopulation;
 
-	private SystemSnapshot(final SystemId id, final Integer firstSeenTurn, final int lastSeenTurn, final boolean known,
-			final Location location, final StarType starType, @Nullable final PlanetType planetType,
-			@Nullable final PlanetSpecial planetSpecial, @Nullable final String starName,
-			@Nullable final Integer planetMaxPopulation, @Nullable final Player colonyPlayer,
-			@Nullable final Integer colonyPopulation) {
+	private SystemSnapshot(SystemId id, Optional<Integer> firstSeenTurn, int lastSeenTurn, boolean known,
+			Location location, StarType starType, Optional<PlanetType> planetType,
+			Optional<PlanetSpecial> planetSpecial, Optional<String> starName, Optional<Integer> planetMaxPopulation,
+			Optional<Player> colonyPlayer, Optional<Integer> colonyPopulation) {
 		this.id = id;
 		this.firstSeenTurn = firstSeenTurn;
 		this.lastSeenTurn = lastSeenTurn;
@@ -68,89 +59,90 @@ public class SystemSnapshot {
 		this.colonyPopulation = colonyPopulation;
 	}
 
-	public static SystemSnapshot forKnown(final int round, final System system) {
-		return new SystemSnapshot(system.getId(), null, round, true, system.getLocation(), system.getStarType(),
-				system.getPlanetType(), system.getPlanetSpecial(), system.getName(), system.getPlanetMaxPopulation(),
-				system.getColony().map(Colony::getPlayer).orElse(null),
-				system.getColony().map(Colony::getPopulation).orElse(null));
+	public static SystemSnapshot forKnown(int round, System system) {
+		return new SystemSnapshot(system.getId(), Optional.empty(), round, true, system.getLocation(),
+				system.getStarType(), Optional.of(system.getPlanetType()), Optional.of(system.getPlanetSpecial()),
+				Optional.of(system.getName()), Optional.of(system.getPlanetMaxPopulation()),
+				system.getColony().map(Colony::getPlayer), system.getColony().map(Colony::getPopulation));
 	}
 
-	public static SystemSnapshot forUnknown(final int round, final System system) {
-		return new SystemSnapshot(system.getId(), null, round, false, system.getLocation(), system.getStarType(), null,
-				null, null, null, null, null);
+	public static SystemSnapshot forUnknown(int round, System system) {
+		return new SystemSnapshot(system.getId(), Optional.empty(), round, false, system.getLocation(),
+				system.getStarType(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
+				Optional.empty(), Optional.empty());
 	}
 
-	public static SystemSnapshot withFirstSeenTurn(final SystemSnapshot snapshot, final int firstSeenTurn) {
+	public static SystemSnapshot withFirstSeenTurn(SystemSnapshot snapshot, int firstSeenTurn) {
 		if (!snapshot.isKnown()) {
 			throw new IllegalStateException("Doesn't make sense to set the first seen turn for an unknown system!");
 		}
 
-		return new SystemSnapshot(snapshot.id, firstSeenTurn, snapshot.lastSeenTurn, snapshot.known, snapshot.location,
-				snapshot.starType, snapshot.planetType, snapshot.planetSpecial, snapshot.starName,
+		return new SystemSnapshot(snapshot.id, Optional.of(firstSeenTurn), snapshot.lastSeenTurn, snapshot.known,
+				snapshot.location, snapshot.starType, snapshot.planetType, snapshot.planetSpecial, snapshot.starName,
 				snapshot.planetMaxPopulation, snapshot.colonyPlayer, snapshot.colonyPopulation);
 	}
 
 	public SystemId getId() {
-		return id;
+		return this.id;
 	}
 
 	public Optional<Integer> getFirstSeenTurn() {
-		return Optional.ofNullable(firstSeenTurn);
+		return this.firstSeenTurn;
 	}
 
 	public int getLastSeenTurn() {
-		return lastSeenTurn;
+		return this.lastSeenTurn;
 	}
 
-	public boolean wasJustExplored(final int round) {
-		return getFirstSeenTurn().filter(fst -> fst == lastSeenTurn && fst == round).isPresent();
+	public boolean wasJustExplored(int round) {
+		return getFirstSeenTurn().filter(fst -> fst == this.lastSeenTurn && fst == round).isPresent();
 	}
 
 	public boolean isKnown() {
-		return known;
+		return this.known;
 	}
 
 	public Location getLocation() {
-		return location;
+		return this.location;
 	}
 
 	public StarType getStarType() {
-		return starType;
+		return this.starType;
 	}
 
 	public Optional<PlanetType> getPlanetType() {
-		return Optional.ofNullable(planetType);
+		return this.planetType;
 	}
 
 	public Optional<PlanetSpecial> getPlanetSpecial() {
-		return Optional.ofNullable(planetSpecial);
+		return this.planetSpecial;
 	}
 
 	public Optional<String> getStarName() {
-		return Optional.ofNullable(starName);
+		return this.starName;
 	}
 
 	public Optional<Integer> getPlanetMaxPopulation() {
-		return Optional.ofNullable(planetMaxPopulation);
+		return this.planetMaxPopulation;
 	}
 
 	public Optional<Player> getColonyPlayer() {
-		return Optional.ofNullable(colonyPlayer);
+		return this.colonyPlayer;
 	}
 
 	public Optional<Integer> getColonyPopulation() {
-		return Optional.ofNullable(colonyPopulation);
+		return this.colonyPopulation;
 	}
 
 	@Override
 	public String toString() {
 		return Objects2.toStringBuilder(getClass())
-			.add("id", id)
-			.add("firstSeenTurn", firstSeenTurn)
-			.add("lastSeenTurn", lastSeenTurn)
-			.add("known", known)
-			.add("location", location)
-			.add("starType", starType)
+			.add("id", this.id)
+			.add("firstSeenTurn", this.firstSeenTurn)
+			.add("lastSeenTurn", this.lastSeenTurn)
+			.add("known", this.known)
+			.add("location", this.location)
+			.add("starType", this.starType)
 			.add("planetType", getPlanetType())
 			.add("planetSpecial", getPlanetSpecial())
 			.add("starName", getStarName())

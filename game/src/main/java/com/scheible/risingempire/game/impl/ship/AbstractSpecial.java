@@ -7,17 +7,17 @@ public abstract class AbstractSpecial {
 
 	protected final String name;
 
-	protected AbstractSpecial(final String name) {
+	protected AbstractSpecial(String name) {
 		this.name = name;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override
 	public String toString() {
-		return name;
+		return this.name;
 	}
 
 }

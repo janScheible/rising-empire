@@ -15,32 +15,32 @@ public class Technology {
 
 	private final double fleetRangeFactor;
 
-	public Technology(final double fleetRangeFactor) {
+	public Technology(double fleetRangeFactor) {
 		this.fleetRangeFactor = fleetRangeFactor;
 	}
 
 	public int getFleetRange() {
-		return (int) (fleetRange * fleetRangeFactor);
+		return (int) (this.fleetRange * this.fleetRangeFactor);
 	}
 
 	public int getExtendedFleetRange() {
-		return (int) (fleetRange * fleetRangeFactor * 1.3);
+		return (int) (this.fleetRange * this.fleetRangeFactor * 1.3);
 	}
 
 	public int getColonyScannerRange() {
-		return colonyScannerRange;
+		return this.colonyScannerRange;
 	}
 
 	public int getFleetScannerRange() {
-		return fleetScannerRange;
+		return this.fleetScannerRange;
 	}
 
 	@Override
 	public String toString() {
-		return toStringBuilder(getClass()).add("fleetRange", fleetRange)
-			.add("colonyScannerRange", colonyScannerRange)
-			.add("fleetScannerRange", fleetScannerRange)
-			.add("fleetRangeFactor", fleetRangeFactor)
+		return toStringBuilder(getClass()).add("fleetRange", this.fleetRange)
+			.add("colonyScannerRange", this.colonyScannerRange)
+			.add("fleetScannerRange", this.fleetScannerRange)
+			.add("fleetRangeFactor", this.fleetRangeFactor)
 			.toString();
 	}
 

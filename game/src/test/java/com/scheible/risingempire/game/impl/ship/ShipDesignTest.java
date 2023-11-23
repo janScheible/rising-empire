@@ -1,26 +1,26 @@
 package com.scheible.risingempire.game.impl.ship;
 
+import com.scheible.risingempire.game.api.view.ship.ShipSize;
 import com.scheible.risingempire.game.impl.ship.AbstractWeapon.Damage;
 import com.scheible.risingempire.game.impl.ship.Missile.RackSize;
 import org.junit.jupiter.api.Test;
 
-import static com.scheible.risingempire.game.api.view.ship.ShipSize.SMALL;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author sj
  */
-public class ShipDesignTest {
+class ShipDesignTest {
 
-	public static final AbstractWeapon LASER = new BeamWeapon("Laser", new Damage(1, 4));
+	private static final AbstractWeapon LASER = new BeamWeapon("Laser", new Damage(1, 4));
 
-	public static final AbstractWeapon NUCLEAR_MISSILE = new Missile("Nuclear Missile", new Damage(4), RackSize.TWO);
+	private static final AbstractWeapon NUCLEAR_MISSILE = new Missile("Nuclear Missile", new Damage(4), RackSize.TWO);
 
 	@Test
 	void testFighter() {
-		final ShipDesign fighterDesing = ShipDesign.builder()
+		ShipDesign fighterDesing = ShipDesign.builder()
 			.name("Fighter")
-			.size(SMALL)
+			.size(ShipSize.SMALL)
 			.look(0)
 			.computer(0)
 			.shield(0)
@@ -32,7 +32,7 @@ public class ShipDesignTest {
 			.specials();
 
 		assertThat(fighterDesing.getName()).isEqualTo("Fighter");
-		assertThat(fighterDesing.getSize()).isEqualTo(SMALL);
+		assertThat(fighterDesing.getSize()).isEqualTo(ShipSize.SMALL);
 	}
 
 }

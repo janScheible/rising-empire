@@ -14,33 +14,33 @@ public class TechView {
 
 	private final String description;
 
-	public TechView(final TechId id, final String name, final String description) {
+	public TechView(TechId id, String name, String description) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
 	}
 
 	public TechId getId() {
-		return id;
+		return this.id;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public String getDescription() {
-		return description;
+		return this.description;
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
 		else if (obj != null && getClass().equals(obj.getClass())) {
-			final TechView other = (TechView) obj;
-			return Objects.equals(id, other.id) && Objects.equals(name, other.name)
-					&& Objects.equals(description, other.description);
+			TechView other = (TechView) obj;
+			return Objects.equals(this.id, other.id) && Objects.equals(this.name, other.name)
+					&& Objects.equals(this.description, other.description);
 		}
 		else {
 			return false;
@@ -49,14 +49,14 @@ public class TechView {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(this.id);
 	}
 
 	@Override
 	public String toString() {
-		final StringJoiner values = new StringJoiner(", ", "TechView[", "]").add("id=" + id)
-			.add("name='" + name + "'")
-			.add("description='" + description + "'");
+		StringJoiner values = new StringJoiner(", ", "TechView[", "]").add("id=" + this.id)
+			.add("name='" + this.name + "'")
+			.add("description='" + this.description + "'");
 		return values.toString();
 	}
 

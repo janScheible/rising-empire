@@ -16,33 +16,34 @@ public class FleetBeforeArrival {
 
 	private final int speed;
 
-	public FleetBeforeArrival(final FleetId id, final HorizontalDirection horizontalDirection, final int speed) {
+	public FleetBeforeArrival(FleetId id, HorizontalDirection horizontalDirection, int speed) {
 		this.id = id;
 		this.horizontalDirection = horizontalDirection;
 		this.speed = speed;
 	}
 
 	public FleetId getId() {
-		return id;
+		return this.id;
 	}
 
 	public HorizontalDirection getHorizontalDirection() {
-		return horizontalDirection;
+		return this.horizontalDirection;
 	}
 
 	public int getSpeed() {
-		return speed;
+		return this.speed;
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
 		else if (obj != null && getClass().equals(obj.getClass())) {
-			final FleetBeforeArrival other = (FleetBeforeArrival) obj;
-			return Objects.equals(id, other.id) && Objects.equals(horizontalDirection, other.horizontalDirection)
-					&& Objects.equals(speed, other.speed);
+			FleetBeforeArrival other = (FleetBeforeArrival) obj;
+			return Objects.equals(this.id, other.id)
+					&& Objects.equals(this.horizontalDirection, other.horizontalDirection)
+					&& Objects.equals(this.speed, other.speed);
 		}
 		else {
 			return false;
@@ -51,14 +52,14 @@ public class FleetBeforeArrival {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, horizontalDirection, speed);
+		return Objects.hash(this.id, this.horizontalDirection, this.speed);
 	}
 
 	@Override
 	public String toString() {
-		return new StringJoiner(", ", "FleetBeforeArrival[", "]").add("id=" + id)
-			.add("horizontalDirection=" + horizontalDirection)
-			.add("speed=" + speed)
+		return new StringJoiner(", ", "FleetBeforeArrival[", "]").add("id=" + this.id)
+			.add("horizontalDirection=" + this.horizontalDirection)
+			.add("speed=" + this.speed)
 			.toString();
 	}
 

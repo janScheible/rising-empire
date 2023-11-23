@@ -13,9 +13,9 @@ public record AnnexationStatusView(Optional<Integer> siegeRounds, Optional<Integ
 		Optional<Boolean> annexCommand) {
 
 	public AnnexationStatusView {
-		final boolean siegeState = siegeRounds.isPresent() && roundsUntilAnnexable.isPresent()
-				&& siegingPlayer.isPresent() && annexable.isEmpty() && annexCommand.isEmpty();
-		final boolean annexableState = siegeRounds.isPresent() && roundsUntilAnnexable.isPresent()
+		boolean siegeState = siegeRounds.isPresent() && roundsUntilAnnexable.isPresent() && siegingPlayer.isPresent()
+				&& annexable.isEmpty() && annexCommand.isEmpty();
+		boolean annexableState = siegeRounds.isPresent() && roundsUntilAnnexable.isPresent()
 				&& siegingPlayer.isPresent() && annexable.isPresent() && annexCommand.isPresent();
 
 		if (!siegeState && !annexableState) {

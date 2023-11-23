@@ -3,6 +3,7 @@ package com.scheible.risingempire.game.impl.colony;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -12,7 +13,6 @@ import com.scheible.risingempire.game.impl.ship.DesignSlot;
 
 import static com.scheible.risingempire.util.jdk.Objects2.toStringBuilder;
 import static java.util.Collections.unmodifiableMap;
-import static java.util.function.Function.identity;
 
 /**
  * @author sj
@@ -27,24 +27,23 @@ public class Colony {
 
 	private final Map<ProductionArea, Integer> ratios = new EnumMap<>(ProductionArea.class);
 
-	public Colony(final Player player, final int population, final DesignSlot spaceDockDesign) {
+	public Colony(Player player, int population, DesignSlot spaceDockDesign) {
 		this.player = player;
 		this.population = population;
 		this.spaceDock = spaceDockDesign;
-		ratios.putAll(Stream.of(ProductionArea.values()).collect(Collectors.toMap(identity(), a -> 20)));
+		this.ratios.putAll(Stream.of(ProductionArea.values()).collect(Collectors.toMap(Function.identity(), a -> 20)));
 	}
 
-	public void adjustRation(final ProductionArea area, final int percentage) {
-		adjustRationInternal(area, percentage, ratios);
+	public void adjustRation(ProductionArea area, int percentage) {
+		adjustRationInternal(area, percentage, this.ratios);
 	}
 
-	static void adjustRationInternal(final ProductionArea area, final int percentage,
-			final Map<ProductionArea, Integer> ratios) {
+	static void adjustRationInternal(ProductionArea area, int percentage, Map<ProductionArea, Integer> ratios) {
 		int difference = percentage - ratios.get(area);
 
 		if (difference > 0) {
 			while (difference != 0) {
-				final Entry<ProductionArea, Integer> highestOtherRatio = ratios.entrySet()
+				Entry<ProductionArea, Integer> highestOtherRatio = ratios.entrySet()
 					.stream()
 					.filter(areaAndAmount -> areaAndAmount.getKey() != area)
 					.sorted((a, b) -> Integer.compare(b.getValue(), a.getValue()))
@@ -61,7 +60,7 @@ public class Colony {
 			}
 		}
 		else if (difference < 0) {
-			final Entry<ProductionArea, Integer> lowestOtherRatio = ratios.entrySet()
+			Entry<ProductionArea, Integer> lowestOtherRatio = ratios.entrySet()
 				.stream()
 				.filter(areaAndAmount -> areaAndAmount.getKey() != area)
 				.sorted((a, b) -> Integer.compare(a.getValue(), b.getValue()))
@@ -73,32 +72,32 @@ public class Colony {
 		ratios.put(area, percentage);
 	}
 
-	public void build(final DesignSlot design) {
+	public void build(DesignSlot design) {
 		this.spaceDock = design;
 	}
 
 	public Map<ProductionArea, Integer> getRatios() {
-		return unmodifiableMap(ratios);
+		return unmodifiableMap(this.ratios);
 	}
 
 	public DesignSlot getSpaceDock() {
-		return spaceDock;
+		return this.spaceDock;
 	}
 
 	public Player getPlayer() {
-		return player;
+		return this.player;
 	}
 
 	public int getPopulation() {
-		return population;
+		return this.population;
 	}
 
 	@Override
 	public String toString() {
-		return toStringBuilder(getClass()).add("player", player)
-			.add("population", population)
-			.add("spaceDock", spaceDock)
-			.add("ratios", ratios)
+		return toStringBuilder(getClass()).add("player", this.player)
+			.add("population", this.population)
+			.add("spaceDock", this.spaceDock)
+			.add("ratios", this.ratios)
 			.toString();
 	}
 

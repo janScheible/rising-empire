@@ -16,7 +16,8 @@ class GameSubModulesTest {
 
 	@BeforeAll
 	static void beforeClass() {
-		result = Pocketsaw.analizeClasspath(ClassgraphClasspathScanner.create(GameSubModulesTest.class));
+		result = Pocketsaw
+			.analizeClasspath(ClassgraphClasspathScanner.create(GameSubModulesTest.class).enableAutoMatching());
 	}
 
 	@Test

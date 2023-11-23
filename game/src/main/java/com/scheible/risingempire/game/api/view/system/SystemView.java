@@ -6,7 +6,6 @@ import java.util.StringJoiner;
 
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.universe.Location;
-import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * @author sj
@@ -25,51 +24,36 @@ public class SystemView {
 
 	private final boolean homeSystem;
 
-	@Nullable
-	private final Integer range;
+	private final Optional<Integer> range;
 
-	@Nullable
-	private final PlanetType planetType;
+	private final Optional<PlanetType> planetType;
 
-	@Nullable
-	private final PlanetSpecial planetSpecial;
+	private final Optional<PlanetSpecial> planetSpecial;
 
-	@Nullable
-	private final Integer seenInTurn;
+	private final Optional<Integer> seenInTurn;
 
-	@Nullable
-	private final String starName;
+	private final Optional<String> starName;
 
-	@Nullable
-	private final Integer planetMaxPopulation;
+	private final Optional<Integer> planetMaxPopulation;
 
-	@Nullable
-	private final ColonyView colony;
+	private final Optional<ColonyView> colony;
 
-	@Nullable
-	private final Integer fleetRange;
+	private final Optional<Integer> fleetRange;
 
-	@Nullable
-	private final Integer extendedFleetRange;
+	private final Optional<Integer> extendedFleetRange;
 
-	@Nullable
-	private final Integer scannerRange;
+	private final Optional<Integer> scannerRange;
 
-	@Nullable
-	private final Boolean colonizable;
+	private final Optional<Boolean> colonizable;
 
-	@Nullable
-	private final Boolean colonizeCommand;
+	private final Optional<Boolean> colonizeCommand;
 
-	@SuppressWarnings("checkstyle:ParameterNumber")
-	public SystemView(final SystemId id, final boolean justExplored, final Location location, final StarType starType,
-			final boolean small, final boolean homeSystem, @Nullable final Integer range,
-			@Nullable final PlanetType planetType, @Nullable final PlanetSpecial planetSpecial,
-			@Nullable final Integer seenInTurn, @Nullable final String starName,
-			@Nullable final Integer planetMaxPopulation, @Nullable final ColonyView colony,
-			@Nullable final Integer fleetRange, @Nullable final Integer extendedFleetRange,
-			@Nullable final Integer scannerRange, @Nullable final Boolean colonizable,
-			@Nullable final Boolean colonizeCommand) {
+	public SystemView(SystemId id, boolean justExplored, Location location, StarType starType, boolean small,
+			boolean homeSystem, Optional<Integer> range, Optional<PlanetType> planetType,
+			Optional<PlanetSpecial> planetSpecial, Optional<Integer> seenInTurn, Optional<String> starName,
+			Optional<Integer> planetMaxPopulation, Optional<ColonyView> colony, Optional<Integer> fleetRange,
+			Optional<Integer> extendedFleetRange, Optional<Integer> scannerRange, Optional<Boolean> colonizable,
+			Optional<Boolean> colonizeCommand) {
 		this.id = id;
 
 		this.justExplored = justExplored;
@@ -96,93 +80,93 @@ public class SystemView {
 	}
 
 	public SystemId getId() {
-		return id;
+		return this.id;
 	}
 
 	public boolean wasJustExplored() {
-		return justExplored;
+		return this.justExplored;
 	}
 
 	public Location getLocation() {
-		return location;
+		return this.location;
 	}
 
 	public StarType getStarType() {
-		return starType;
+		return this.starType;
 	}
 
 	public boolean isSmall() {
-		return small;
+		return this.small;
 	}
 
 	public boolean isHomeSystem() {
-		return homeSystem;
+		return this.homeSystem;
 	}
 
 	public Optional<Integer> getRange() {
-		return Optional.ofNullable(range);
+		return this.range;
 	}
 
 	public Optional<PlanetType> getPlanetType() {
-		return Optional.ofNullable(planetType);
+		return this.planetType;
 	}
 
 	public Optional<PlanetSpecial> getPlanetSpecial() {
-		return Optional.ofNullable(planetSpecial);
+		return this.planetSpecial;
 	}
 
 	public Optional<Integer> getSeenInTurn() {
-		return Optional.ofNullable(seenInTurn);
+		return this.seenInTurn;
 	}
 
 	public Optional<String> getStarName() {
-		return Optional.ofNullable(starName);
+		return this.starName;
 	}
 
 	public Optional<Integer> getPlanetMaxPopulation() {
-		return Optional.ofNullable(planetMaxPopulation);
+		return this.planetMaxPopulation;
 	}
 
 	public Optional<ColonyView> getColonyView() {
-		return Optional.ofNullable(colony);
+		return this.colony;
 	}
 
 	public Optional<Integer> getFleetRange() {
-		return Optional.ofNullable(fleetRange);
+		return this.fleetRange;
 	}
 
 	public boolean hasFleetRange() {
-		return fleetRange != null;
+		return this.fleetRange != null;
 	}
 
 	public Optional<Integer> getExtendedFleetRange() {
-		return Optional.ofNullable(extendedFleetRange);
+		return this.extendedFleetRange;
 	}
 
 	public boolean hasExtendedFleetRange() {
-		return extendedFleetRange != null;
+		return this.extendedFleetRange != null;
 	}
 
 	public Optional<Integer> getScannerRange() {
-		return Optional.ofNullable(scannerRange);
+		return this.scannerRange;
 	}
 
 	public boolean isColonizable() {
-		return colonizable;
+		return this.colonizable.orElse(Boolean.FALSE);
 	}
 
 	public Optional<Boolean> hasColonizeCommand() {
-		return Optional.ofNullable(colonizeCommand);
+		return this.colonizeCommand;
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
 		else if (obj != null && getClass().equals(obj.getClass())) {
-			final SystemView other = (SystemView) obj;
-			return Objects.equals(id, other.id);
+			SystemView other = (SystemView) obj;
+			return Objects.equals(this.id, other.id);
 		}
 		else {
 			return false;
@@ -191,47 +175,47 @@ public class SystemView {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(this.id);
 	}
 
 	@Override
 	public String toString() {
-		final StringJoiner values = new StringJoiner(", ", "SystemView[", "]").add("id=" + id)
-			.add("justExplored=" + justExplored)
-			.add("location=" + location)
-			.add("starType=" + starType)
-			.add("small=" + small);
+		StringJoiner values = new StringJoiner(", ", "SystemView[", "]").add("id=" + this.id)
+			.add("justExplored=" + this.justExplored)
+			.add("location=" + this.location)
+			.add("starType=" + this.starType)
+			.add("small=" + this.small);
 
-		if (homeSystem) {
-			values.add("homeSytem=" + homeSystem);
+		if (this.homeSystem) {
+			values.add("homeSytem=" + this.homeSystem);
 		}
 
-		if (range != null) {
-			values.add("range=" + range);
+		if (this.range != null) {
+			values.add("range=" + this.range);
 		}
 
-		if (starName != null) {
-			values.add("starName=" + starName);
+		if (this.starName != null) {
+			values.add("starName=" + this.starName);
 		}
 
-		if (planetType != null) {
-			values.add("planetType=" + planetType);
+		if (this.planetType != null) {
+			values.add("planetType=" + this.planetType);
 		}
 
-		if (planetSpecial != null) {
-			values.add("planetSpecial=" + planetSpecial);
+		if (this.planetSpecial != null) {
+			values.add("planetSpecial=" + this.planetSpecial);
 		}
 
-		if (seenInTurn != null) {
-			values.add("seenInTurn=" + seenInTurn);
+		if (this.seenInTurn != null) {
+			values.add("seenInTurn=" + this.seenInTurn);
 		}
 
-		if (colonizable != null) {
-			values.add("colonizable=" + colonizable).add("colonizeCommand=" + colonizeCommand);
+		if (this.colonizable != null) {
+			values.add("colonizable=" + this.colonizable).add("colonizeCommand=" + this.colonizeCommand);
 		}
 
-		if (colony != null) {
-			final String colonyString = colony.toString();
+		if (this.colony != null) {
+			String colonyString = this.colony.toString();
 			values.add("colony=" + colonyString.substring(colonyString.indexOf('[')));
 		}
 
@@ -240,16 +224,16 @@ public class SystemView {
 		return values.toString();
 	}
 
-	private void addRanges(final StringJoiner values) {
-		if (fleetRange != null) {
-			values.add("fleetRange=" + fleetRange);
+	private void addRanges(StringJoiner values) {
+		if (this.fleetRange != null) {
+			values.add("fleetRange=" + this.fleetRange);
 		}
-		if (extendedFleetRange != null) {
-			values.add("extendedFleetRange=" + extendedFleetRange);
+		if (this.extendedFleetRange != null) {
+			values.add("extendedFleetRange=" + this.extendedFleetRange);
 		}
 
-		if (scannerRange != null) {
-			values.add("scannerRange=" + scannerRange);
+		if (this.scannerRange != null) {
+			values.add("scannerRange=" + this.scannerRange);
 		}
 	}
 

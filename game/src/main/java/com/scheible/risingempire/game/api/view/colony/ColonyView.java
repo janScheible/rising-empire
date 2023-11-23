@@ -1,5 +1,6 @@
 package com.scheible.risingempire.game.api.view.colony;
 
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
@@ -8,9 +9,6 @@ import java.util.StringJoiner;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.api.view.universe.Race;
-import edu.umd.cs.findbugs.annotations.Nullable;
-
-import static java.util.Collections.unmodifiableMap;
 
 /**
  * @author sj
@@ -23,77 +21,70 @@ public class ColonyView {
 
 	private final Race race;
 
-	private final Integer population;
+	private final int population;
 
-	@Nullable
-	private final ShipTypeView spaceDock;
+	private final Optional<ShipTypeView> spaceDock;
 
-	@Nullable
-	private final Map<ProductionArea, Integer> ratios;
+	private final Optional<Map<ProductionArea, Integer>> ratios;
 
-	@Nullable
-	private final AnnexationStatusView annexationStatus;
+	private final Optional<AnnexationStatusView> annexationStatus;
 
-	public ColonyView(final ColonyId id, final Player player, final Race race, final Integer population,
-			@Nullable final ShipTypeView spaceDock, @Nullable final Map<ProductionArea, Integer> ratios,
-			@Nullable final AnnexationStatusView annexationStatus) {
+	public ColonyView(ColonyId id, Player player, Race race, int population, Optional<ShipTypeView> spaceDock,
+			Optional<Map<ProductionArea, Integer>> ratios, Optional<AnnexationStatusView> annexationStatus) {
 		this.id = id;
 
 		this.player = player;
 		this.race = race;
 		this.population = population;
 		this.spaceDock = spaceDock;
-		this.ratios = ratios != null ? new EnumMap<>(ratios) : null;
+		this.ratios = ratios.map(EnumMap::new).map(Collections::unmodifiableMap);
 		this.annexationStatus = annexationStatus;
 	}
 
 	public Optional<ShipTypeView> getSpaceDock() {
-		return Optional.ofNullable(spaceDock);
+		return this.spaceDock;
 	}
 
 	public Optional<Map<ProductionArea, Integer>> getRatios() {
-		return Optional.ofNullable(ratios != null ? unmodifiableMap(ratios) : null);
+		return this.ratios;
 	}
 
 	public ColonyId getId() {
-		return id;
+		return this.id;
 	}
 
 	public Player getPlayer() {
-		return player;
+		return this.player;
 	}
 
 	public Race getRace() {
-		return race;
+		return this.race;
 	}
 
-	public Integer getPopulation() {
-		return population;
+	public int getPopulation() {
+		return this.population;
 	}
 
 	public Optional<AnnexationStatusView> getAnnexationStatus() {
-		return Optional.ofNullable(annexationStatus);
+		return this.annexationStatus;
 	}
 
 	@Override
 	public String toString() {
-		final StringJoiner values = new StringJoiner(", ", "ColonyView[", "]").add("player=" + player)
-			.add("race=" + race);
+		StringJoiner values = new StringJoiner(", ", "ColonyView[", "]").add("player=" + this.player)
+			.add("race=" + this.race)
+			.add("population=" + this.population);
 
-		if (population != null) {
-			values.add("population=" + population);
+		if (this.spaceDock.isPresent()) {
+			values.add("spaceDock=" + this.spaceDock.get());
 		}
 
-		if (spaceDock != null) {
-			values.add("spaceDock=" + spaceDock);
+		if (this.ratios.isPresent()) {
+			values.add("ratios=" + this.ratios.get());
 		}
 
-		if (ratios != null) {
-			values.add("ratios=" + ratios);
-		}
-
-		if (annexationStatus != null) {
-			values.add("annexationStatus=" + annexationStatus);
+		if (this.annexationStatus.isPresent()) {
+			values.add("annexationStatus=" + this.annexationStatus.get());
 		}
 
 		return values.toString();

@@ -11,31 +11,31 @@ public class WeaponSlot {
 
 	private final AbstractWeapon weapon;
 
-	public WeaponSlot(final int count, final AbstractWeapon weapon) {
+	public WeaponSlot(int count, AbstractWeapon weapon) {
 		this.weapon = weapon;
 		this.count = count;
 	}
 
 	public AbstractWeapon getWeapon() {
-		return weapon;
+		return this.weapon;
 	}
 
 	public int getCount() {
-		return count;
+		return this.count;
 	}
 
-	public static boolean isNotEmpty(final WeaponSlot weaponSlot) {
+	public static boolean isNotEmpty(WeaponSlot weaponSlot) {
 		return weaponSlot.weapon != null & weaponSlot.count > 0;
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (obj == this) {
 			return true;
 		}
 		else if (obj != null && obj.getClass().equals(getClass())) {
-			final WeaponSlot other = (WeaponSlot) obj;
-			return Objects.equals(count, other.count) && Objects.equals(weapon, other.weapon);
+			WeaponSlot other = (WeaponSlot) obj;
+			return Objects.equals(this.count, other.count) && Objects.equals(this.weapon, other.weapon);
 		}
 		else {
 			return false;
@@ -44,12 +44,12 @@ public class WeaponSlot {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(count, weapon);
+		return Objects.hash(this.count, this.weapon);
 	}
 
 	@Override
 	public String toString() {
-		return count + " " + weapon;
+		return this.count + " " + this.weapon;
 	}
 
 }

@@ -11,43 +11,43 @@ public class Location {
 
 	private final int y;
 
-	public Location(final int x, final int y) {
+	public Location(int x, int y) {
 		this.x = x;
 		this.y = y;
 	}
 
-	public Location moveAlong(final Location destination, final int speed) {
-		final double distance = getDistance(destination);
+	public Location moveAlong(Location destination, int speed) {
+		double distance = getDistance(destination);
 
-		final int newX = x + (int) (((destination.x - x) / distance) * speed);
-		final int newY = y + (int) (((destination.y - y) / distance) * speed);
+		int newX = this.x + (int) (((destination.x - this.x) / distance) * speed);
+		int newY = this.y + (int) (((destination.y - this.y) / distance) * speed);
 
-		final Location newLocation = new Location(newX, newY);
-		final double newDistance = getDistance(newLocation);
+		Location newLocation = new Location(newX, newY);
+		double newDistance = getDistance(newLocation);
 
 		return newDistance > distance ? destination : newLocation;
 	}
 
-	public double getDistance(final Location other) {
-		return Math.sqrt(Math.pow(other.x - x, 2) + Math.pow(other.y - y, 2));
+	public double getDistance(Location other) {
+		return Math.sqrt(Math.pow(other.x - this.x, 2) + Math.pow(other.y - this.y, 2));
 	}
 
 	public int getX() {
-		return x;
+		return this.x;
 	}
 
 	public int getY() {
-		return y;
+		return this.y;
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
 		else if (obj != null && getClass().equals(obj.getClass())) {
-			final Location other = (Location) obj;
-			return Objects.equals(x, other.x) && Objects.equals(y, other.y);
+			Location other = (Location) obj;
+			return Objects.equals(this.x, other.x) && Objects.equals(this.y, other.y);
 		}
 		else {
 			return false;
@@ -56,12 +56,12 @@ public class Location {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(x, y);
+		return Objects.hash(this.x, this.y);
 	}
 
 	@Override
 	public String toString() {
-		return "(" + x + "," + y + ")";
+		return "(" + this.x + "," + this.y + ")";
 	}
 
 }

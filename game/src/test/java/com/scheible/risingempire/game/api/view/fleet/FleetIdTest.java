@@ -18,7 +18,7 @@ class FleetIdTest {
 
 	@Test
 	void testRandomIdValidity() {
-		final FleetId random = FleetId.createRandom();
+		FleetId random = FleetId.createRandom();
 		assertThat(new FleetId(random.getValue())).isEqualTo(random);
 	}
 

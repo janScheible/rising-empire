@@ -25,37 +25,37 @@ public class JourneyCalculator {
 
 	private final double fleetSpeedFactor;
 
-	public JourneyCalculator(final Map<SystemId, System> systems, final Map<FleetId, Fleet> fleets,
-			final ShipDesignProvider shipDesignProvider, final double fleetSpeedFactor) {
+	public JourneyCalculator(Map<SystemId, System> systems, Map<FleetId, Fleet> fleets,
+			ShipDesignProvider shipDesignProvider, double fleetSpeedFactor) {
 		this.systems = Collections.unmodifiableMap(systems);
 		this.fleets = Collections.unmodifiableMap(fleets);
 		this.shipDesignProvider = shipDesignProvider;
 		this.fleetSpeedFactor = fleetSpeedFactor;
 	}
 
-	public int calcFleetSpeed(final Player player, final Map<DesignSlot, Integer> ships) {
+	public int calcFleetSpeed(Player player, Map<DesignSlot, Integer> ships) {
 		return ships.entrySet()
 			.stream()
 			.filter(s -> s.getValue() > 0)
-			.map(slot -> shipDesignProvider.get(player, slot.getKey()))
-			.mapToInt(shipDesign -> warpToMapSpeed(shipDesign, fleetSpeedFactor))
+			.map(slot -> this.shipDesignProvider.get(player, slot.getKey()))
+			.mapToInt(shipDesign -> warpToMapSpeed(shipDesign, this.fleetSpeedFactor))
 			.min()
 			.getAsInt();
 	}
 
-	static int warpToMapSpeed(final ShipDesign shipDesign, final double fleetSpeedFactor) {
+	static int warpToMapSpeed(ShipDesign shipDesign, double fleetSpeedFactor) {
 		return (int) (((shipDesign.getWarpSpeed() - 1) * 20 + 40) * fleetSpeedFactor);
 	}
 
-	public Optional<Integer> calcEta(final Player player, final FleetId fleetId, final SystemId destinationId,
-			final Map<DesignSlot, Integer> ships, final int range) {
-		final int destinationRange = systems.get(destinationId).calcRange(player, systems.values());
+	public Optional<Integer> calcEta(Player player, FleetId fleetId, SystemId destinationId,
+			Map<DesignSlot, Integer> ships, int range) {
+		int destinationRange = this.systems.get(destinationId).calcRange(player, this.systems.values());
 
 		if (!ships.isEmpty() && destinationRange <= range) {
-			final int fleetSpeed = calcFleetSpeed(player, ships);
-			final double distance = fleets.get(fleetId)
+			int fleetSpeed = calcFleetSpeed(player, ships);
+			double distance = this.fleets.get(fleetId)
 				.getLocation()
-				.getDistance(systems.get(destinationId).getLocation());
+				.getDistance(this.systems.get(destinationId).getLocation());
 
 			return Optional.of((int) Math.ceil(distance / fleetSpeed));
 		}

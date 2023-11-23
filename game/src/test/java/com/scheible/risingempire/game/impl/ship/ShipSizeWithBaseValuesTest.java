@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author sj
  */
-public class ShipSizeWithBaseValuesTest {
+class ShipSizeWithBaseValuesTest {
 
 	@Test
 	void testBaseValueShipDesignMapping() {

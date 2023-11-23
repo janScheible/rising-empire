@@ -9,22 +9,22 @@ public class ColonyId {
 
 	private final String value;
 
-	public ColonyId(final String value) {
+	public ColonyId(String value) {
 		this.value = value;
 	}
 
 	public String getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
 		else if (obj != null && getClass().equals(obj.getClass())) {
-			final ColonyId other = (ColonyId) obj;
-			return Objects.equals(value, other.value);
+			ColonyId other = (ColonyId) obj;
+			return Objects.equals(this.value, other.value);
 		}
 		else {
 			return false;
@@ -33,12 +33,12 @@ public class ColonyId {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(value);
+		return Objects.hash(this.value);
 	}
 
 	@Override
 	public String toString() {
-		return value;
+		return this.value;
 	}
 
 }

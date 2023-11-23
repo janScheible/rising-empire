@@ -26,4 +26,17 @@
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.societegenerale.commons</groupId>
+				<artifactId>arch-unit-maven-plugin</artifactId>
+				<configuration>
+					<!-- Currenlty PackageLayeringTest is only testing part of the project and CodeDependencies rules had to be disabled. -->
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

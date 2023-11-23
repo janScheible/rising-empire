@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.view.universe.Location;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Uniform system distribution created with
@@ -21,46 +20,13 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 class UniformBigBang implements BigBang {
 
-	private static class Vector {
+	@Override
+	public Set<Location> getSystemLocations(GalaxySize galaxySize, int maxSystemDistance) {
+		PoissonDiscSamplingAlogirthm algorithm = PoissonDiscSamplingAlogirthm.create(galaxySize.getWidth(),
+				galaxySize.getHeight(), maxSystemDistance * 0.85);
+		Set<Vector> samplePoints = algorithm.sample();
 
-		private double x;
-
-		private double y;
-
-		private Vector(final double x, final double y) {
-			this.x = x;
-			this.y = y;
-		}
-
-		private Vector setLength(final double newLength) {
-			final double currentLength = getLength();
-			x /= currentLength * (1 / newLength);
-			y /= currentLength * (1 / newLength);
-			return this;
-		}
-
-		private double getLength() {
-			return Math.sqrt(x * x + y * y);
-		}
-
-		private Vector add(final Vector other) {
-			x += other.x;
-			y += other.y;
-			return this;
-		}
-
-		@SuppressFBWarnings(value = "PREDICTABLE_RANDOM", justification = "Should be good enough.")
-		private static Vector random2d() {
-			final double angle = Math.random() * Math.PI * 2;
-			return new Vector(Math.cos(angle), Math.sin(angle));
-		}
-
-		private static double distance(final Vector from, final Vector to) {
-			final double dx = from.x - to.x;
-			final double dy = from.y - to.y;
-			return Math.sqrt(dx * dx + dy * dy);
-		}
-
+		return samplePoints.stream().map(v -> new Location((int) v.x, (int) v.y)).collect(Collectors.toSet());
 	}
 
 	// Inspired by:
@@ -83,8 +49,8 @@ class UniformBigBang implements BigBang {
 
 		private final Random random;
 
-		private PoissonDiscSamplingAlogirthm(final double r, final double w, final int cols, final int rows,
-				final Vector[] grid, final List<Vector> active, final Random random) {
+		private PoissonDiscSamplingAlogirthm(double r, double w, int cols, int rows, Vector[] grid, List<Vector> active,
+				Random random) {
 			this.r = r;
 			this.w = w;
 
@@ -96,58 +62,57 @@ class UniformBigBang implements BigBang {
 			this.random = random;
 		}
 
-		@SuppressFBWarnings(value = "PREDICTABLE_RANDOM", justification = "Should be good enough for sampling.")
-		private static PoissonDiscSamplingAlogirthm create(final int width, final int height, final double r) {
-			final List<Vector> active = new ArrayList<>();
-			final Random random = ThreadLocalRandom.current();
+		private static PoissonDiscSamplingAlogirthm create(int width, int height, double r) {
+			List<Vector> active = new ArrayList<>();
+			Random random = ThreadLocalRandom.current();
 
-			final double w = r / Math.sqrt(2);
+			double w = r / Math.sqrt(2);
 
-			final int cols = (int) Math.floor(width / w);
-			final int rows = (int) Math.floor(height / w);
+			int cols = (int) Math.floor(width / w);
+			int rows = (int) Math.floor(height / w);
 
-			final Vector[] grid = new Vector[rows * cols];
+			Vector[] grid = new Vector[rows * cols];
 
 			return new PoissonDiscSamplingAlogirthm(r, w, cols, rows, grid, active, random);
 		}
 
 		private Set<Vector> sample() {
-			for (int i = 0; i < cols * rows; i++) {
-				grid[i] = null;
+			for (int i = 0; i < this.cols * this.rows; i++) {
+				this.grid[i] = null;
 			}
 
-			final int startI = cols / 2;
-			final int startIJ = rows / 2;
+			int startI = this.cols / 2;
+			int startIJ = this.rows / 2;
 
-			final Vector start = new Vector(startI * w + w / 2, startIJ * w + w / 2);
-			grid[startI + startIJ * cols] = start;
-			active.add(start);
+			Vector start = new Vector(startI * this.w + this.w / 2, startIJ * this.w + this.w / 2);
+			this.grid[startI + startIJ * this.cols] = start;
+			this.active.add(start);
 
-			while (!active.isEmpty()) {
-				final int i = (int) Math.floor(random.nextInt(active.size()));
-				final Vector pos = active.get(i);
+			while (!this.active.isEmpty()) {
+				int i = (int) Math.floor(this.random.nextInt(this.active.size()));
+				Vector pos = this.active.get(i);
 
 				for (int j = 0; j < K; j++) {
-					final Vector sample = Vector.random2d();
-					final double m = r * (1 + random.nextDouble());
+					Vector sample = Vector.random2d();
+					double m = this.r * (1 + this.random.nextDouble());
 					sample.setLength(m);
 					sample.add(pos);
 
 					if (testSample(sample) == true) {
-						active.add(sample);
-						final int x = (int) Math.floor(sample.x / w);
-						final int y = (int) Math.floor(sample.y / w);
-						grid[x + y * cols] = sample;
+						this.active.add(sample);
+						int x = (int) Math.floor(sample.x / this.w);
+						int y = (int) Math.floor(sample.y / this.w);
+						this.grid[x + y * this.cols] = sample;
 						break;
 					}
 					else if (j == K - 1) {
-						active.remove(i);
+						this.active.remove(i);
 					}
 				}
 			}
 
-			final Set<Vector> result = new HashSet<>();
-			for (final Vector vector : grid) {
+			Set<Vector> result = new HashSet<>();
+			for (Vector vector : this.grid) {
 				if (vector != null) {
 					result.add(vector);
 				}
@@ -155,19 +120,20 @@ class UniformBigBang implements BigBang {
 			return result;
 		}
 
-		private boolean testSample(final Vector sample) {
-			final int col = (int) Math.floor(sample.x / w);
-			final int row = (int) Math.floor(sample.y / w);
+		private boolean testSample(Vector sample) {
+			int col = (int) Math.floor(sample.x / this.w);
+			int row = (int) Math.floor(sample.y / this.w);
 
-			if (col > 0 && row > 0 && col < cols - 1 && row < rows - 1 && grid[col + row * cols] == null) {
+			if (col > 0 && row > 0 && col < this.cols - 1 && row < this.rows - 1
+					&& this.grid[col + row * this.cols] == null) {
 				for (int i = -1; i <= 1; i++) {
 					for (int j = -1; j <= 1; j++) {
-						final int index = col + i + (row + j) * cols;
-						final Vector neighbor = grid[index];
+						int index = col + i + (row + j) * this.cols;
+						Vector neighbor = this.grid[index];
 
 						if (neighbor != null) {
-							final double d = Vector.distance(sample, neighbor);
-							if (d < r) {
+							double d = Vector.distance(sample, neighbor);
+							if (d < this.r) {
 								return false;
 							}
 						}
@@ -182,13 +148,45 @@ class UniformBigBang implements BigBang {
 
 	}
 
-	@Override
-	public Set<Location> getSystemLocations(final GalaxySize galaxySize, final int maxSystemDistance) {
-		final PoissonDiscSamplingAlogirthm algorithm = PoissonDiscSamplingAlogirthm.create(galaxySize.getWidth(),
-				galaxySize.getHeight(), maxSystemDistance * 0.85);
-		final Set<Vector> samplePoints = algorithm.sample();
+	private static class Vector {
 
-		return samplePoints.stream().map(v -> new Location((int) v.x, (int) v.y)).collect(Collectors.toSet());
+		private double x;
+
+		private double y;
+
+		private Vector(double x, double y) {
+			this.x = x;
+			this.y = y;
+		}
+
+		private Vector setLength(double newLength) {
+			double currentLength = getLength();
+			this.x /= currentLength * (1 / newLength);
+			this.y /= currentLength * (1 / newLength);
+			return this;
+		}
+
+		private double getLength() {
+			return Math.sqrt(this.x * this.x + this.y * this.y);
+		}
+
+		private Vector add(Vector other) {
+			this.x += other.x;
+			this.y += other.y;
+			return this;
+		}
+
+		private static Vector random2d() {
+			double angle = Math.random() * Math.PI * 2;
+			return new Vector(Math.cos(angle), Math.sin(angle));
+		}
+
+		private static double distance(Vector from, Vector to) {
+			double dx = from.x - to.x;
+			double dy = from.y - to.y;
+			return Math.sqrt(dx * dx + dy * dy);
+		}
+
 	}
 
 }

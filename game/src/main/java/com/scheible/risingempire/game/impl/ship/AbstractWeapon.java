@@ -8,38 +8,55 @@ import java.util.StringJoiner;
  */
 public abstract class AbstractWeapon {
 
+	protected final String name;
+
+	protected final Damage damage;
+
+	public AbstractWeapon(String name, Damage damage) {
+		this.name = name;
+		this.damage = damage;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public Damage getDamage() {
+		return this.damage;
+	}
+
 	public static class Damage {
 
 		private final int min;
 
 		private final int max;
 
-		public Damage(final int min, final int max) {
+		public Damage(int min, int max) {
 			this.min = min;
 			this.max = max;
 		}
 
-		public Damage(final int damage) {
+		public Damage(int damage) {
 			this.min = damage;
 			this.max = damage;
 		}
 
 		public int getMax() {
-			return max;
+			return this.max;
 		}
 
 		public int getMin() {
-			return min;
+			return this.min;
 		}
 
 		@Override
-		public boolean equals(final Object obj) {
+		public boolean equals(Object obj) {
 			if (obj == this) {
 				return true;
 			}
 			else if (obj != null && obj.getClass().equals(getClass())) {
-				final Damage other = (Damage) obj;
-				return Objects.equals(min, other.min) && Objects.equals(max, other.max);
+				Damage other = (Damage) obj;
+				return Objects.equals(this.min, other.min) && Objects.equals(this.max, other.max);
 			}
 			else {
 				return false;
@@ -48,31 +65,14 @@ public abstract class AbstractWeapon {
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(min, max);
+			return Objects.hash(this.min, this.max);
 		}
 
 		@Override
 		public String toString() {
-			return new StringJoiner(", ", "Damage[", "]").add("min=" + min).add("max=" + max).toString();
+			return new StringJoiner(", ", "Damage[", "]").add("min=" + this.min).add("max=" + this.max).toString();
 		}
 
-	}
-
-	protected final String name;
-
-	protected final Damage damage;
-
-	public AbstractWeapon(final String name, final Damage damage) {
-		this.name = name;
-		this.damage = damage;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public Damage getDamage() {
-		return damage;
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.scheible.risingempire.game.api.view.fleet;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -15,14 +16,8 @@ import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.universe.Location;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.api.view.universe.Race;
-import edu.umd.cs.findbugs.annotations.Nullable;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import static com.scheible.risingempire.game.api.view.fleet.FleetView.FleetViewType.DEPLOYED;
-import static com.scheible.risingempire.game.api.view.fleet.FleetView.FleetViewType.ORBITING;
-import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableMap;
-import static java.util.Collections.unmodifiableSet;
 
 /**
  * @author sj
@@ -55,38 +50,29 @@ public class FleetView {
 
 	private final boolean deployable;
 
-	@Nullable
-	private final Integer scannerRange;
+	private final Optional<Integer> scannerRange;
 
-	@Nullable
-	private final SystemId source;
+	private final Optional<SystemId> source;
 
-	@Nullable
-	private final SystemId destination;
+	private final Optional<SystemId> destination;
 
-	@Nullable
-	private final Integer speed;
+	private final Optional<Integer> speed;
 
-	@Nullable
-	private final SystemId closest;
+	private final Optional<SystemId> closest;
 
-	@Nullable
-	private final HorizontalDirection horizontalDirection;
+	private final Optional<HorizontalDirection> horizontalDirection;
 
-	@Nullable
-	private final SystemId orbiting;
+	private final Optional<SystemId> orbiting;
 
-	final Set<FleetBeforeArrival> fleetsBeforeArrival;
+	private final Set<FleetBeforeArrival> fleetsBeforeArrival;
 
-	@Nullable
-	private final Boolean justLeaving;
+	private final Optional<Boolean> justLeaving;
 
-	private FleetView(final FleetId id, final FleetViewType type, final Player player, final Race race,
-			final Map<ShipTypeView, Integer> ships, final Location location, final boolean deployable,
-			@Nullable final Integer scannerRange, @Nullable final SystemId source, @Nullable final SystemId destination,
-			@Nullable final Integer speed, @Nullable final SystemId closest,
-			@Nullable final HorizontalDirection horizontalDirection, @Nullable final SystemId orbiting,
-			@Nullable final Set<FleetBeforeArrival> fleetsBeforeArrival, @Nullable final Boolean justLeaving) {
+	private FleetView(FleetId id, FleetViewType type, Player player, Race race, Map<ShipTypeView, Integer> ships,
+			Location location, boolean deployable, Optional<Integer> scannerRange, Optional<SystemId> source,
+			Optional<SystemId> destination, Optional<Integer> speed, Optional<SystemId> closest,
+			Optional<HorizontalDirection> horizontalDirection, Optional<SystemId> orbiting,
+			Set<FleetBeforeArrival> fleetsBeforeArrival, Optional<Boolean> justLeaving) {
 		this.id = id;
 
 		this.type = type;
@@ -104,108 +90,112 @@ public class FleetView {
 		this.horizontalDirection = horizontalDirection;
 
 		this.orbiting = orbiting;
-		this.fleetsBeforeArrival = fleetsBeforeArrival != null ? unmodifiableSet(fleetsBeforeArrival) : emptySet();
+		this.fleetsBeforeArrival = Collections.unmodifiableSet(fleetsBeforeArrival);
 		this.justLeaving = justLeaving;
 	}
 
-	public static FleetView createDeployed(final FleetId id, final Player player, final Race race,
-			final Map<ShipTypeView, Integer> ships, final SystemId source, final SystemId destination,
-			final Location location, final int speed, @Nullable final SystemId closest,
-			final HorizontalDirection orientation, final boolean deployable, @Nullable final Integer scannerRange,
-			@Nullable final Set<FleetBeforeArrival> fleetsBeforeArrival, final boolean justLeaving) {
-		return new FleetView(id, DEPLOYED, player, race, ships, location, deployable, scannerRange, source, destination,
-				speed, closest, orientation, null, fleetsBeforeArrival, justLeaving);
+	public static FleetView createDeployed(FleetId id, Player player, Race race, Map<ShipTypeView, Integer> ships,
+			Optional<SystemId> source, Optional<SystemId> destination, Location location, int speed, SystemId closest,
+			HorizontalDirection orientation, boolean deployable, Optional<Integer> scannerRange,
+			Set<FleetBeforeArrival> fleetsBeforeArrival, boolean justLeaving) {
+		return new FleetView(id, FleetViewType.DEPLOYED, player, race, ships, location, deployable, scannerRange,
+				source, destination, Optional.of(speed), Optional.of(closest), Optional.of(orientation),
+				Optional.empty(), fleetsBeforeArrival, Optional.of(justLeaving));
 	}
 
-	public static FleetView createOrbiting(final FleetId id, final Player player, final Race race,
-			final Map<ShipTypeView, Integer> ships, final SystemId orbiting, final Location location,
-			@Nullable final Set<FleetBeforeArrival> fleetsBeforeArrival, final boolean deployable,
-			@Nullable final Integer scannerRange) {
-		return new FleetView(id, ORBITING, player, race, ships, location, deployable, scannerRange, null, null, null,
-				null, null, orbiting, fleetsBeforeArrival, null);
+	public static FleetView createOrbiting(FleetId id, Player player, Race race, Map<ShipTypeView, Integer> ships,
+			SystemId orbiting, Location location, Set<FleetBeforeArrival> fleetsBeforeArrival, boolean deployable,
+			Optional<Integer> scannerRange) {
+		return new FleetView(id, FleetViewType.ORBITING, player, race, ships, location, deployable, scannerRange,
+				Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
+				Optional.of(orbiting), fleetsBeforeArrival, Optional.empty());
 	}
 
 	public FleetId getId() {
-		return id;
+		return this.id;
 	}
 
 	public FleetViewType getType() {
-		return type;
+		return this.type;
 	}
 
 	public Player getPlayer() {
-		return player;
+		return this.player;
 	}
 
 	public Race getRace() {
-		return race;
+		return this.race;
 	}
 
 	public Map<ShipTypeView, Integer> getShips() {
-		return ships;
+		return this.ships;
 	}
 
 	public Location getLocation() {
-		return location;
+		return this.location;
 	}
 
 	public Optional<HorizontalDirection> getHorizontalDirection() {
-		return Optional.ofNullable(horizontalDirection);
+		return this.horizontalDirection;
 	}
 
-	public ShipTypeView getShipType(final String name) {
-		return ships.entrySet().stream().map(Entry::getKey).filter(st -> st.getName().equals(name)).findFirst().get();
+	public ShipTypeView getShipType(String name) {
+		return this.ships.entrySet()
+			.stream()
+			.map(Entry::getKey)
+			.filter(st -> st.getName().equals(name))
+			.findFirst()
+			.get();
 	}
 
 	public Optional<SystemId> getSource() {
-		return Optional.ofNullable(source);
+		return this.source;
 	}
 
 	public Optional<SystemId> getDestination() {
-		return Optional.ofNullable(destination);
+		return this.destination;
 	}
 
 	public Optional<Integer> getSpeed() {
-		return Optional.ofNullable(speed);
+		return this.speed;
 	}
 
 	public Optional<SystemId> getClosest() {
-		return Optional.ofNullable(closest);
+		return this.closest;
 	}
 
 	public Optional<SystemId> getOrbiting() {
-		return Optional.ofNullable(orbiting);
+		return this.orbiting;
 	}
 
 	public boolean isDeployable() {
-		return deployable;
+		return this.deployable;
 	}
 
 	public Optional<Integer> getScannerRange() {
-		return Optional.ofNullable(scannerRange);
+		return this.scannerRange;
 	}
 
 	public Optional<Boolean> isJustLeaving() {
-		return Optional.ofNullable(justLeaving);
+		return this.justLeaving;
 	}
 
 	public boolean didJustArrive() {
-		return !fleetsBeforeArrival.isEmpty();
+		return !this.fleetsBeforeArrival.isEmpty();
 	}
 
-	@SuppressFBWarnings(value = "EI_EXPOSE_REP")
 	public Set<FleetBeforeArrival> getFleetIdsBeforeArrive() {
-		return fleetsBeforeArrival;
+		return this.fleetsBeforeArrival;
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
 		else if (obj != null && getClass().equals(obj.getClass())) {
-			final FleetView other = (FleetView) obj;
-			return Objects.equals(id, other.id);
+			FleetView other = (FleetView) obj;
+			return Objects.equals(this.id, other.id);
 		}
 		else {
 			return false;
@@ -214,7 +204,7 @@ public class FleetView {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(this.id);
 	}
 
 	@Override
@@ -222,35 +212,38 @@ public class FleetView {
 		return toString(SystemId::toString);
 	}
 
-	public String toString(final Function<SystemId, String> starNameResolver) {
-		final StringJoiner values = new StringJoiner(", ",
-				(type == DEPLOYED ? "DeployedFleet" : "OrbitingFleet") + "View[", "]")
-			.add("id=" + id)
-			.add("type=" + type)
-			.add("player=" + player)
-			.add("race=" + race)
-			.add("location=" + location)
-			.add("horizontalDirection=" + horizontalDirection)
-			.add("deployable=" + deployable);
-		if (scannerRange != null) {
-			values.add("scannerRange=" + scannerRange);
+	public String toString(Function<SystemId, String> starNameResolver) {
+		StringJoiner values = new StringJoiner(", ",
+				(this.type == FleetViewType.DEPLOYED ? "DeployedFleet" : "OrbitingFleet") + "View[", "]")
+			.add("id=" + this.id)
+			.add("type=" + this.type)
+			.add("player=" + this.player)
+			.add("race=" + this.race)
+			.add("location=" + this.location)
+			.add("deployable=" + this.deployable);
+		if (this.horizontalDirection.isPresent()) {
+			values.add("horizontalDirection=" + this.horizontalDirection.get());
 		}
 
-		if (type == DEPLOYED) {
-			values.add("source=" + starNameResolver.apply(source));
-			values.add("destination=" + starNameResolver.apply(destination));
-			values.add("speed=" + speed);
-		}
-		else if (type == ORBITING) {
-			values.add("orbiting=" + starNameResolver.apply(orbiting));
+		if (this.scannerRange.isPresent()) {
+			values.add("scannerRange=" + this.scannerRange.get());
 		}
 
-		if (!fleetsBeforeArrival.isEmpty()) {
-			values.add("fleetsBeforeArrival=" + fleetsBeforeArrival);
+		if (this.type == FleetViewType.DEPLOYED) {
+			values.add("source=" + starNameResolver.apply(this.source.get()));
+			values.add("destination=" + starNameResolver.apply(this.destination.get()));
+			values.add("speed=" + this.speed.get());
+		}
+		else if (this.type == FleetViewType.ORBITING) {
+			values.add("orbiting=" + starNameResolver.apply(this.orbiting.get()));
 		}
 
-		if (justLeaving != null) {
-			values.add("justLeaving=" + justLeaving);
+		if (!this.fleetsBeforeArrival.isEmpty()) {
+			values.add("fleetsBeforeArrival=" + this.fleetsBeforeArrival);
+		}
+
+		if (this.justLeaving.isPresent()) {
+			values.add("justLeaving=" + this.justLeaving.get());
 		}
 
 		values.add("ships=" + getShips().entrySet()

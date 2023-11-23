@@ -11,17 +11,17 @@ public enum GalaxySize {
 
 	private final int height;
 
-	GalaxySize(final int width, final int height) {
+	GalaxySize(int width, int height) {
 		this.width = width;
 		this.height = height;
 	}
 
 	public int getWidth() {
-		return width;
+		return this.width;
 	}
 
 	public int getHeight() {
-		return height;
+		return this.height;
 	}
 
 }

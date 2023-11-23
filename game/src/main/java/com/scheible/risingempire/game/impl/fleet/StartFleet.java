@@ -18,22 +18,22 @@ public class StartFleet {
 
 	private final Map<DesignSlot, Integer> ships;
 
-	public StartFleet(final Player player, final System system, final Map<DesignSlot, Integer> ships) {
+	public StartFleet(Player player, System system, Map<DesignSlot, Integer> ships) {
 		this.player = player;
 		this.system = system;
 		this.ships = Collections.unmodifiableMap(ships);
 	}
 
 	public Player getPlayer() {
-		return player;
+		return this.player;
 	}
 
 	public System getSystem() {
-		return system;
+		return this.system;
 	}
 
 	public Map<DesignSlot, Integer> getShips() {
-		return ships;
+		return this.ships;
 	}
 
 }

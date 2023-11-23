@@ -21,8 +21,8 @@ class LocationTest {
 
 	@Test
 	void testMoveAlong() {
-		final List<Location> stops = new ArrayList<>();
-		final Location destination = new Location(250, 250);
+		List<Location> stops = new ArrayList<>();
+		Location destination = new Location(250, 250);
 
 		Location location = new Location(50, 50);
 		for (int i = 0; i < 8; i++) {

@@ -9,6 +9,14 @@ import java.util.ServiceLoader;
  */
 public interface GameFactory {
 
+	static GameFactory get() {
+		return LazyInstanceHolder.INSTANCE;
+	}
+
+	Game create(GameOptions gameOptions);
+
+	Game load(Object whatEver);
+
 	/*
 	 * See https://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom
 	 */
@@ -17,13 +25,5 @@ public interface GameFactory {
 		private static final GameFactory INSTANCE = ServiceLoader.load(GameFactory.class).findFirst().get();
 
 	}
-
-	static GameFactory get() {
-		return LazyInstanceHolder.INSTANCE;
-	}
-
-	Game create(final GameOptions gameOptions);
-
-	Game load(final Object whatEver);
 
 }

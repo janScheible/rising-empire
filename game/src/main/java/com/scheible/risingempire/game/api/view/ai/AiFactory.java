@@ -7,6 +7,12 @@ import java.util.ServiceLoader;
  */
 public interface AiFactory {
 
+	static AiFactory get() {
+		return LazyInstanceHolder.INSTANCE;
+	}
+
+	Ai create();
+
 	/*
 	 * See https://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom
 	 */
@@ -15,11 +21,5 @@ public interface AiFactory {
 		private static final AiFactory INSTANCE = ServiceLoader.load(AiFactory.class).findFirst().get();
 
 	}
-
-	static AiFactory get() {
-		return LazyInstanceHolder.INSTANCE;
-	}
-
-	Ai create();
 
 }

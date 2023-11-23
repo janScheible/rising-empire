@@ -41,12 +41,10 @@ public class SpaceCombat {
 
 	private final Integer order;
 
-	private SpaceCombat(final SystemId systemId, final int fireExchangeCount, final Player attacker,
-			final FleetBeforeArrival attackerFleet, final Map<DesignSlot, Integer> attackerShipCounts,
-			final Map<DesignSlot, List<FireExchange>> attackerFireExchanges, final Player defender,
-			final FleetId defenderFleet, final Map<DesignSlot, Integer> defenderShipCounts,
-			final Map<DesignSlot, List<FireExchange>> defenderFireExchanges, final Outcome outcome,
-			final Integer order) {
+	private SpaceCombat(SystemId systemId, int fireExchangeCount, Player attacker, FleetBeforeArrival attackerFleet,
+			Map<DesignSlot, Integer> attackerShipCounts, Map<DesignSlot, List<FireExchange>> attackerFireExchanges,
+			Player defender, FleetId defenderFleet, Map<DesignSlot, Integer> defenderShipCounts,
+			Map<DesignSlot, List<FireExchange>> defenderFireExchanges, Outcome outcome, Integer order) {
 		this.systemId = systemId;
 
 		this.fireExchangeCount = fireExchangeCount;
@@ -66,16 +64,15 @@ public class SpaceCombat {
 		this.order = order;
 	}
 
-	public SpaceCombat(final SystemId systemId, final int fireExchangeCount, final Player attacker,
-			final FleetBeforeArrival attackerFleet, final Map<DesignSlot, Integer> attackerShipCounts,
-			final Map<DesignSlot, List<FireExchange>> attackerFireExchanges, final Player defender,
-			final FleetId defenderFleet, final Map<DesignSlot, Integer> defenderShipCounts,
-			final Map<DesignSlot, List<FireExchange>> defenderFireExchanges, final Outcome outcome) {
+	public SpaceCombat(SystemId systemId, int fireExchangeCount, Player attacker, FleetBeforeArrival attackerFleet,
+			Map<DesignSlot, Integer> attackerShipCounts, Map<DesignSlot, List<FireExchange>> attackerFireExchanges,
+			Player defender, FleetId defenderFleet, Map<DesignSlot, Integer> defenderShipCounts,
+			Map<DesignSlot, List<FireExchange>> defenderFireExchanges, Outcome outcome) {
 		this(systemId, fireExchangeCount, attacker, attackerFleet, attackerShipCounts, attackerFireExchanges, defender,
 				defenderFleet, defenderShipCounts, defenderFireExchanges, outcome, null);
 	}
 
-	public static SpaceCombat withOrder(final SpaceCombat spaceCombat, final int order) {
+	public static SpaceCombat withOrder(SpaceCombat spaceCombat, int order) {
 		return new SpaceCombat(spaceCombat.getSystemId(), spaceCombat.getFireExchangeCount(), spaceCombat.getAttacker(),
 				spaceCombat.getAttackerFleet(), spaceCombat.getAttackerShipCounts(),
 				spaceCombat.getAttackerFireExchanges(), spaceCombat.getDefender(), spaceCombat.getDefenderFleet(),
@@ -84,51 +81,51 @@ public class SpaceCombat {
 	}
 
 	public SystemId getSystemId() {
-		return systemId;
+		return this.systemId;
 	}
 
 	public int getFireExchangeCount() {
-		return fireExchangeCount;
+		return this.fireExchangeCount;
 	}
 
 	public Player getAttacker() {
-		return attacker;
+		return this.attacker;
 	}
 
 	public FleetBeforeArrival getAttackerFleet() {
-		return attackerFleet;
+		return this.attackerFleet;
 	}
 
 	public Map<DesignSlot, Integer> getAttackerShipCounts() {
-		return attackerShipCounts;
+		return this.attackerShipCounts;
 	}
 
 	public Map<DesignSlot, List<FireExchange>> getAttackerFireExchanges() {
-		return attackerFireExchanges;
+		return this.attackerFireExchanges;
 	}
 
 	public Player getDefender() {
-		return defender;
+		return this.defender;
 	}
 
 	public FleetId getDefenderFleet() {
-		return defenderFleet;
+		return this.defenderFleet;
 	}
 
 	public Map<DesignSlot, Integer> getDefenderShipCounts() {
-		return defenderShipCounts;
+		return this.defenderShipCounts;
 	}
 
 	public Map<DesignSlot, List<FireExchange>> getDefenderFireExchanges() {
-		return defenderFireExchanges;
+		return this.defenderFireExchanges;
 	}
 
 	public Outcome getOutcome() {
-		return outcome;
+		return this.outcome;
 	}
 
 	public int getOrder() {
-		return order;
+		return this.order;
 	}
 
 }

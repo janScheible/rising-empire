@@ -22,55 +22,54 @@ public class PlayerGameImpl implements PlayerGame {
 
 	private final GameImpl game;
 
-	public PlayerGameImpl(final Player player, final GameImpl game) {
+	public PlayerGameImpl(Player player, GameImpl game) {
 		this.player = player;
 		this.game = game;
 	}
 
 	@Override
 	public TurnStatus finishTurn() {
-		return game.finishTurn(player);
+		return this.game.finishTurn(this.player);
 	}
 
 	@Override
-	public void nextShipType(final ColonyId colonyId) {
-		game.nextShipType(player, colonyId);
+	public void nextShipType(ColonyId colonyId) {
+		this.game.nextShipType(this.player, colonyId);
 	}
 
 	@Override
-	public void colonizeSystem(final SystemId systemId, final FleetId fleetId, final boolean skip) {
-		game.colonizeSystem(player, fleetId, skip);
+	public void colonizeSystem(SystemId systemId, FleetId fleetId, boolean skip) {
+		this.game.colonizeSystem(this.player, fleetId, skip);
 	}
 
 	@Override
-	public void annexSystem(final ColonyId colonyId, final FleetId fleetId, final boolean skip) {
-		game.annexSystem(player, fleetId, skip);
+	public void annexSystem(ColonyId colonyId, FleetId fleetId, boolean skip) {
+		this.game.annexSystem(this.player, fleetId, skip);
 	}
 
 	@Override
-	public void deployFleet(final FleetId fleetId, final SystemId destinationId, final Map<ShipTypeId, Integer> ships) {
-		game.deployFleet(player, fleetId, destinationId, ships);
+	public void deployFleet(FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships) {
+		this.game.deployFleet(this.player, fleetId, destinationId, ships);
 	}
 
 	@Override
-	public void selectTech(final TechId techId) {
-		game.selectTech(player, techId);
+	public void selectTech(TechId techId) {
+		this.game.selectTech(this.player, techId);
 	}
 
 	@Override
-	public Optional<Integer> calcEta(final FleetId fleetId, final SystemId destinationId,
-			final Map<ShipTypeId, Integer> ships) {
-		return game.calcEta(player, fleetId, destinationId, ships);
+	public Optional<Integer> calcEta(FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships) {
+		return this.game.calcEta(this.player, fleetId, destinationId, ships);
 	}
 
 	@Override
 	public GameView getView() {
-		return game.getGameState(player);
+		return this.game.getGameState(this.player);
 	}
 
 	@Override
 	public Player getPlayer() {
-		return player;
+		return this.player;
 	}
 
 }

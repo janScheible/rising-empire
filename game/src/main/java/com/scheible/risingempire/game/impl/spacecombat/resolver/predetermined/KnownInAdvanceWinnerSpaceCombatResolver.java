@@ -17,10 +17,6 @@ import com.scheible.risingempire.game.impl.ship.ShipDesignProvider;
 import com.scheible.risingempire.game.impl.spacecombat.FireExchange;
 import com.scheible.risingempire.game.impl.spacecombat.SpaceCombat;
 
-import static com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome.ATTACKER_WON;
-import static com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome.DEFENDER_WON;
-import static java.util.Collections.emptyMap;
-
 /**
  * @author sj
  */
@@ -28,21 +24,21 @@ public class KnownInAdvanceWinnerSpaceCombatResolver implements SpaceCombatResol
 
 	private final Outcome outcome;
 
-	public KnownInAdvanceWinnerSpaceCombatResolver(final Outcome outcome) {
+	public KnownInAdvanceWinnerSpaceCombatResolver(Outcome outcome) {
 		this.outcome = outcome;
 	}
 
 	@Override
-	public SpaceCombat resolve(final SystemId systemId, final OrbitingFleet defending, final DeployedFleet attacking,
-			final ShipDesignProvider shipDesignProvider) {
+	public SpaceCombat resolve(SystemId systemId, OrbitingFleet defending, DeployedFleet attacking,
+			ShipDesignProvider shipDesignProvider) {
 		return new SpaceCombat(systemId, 1, attacking.getPlayer(),
 				new FleetBeforeArrival(attacking.getId(), attacking.getHorizontalDirection(), attacking.getSpeed()),
-				attacking.getShips(), outcome == ATTACKER_WON ? emptyMap() : toAllLost(attacking.getShips()),
+				attacking.getShips(), this.outcome == Outcome.ATTACKER_WON ? Map.of() : toAllLost(attacking.getShips()),
 				defending.getPlayer(), defending.getId(), defending.getShips(),
-				outcome == DEFENDER_WON ? toAllLost(defending.getShips()) : emptyMap(), outcome);
+				this.outcome == Outcome.DEFENDER_WON ? toAllLost(defending.getShips()) : Map.of(), this.outcome);
 	}
 
-	static Map<DesignSlot, List<FireExchange>> toAllLost(final Map<DesignSlot, Integer> shipCounts) {
+	static Map<DesignSlot, List<FireExchange>> toAllLost(Map<DesignSlot, Integer> shipCounts) {
 		return shipCounts.entrySet()
 			.stream()
 			.map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), List.of(new FireExchange(0, 42, 0, 0))))

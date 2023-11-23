@@ -11,30 +11,30 @@ public class SystemId {
 
 	private final String value;
 
-	public SystemId(final String value) {
+	public SystemId(String value) {
 		this.value = value;
 	}
 
-	public static SystemId fromColonyId(final ColonyId colonyId) {
+	public static SystemId fromColonyId(ColonyId colonyId) {
 		return new SystemId(colonyId.getValue());
 	}
 
 	public ColonyId toColonyId() {
-		return new ColonyId(value);
+		return new ColonyId(this.value);
 	}
 
 	public String getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
 		else if (obj != null && getClass().equals(obj.getClass())) {
-			final SystemId other = (SystemId) obj;
-			return Objects.equals(value, other.value);
+			SystemId other = (SystemId) obj;
+			return Objects.equals(this.value, other.value);
 		}
 		else {
 			return false;
@@ -43,12 +43,12 @@ public class SystemId {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(value);
+		return Objects.hash(this.value);
 	}
 
 	@Override
 	public String toString() {
-		return value;
+		return this.value;
 	}
 
 }

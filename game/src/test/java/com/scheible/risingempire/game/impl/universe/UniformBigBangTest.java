@@ -19,24 +19,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author sj
  */
-public class UniformBigBangTest {
+class UniformBigBangTest {
 
 	private static final Color[] STAR_COLORS = new Color[] { Color.YELLOW, Color.RED, Color.GREEN, Color.BLUE,
 			Color.WHITE, new Color(156, 0, 156) };
 
 	@Test
-	public void testHugeBigBang() throws IOException {
-		final GalaxySize galaxySize = GalaxySize.HUGE;
-		final Set<Location> locations = new UniformBigBang().getSystemLocations(galaxySize, 200);
+	void testHugeBigBang() throws IOException {
+		GalaxySize galaxySize = GalaxySize.HUGE;
+		Set<Location> locations = new UniformBigBang().getSystemLocations(galaxySize, 200);
 
-		final BufferedImage image = new BufferedImage(galaxySize.getWidth(), galaxySize.getHeight(),
+		BufferedImage image = new BufferedImage(galaxySize.getWidth(), galaxySize.getHeight(),
 				BufferedImage.TYPE_INT_ARGB);
-		final Graphics2D graphics2D = image.createGraphics();
+		Graphics2D graphics2D = image.createGraphics();
 
 		graphics2D.setPaint(Color.BLACK);
 		graphics2D.fillRect(0, 0, galaxySize.getWidth(), galaxySize.getHeight());
 
-		for (final Location location : locations) {
+		for (Location location : locations) {
 			graphics2D.setPaint(STAR_COLORS[ThreadLocalRandom.current().nextInt(STAR_COLORS.length)]);
 			graphics2D.fillOval(location.getX(), location.getY(), 40, 40);
 		}

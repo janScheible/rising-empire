@@ -20,10 +20,10 @@ class OrbitingFleetTest {
 
 	@Test
 	void testDetachAllShips() {
-		final System system = Mockito.mock(System.class);
+		System system = Mockito.mock(System.class);
 		doReturn(new Location(42, 42)).when(system).getLocation();
 
-		final OrbitingFleet fleet = new OrbitingFleet(FleetId.createRandom(), Player.BLUE, Map.of(DesignSlot.FIRST, 2),
+		OrbitingFleet fleet = new OrbitingFleet(FleetId.createRandom(), Player.BLUE, Map.of(DesignSlot.FIRST, 2),
 				system, 1);
 		fleet.detach(Map.of(DesignSlot.FIRST, 2));
 

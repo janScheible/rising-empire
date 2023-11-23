@@ -9,22 +9,22 @@ public class ShipTypeId {
 
 	private final String value;
 
-	public ShipTypeId(final String value) {
+	public ShipTypeId(String value) {
 		this.value = value;
 	}
 
 	public String getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
 		else if (obj != null && getClass().equals(obj.getClass())) {
-			final ShipTypeId other = (ShipTypeId) obj;
-			return Objects.equals(value, other.value);
+			ShipTypeId other = (ShipTypeId) obj;
+			return Objects.equals(this.value, other.value);
 		}
 		else {
 			return false;
@@ -33,12 +33,12 @@ public class ShipTypeId {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(value);
+		return Objects.hash(this.value);
 	}
 
 	@Override
 	public String toString() {
-		return value;
+		return this.value;
 	}
 
 }

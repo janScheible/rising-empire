@@ -14,36 +14,36 @@ public class Missile extends AbstractWeapon {
 
 		final int size;
 
-		RackSize(final int size) {
+		RackSize(int size) {
 			this.size = size;
 		}
 
 		public int getSize() {
-			return size;
+			return this.size;
 		}
 
 	}
 
 	private final RackSize rackSize;
 
-	public Missile(final String name, final Damage damage, final RackSize rackSize) {
+	public Missile(String name, Damage damage, RackSize rackSize) {
 		super(name, damage);
 		this.rackSize = rackSize;
 	}
 
 	public RackSize getRackSize() {
-		return rackSize;
+		return this.rackSize;
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (obj == this) {
 			return true;
 		}
 		else if (obj != null && obj.getClass().equals(getClass())) {
-			final Missile other = (Missile) obj;
-			return Objects.equals(name, other.name) && Objects.equals(damage, other.damage)
-					&& Objects.equals(rackSize, other.rackSize);
+			Missile other = (Missile) obj;
+			return Objects.equals(this.name, other.name) && Objects.equals(this.damage, other.damage)
+					&& Objects.equals(this.rackSize, other.rackSize);
 		}
 		else {
 			return false;
@@ -52,14 +52,14 @@ public class Missile extends AbstractWeapon {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, damage, rackSize);
+		return Objects.hash(this.name, this.damage, this.rackSize);
 	}
 
 	@Override
 	public String toString() {
-		return new StringJoiner(", ", "Missile[", "]").add("name='" + name + "'")
-			.add("damage=" + damage)
-			.add("racks=" + rackSize.size)
+		return new StringJoiner(", ", "Missile[", "]").add("name='" + this.name + "'")
+			.add("damage=" + this.damage)
+			.add("racks=" + this.rackSize.size)
 			.toString();
 	}
 

@@ -29,17 +29,17 @@ class GameTest {
 
 	@Test
 	void testExploration() {
-		final Game game = GameFactory.get().create(GameOptions.forTestGameScenario());
+		Game game = GameFactory.get().create(GameOptions.forTestGameScenario());
 		game.registerAi(Player.WHITE);
 		game.registerAi(Player.YELLOW);
 
-		final PlayerGame blueGame = game.forPlayer(Player.BLUE);
+		PlayerGame blueGame = game.forPlayer(Player.BLUE);
 		GameView blueGameView = null;
 
 		for (int i = 0; i < 5; i++) {
 			blueGameView = blueGame.getView();
 
-			final Set<SystemId> spaceCombatSystemIds = blueGameView.getSpaceCombats()
+			Set<SystemId> spaceCombatSystemIds = blueGameView.getSpaceCombats()
 				.stream()
 				.map(SpaceCombatView::getSystemId)
 				.collect(Collectors.toSet());
@@ -58,22 +58,21 @@ class GameTest {
 			}
 
 			if (blueGameView.getRound() == 1) {
-				final FleetView fleetAtSol = blueGameView.getOrbiting(blueGameView.getSystem("Sol").getId())
-					.orElseThrow();
+				FleetView fleetAtSol = blueGameView.getOrbiting(blueGameView.getSystem("Sol").getId()).orElseThrow();
 				blueGame.deployFleet(fleetAtSol.getId(), blueGameView.getSystem(new SystemId("s220x100")).getId(),
 						Map.of(fleetAtSol.getShipType("Scout").getId(), 1));
 				blueGame.deployFleet(fleetAtSol.getId(), blueGameView.getSystem(new SystemId("s180x220")).getId(),
 						Map.of(fleetAtSol.getShipType("Scout").getId(), 1));
 			}
 			else if (blueGameView.getRound() == 4) {
-				final GameView gameState2 = blueGameView;
+				GameView gameState2 = blueGameView;
 				blueGameView.getOrbiting(blueGameView.getSystem("Fieras").getId())
 					.ifPresent(fleetAtFieras -> blueGame.deployFleet(fleetAtFieras.getId(),
 							gameState2.getSystem("Sol").getId(),
 							Map.of(fleetAtFieras.getShipType("Scout").getId(), 1)));
 			}
 
-			for (final TechGroupView techGroup : blueGameView.getSelectTechs()) {
+			for (TechGroupView techGroup : blueGameView.getSelectTechs()) {
 				blueGame.selectTech(techGroup.iterator().next().getId());
 			}
 
@@ -88,29 +87,29 @@ class GameTest {
 
 	@Test
 	void testRetreatingFleet() {
-		final Game game = GameFactory.get()
+		Game game = GameFactory.get()
 			.create(GameOptions.forTestGameScenario() //
 				.spaceCombatWinner(Outcome.ATTACKER_RETREATED)
 				.fleetSpeedFactor(2000.0));
 		game.registerAi(Player.WHITE);
 		game.registerAi(Player.YELLOW);
 
-		final PlayerGame blueGame = game.forPlayer(Player.BLUE);
+		PlayerGame blueGame = game.forPlayer(Player.BLUE);
 		GameView blueGameView = blueGame.getView();
 
-		final FleetView fleetAtSol = blueGameView.getOrbiting(blueGameView.getSystem("Sol").getId()).orElseThrow();
+		FleetView fleetAtSol = blueGameView.getOrbiting(blueGameView.getSystem("Sol").getId()).orElseThrow();
 		blueGame.deployFleet(fleetAtSol.getId(), blueGameView.getSystem(new SystemId("s220x100")).getId(),
 				fleetAtSol.getShips()
 					.entrySet()
 					.stream()
 					.collect(Collectors.toMap(e -> e.getKey().getId(), Entry::getValue)));
 		blueGameView = blueGame.getView();
-		final FleetId deployedFleedId = blueGameView.getFleets().iterator().next().getId();
+		FleetId deployedFleedId = blueGameView.getFleets().iterator().next().getId();
 
 		blueGame.finishTurn();
 
 		blueGameView = blueGame.getView();
-		for (final FleetView fleet : blueGameView.getFleets()
+		for (FleetView fleet : blueGameView.getFleets()
 			.stream()
 			.filter(f -> f.getPlayer() == Player.BLUE)
 			.collect(Collectors.toSet())) {
@@ -123,12 +122,12 @@ class GameTest {
 
 	@Test
 	void testSwitchToNextShipType() {
-		final Game game = GameFactory.get().create(GameOptions.forTestGameScenario());
-		final PlayerGame blueGame = game.forPlayer(Player.BLUE);
+		Game game = GameFactory.get().create(GameOptions.forTestGameScenario());
+		PlayerGame blueGame = game.forPlayer(Player.BLUE);
 
-		final List<String> shipNames = new ArrayList<>();
+		List<String> shipNames = new ArrayList<>();
 		for (int i = 0; i < 3; i++) {
-			final GameView blueGameState = blueGame.getView();
+			GameView blueGameState = blueGame.getView();
 
 			shipNames.add(blueGameState.getSystem("Sol").getColonyView().get().getSpaceDock().get().getName());
 			blueGame.nextShipType(blueGameState.getSystem("Sol").getColonyView().get().getId());
@@ -139,7 +138,7 @@ class GameTest {
 
 	@Test
 	void testColonization() {
-		final Game game = GameFactory.get()
+		Game game = GameFactory.get()
 			.create(GameOptions.forTestGameScenario()
 				// make the whole map reachable in a single turn for a simpler test setup
 				.fleetRangeFactor(2000.0)
@@ -149,17 +148,17 @@ class GameTest {
 		game.registerAi(Player.WHITE);
 		game.registerAi(Player.YELLOW);
 
-		final PlayerGame blueGame = game.forPlayer(Player.BLUE);
+		PlayerGame blueGame = game.forPlayer(Player.BLUE);
 
 		GameView blueGameView = blueGame.getView();
-		final FleetView fleetAtSol = blueGameView.getOrbiting(blueGameView.getSystem("Sol").getId()).orElseThrow();
+		FleetView fleetAtSol = blueGameView.getOrbiting(blueGameView.getSystem("Sol").getId()).orElseThrow();
 		blueGame.deployFleet(fleetAtSol.getId(), blueGameView.getSystem(new SystemId("s180x220")).getId(),
 				Map.of(fleetAtSol.getShipType("Colony Ship").getId(), 1));
 		blueGame.finishTurn();
 
 		blueGameView = blueGame.getView();
-		final SystemView systemToColonize = blueGameView.getSystem(new SystemId("s180x220"));
-		final FleetView colonyFleet = blueGameView.getOrbiting(systemToColonize.getId()).get();
+		SystemView systemToColonize = blueGameView.getSystem(new SystemId("s180x220"));
+		FleetView colonyFleet = blueGameView.getOrbiting(systemToColonize.getId()).get();
 		blueGame.colonizeSystem(systemToColonize.getId(), colonyFleet.getId(), false);
 		assertThat(blueGameView.getSystem(new SystemId("s180x220")).getColonyView()).isEmpty();
 		blueGame.finishTurn();
@@ -171,7 +170,7 @@ class GameTest {
 
 	@Test
 	void testAnnexation() {
-		final Game game = GameFactory.get()
+		Game game = GameFactory.get()
 			.create(GameOptions.forTestGameScenario()
 				// make the whole map reachable in a single turn for a simpler test setup
 				.fleetRangeFactor(2000.0)
@@ -181,10 +180,10 @@ class GameTest {
 		game.registerAi(Player.WHITE);
 		game.registerAi(Player.YELLOW);
 
-		final PlayerGame blueGame = game.forPlayer(Player.BLUE);
+		PlayerGame blueGame = game.forPlayer(Player.BLUE);
 
 		GameView blueGameView = blueGame.getView();
-		final FleetView fleetAtSol = blueGameView.getOrbiting(blueGameView.getSystem("Sol").getId()).orElseThrow();
+		FleetView fleetAtSol = blueGameView.getOrbiting(blueGameView.getSystem("Sol").getId()).orElseThrow();
 		blueGame.deployFleet(fleetAtSol.getId(), blueGameView.getSystem(new SystemId("s240x440")).getId(),
 				Map.of(fleetAtSol.getShipType("Cruiser").getId(), 1));
 		blueGame.finishTurn();
@@ -195,8 +194,8 @@ class GameTest {
 		blueGame.finishTurn();
 
 		blueGameView = blueGame.getView();
-		final SystemView systemToAnnex = blueGameView.getSystem(new SystemId("s240x440"));
-		final FleetView annexFleet = blueGameView.getOrbiting(systemToAnnex.getId()).get();
+		SystemView systemToAnnex = blueGameView.getSystem(new SystemId("s240x440"));
+		FleetView annexFleet = blueGameView.getOrbiting(systemToAnnex.getId()).get();
 		blueGame.annexSystem(systemToAnnex.getColonyView().get().getId(), annexFleet.getId(), false);
 		blueGame.finishTurn();
 

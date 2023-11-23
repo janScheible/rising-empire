@@ -17,16 +17,16 @@ public enum DesignSlot {
 
 	FIRST, SECOND, THIRD, FOURTH, FIFTH, SIXTH;
 
-	public static DesignSlot valueOf(final ShipTypeId shipTypeId) {
+	public static DesignSlot valueOf(ShipTypeId shipTypeId) {
 		return DesignSlot.values()[Integer.parseInt(shipTypeId.getValue().split("@")[1])];
 	}
 
-	public ShipTypeView toShipType(final ShipDesign design) {
+	public ShipTypeView toShipType(ShipDesign design) {
 		return new ShipTypeView(new ShipTypeId(design.getName() + "@" + ordinal()), ordinal(), design.getName(),
 				design.getSize(), design.getLook());
 	}
 
-	public static Map<DesignSlot, Integer> toSlotAndCounts(final Set<Entry<ShipTypeId, Integer>> apiShips) {
+	public static Map<DesignSlot, Integer> toSlotAndCounts(Set<Entry<ShipTypeId, Integer>> apiShips) {
 		return apiShips.stream()
 			.filter(s -> s.getValue() > 0)
 			.collect(

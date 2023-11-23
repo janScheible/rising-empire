@@ -19,17 +19,17 @@ public class FleetFinder {
 
 	private final JourneyCalculator journeyCalculator;
 
-	public FleetFinder(final Map<FleetId, Fleet> fleets, final JourneyCalculator journeyCalculator) {
+	public FleetFinder(Map<FleetId, Fleet> fleets, JourneyCalculator journeyCalculator) {
 		this.fleets = Collections.unmodifiableMap(fleets);
 		this.journeyCalculator = journeyCalculator;
 	}
 
-	public Optional<OrbitingFleet> getOrbitingFleet(final Player player, final SystemOrb system) {
+	public Optional<OrbitingFleet> getOrbitingFleet(Player player, SystemOrb system) {
 		return getOrbitingFleet(system).stream().filter(of -> of.getPlayer() == player).findAny();
 	}
 
-	public Set<OrbitingFleet> getOrbitingFleet(final SystemOrb system) {
-		return fleets.values()
+	public Set<OrbitingFleet> getOrbitingFleet(SystemOrb system) {
+		return this.fleets.values()
 			.stream()
 			.filter(f -> f instanceof OrbitingFleet)
 			.map(f -> (OrbitingFleet) f)
@@ -37,15 +37,15 @@ public class FleetFinder {
 			.collect(Collectors.toSet());
 	}
 
-	public Optional<DeployedFleet> getJustLeavingFleets(final Player player, final SystemOrb source,
-			final SystemOrb destination, final int speed) {
-		return fleets.values()
+	public Optional<DeployedFleet> getJustLeavingFleets(Player player, SystemOrb source, SystemOrb destination,
+			int speed) {
+		return this.fleets.values()
 			.stream()
 			.filter(f -> f instanceof DeployedFleet)
 			.map(f -> (DeployedFleet) f)
 			.filter(df -> df.getPlayer() == player && df.getSource().equals(source)
 					&& df.getDestination().equals(destination) && df.isJustLeaving())
-			.filter(df -> journeyCalculator.calcFleetSpeed(player, df.getShips()) == speed)
+			.filter(df -> this.journeyCalculator.calcFleetSpeed(player, df.getShips()) == speed)
 			.findFirst();
 	}
 

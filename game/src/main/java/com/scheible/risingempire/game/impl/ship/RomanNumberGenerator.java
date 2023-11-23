@@ -7,7 +7,7 @@ class RomanNumberGenerator {
 
 	private static final String[] LOOKUP_ARRAY = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX" };
 
-	static String getNumber(final int value) {
+	static String getNumber(int value) {
 		return LOOKUP_ARRAY[value];
 	}
 

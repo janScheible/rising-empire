@@ -15,7 +15,7 @@ public class FireExchangeView {
 
 	private final int count;
 
-	public FireExchangeView(final int round, final int lostHitPoints, final int damage, final int count) {
+	public FireExchangeView(int round, int lostHitPoints, int damage, int count) {
 		this.round = round;
 		this.lostHitPoints = lostHitPoints;
 		this.damage = damage;
@@ -23,30 +23,30 @@ public class FireExchangeView {
 	}
 
 	public int getRound() {
-		return round;
+		return this.round;
 	}
 
 	public int getLostHitPoints() {
-		return lostHitPoints;
+		return this.lostHitPoints;
 	}
 
 	public int getDamage() {
-		return damage;
+		return this.damage;
 	}
 
 	public int getCount() {
-		return count;
+		return this.count;
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (obj == this) {
 			return true;
 		}
 		else if (obj != null && obj.getClass().equals(getClass())) {
-			final FireExchangeView other = (FireExchangeView) obj;
-			return Objects.equals(round, other.round) && Objects.equals(lostHitPoints, other.lostHitPoints)
-					&& Objects.equals(damage, other.damage) && Objects.equals(count, other.count);
+			FireExchangeView other = (FireExchangeView) obj;
+			return Objects.equals(this.round, other.round) && Objects.equals(this.lostHitPoints, other.lostHitPoints)
+					&& Objects.equals(this.damage, other.damage) && Objects.equals(this.count, other.count);
 		}
 		else {
 			return false;
@@ -55,7 +55,7 @@ public class FireExchangeView {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(round, lostHitPoints, damage, count);
+		return Objects.hash(this.round, this.lostHitPoints, this.damage, this.count);
 	}
 
 }

@@ -18,6 +18,13 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 @AnalyzeClasses(packagesOf = PackageLayeringTest.class, importOptions = DoNotIncludeTests.class)
 public class PackageLayeringTest {
 
+	@ArchTest
+	static final ArchRule packageLayeringRule = noClasses().that()
+		.resideInAnyPackage("com.scheible.risingempire.game.impl.ship",
+				"com.scheible.risingempire.game.impl.spacecombat")
+		.should(new DependOnDescendantPackagesCondition())
+		.because("lower layers/packages shouldn't build on higher layers/packages");
+
 	private static class DependOnDescendantPackagesCondition extends ArchCondition<JavaClass> {
 
 		DependOnDescendantPackagesCondition() {
@@ -41,12 +48,5 @@ public class PackageLayeringTest {
 		}
 
 	}
-
-	@ArchTest
-	static final ArchRule packageLayeringRule = noClasses().that()
-		.resideInAnyPackage("com.scheible.risingempire.game.impl.ship",
-				"com.scheible.risingempire.game.impl.spacecombat")
-		.should(new DependOnDescendantPackagesCondition())
-		.because("lower layers/packages shouldn't build on higher layers/packages");
 
 }

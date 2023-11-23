@@ -6,8 +6,6 @@ import java.util.Optional;
 
 import com.scheible.risingempire.game.api.view.ship.ShipSize;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
-import edu.umd.cs.findbugs.annotations.Nullable;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import static java.util.Collections.unmodifiableList;
 
@@ -26,37 +24,27 @@ public class CombatantShipSpecsView {
 
 	private final ShipSize size;
 
-	@Nullable
-	final Integer shield;
+	private final Integer shield;
 
-	@Nullable
-	final Integer beamDefence;
+	private final Integer beamDefence;
 
-	@Nullable
-	final Integer attackLevel;
+	private final Integer attackLevel;
 
-	@Nullable
-	final Integer warp;
+	private final Integer warp;
 
-	@Nullable
-	final Integer missleDefence;
+	private final Integer missleDefence;
 
-	@Nullable
-	final Integer hits;
+	private final Integer hits;
 
-	@Nullable
-	final Integer speed;
+	private final Integer speed;
 
-	@Nullable
-	final List<String> equipment;
+	private final List<String> equipment;
 
 	private final List<FireExchangeView> fireExchanges;
 
-	public CombatantShipSpecsView(final ShipTypeId id, final String name, final int count, final int previousCount,
-			final ShipSize size, @Nullable final Integer shield, @Nullable final Integer beamDefence,
-			@Nullable final Integer attackLevel, @Nullable final Integer warp, @Nullable final Integer missleDefence,
-			@Nullable final Integer hits, @Nullable final Integer speed, final List<String> equipment,
-			final List<FireExchangeView> fireExchanges) {
+	public CombatantShipSpecsView(ShipTypeId id, String name, int count, int previousCount, ShipSize size,
+			Integer shield, Integer beamDefence, Integer attackLevel, Integer warp, Integer missleDefence, Integer hits,
+			Integer speed, List<String> equipment, List<FireExchangeView> fireExchanges) {
 		this.id = id;
 		this.name = name;
 
@@ -78,72 +66,72 @@ public class CombatantShipSpecsView {
 	}
 
 	public ShipTypeId getId() {
-		return id;
+		return this.id;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public int getCount() {
-		return count;
+		return this.count;
 	}
 
 	public int getPreviousCount() {
-		return previousCount;
+		return this.previousCount;
 	}
 
 	public ShipSize getSize() {
-		return size;
+		return this.size;
 	}
 
 	public Optional<Integer> getShield() {
-		return Optional.ofNullable(shield);
+		return Optional.ofNullable(this.shield);
 	}
 
 	public Optional<Integer> getBeamDefence() {
-		return Optional.ofNullable(beamDefence);
+		return Optional.ofNullable(this.beamDefence);
 	}
 
 	public Optional<Integer> getAttackLevel() {
-		return Optional.ofNullable(attackLevel);
+		return Optional.ofNullable(this.attackLevel);
 	}
 
 	public Optional<Integer> getWarp() {
-		return Optional.ofNullable(warp);
+		return Optional.ofNullable(this.warp);
 	}
 
 	public Optional<Integer> getMissleDefence() {
-		return Optional.ofNullable(missleDefence);
+		return Optional.ofNullable(this.missleDefence);
 	}
 
 	public Optional<Integer> getHits() {
-		return Optional.ofNullable(hits);
+		return Optional.ofNullable(this.hits);
 	}
 
 	public Optional<Integer> getSpeed() {
-		return Optional.ofNullable(speed);
+		return Optional.ofNullable(this.speed);
 	}
 
-	@SuppressFBWarnings(value = "EI_EXPOSE_REP")
 	public List<String> getEquipment() {
-		return equipment;
+		return this.equipment;
 	}
 
 	public List<FireExchangeView> getFireExchanges() {
-		return fireExchanges;
+		return this.fireExchanges;
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (obj == this) {
 			return true;
 		}
 		else if (obj != null && obj.getClass().equals(getClass())) {
-			final CombatantShipSpecsView other = (CombatantShipSpecsView) obj;
-			return Objects.equals(id, other.id) && Objects.equals(name, other.name)
-					&& Objects.equals(count, other.count) && Objects.equals(previousCount, other.previousCount)
-					&& Objects.equals(size, other.size) && Objects.equals(fireExchanges, other.fireExchanges);
+			CombatantShipSpecsView other = (CombatantShipSpecsView) obj;
+			return Objects.equals(this.id, other.id) && Objects.equals(this.name, other.name)
+					&& Objects.equals(this.count, other.count)
+					&& Objects.equals(this.previousCount, other.previousCount) && Objects.equals(this.size, other.size)
+					&& Objects.equals(this.fireExchanges, other.fireExchanges);
 		}
 		else {
 			return false;
@@ -152,7 +140,7 @@ public class CombatantShipSpecsView {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, count, previousCount, size, fireExchanges);
+		return Objects.hash(this.id, this.name, this.count, this.previousCount, this.size, this.fireExchanges);
 	}
 
 }

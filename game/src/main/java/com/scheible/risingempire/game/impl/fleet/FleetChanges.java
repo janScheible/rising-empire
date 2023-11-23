@@ -8,10 +8,7 @@ import java.util.function.Consumer;
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.impl.spacecombat.SpaceCombat;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
@@ -29,42 +26,40 @@ public class FleetChanges {
 
 	private final Map<FleetId, Set<FleetBeforeArrival>> orbitingArrivingMapping;
 
-	public FleetChanges(final Set<Fleet> added, final Set<Fleet> removed) {
+	public FleetChanges(Set<Fleet> added, Set<Fleet> removed) {
 		this.added = unmodifiableSet(added);
 		this.removed = unmodifiableSet(removed);
-		this.combats = emptyList();
-		this.orbitingArrivingMapping = emptyMap();
+		this.combats = List.of();
+		this.orbitingArrivingMapping = Map.of();
 	}
 
-	public FleetChanges(final Set<Fleet> added, final Set<Fleet> removed, final List<SpaceCombat> combats,
-			final Map<FleetId, Set<FleetBeforeArrival>> orbitingArrivingMapping) {
+	public FleetChanges(Set<Fleet> added, Set<Fleet> removed, List<SpaceCombat> combats,
+			Map<FleetId, Set<FleetBeforeArrival>> orbitingArrivingMapping) {
 		this.added = unmodifiableSet(added);
 		this.removed = unmodifiableSet(removed);
 		this.combats = unmodifiableList(combats);
 		this.orbitingArrivingMapping = unmodifiableMap(orbitingArrivingMapping);
 	}
 
-	public void consume(final Consumer<Fleet> addedConsumer, final Consumer<Fleet> removedConsumer) {
-		added.forEach(addedConsumer::accept);
-		removed.forEach(removedConsumer::accept);
+	public void consume(Consumer<Fleet> addedConsumer, Consumer<Fleet> removedConsumer) {
+		this.added.forEach(addedConsumer::accept);
+		this.removed.forEach(removedConsumer::accept);
 	}
 
 	public Set<Fleet> getAdded() {
-		return added;
+		return this.added;
 	}
 
 	public Set<Fleet> getRemoved() {
-		return removed;
+		return this.removed;
 	}
 
-	@SuppressFBWarnings(value = "EI_EXPOSE_REP")
 	public List<SpaceCombat> getCombats() {
-		return combats;
+		return this.combats;
 	}
 
-	@SuppressFBWarnings(value = "EI_EXPOSE_REP")
 	public Map<FleetId, Set<FleetBeforeArrival>> getOrbitingArrivingMapping() {
-		return orbitingArrivingMapping;
+		return this.orbitingArrivingMapping;
 	}
 
 }

@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.GalaxySize;
@@ -59,18 +60,12 @@ import com.scheible.risingempire.game.impl.system.System;
 import com.scheible.risingempire.game.impl.system.SystemOrb;
 import com.scheible.risingempire.game.impl.tech.TechManager;
 import com.scheible.risingempire.game.impl.view.GameViewBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableList;
-import static java.util.function.Function.identity;
 
 /**
  * @author sj
  */
-@SuppressFBWarnings(value = "FCCD_FIND_CLASS_CIRCULAR_DEPENDENCY",
-		justification = "GameViewImpl must access game to perform all actions.")
 public class GameImpl implements Game, FleetManager, ColonyManager, TechManager {
 
 	private final GalaxySize galaxySize;
@@ -85,9 +80,9 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 
 	private final Map<FleetId, Fleet> fleets;
 
-	private final FakeTechProvider fakeTechProvider;
+	private final Optional<FakeTechProvider> fakeTechProvider;
 
-	private final FakeSystemNotificationProvider fakeNotificationProvider;
+	private final Optional<FakeSystemNotificationProvider> fakeNotificationProvider;
 
 	private final Map<Player, List<List<Entry<TechId, String>>>> selectTechGroups = new EnumMap<>(Player.class);
 
@@ -113,98 +108,99 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 
 	private int round = 1;
 
-	public GameImpl(final Set<System> systems, final Set<Fraction> fractions, final Set<StartFleet> startFleets,
-			final GameOptions gameOptions) {
+	public GameImpl(Set<System> systems, Set<Fraction> fractions, Set<StartFleet> startFleets,
+			GameOptions gameOptions) {
 		this.galaxySize = gameOptions.getGalaxySize();
 
 		this.systems = Collections
-			.unmodifiableMap(systems.stream().collect(Collectors.toMap(System::getId, identity())));
+			.unmodifiableMap(systems.stream().collect(Collectors.toMap(System::getId, Function.identity())));
 		this.fractions = Collections
-			.unmodifiableMap(fractions.stream().collect(Collectors.toMap(Fraction::getPlayer, identity())));
+			.unmodifiableMap(fractions.stream().collect(Collectors.toMap(Fraction::getPlayer, Function.identity())));
 		this.fleets = new HashMap<>();
-		fleetIdGenerator = new FleetIdGenerator(this.fleets.keySet());
+		this.fleetIdGenerator = new FleetIdGenerator(this.fleets.keySet());
 		this.fleets.putAll(startFleets.stream()
-			.map(sf -> new OrbitingFleet(fleetIdGenerator.createRandom(), sf.getPlayer(), sf.getShips(), sf.getSystem(),
-					round))
-			.collect(Collectors.toMap(Fleet::getId, identity())));
+			.map(sf -> new OrbitingFleet(this.fleetIdGenerator.createRandom(), sf.getPlayer(), sf.getShips(),
+					sf.getSystem(), this.round))
+			.collect(Collectors.toMap(Fleet::getId, Function.identity())));
 
-		this.fakeTechProvider = gameOptions.getFakeTechProvider().orElse(null);
-		this.fakeNotificationProvider = gameOptions.getFakeNotificationProvider().orElse(null);
+		this.fakeTechProvider = gameOptions.getFakeTechProvider();
+		this.fakeNotificationProvider = gameOptions.getFakeNotificationProvider();
 
-		shipDesignProvider = (player, slot) -> this.fractions.get(player).getShipDesigns().get(slot);
-		journeyCalculator = new JourneyCalculator(this.systems, this.fleets, shipDesignProvider,
+		this.shipDesignProvider = (player, slot) -> this.fractions.get(player).getShipDesigns().get(slot);
+		this.journeyCalculator = new JourneyCalculator(this.systems, this.fleets, this.shipDesignProvider,
 				gameOptions.getFleetSpeedFactor());
 
-		final FleetFinder fleetFinder = new FleetFinder(fleets, journeyCalculator);
-		fleetFormer = new FleetFormer(fleetIdGenerator, fleetFinder, journeyCalculator);
-		fleetTurn = new FleetTurn(() -> round, this.systems,
+		FleetFinder fleetFinder = new FleetFinder(this.fleets, this.journeyCalculator);
+		this.fleetFormer = new FleetFormer(this.fleetIdGenerator, fleetFinder, this.journeyCalculator);
+		this.fleetTurn = new FleetTurn(() -> this.round, this.systems,
 				(player, systemId, snapshot) -> this.fractions.get(player).updateSnapshot(systemId, snapshot),
-				fleetFormer, fleetFinder,
+				this.fleetFormer, fleetFinder,
 				gameOptions.getSpaceCombatOutcome() == null ? new SimulatingSpaceCombatResolver()
 						: new KnownInAdvanceWinnerSpaceCombatResolver(gameOptions.getSpaceCombatOutcome()),
-				shipDesignProvider);
+				this.shipDesignProvider);
 
 		this.annexationSiegeRounds = gameOptions.getAnnexationSiegeRounds();
 	}
 
 	private void nextTurn() {
-		round++;
+		this.round++;
 
-		spaceCombats.clear();
-		orbitingArrivingMapping.clear();
+		this.spaceCombats.clear();
+		this.orbitingArrivingMapping.clear();
 
-		final List<Fleet> sortedFleets = new ArrayList<>(fleets.values());
+		List<Fleet> sortedFleets = new ArrayList<>(this.fleets.values());
 		sortedFleets
 			.sort((first, second) -> Double.compare(first.getDestinationDistance(), second.getDestinationDistance()));
 
-		for (final Fleet fleet : sortedFleets) {
-			final FleetChanges changes = fleetTurn.nextTurn(fleet);
-			changes.getAdded().forEach(f -> fleets.put(f.getId(), f));
-			changes.getRemoved().forEach(f -> fleets.remove(f.getId()));
+		for (Fleet fleet : sortedFleets) {
+			FleetChanges changes = this.fleetTurn.nextTurn(fleet);
+			changes.getAdded().forEach(f -> this.fleets.put(f.getId(), f));
+			changes.getRemoved().forEach(f -> this.fleets.remove(f.getId()));
 			changes.getCombats()
-				.forEach(spaceCombat -> spaceCombats.add(SpaceCombat.withOrder(spaceCombat, spaceCombats.size())));
+				.forEach(spaceCombat -> this.spaceCombats
+					.add(SpaceCombat.withOrder(spaceCombat, this.spaceCombats.size())));
 			changes.getOrbitingArrivingMapping()
-				.forEach((orbitingId, deployedIds) -> orbitingArrivingMapping
+				.forEach((orbitingId, deployedIds) -> this.orbitingArrivingMapping
 					.computeIfAbsent(orbitingId, key -> new HashSet<>())
 					.addAll(deployedIds));
 		}
 
-		colonizeCommands.stream().forEach(command -> {
-			if (fleets.containsKey(command.fleetId())) {
-				final Fleet fleet = fleets.get(command.fleetId());
+		this.colonizeCommands.stream().forEach(command -> {
+			if (this.fleets.containsKey(command.fleetId())) {
+				Fleet fleet = this.fleets.get(command.fleetId());
 				if (fleet.getPlayer() == command.player() && fleet.isOrbiting()
 						&& fleet.asOrbiting().getSystem().getId().equals(command.systemId())) {
-					final OrbitingFleet orbiting = fleet.asOrbiting();
-					final FleetId fleetId = fleet.getId();
-					final System system = systems.get(command.systemId());
+					OrbitingFleet orbiting = fleet.asOrbiting();
+					FleetId fleetId = fleet.getId();
+					System system = this.systems.get(command.systemId());
 
-					final Optional<DesignSlot> colonyShipSlot = fleet.getShips()
+					Optional<DesignSlot> colonyShipSlot = fleet.getShips()
 						.keySet()
 						.stream()
-						.filter(ds -> shipDesignProvider.get(fleet.getPlayer(), ds).hasColonyBase())
+						.filter(ds -> this.shipDesignProvider.get(fleet.getPlayer(), ds).hasColonyBase())
 						.findFirst();
 
 					if (colonyShipSlot.isPresent()) {
 						orbiting.detach(Map.of(colonyShipSlot.get(), 1));
 						system.colonize(orbiting.getPlayer(), colonyShipSlot.get());
 						if (!orbiting.hasShips()) {
-							fleets.remove(fleetId);
+							this.fleets.remove(fleetId);
 						}
 					}
 				}
 			}
 		});
-		colonizeCommands.clear();
+		this.colonizeCommands.clear();
 
-		annexCommands.stream()
-			.forEach(command -> systems.get(command.systemId()).annex(command.player(), DesignSlot.FIRST));
-		annexCommands.clear();
+		this.annexCommands.stream()
+			.forEach(command -> this.systems.get(command.systemId()).annex(command.player(), DesignSlot.FIRST));
+		this.annexCommands.clear();
 	}
 
 	@Override
-	public void selectTech(final Player player, final TechId techId) {
+	public void selectTech(Player player, TechId techId) {
 		List<Entry<TechId, String>> selectTechGroup = null;
-		for (final List<Entry<TechId, String>> techGroup : selectTechGroups.get(player)) {
+		for (List<Entry<TechId, String>> techGroup : this.selectTechGroups.get(player)) {
 			if (techGroup.stream().anyMatch(e -> e.getKey().equals(techId))) {
 				selectTechGroup = techGroup;
 				break;
@@ -214,33 +210,34 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 			throw new IllegalArgumentException("There is no tech group with a techId of '" + techId + "'");
 		}
 
-		selectTechGroups.get(player).remove(selectTechGroup);
+		this.selectTechGroups.get(player).remove(selectTechGroup);
 	}
 
 	@Override
-	public List<List<Entry<TechId, String>>> getSelectTechs(final Player player) {
-		return unmodifiableList(new ArrayList<>(selectTechGroups.getOrDefault(player, emptyList())));
+	public List<List<Entry<TechId, String>>> getSelectTechs(Player player) {
+		return unmodifiableList(new ArrayList<>(this.selectTechGroups.getOrDefault(player, List.of())));
 	}
 
-	public TurnStatus finishTurn(final Player player) {
+	public TurnStatus finishTurn(Player player) {
 		validateTurnFinished(player);
-		finishedTurn.add(player);
+		this.finishedTurn.add(player);
 
-		ais.entrySet().stream().filter(e -> !finishedTurn.contains(e.getKey())).forEach(e -> {
+		this.ais.entrySet().stream().filter(e -> !this.finishedTurn.contains(e.getKey())).forEach(e -> {
 			e.getValue().finishTurn(forPlayer(e.getKey()));
 			validateTurnFinished(player);
-			finishedTurn.add(e.getKey());
+			this.finishedTurn.add(e.getKey());
 		});
 
-		final boolean turnFinished = fractions.size() == finishedTurn.size();
+		boolean turnFinished = this.fractions.size() == this.finishedTurn.size();
 		if (turnFinished) {
 			nextTurn();
 
-			if (fakeTechProvider != null) {
-				selectTechGroups.clear();
+			if (this.fakeTechProvider.isPresent()) {
+				this.selectTechGroups.clear();
 
-				finishedTurn.forEach(p -> selectTechGroups.put(p,
-						fakeTechProvider.get(p, round)
+				this.finishedTurn.forEach(p -> this.selectTechGroups.put(p,
+						this.fakeTechProvider.get()
+							.get(p, this.round)
 							.stream()
 							.map(tgv -> tgv.stream()
 								.map(tv -> (Entry<TechId, String>) new SimpleImmutableEntry<>(tv.getId(), tv.getName()))
@@ -248,53 +245,53 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 							.collect(Collectors.toList())));
 			}
 
-			finishedTurn.clear();
+			this.finishedTurn.clear();
 		}
 
 		return new TurnStatus(getTurnFinishedStatus(), turnFinished);
 	}
 
-	private void validateTurnFinished(final Player player) {
+	private void validateTurnFinished(Player player) {
 		if (!getSelectTechs(player).isEmpty()) {
 			throw new IllegalStateException(player + " can't finish turn because tech was not selected.");
 		}
 	}
 
 	private Map<Player, Boolean> getTurnFinishedStatus() {
-		return fractions.keySet()
+		return this.fractions.keySet()
 			.stream()
-			.collect(Collectors.toMap(identity(), c -> finishedTurn.contains(c), (l, r) -> l,
+			.collect(Collectors.toMap(Function.identity(), c -> this.finishedTurn.contains(c), (l, r) -> l,
 					() -> new EnumMap<>(Player.class)));
 	}
 
 	@Override
-	public void deployFleet(final Player player, final FleetId fleetId, final SystemId destinationId,
-			final Map<ShipTypeId, Integer> ships) {
-		final Fleet from = fleets.get(fleetId);
+	public void deployFleet(Player player, FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships) {
+		Fleet from = this.fleets.get(fleetId);
 
-		final SystemOrb source = from.isOrbiting() ? from.asOrbiting().getSystem() : from.asDeployed().getSource();
-		final SystemOrb destination = systems.get(destinationId);
+		SystemOrb source = from.isOrbiting() ? from.asOrbiting().getSystem() : from.asDeployed().getSource();
+		SystemOrb destination = this.systems.get(destinationId);
 
-		fleetFormer.deployFleet(player, from, source, destination, DesignSlot.toSlotAndCounts(ships.entrySet()), round)
-			.consume(addedFleet -> fleets.put(addedFleet.getId(), addedFleet),
-					removedFleet -> fleets.remove(removedFleet.getId()));
+		this.fleetFormer
+			.deployFleet(player, from, source, destination, DesignSlot.toSlotAndCounts(ships.entrySet()), this.round)
+			.consume(addedFleet -> this.fleets.put(addedFleet.getId(), addedFleet),
+					removedFleet -> this.fleets.remove(removedFleet.getId()));
 	}
 
 	@Override
-	public void colonizeSystem(final Player player, final FleetId fleetId, final boolean skip) {
-		final Fleet fleet = fleets.get(fleetId);
+	public void colonizeSystem(Player player, FleetId fleetId, boolean skip) {
+		Fleet fleet = this.fleets.get(fleetId);
 
 		if (!fleet.isOrbiting()) {
 			throw new IllegalArgumentException(
 					"The fleet '" + fleetId + "' can't colonize a system because it is deployed!");
 		}
 
-		final OrbitingFleet orbiting = fleet.asOrbiting();
+		OrbitingFleet orbiting = fleet.asOrbiting();
 
-		final Optional<DesignSlot> colonyShipSlot = fleet.getShips()
+		Optional<DesignSlot> colonyShipSlot = fleet.getShips()
 			.keySet()
 			.stream()
-			.filter(ds -> shipDesignProvider.get(fleet.getPlayer(), ds).hasColonyBase())
+			.filter(ds -> this.shipDesignProvider.get(fleet.getPlayer(), ds).hasColonyBase())
 			.findFirst();
 
 		if (colonyShipSlot.isEmpty()) {
@@ -302,15 +299,15 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 					+ orbiting.getSystem().getId() + "' system because it does not contain a colony ship!");
 		}
 
-		final System system = systems.get(orbiting.getSystem().getId());
+		System system = this.systems.get(orbiting.getSystem().getId());
 
 		if (!skip) {
-			colonizeCommands.add(new ColonizeCommand(player, system.getId(), orbiting.getId()));
+			this.colonizeCommands.add(new ColonizeCommand(player, system.getId(), orbiting.getId()));
 		}
 		else {
-			final Iterator<ColonizeCommand> commandIterator = colonizeCommands.iterator();
+			Iterator<ColonizeCommand> commandIterator = this.colonizeCommands.iterator();
 			while (commandIterator.hasNext()) {
-				final ColonizeCommand command = commandIterator.next();
+				ColonizeCommand command = commandIterator.next();
 				if (command.player() == player && command.systemId().equals(system.getId())
 						&& command.fleetId().equals(orbiting.getId())) {
 					commandIterator.remove();
@@ -320,18 +317,18 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	}
 
 	@Override
-	public boolean canColonize(final FleetId fleetId) {
-		final Fleet fleet = fleets.get(fleetId);
+	public boolean canColonize(FleetId fleetId) {
+		Fleet fleet = this.fleets.get(fleetId);
 
 		if (fleet.isOrbiting()) {
-			final OrbitingFleet orbiting = fleet.asOrbiting();
-			final SystemId systemId = orbiting.getSystem().getId();
-			final System system = systems.get(systemId);
+			OrbitingFleet orbiting = fleet.asOrbiting();
+			SystemId systemId = orbiting.getSystem().getId();
+			System system = this.systems.get(systemId);
 
-			final boolean hasColonyShip = orbiting.getShips()
+			boolean hasColonyShip = orbiting.getShips()
 				.keySet()
 				.stream()
-				.map(fractions.get(orbiting.getPlayer()).getShipDesigns()::get)
+				.map(this.fractions.get(orbiting.getPlayer()).getShipDesigns()::get)
 				.anyMatch(ShipDesign::hasColonyBase);
 
 			if (hasColonyShip && system.getColony().isEmpty()) {
@@ -343,24 +340,24 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	}
 
 	@Override
-	public boolean hasColonizeCommand(final Player player, final SystemId systemId, final FleetId fleetId) {
-		return colonizeCommands.stream()
+	public boolean hasColonizeCommand(Player player, SystemId systemId, FleetId fleetId) {
+		return this.colonizeCommands.stream()
 			.anyMatch(command -> command.player() == player && command.systemId().equals(systemId)
 					&& command.fleetId().equals(fleetId));
 
 	}
 
 	@Override
-	public void annexSystem(final Player player, final FleetId fleetId, final boolean skip) {
-		final Fleet fleet = fleets.get(fleetId);
+	public void annexSystem(Player player, FleetId fleetId, boolean skip) {
+		Fleet fleet = this.fleets.get(fleetId);
 
 		if (!fleet.isOrbiting()) {
 			throw new IllegalArgumentException(
 					"The fleet '" + fleetId + "' can't annex a system because it is deployed!");
 		}
 
-		final OrbitingFleet orbiting = fleet.asOrbiting();
-		final System system = systems.get(orbiting.getSystem().getId());
+		OrbitingFleet orbiting = fleet.asOrbiting();
+		System system = this.systems.get(orbiting.getSystem().getId());
 
 		if (system.getColony().isEmpty()) {
 			throw new IllegalArgumentException("The fleet '" + orbiting + "' can't annex the system '" + system.getId()
@@ -372,17 +369,17 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		}
 		else if (!isSiegeSuccessful(orbiting)) {
 			throw new IllegalArgumentException("The fleet '" + orbiting + "' can't annex the system '" + system.getId()
-					+ "' because the fleet is only there for " + (round - orbiting.getArrivalRound())
-					+ " but must be at least " + annexationSiegeRounds + "!");
+					+ "' because the fleet is only there for " + (this.round - orbiting.getArrivalRound())
+					+ " but must be at least " + this.annexationSiegeRounds + "!");
 		}
 		else {
 			if (!skip) {
-				annexCommands.add(new AnnexCommand(player, system.getId(), orbiting.getId()));
+				this.annexCommands.add(new AnnexCommand(player, system.getId(), orbiting.getId()));
 			}
 			else {
-				final Iterator<AnnexCommand> annexIterator = annexCommands.iterator();
+				Iterator<AnnexCommand> annexIterator = this.annexCommands.iterator();
 				while (annexIterator.hasNext()) {
-					final AnnexCommand command = annexIterator.next();
+					AnnexCommand command = annexIterator.next();
 					if (command.player() == player && command.systemId().equals(system.getId())
 							&& command.fleetId().equals(orbiting.getId())) {
 						annexIterator.remove();
@@ -392,21 +389,21 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		}
 	}
 
-	private boolean isSiegeSuccessful(final OrbitingFleet orbiting) {
-		return round - orbiting.getArrivalRound() >= annexationSiegeRounds;
+	private boolean isSiegeSuccessful(OrbitingFleet orbiting) {
+		return this.round - orbiting.getArrivalRound() >= this.annexationSiegeRounds;
 	}
 
 	@Override
-	public boolean canAnnex(final FleetId fleetId) {
-		final Fleet fleet = fleets.get(fleetId);
+	public boolean canAnnex(FleetId fleetId) {
+		Fleet fleet = this.fleets.get(fleetId);
 
 		if (fleet.isOrbiting()) {
-			final OrbitingFleet orbiting = fleet.asOrbiting();
+			OrbitingFleet orbiting = fleet.asOrbiting();
 
-			final SystemId systemId = orbiting.getSystem().getId();
-			final System system = systems.get(systemId);
+			SystemId systemId = orbiting.getSystem().getId();
+			System system = this.systems.get(systemId);
 
-			final Optional<Colony> colony = system.getColony();
+			Optional<Colony> colony = system.getColony();
 
 			if (colony.isPresent() && colony.get().getPlayer() != orbiting.getPlayer() && isSiegeSuccessful(orbiting)) {
 				return true;
@@ -417,22 +414,22 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	}
 
 	@Override
-	public boolean hasAnnexCommand(final Player player, final SystemId systemId, final FleetId fleetId) {
-		return annexCommands.stream()
+	public boolean hasAnnexCommand(Player player, SystemId systemId, FleetId fleetId) {
+		return this.annexCommands.stream()
 			.anyMatch(command -> command.player() == player && command.systemId().equals(systemId)
 					&& command.fleetId().equals(fleetId));
 	}
 
 	@Override
-	public Optional<Integer> getSiegeProgress(final FleetId fleetId) {
-		final Fleet fleet = fleets.get(fleetId);
+	public Optional<Integer> getSiegeProgress(FleetId fleetId) {
+		Fleet fleet = this.fleets.get(fleetId);
 		if (fleet != null && fleet.isOrbiting()) {
-			final OrbitingFleet orbiting = fleet.asOrbiting();
-			final System system = systems.get(orbiting.getSystem().getId());
+			OrbitingFleet orbiting = fleet.asOrbiting();
+			System system = this.systems.get(orbiting.getSystem().getId());
 
 			if (system.getColony().isPresent() && system.getColony().get().getPlayer() != orbiting.getPlayer()) {
-				return Optional
-					.of((int) Math.min(100, 100.0 * (round - orbiting.getArrivalRound()) / annexationSiegeRounds));
+				return Optional.of((int) Math.min(100,
+						100.0 * (this.round - orbiting.getArrivalRound()) / this.annexationSiegeRounds));
 			}
 		}
 
@@ -440,21 +437,22 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	}
 
 	@Override
-	public Optional<Integer> calcEta(final Player player, final FleetId fleetId, final SystemId destinationId,
-			final Map<ShipTypeId, Integer> ships) {
-		return journeyCalculator.calcEta(player, fleetId, destinationId, DesignSlot.toSlotAndCounts(ships.entrySet()),
-				fractions.get(player).getTechnology().getFleetRange());
+	public Optional<Integer> calcEta(Player player, FleetId fleetId, SystemId destinationId,
+			Map<ShipTypeId, Integer> ships) {
+		return this.journeyCalculator.calcEta(player, fleetId, destinationId,
+				DesignSlot.toSlotAndCounts(ships.entrySet()),
+				this.fractions.get(player).getTechnology().getFleetRange());
 	}
 
 	@Override
-	public SystemId getClosest(final FleetId fleetId) {
-		final Fleet fleet = fleets.get(fleetId);
+	public SystemId getClosest(FleetId fleetId) {
+		Fleet fleet = this.fleets.get(fleetId);
 
 		System closest = null;
 		Double distance = null;
 
-		for (final System system : systems.values()) {
-			final double currentDistance = system.getLocation().getDistance(fleet.getLocation());
+		for (System system : this.systems.values()) {
+			double currentDistance = system.getLocation().getDistance(fleet.getLocation());
 			if (closest == null || currentDistance < distance) {
 				closest = system;
 				distance = currentDistance;
@@ -465,73 +463,73 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	}
 
 	@Override
-	public ShipTypeView nextShipType(final Player player, final ColonyId colonyId) {
-		final Colony colony = systems.get(SystemId.fromColonyId(colonyId)).getColony(player).get();
+	public ShipTypeView nextShipType(Player player, ColonyId colonyId) {
+		Colony colony = this.systems.get(SystemId.fromColonyId(colonyId)).getColony(player).get();
 
-		final List<DesignSlot> usedSlots = new ArrayList<>(fractions.get(player).getShipDesigns().keySet());
+		List<DesignSlot> usedSlots = new ArrayList<>(this.fractions.get(player).getShipDesigns().keySet());
 		Collections.sort(usedSlots);
 		usedSlots.add(usedSlots.get(0));
-		final DesignSlot nextSlot = usedSlots.get(usedSlots.indexOf(colony.getSpaceDock()) + 1);
+		DesignSlot nextSlot = usedSlots.get(usedSlots.indexOf(colony.getSpaceDock()) + 1);
 
 		colony.build(nextSlot);
-		return nextSlot.toShipType(fractions.get(player).getShipDesigns().get(nextSlot));
+		return nextSlot.toShipType(this.fractions.get(player).getShipDesigns().get(nextSlot));
 	}
 
 	@Override
-	public Map<ProductionArea, Integer> adjustRatio(final Player player, final ColonyId id, final ProductionArea area,
-			final int percentage) {
-		final Colony colony = systems.get(SystemId.fromColonyId(id)).getColony(player).get();
+	public Map<ProductionArea, Integer> adjustRatio(Player player, ColonyId id, ProductionArea area, int percentage) {
+		Colony colony = this.systems.get(SystemId.fromColonyId(id)).getColony(player).get();
 		colony.adjustRation(area, percentage);
 		return colony.getRatios();
 	}
 
-	GameView getGameState(final Player player) {
-		final Map<Player, Race> playerRaceMapping = fractions.entrySet()
+	GameView getGameState(Player player) {
+		Map<Player, Race> playerRaceMapping = this.fractions.entrySet()
 			.stream()
 			.collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getRace()));
-		final Map<Player, Map<DesignSlot, ShipDesign>> designs = fractions.keySet()
+		Map<Player, Map<DesignSlot, ShipDesign>> designs = this.fractions.keySet()
 			.stream()
-			.collect(Collectors.toMap(identity(), p -> fractions.get(player).getShipDesigns()));
-		final Set<SystemNotificationView> systemNotifications = fakeNotificationProvider != null
-				? fakeNotificationProvider.get(player, round) : emptySet();
+			.collect(Collectors.toMap(Function.identity(), p -> this.fractions.get(player).getShipDesigns()));
+		Set<SystemNotificationView> systemNotifications = this.fakeNotificationProvider
+			.map(fnp -> fnp.get(player, this.round))
+			.orElseGet(() -> Set.of());
 
-		return GameViewBuilder.buildView(galaxySize, round, getTurnFinishedStatus(), player, playerRaceMapping,
-				systems.values(), fleets.values(), designs, orbitingArrivingMapping,
-				(c, sid) -> fractions.get(c).getSnapshot(sid), fractions.get(player).getTechnology(), spaceCombats,
-				this, this, systemNotifications, annexationSiegeRounds);
+		return GameViewBuilder.buildView(this.galaxySize, this.round, getTurnFinishedStatus(), player,
+				playerRaceMapping, this.systems.values(), this.fleets.values(), designs, this.orbitingArrivingMapping,
+				(c, sid) -> this.fractions.get(c).getSnapshot(sid), this.fractions.get(player).getTechnology(),
+				this.spaceCombats, this, this, systemNotifications, this.annexationSiegeRounds);
 	}
 
 	@Override
-	public PlayerGame forPlayer(final Player player) {
+	public PlayerGame forPlayer(Player player) {
 		return new PlayerGameImpl(player, this);
 	}
 
 	@Override
-	public void registerAi(final Player player) {
-		if (ais.get(player) == null) {
-			ais.put(player, AiFactory.get().create());
+	public void registerAi(Player player) {
+		if (this.ais.get(player) == null) {
+			this.ais.put(player, AiFactory.get().create());
 		}
 	}
 
 	@Override
-	public boolean isAiControlled(final Player player) {
-		return ais.containsKey(player);
+	public boolean isAiControlled(Player player) {
+		return this.ais.containsKey(player);
 	}
 
 	@Override
-	public void unregisterAi(final Player player) {
-		ais.remove(player);
+	public void unregisterAi(Player player) {
+		this.ais.remove(player);
 	}
 
 	@Override
 	public Set<Player> getPlayers() {
 		return Collections
-			.unmodifiableSet(fractions.values().stream().map(Fraction::getPlayer).collect(Collectors.toSet()));
+			.unmodifiableSet(this.fractions.values().stream().map(Fraction::getPlayer).collect(Collectors.toSet()));
 	}
 
 	@Override
 	public int getRound() {
-		return round;
+		return this.round;
 	}
 
 }

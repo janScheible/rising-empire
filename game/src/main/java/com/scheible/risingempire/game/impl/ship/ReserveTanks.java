@@ -12,13 +12,13 @@ public class ReserveTanks extends AbstractSpecial {
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (obj == this) {
 			return true;
 		}
 		else if (obj != null && obj.getClass().equals(getClass())) {
-			final ReserveTanks other = (ReserveTanks) obj;
-			return Objects.equals(name, other.name);
+			ReserveTanks other = (ReserveTanks) obj;
+			return Objects.equals(this.name, other.name);
 		}
 		else {
 			return false;
@@ -27,7 +27,7 @@ public class ReserveTanks extends AbstractSpecial {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name);
+		return Objects.hash(this.name);
 	}
 
 }

@@ -16,13 +16,13 @@ enum ShipSizeWithBaseValues {
 
 	final int baseHits;
 
-	ShipSizeWithBaseValues(final ShipSize shipSize, final int baseDefense, final int baseHits) {
+	ShipSizeWithBaseValues(ShipSize shipSize, int baseDefense, int baseHits) {
 		this.shipSize = shipSize;
 		this.baseDefense = baseDefense;
 		this.baseHits = baseHits;
 	}
 
-	static ShipSizeWithBaseValues of(final ShipSize shipSize) {
+	static ShipSizeWithBaseValues of(ShipSize shipSize) {
 		return ShipSizeWithBaseValues.valueOf(shipSize.name());
 	}
 

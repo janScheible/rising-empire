@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test;
 /**
  * @author sj
  */
-class PocketsawSubModulesTest {
+class MooThemeSubModulesTest {
 
 	@BeforeAll
 	static void beforeClass() {
 		Pocketsaw
-			.analizeClasspath(ClassgraphClasspathScanner.create(PocketsawSubModulesTest.class).enableAutoMatching());
+			.analizeClasspath(ClassgraphClasspathScanner.create(MooThemeSubModulesTest.class).enableAutoMatching());
 	}
 
 	@Test

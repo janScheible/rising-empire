@@ -8,18 +8,18 @@ import java.util.StringJoiner;
  */
 public class BeamWeapon extends AbstractWeapon {
 
-	public BeamWeapon(final String name, final Damage damage) {
+	public BeamWeapon(String name, Damage damage) {
 		super(name, damage);
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (obj == this) {
 			return true;
 		}
 		else if (obj != null && obj.getClass().equals(getClass())) {
-			final BeamWeapon other = (BeamWeapon) obj;
-			return Objects.equals(name, other.name) && Objects.equals(damage, other.damage);
+			BeamWeapon other = (BeamWeapon) obj;
+			return Objects.equals(this.name, other.name) && Objects.equals(this.damage, other.damage);
 		}
 		else {
 			return false;
@@ -28,12 +28,14 @@ public class BeamWeapon extends AbstractWeapon {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, damage);
+		return Objects.hash(this.name, this.damage);
 	}
 
 	@Override
 	public String toString() {
-		return new StringJoiner(", ", "BeamWeapon[", "]").add("name='" + name + "'").add("damage=" + damage).toString();
+		return new StringJoiner(", ", "BeamWeapon[", "]").add("name='" + this.name + "'")
+			.add("damage=" + this.damage)
+			.toString();
 	}
 
 }

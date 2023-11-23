@@ -8,7 +8,6 @@ import com.scheible.risingempire.game.impl.ship.AbstractWeapon;
 import com.scheible.risingempire.game.impl.ship.BeamWeapon;
 import com.scheible.risingempire.game.impl.ship.Missile;
 import com.scheible.risingempire.game.impl.ship.ShipDesign;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * @author sj
@@ -23,39 +22,35 @@ class CombatStack {
 
 	final ShipDesign design;
 
-	private final int hitPoints;
-
-	private int topShipHitPoints;
-
-	final int previousCount;
-
 	int count;
 
 	final Side side;
 
 	final Map<Missile, Integer> missileLaunches = new HashMap<>();
 
-	CombatStack(final ShipDesign design, final int count, final Side side) {
+	private final int hitPoints;
+
+	private int topShipHitPoints;
+
+	CombatStack(ShipDesign design, int count, Side side) {
 		this.design = design;
 		this.hitPoints = design.getHitPoints();
 		this.topShipHitPoints = design.getHitPoints();
-		this.previousCount = count;
 		this.count = count;
 		this.side = side;
 	}
 
-	@SuppressFBWarnings(value = "PREDICTABLE_RANDOM", justification = "Should be random enough.")
-	int hitWith(final AbstractWeapon weapon) {
-		final int attackValue = ThreadLocalRandom.current()
+	int hitWith(AbstractWeapon weapon) {
+		int attackValue = ThreadLocalRandom.current()
 			.nextInt(weapon.getDamage().getMin(), weapon.getDamage().getMax() + 1);
-		final int effectiveAttackValue = attackValue - design.getHitsAbsorbedByShield()
-				- (weapon instanceof BeamWeapon ? design.getBeamDefence() : design.getMissileDefence());
+		int effectiveAttackValue = attackValue - this.design.getHitsAbsorbedByShield()
+				- (weapon instanceof BeamWeapon ? this.design.getBeamDefence() : this.design.getMissileDefence());
 
 		if (effectiveAttackValue > 0) {
-			topShipHitPoints = Math.max(0, topShipHitPoints - effectiveAttackValue);
-			if (topShipHitPoints <= 0) {
-				count = Math.max(0, count - 1);
-				topShipHitPoints = hitPoints;
+			this.topShipHitPoints = Math.max(0, this.topShipHitPoints - effectiveAttackValue);
+			if (this.topShipHitPoints <= 0) {
+				this.count = Math.max(0, this.count - 1);
+				this.topShipHitPoints = this.hitPoints;
 			}
 		}
 
@@ -63,11 +58,11 @@ class CombatStack {
 	}
 
 	boolean isDestroyed() {
-		return count == 0;
+		return this.count == 0;
 	}
 
 	int getDamage() {
-		return hitPoints - topShipHitPoints;
+		return this.hitPoints - this.topShipHitPoints;
 	}
 
 }

@@ -10,10 +10,7 @@ import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.impl.ship.DesignSlot;
 import com.scheible.risingempire.game.impl.system.SystemOrb;
 import com.scheible.risingempire.util.jdk.Objects2;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import static com.scheible.risingempire.game.api.view.fleet.FleetView.HorizontalDirection.LEFT;
-import static com.scheible.risingempire.game.api.view.fleet.FleetView.HorizontalDirection.RIGHT;
 import static com.scheible.risingempire.util.jdk.Objects2.toStringBuilder;
 
 /**
@@ -29,8 +26,8 @@ public class DeployedFleet extends Fleet {
 
 	private int speed;
 
-	public DeployedFleet(final FleetId id, final Player player, final Map<DesignSlot, Integer> ships,
-			final SystemOrb source, final SystemOrb destination, final int speed) {
+	public DeployedFleet(FleetId id, Player player, Map<DesignSlot, Integer> ships, SystemOrb source,
+			SystemOrb destination, int speed) {
 		super(id, player, ships);
 
 		this.source = source;
@@ -46,51 +43,51 @@ public class DeployedFleet extends Fleet {
 			throw new IllegalStateException("The fleet " + id + " already arrived!");
 		}
 
-		location = location.moveAlong(destination.getLocation(), speed);
+		this.location = this.location.moveAlong(this.destination.getLocation(), this.speed);
 	}
 
-	public void setSpeed(final int speed) {
+	public void setSpeed(int speed) {
 		this.speed = speed;
 	}
 
 	public boolean isJustLeaving() {
-		return location.equals(source.getLocation());
+		return this.location.equals(this.source.getLocation());
 	}
 
 	public boolean hasArrived() {
-		return location.equals(destination.getLocation());
+		return this.location.equals(this.destination.getLocation());
 	}
 
 	public HorizontalDirection getHorizontalDirection() {
-		return getSource().getLocation().getX() < getDestination().getLocation().getX() ? RIGHT : LEFT;
+		return getSource().getLocation().getX() < getDestination().getLocation().getX() ? HorizontalDirection.RIGHT
+				: HorizontalDirection.LEFT;
 	}
 
 	@Override
 	public double getDestinationDistance() {
-		return destination.getLocation().getDistance(location);
+		return this.destination.getLocation().getDistance(this.location);
 	}
 
 	public SystemOrb getSource() {
-		return source;
+		return this.source;
 	}
 
 	public SystemOrb getDestination() {
-		return destination;
+		return this.destination;
 	}
 
 	@Override
 	public Location getLocation() {
-		return location;
+		return this.location;
 	}
 
 	public int getSpeed() {
-		return speed;
+		return this.speed;
 	}
 
-	@SuppressFBWarnings(value = "EQ_UNUSUAL", justification = "Object2.equals() is allowed.")
 	@Override
-	public boolean equals(final Object obj) {
-		return Objects2.equals(this, obj, other -> Objects.equals(id, other.id));
+	public boolean equals(Object obj) {
+		return Objects2.equals(this, obj, other -> Objects.equals(this.id, other.id));
 	}
 
 	@Override
@@ -100,13 +97,13 @@ public class DeployedFleet extends Fleet {
 
 	@Override
 	public String toString() {
-		return toStringBuilder(getClass()).add("id", id)
-			.add("source", source.getName())
-			.add("destination", destination.getName())
-			.add("location", location)
+		return toStringBuilder(getClass()).add("id", this.id)
+			.add("source", this.source.getName())
+			.add("destination", this.destination.getName())
+			.add("location", this.location)
 			.add("horizontalDirection", getHorizontalDirection())
-			.add("speed", speed)
-			.add("ships", ships)
+			.add("speed", this.speed)
+			.add("ships", this.ships)
 			.toString();
 	}
 

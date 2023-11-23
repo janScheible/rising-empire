@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
+import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.impl.ship.ShipDesignProvider;
 import com.scheible.risingempire.game.impl.spacecombat.SpaceCombat;
@@ -18,10 +19,6 @@ import com.scheible.risingempire.game.impl.system.SystemOrb;
 import com.scheible.risingempire.game.impl.system.SystemSnapshot;
 import com.scheible.risingempire.game.impl.system.SystemSnapshotter;
 import com.scheible.risingempire.util.ProcessingResult;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
-import static com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome.ATTACKER_WON;
-import static com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome.DEFENDER_WON;
 
 /**
  * @author sj
@@ -42,10 +39,9 @@ public class FleetTurn {
 
 	private final ShipDesignProvider shipDesignProvider;
 
-	@SuppressFBWarnings(value = "EI_EXPOSE_REP2")
-	public FleetTurn(final Supplier<Integer> roundProvider, final Map<SystemId, System> systems,
-			final SystemSnapshotter snapshotter, final FleetFormer fleetFormer, final FleetFinder fleetFinder,
-			final SpaceCombatResolver spaceCombatResolver, final ShipDesignProvider shipDesignProvider) {
+	public FleetTurn(Supplier<Integer> roundProvider, Map<SystemId, System> systems, SystemSnapshotter snapshotter,
+			FleetFormer fleetFormer, FleetFinder fleetFinder, SpaceCombatResolver spaceCombatResolver,
+			ShipDesignProvider shipDesignProvider) {
 		this.roundProvider = roundProvider;
 		this.systems = systems;
 		this.snapshotter = snapshotter;
@@ -55,24 +51,24 @@ public class FleetTurn {
 		this.shipDesignProvider = shipDesignProvider;
 	}
 
-	public FleetChanges nextTurn(final Fleet fleet) {
-		final Set<Fleet> emptyFleets = new HashSet<>();
-		final Set<Fleet> newFleets = new HashSet<>();
-		final List<SpaceCombat> combats = new ArrayList<>();
+	public FleetChanges nextTurn(Fleet fleet) {
+		Set<Fleet> emptyFleets = new HashSet<>();
+		Set<Fleet> newFleets = new HashSet<>();
+		List<SpaceCombat> combats = new ArrayList<>();
 
 		// keep track of the original fleet ids that arrived and will be merged to a
 		// orbiting fleet
-		final Map<FleetId, Set<FleetBeforeArrival>> orbitingArrivingMapping = new HashMap<>();
+		Map<FleetId, Set<FleetBeforeArrival>> orbitingArrivingMapping = new HashMap<>();
 
 		if (fleet.isDeployed()) {
-			final DeployedFleet deployedFleet = fleet.asDeployed();
+			DeployedFleet deployedFleet = fleet.asDeployed();
 			deployedFleet.turn();
 
 			if (deployedFleet.hasArrived()) {
-				final SystemOrb destination = deployedFleet.getDestination();
+				SystemOrb destination = deployedFleet.getDestination();
 
-				final ProcessingResult<OrbitingFleet> orbitingFleet = fleetFormer.welcomeFleet(deployedFleet,
-						destination, roundProvider.get());
+				ProcessingResult<OrbitingFleet> orbitingFleet = this.fleetFormer.welcomeFleet(deployedFleet,
+						destination, this.roundProvider.get());
 				if (orbitingFleet.wasCreated()) {
 					newFleets.add(orbitingFleet.get());
 				}
@@ -81,22 +77,22 @@ public class FleetTurn {
 					.add(new FleetBeforeArrival(deployedFleet.getId(), deployedFleet.getHorizontalDirection(),
 							deployedFleet.getSpeed()));
 
-				final System destinationSystem = systems.get(destination.getId());
+				System destinationSystem = this.systems.get(destination.getId());
 				if (!destinationSystem.getColony(fleet.getPlayer()).isPresent()) {
-					snapshotter.put(fleet.getPlayer(), destination.getId(),
-							SystemSnapshot.forKnown(roundProvider.get(), destinationSystem));
+					this.snapshotter.put(fleet.getPlayer(), destination.getId(),
+							SystemSnapshot.forKnown(this.roundProvider.get(), destinationSystem));
 				}
 
-				fleetFinder.getOrbitingFleet(destinationSystem)
+				this.fleetFinder.getOrbitingFleet(destinationSystem)
 					.stream()
 					.filter(clashingOrbitingFleet -> clashingOrbitingFleet.getPlayer() != deployedFleet.getPlayer())
 					.forEach(defendingFleet -> {
-						final SpaceCombat spaceCombat = spaceCombatResolver.resolve(destinationSystem.getId(),
-								defendingFleet, deployedFleet, shipDesignProvider);
-						if (spaceCombat.getOutcome() == ATTACKER_WON) {
+						SpaceCombat spaceCombat = this.spaceCombatResolver.resolve(destinationSystem.getId(),
+								defendingFleet, deployedFleet, this.shipDesignProvider);
+						if (spaceCombat.getOutcome() == Outcome.ATTACKER_WON) {
 							emptyFleets.add(defendingFleet);
 						}
-						else if (spaceCombat.getOutcome() == DEFENDER_WON) {
+						else if (spaceCombat.getOutcome() == Outcome.DEFENDER_WON) {
 							newFleets.clear();
 						}
 						else { // ATTACKER_RETREATED
@@ -104,14 +100,14 @@ public class FleetTurn {
 
 							newFleets.clear();
 							newFleets.addAll(
-									fleetFormer
+									this.fleetFormer
 										.deployFleet(deployedFleet.getPlayer(), deployedFleet,
 												deployedFleet.getDestination(), deployedFleet.getSource(),
-												spaceCombat.getAttackerShipCounts(), roundProvider.get())
+												spaceCombat.getAttackerShipCounts(), this.roundProvider.get())
 										.getAdded());
 							assertSingleFleet(newFleets);
 
-							final FleetId newReturningFleetId = newFleets.iterator().next().getId();
+							FleetId newReturningFleetId = newFleets.iterator().next().getId();
 							orbitingArrivingMapping.put(newReturningFleetId,
 									orbitingArrivingMapping.remove(orbitingFleet.get().getId()));
 						}
@@ -121,12 +117,12 @@ public class FleetTurn {
 			}
 		}
 		else if (fleet.isOrbiting()) {
-			final OrbitingFleet orbitingFleet = fleet.asOrbiting();
-			final System orbitingSystem = systems.get(orbitingFleet.getSystem().getId());
+			OrbitingFleet orbitingFleet = fleet.asOrbiting();
+			System orbitingSystem = this.systems.get(orbitingFleet.getSystem().getId());
 
 			if (!orbitingSystem.getColony(fleet.getPlayer()).isPresent()) {
-				snapshotter.put(fleet.getPlayer(), orbitingFleet.getSystem().getId(),
-						SystemSnapshot.forKnown(roundProvider.get(), orbitingSystem));
+				this.snapshotter.put(fleet.getPlayer(), orbitingFleet.getSystem().getId(),
+						SystemSnapshot.forKnown(this.roundProvider.get(), orbitingSystem));
 			}
 		}
 
@@ -137,9 +133,7 @@ public class FleetTurn {
 		return new FleetChanges(newFleets, emptyFleets, combats, orbitingArrivingMapping);
 	}
 
-	@SuppressFBWarnings(value = "DRE_DECLARED_RUNTIME_EXCEPTION",
-			justification = "Should never happen, is like an assert.")
-	private static void assertSingleFleet(final Set<Fleet> newFleets) throws IllegalStateException {
+	private static void assertSingleFleet(Set<Fleet> newFleets) throws IllegalStateException {
 		if (newFleets.size() != 1) {
 			throw new IllegalStateException("There should only be one leaving fleet!");
 		}

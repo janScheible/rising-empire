@@ -13,7 +13,7 @@ public class FireExchange {
 
 	private final int shipCount;
 
-	public FireExchange(final int round, final int lostHitPoints, final int damage, final int shipCount) {
+	public FireExchange(int round, int lostHitPoints, int damage, int shipCount) {
 		this.round = round;
 		this.lostHitPoints = lostHitPoints;
 		this.damage = damage;
@@ -21,19 +21,19 @@ public class FireExchange {
 	}
 
 	public int getRound() {
-		return round;
+		return this.round;
 	}
 
 	public int getLostHitPoints() {
-		return lostHitPoints;
+		return this.lostHitPoints;
 	}
 
 	public int getDamage() {
-		return damage;
+		return this.damage;
 	}
 
 	public int getShipCount() {
-		return shipCount;
+		return this.shipCount;
 	}
 
 }

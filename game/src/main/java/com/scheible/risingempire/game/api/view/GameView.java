@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
+import com.scheible.risingempire.game.api.view.fleet.FleetView.FleetViewType;
 import com.scheible.risingempire.game.api.view.notification.SystemNotificationView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
@@ -18,7 +19,6 @@ import com.scheible.risingempire.game.api.view.tech.TechGroupView;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.api.view.universe.Race;
 
-import static com.scheible.risingempire.game.api.view.fleet.FleetView.FleetViewType.ORBITING;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 
@@ -61,12 +61,11 @@ public class GameView {
 
 	private final Set<SystemNotificationView> systemNotifications;
 
-	public GameView(final int galaxyWidth, final int galaxyHeight, final Player player, final Race race,
-			final Set<Player> players, final int round, final Map<Player, Boolean> turnFinishedStatus,
-			final Set<SystemView> systems, final Set<FleetView> fleets, final Set<SystemId> colonizableSystemIds,
-			final Set<SystemId> annexableSystemIds, final Set<SpaceCombatView> spaceCombats,
-			final Set<SystemId> justExploredSystem, final Set<TechGroupView> selectTechGroups,
-			final Set<SystemNotificationView> systemNotifications) {
+	public GameView(int galaxyWidth, int galaxyHeight, Player player, Race race, Set<Player> players, int round,
+			Map<Player, Boolean> turnFinishedStatus, Set<SystemView> systems, Set<FleetView> fleets,
+			Set<SystemId> colonizableSystemIds, Set<SystemId> annexableSystemIds, Set<SpaceCombatView> spaceCombats,
+			Set<SystemId> justExploredSystem, Set<TechGroupView> selectTechGroups,
+			Set<SystemNotificationView> systemNotifications) {
 		this.galaxyWidth = galaxyWidth;
 		this.galaxyHeight = galaxyHeight;
 		this.player = player;
@@ -88,59 +87,59 @@ public class GameView {
 	}
 
 	public int getGalaxyWidth() {
-		return galaxyWidth;
+		return this.galaxyWidth;
 	}
 
 	public int getGalaxyHeight() {
-		return galaxyHeight;
+		return this.galaxyHeight;
 	}
 
 	public Set<TechGroupView> getSelectTechs() {
-		return selectTechGroups;
+		return this.selectTechGroups;
 	}
 
 	public Set<SpaceCombatView> getSpaceCombats() {
-		return spaceCombats;
+		return this.spaceCombats;
 	}
 
 	public Player getPlayer() {
-		return player;
+		return this.player;
 	}
 
 	public Set<Player> getPlayers() {
-		return players;
+		return this.players;
 	}
 
 	public Race getRace() {
-		return race;
+		return this.race;
 	}
 
 	public int getRound() {
-		return round;
+		return this.round;
 	}
 
 	public boolean isOwnTurnFinished() {
-		return turnFinishedStatus.get(player);
+		return this.turnFinishedStatus.get(this.player);
 	}
 
 	public Map<Player, Boolean> getTurnFinishedStatus() {
-		return turnFinishedStatus;
+		return this.turnFinishedStatus;
 	}
 
 	public Set<SystemView> getSystems() {
-		return systemsSet;
+		return this.systemsSet;
 	}
 
 	public Set<FleetView> getFleets() {
-		return fleetsSet;
+		return this.fleetsSet;
 	}
 
 	public Set<SystemId> getColonizableSystemIds() {
-		return colonizableSystemIds;
+		return this.colonizableSystemIds;
 	}
 
 	public Set<SystemId> getAnnexableSystemIds() {
-		return annexableSystemIds;
+		return this.annexableSystemIds;
 	}
 
 	/**
@@ -148,57 +147,58 @@ public class GameView {
 	 * with space battle).
 	 */
 	public Set<SystemId> getJustExploredSystemIds() {
-		return justExploredSystem;
+		return this.justExploredSystem;
 	}
 
 	public Set<SystemNotificationView> getSystemNotifications() {
-		return systemNotifications;
+		return this.systemNotifications;
 	}
 
-	public Optional<FleetView> getOrbiting(final SystemId systemId) {
-		return fleetsSet.stream()
-			.filter(f -> f.getPlayer() == player && f.getType() == ORBITING && f.getOrbiting().get().equals(systemId))
+	public Optional<FleetView> getOrbiting(SystemId systemId) {
+		return this.fleetsSet.stream()
+			.filter(f -> f.getPlayer() == this.player && f.getType() == FleetViewType.ORBITING
+					&& f.getOrbiting().get().equals(systemId))
 			.findFirst();
 	}
 
-	public FleetView getFleet(final FleetId fleetId) {
-		return fleets.get(fleetId);
+	public FleetView getFleet(FleetId fleetId) {
+		return this.fleets.get(fleetId);
 	}
 
-	public SystemView getSystem(final String starName) {
-		return systemsSet.stream()
+	public SystemView getSystem(String starName) {
+		return this.systemsSet.stream()
 			.filter(s -> s.getStarName().isPresent() && s.getStarName().get().equals(starName))
 			.findFirst()
 			.get();
 	}
 
-	public SystemView getSystem(final SystemId id) {
-		return systems.get(id);
+	public SystemView getSystem(SystemId id) {
+		return this.systems.get(id);
 	}
 
 	public SystemView getHomeSystem() {
-		return systemsSet.stream().filter(SystemView::isHomeSystem).findFirst().get();
+		return this.systemsSet.stream().filter(SystemView::isHomeSystem).findFirst().get();
 	}
 
 	@Override
 	public String toString() {
-		final StringBuilder result = new StringBuilder();
-		result.append("current turn: ").append(round).append('\n');
+		StringBuilder result = new StringBuilder();
+		result.append("current turn: ").append(this.round).append('\n');
 
-		systemsSet.stream()
+		this.systemsSet.stream()
 			.sorted(Comparator.comparing(sv -> getSystemSortPlayer(sv)))
 			.map(Object::toString)
 			.forEachOrdered(s -> result.append(s).append('\n'));
 
-		fleetsSet.stream()
+		this.fleetsSet.stream()
 			.sorted(Comparator.comparing(FleetView::getPlayer).thenComparing(Comparator.comparing(FleetView::getType)))
-			.map(fv -> fv.toString(sid -> systems.get(sid).getStarName().orElseGet(() -> sid.toString())))
+			.map(fv -> fv.toString(sid -> this.systems.get(sid).getStarName().orElseGet(() -> sid.toString())))
 			.forEachOrdered(f -> result.append(f).append('\n'));
 
 		return result.toString();
 	}
 
-	private static String getSystemSortPlayer(final SystemView system) {
+	private static String getSystemSortPlayer(SystemView system) {
 		return system.getColonyView().map(ColonyView::getPlayer).map(Object::toString).orElse("");
 	}
 

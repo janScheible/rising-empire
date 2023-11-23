@@ -45,10 +45,10 @@ public class SpaceCombatView {
 
 	private final Outcome outcome;
 
-	public SpaceCombatView(final SystemId systemId, final int order, final int fireExchangeCount, final Race attacker,
-			final Player attackerPlayer, final FleetBeforeArrival attackerFleet,
-			final List<CombatantShipSpecsView> attackerShipSpecs, final Race defender, final Player defenderPlayer,
-			final FleetId defenderFleet, final List<CombatantShipSpecsView> defenderShipSpecs, final Outcome outcome) {
+	public SpaceCombatView(SystemId systemId, int order, int fireExchangeCount, Race attacker, Player attackerPlayer,
+			FleetBeforeArrival attackerFleet, List<CombatantShipSpecsView> attackerShipSpecs, Race defender,
+			Player defenderPlayer, FleetId defenderFleet, List<CombatantShipSpecsView> defenderShipSpecs,
+			Outcome outcome) {
 		this.systemId = systemId;
 
 		this.order = order;
@@ -69,51 +69,51 @@ public class SpaceCombatView {
 	}
 
 	public SystemId getSystemId() {
-		return systemId;
+		return this.systemId;
 	}
 
 	public int getOrder() {
-		return order;
+		return this.order;
 	}
 
 	public int getFireExchangeCount() {
-		return fireExchangeCount;
+		return this.fireExchangeCount;
 	}
 
 	public Race getAttacker() {
-		return attacker;
+		return this.attacker;
 	}
 
 	public Player getAttackerPlayer() {
-		return attackerPlayer;
+		return this.attackerPlayer;
 	}
 
 	public FleetBeforeArrival getAttackerFleet() {
-		return attackerFleet;
+		return this.attackerFleet;
 	}
 
 	public List<CombatantShipSpecsView> getAttackerShipSpecs() {
-		return attackerShipSpecs;
+		return this.attackerShipSpecs;
 	}
 
 	public Race getDefender() {
-		return defender;
+		return this.defender;
 	}
 
 	public Player getDefenderPlayer() {
-		return defenderPlayer;
+		return this.defenderPlayer;
 	}
 
 	public FleetId getDefenderFleet() {
-		return defenderFleet;
+		return this.defenderFleet;
 	}
 
 	public List<CombatantShipSpecsView> getDefenderShipSpecs() {
-		return defenderShipSpecs;
+		return this.defenderShipSpecs;
 	}
 
 	public Outcome getOutcome() {
-		return outcome;
+		return this.outcome;
 	}
 
 }

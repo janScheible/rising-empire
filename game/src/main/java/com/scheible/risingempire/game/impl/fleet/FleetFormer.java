@@ -2,14 +2,12 @@ package com.scheible.risingempire.game.impl.fleet;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.impl.ship.DesignSlot;
 import com.scheible.risingempire.game.impl.system.SystemOrb;
 import com.scheible.risingempire.util.ProcessingResult;
-
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
 
 /**
  * @author sj
@@ -22,29 +20,29 @@ public class FleetFormer {
 
 	private final JourneyCalculator journeyCalculator;
 
-	public FleetFormer(final FleetIdGenerator fleetIdGenerator, final FleetFinder fleetFinder,
-			final JourneyCalculator journeyCalculator) {
+	public FleetFormer(FleetIdGenerator fleetIdGenerator, FleetFinder fleetFinder,
+			JourneyCalculator journeyCalculator) {
 		this.fleetIdGenerator = fleetIdGenerator;
 		this.fleetFinder = fleetFinder;
 		this.journeyCalculator = journeyCalculator;
 	}
 
-	public FleetChanges deployFleet(final Player player, final Fleet from, final SystemOrb source,
-			final SystemOrb destination, final Map<DesignSlot, Integer> ships, final int round) {
-		final int speed = journeyCalculator.calcFleetSpeed(player, ships);
+	public FleetChanges deployFleet(Player player, Fleet from, SystemOrb source, SystemOrb destination,
+			Map<DesignSlot, Integer> ships, int round) {
+		int speed = this.journeyCalculator.calcFleetSpeed(player, ships);
 
-		final boolean isJustLeaveSentBack = from.isDeployed() && from.asDeployed().isJustLeaving()
+		boolean isJustLeaveSentBack = from.isDeployed() && from.asDeployed().isJustLeaving()
 				&& from.asDeployed().getSource().equals(destination);
 
-		final ProcessingResult<? extends Fleet> to = isJustLeaveSentBack
-				? fleetFinder.getOrbitingFleet(player, source)
+		ProcessingResult<? extends Fleet> to = isJustLeaveSentBack
+				? this.fleetFinder.getOrbitingFleet(player, source)
 					.map(ProcessingResult::existing)
-					.orElseGet(() -> ProcessingResult.created(
-							new OrbitingFleet(fleetIdGenerator.createRandom(), player, new HashMap<>(), source, round)))
-				: fleetFinder.getJustLeavingFleets(player, source, destination, speed)
+					.orElseGet(() -> ProcessingResult.created(new OrbitingFleet(this.fleetIdGenerator.createRandom(),
+							player, new HashMap<>(), source, round)))
+				: this.fleetFinder.getJustLeavingFleets(player, source, destination, speed)
 					.map(ProcessingResult::existing)
-					.orElseGet(() -> ProcessingResult.created(new DeployedFleet(fleetIdGenerator.createRandom(), player,
-							new HashMap<>(), source, destination, speed)));
+					.orElseGet(() -> ProcessingResult.created(new DeployedFleet(this.fleetIdGenerator.createRandom(),
+							player, new HashMap<>(), source, destination, speed)));
 
 		from.detach(ships);
 		updateSpeed(player, from);
@@ -52,13 +50,13 @@ public class FleetFormer {
 		to.get().join(ships);
 		updateSpeed(player, to.get());
 
-		return new FleetChanges(to.wasCreated() ? singleton(to.get()) : emptySet(),
-				!from.hasShips() ? singleton(from) : emptySet());
+		return new FleetChanges(to.wasCreated() ? Set.of(to.get()) : Set.of(),
+				!from.hasShips() ? Set.of(from) : Set.of());
 	}
 
-	private void updateSpeed(final Player player, final Fleet fleet) {
+	private void updateSpeed(Player player, Fleet fleet) {
 		if (fleet.isDeployed() && fleet.hasShips()) {
-			final int newSpeed = journeyCalculator.calcFleetSpeed(player, fleet.getShips());
+			int newSpeed = this.journeyCalculator.calcFleetSpeed(player, fleet.getShips());
 
 			if (fleet.asDeployed().getSpeed() != newSpeed) {
 				fleet.asDeployed().setSpeed(newSpeed);
@@ -66,11 +64,10 @@ public class FleetFormer {
 		}
 	}
 
-	public ProcessingResult<OrbitingFleet> welcomeFleet(final DeployedFleet fleet, final SystemOrb destination,
-			final int round) {
-		final ProcessingResult<OrbitingFleet> orbiting = fleetFinder.getOrbitingFleet(fleet.getPlayer(), destination)
+	public ProcessingResult<OrbitingFleet> welcomeFleet(DeployedFleet fleet, SystemOrb destination, int round) {
+		ProcessingResult<OrbitingFleet> orbiting = this.fleetFinder.getOrbitingFleet(fleet.getPlayer(), destination)
 			.map(ProcessingResult::existing)
-			.orElseGet(() -> ProcessingResult.created(new OrbitingFleet(fleetIdGenerator.createRandom(),
+			.orElseGet(() -> ProcessingResult.created(new OrbitingFleet(this.fleetIdGenerator.createRandom(),
 					fleet.getPlayer(), new HashMap<>(), destination, round)));
 		orbiting.get().join(fleet.getShips());
 		return orbiting;

@@ -18,7 +18,7 @@ public class ShipTypeView {
 
 	private final int look;
 
-	public ShipTypeView(final ShipTypeId id, final int index, final String name, final ShipSize size, final int look) {
+	public ShipTypeView(ShipTypeId id, int index, String name, ShipSize size, int look) {
 		this.id = id;
 
 		this.index = index;
@@ -28,33 +28,33 @@ public class ShipTypeView {
 	}
 
 	public ShipTypeId getId() {
-		return id;
+		return this.id;
 	}
 
 	public int getIndex() {
-		return index;
+		return this.index;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public ShipSize getSize() {
-		return size;
+		return this.size;
 	}
 
 	public int getLook() {
-		return look;
+		return this.look;
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
 		else if (obj != null && getClass().equals(obj.getClass())) {
-			final ShipTypeView other = (ShipTypeView) obj;
-			return Objects.equals(id, other.id);
+			ShipTypeView other = (ShipTypeView) obj;
+			return Objects.equals(this.id, other.id);
 		}
 		else {
 			return false;
@@ -63,16 +63,16 @@ public class ShipTypeView {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(this.id);
 	}
 
 	@Override
 	public String toString() {
-		return new StringJoiner(", ", "ShipType[", "]").add("id=" + id)
-			.add("index=" + index)
-			.add("name=" + name)
-			.add("size=" + size)
-			.add("look=" + look)
+		return new StringJoiner(", ", "ShipType[", "]").add("id=" + this.id)
+			.add("index=" + this.index)
+			.add("name=" + this.name)
+			.add("size=" + this.size)
+			.add("look=" + this.look)
 			.toString();
 	}
 

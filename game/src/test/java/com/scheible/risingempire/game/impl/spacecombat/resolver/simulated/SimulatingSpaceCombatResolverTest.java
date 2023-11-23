@@ -2,27 +2,33 @@ package com.scheible.risingempire.game.impl.spacecombat.resolver.simulated;
 
 import java.util.Map;
 
+import com.scheible.risingempire.game.api.view.ship.ShipSize;
+import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
+import com.scheible.risingempire.game.impl.ship.AbstractWeapon;
+import com.scheible.risingempire.game.impl.ship.AbstractWeapon.Damage;
+import com.scheible.risingempire.game.impl.ship.BeamWeapon;
+import com.scheible.risingempire.game.impl.ship.Missile;
+import com.scheible.risingempire.game.impl.ship.Missile.RackSize;
 import com.scheible.risingempire.game.impl.ship.ShipDesign;
 import com.scheible.risingempire.game.impl.spacecombat.resolver.simulated.SimulatingSpaceCombatResolver.SpaceCombatSummary;
 import org.junit.jupiter.api.Test;
 
-import static com.scheible.risingempire.game.api.view.ship.ShipSize.MEDIUM;
-import static com.scheible.risingempire.game.api.view.ship.ShipSize.SMALL;
-import static com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome.DEFENDER_WON;
-import static com.scheible.risingempire.game.impl.ship.ShipDesignTest.LASER;
-import static com.scheible.risingempire.game.impl.ship.ShipDesignTest.NUCLEAR_MISSILE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author sj
  */
-public class SimulatingSpaceCombatResolverTest {
+class SimulatingSpaceCombatResolverTest {
+
+	private static final AbstractWeapon LASER = new BeamWeapon("Laser", new Damage(1, 4));
+
+	private static final AbstractWeapon NUCLEAR_MISSILE = new Missile("Nuclear Missile", new Damage(4), RackSize.TWO);
 
 	@Test
-	public void testSimulate() {
-		final ShipDesign attackingFighterDesing = ShipDesign.builder()
+	void testSimulate() {
+		ShipDesign attackingFighterDesing = ShipDesign.builder()
 			.name("Destroyer")
-			.size(MEDIUM)
+			.size(ShipSize.MEDIUM)
 			.look(0)
 			.computer(0)
 			.shield(0)
@@ -33,9 +39,9 @@ public class SimulatingSpaceCombatResolverTest {
 			.weapons(1, LASER, 1, NUCLEAR_MISSILE)
 			.specials();
 
-		final ShipDesign defendingFighterDesing = ShipDesign.builder()
+		ShipDesign defendingFighterDesing = ShipDesign.builder()
 			.name("Fighter")
-			.size(SMALL)
+			.size(ShipSize.SMALL)
 			.look(0)
 			.computer(0)
 			.shield(0)
@@ -49,7 +55,7 @@ public class SimulatingSpaceCombatResolverTest {
 		SpaceCombatSummary summary = new SimulatingSpaceCombatResolver().simulate(Map.of(attackingFighterDesing, 3),
 				Map.of(defendingFighterDesing, 7));
 
-		assertThat(summary.outcome).isEqualTo(DEFENDER_WON);
+		assertThat(summary.outcome).isEqualTo(Outcome.DEFENDER_WON);
 	}
 
 }
