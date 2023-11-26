@@ -40,7 +40,7 @@
 
 		<either.java.version>2.9.0</either.java.version>
 
-		<pocketsaw.version>1.7.0</pocketsaw.version>
+		<pocketsaw.version>1.7.1</pocketsaw.version>
 		<classgraph.version>4.8.164</classgraph.version>
 		<archunit.version>1.2.0</archunit.version>
 		<galen-rainbow4j.version>2.4.4</galen-rainbow4j.version>

@@ -1,5 +1,6 @@
 package com.scheible.risingempire.webapp;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -21,7 +22,8 @@ public class RisingEmpireSubModuleTests {
 			.map(packageName -> packageName.substring(0, packageName.lastIndexOf(".")))
 			.get();
 
-		Pocketsaw.analizeClasspath(ClassgraphClasspathScanner.create(basePackage).enableAutoMatching());
+		Pocketsaw.analizeClasspath(ClassgraphClasspathScanner.create(basePackage).enableAutoMatching(),
+				new File("./target/pocketsaw-rising-empire-dependency-graph.html"));
 	}
 
 	@Test

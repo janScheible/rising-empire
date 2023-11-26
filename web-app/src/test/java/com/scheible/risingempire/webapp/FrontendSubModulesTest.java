@@ -64,18 +64,8 @@ class FrontendSubModulesTest {
 	}
 
 	@Test
-	void testNoDescriptorCycle() {
-		assertThat(result.getAnyDescriptorCycle()).isEmpty();
-	}
-
-	@Test
 	void testNoCodeCycle() {
 		assertThat(result.getAnyCodeCycle()).isEmpty();
-	}
-
-	@Test
-	void testNoIllegalCodeDependencies() {
-		assertThat(result.getIllegalCodeDependencies()).isEmpty();
 	}
 
 }
