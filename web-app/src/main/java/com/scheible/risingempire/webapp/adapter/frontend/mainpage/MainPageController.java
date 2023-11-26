@@ -31,7 +31,6 @@ import com.scheible.risingempire.webapp.hypermedia.Action;
 import com.scheible.risingempire.webapp.hypermedia.ActionField;
 import com.scheible.risingempire.webapp.hypermedia.ActionHttpMethod;
 import com.scheible.risingempire.webapp.hypermedia.EntityModel;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -45,7 +44,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import static java.util.Collections.emptyList;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
@@ -60,29 +58,19 @@ class MainPageController {
 
 	private final GameManager gameManager;
 
-	MainPageController(final GameHolder gameHolder, final GameManager gameManager) {
+	MainPageController(GameHolder gameHolder, GameManager gameManager) {
 		this.gameHolder = gameHolder;
 		this.gameManager = gameManager;
 	}
 
-	static class FinishTurnBodyDto {
-
-		SystemId selectedStarId;
-
-		int round;
-
-	}
-
 	@PostMapping(path = "/main-page/button-bar/finished-turns", consumes = APPLICATION_JSON_VALUE)
-	@SuppressFBWarnings(value = "SPRING_FILE_DISCLOSURE", justification = "Controlled redirect... ;-)")
-	ResponseEntity<Void> finishTurn(@ModelAttribute final FrontendContext context,
-			@RequestBody final FinishTurnBodyDto body) {
+	ResponseEntity<Void> finishTurn(@ModelAttribute FrontendContext context, @RequestBody FinishTurnBodyDto body) {
 		if (context.getGameView().getRound() != body.round) {
 			return ResponseEntity.status(HttpStatus.GONE).build();
 		}
 
-		final TurnStatus turnStatus = context.getPlayerGame().finishTurn();
-		gameManager.turnFinished(context.getGameId(), context.getPlayer(), turnStatus);
+		TurnStatus turnStatus = context.getPlayerGame().finishTurn();
+		this.gameManager.turnFinished(context.getGameId(), context.getPlayer(), turnStatus);
 
 		return ResponseEntity.status(HttpStatus.SEE_OTHER)
 			.header(HttpHeaders.LOCATION,
@@ -93,29 +81,11 @@ class MainPageController {
 			.build();
 	}
 
-	static class ColonizeSystemBodyDto {
-
-		SystemId selectedStarId;
-
-		FleetId fleetId;
-
-		Optional<List<String>> colonizableSystemId = Optional.empty();
-
-		// The presence of a skip value is a terrible way to indicate that the action was
-		// invoked in the command phase
-		// and not as part of the flow at the begin of a player's turn.
-		Optional<Boolean> skip = Optional.empty();
-
-		Optional<String> fields = Optional.empty();
-
-	}
-
 	@PostMapping(path = "/main-page/inspector/colonizations", consumes = APPLICATION_JSON_VALUE)
-	@SuppressFBWarnings(value = "SPRING_FILE_DISCLOSURE", justification = "Controlled redirect... ;-)")
-	ResponseEntity<Void> colonizeSystem(@ModelAttribute final FrontendContext context,
-			@RequestBody final ColonizeSystemBodyDto body) {
-		final FleetView fleet = context.getGameView().getFleet(body.fleetId);
-		final SystemView systemToColonize = context.getGameView().getSystem(fleet.getOrbiting().get());
+	ResponseEntity<Void> colonizeSystem(@ModelAttribute FrontendContext context,
+			@RequestBody ColonizeSystemBodyDto body) {
+		FleetView fleet = context.getGameView().getFleet(body.fleetId);
+		SystemView systemToColonize = context.getGameView().getSystem(fleet.getOrbiting().get());
 		context.getPlayerGame()
 			.colonizeSystem(systemToColonize.getId(), fleet.getId(), body.skip.orElse(Boolean.FALSE));
 
@@ -123,7 +93,7 @@ class MainPageController {
 			return ResponseEntity.status(HttpStatus.SEE_OTHER)
 				.header(HttpHeaders.LOCATION, context.withSelectedStar(body.selectedStarId)
 					.toAction(HttpMethod.GET, "main-page")
-					.with(body.colonizableSystemId.orElseGet(() -> emptyList())
+					.with(body.colonizableSystemId.orElseGet(() -> List.of())
 						.stream()
 						.map(csId -> new ActionField("colonizableSystemId", csId)))
 					.with(context.getGameView()
@@ -150,38 +120,17 @@ class MainPageController {
 		} // CPD-ON
 	}
 
-	static class AnnexSystemBodyDto {
-
-		SystemId selectedStarId;
-
-		FleetId fleetId;
-
-		Optional<List<String>> annexableSystemId = Optional.empty();
-
-		// The presence of a skip value is a terrible way to indicate that the action was
-		// invoked in the command phase
-		// and not as part of the flow at the begin of a player's turn.
-		Optional<Boolean> skip = Optional.empty();
-
-		Optional<String> fields = Optional.empty();
-
-	}
-
 	@PostMapping(path = "/main-page/inspector/annexations", consumes = APPLICATION_JSON_VALUE)
-	ResponseEntity<Void> annexSystem(@ModelAttribute final FrontendContext context,
-			@RequestBody final AnnexSystemBodyDto body) {
-		final FleetView fleet = context.getGameView().getFleet(body.fleetId);
-		final ColonyView colonyToAnnex = context.getGameView()
-			.getSystem(fleet.getOrbiting().get())
-			.getColonyView()
-			.get();
+	ResponseEntity<Void> annexSystem(@ModelAttribute FrontendContext context, @RequestBody AnnexSystemBodyDto body) {
+		FleetView fleet = context.getGameView().getFleet(body.fleetId);
+		ColonyView colonyToAnnex = context.getGameView().getSystem(fleet.getOrbiting().get()).getColonyView().get();
 		context.getPlayerGame().annexSystem(colonyToAnnex.getId(), fleet.getId(), body.skip.orElse(Boolean.FALSE));
 
 		if (!body.skip.isPresent()) {
 			return ResponseEntity.status(HttpStatus.SEE_OTHER)
 				.header(HttpHeaders.LOCATION, context.withSelectedStar(body.selectedStarId)
 					.toAction(HttpMethod.GET, "main-page")
-					.with(body.annexableSystemId.orElseGet(() -> emptyList())
+					.with(body.annexableSystemId.orElseGet(() -> List.of())
 						.stream()
 						.map(asId -> new ActionField("annexableSystemId", asId)))
 					.with(context.getGameView()
@@ -205,13 +154,11 @@ class MainPageController {
 	}
 
 	@PostMapping(path = "/main-page/inspector/deployments", consumes = APPLICATION_JSON_VALUE)
-	@SuppressFBWarnings(value = "SPRING_FILE_DISCLOSURE", justification = "Controlled redirect... ;-)")
-	ResponseEntity<Void> deployFleet(@ModelAttribute final FrontendContext context,
-			@RequestBody final LinkedMultiValueMap<String, String> body) {
-		final FleetView fleet = context.getGameView().getFleet(new FleetId(body.getFirst("selectedFleetId")));
+	ResponseEntity<Void> deployFleet(@ModelAttribute FrontendContext context,
+			@RequestBody LinkedMultiValueMap<String, String> body) {
+		FleetView fleet = context.getGameView().getFleet(new FleetId(body.getFirst("selectedFleetId")));
 
-		final Map<ShipTypeId, Integer> shipTypeIdsAndCounts = toShipTypesAndCounts(fleet.getShips(),
-				body.toSingleValueMap())
+		Map<ShipTypeId, Integer> shipTypeIdsAndCounts = toShipTypesAndCounts(fleet.getShips(), body.toSingleValueMap())
 			.entrySet()
 			.stream()
 			.collect(Collectors.toMap(e -> e.getKey().getId(), Entry::getValue));
@@ -228,29 +175,9 @@ class MainPageController {
 			.build();
 	}
 
-	static class SystemSpendingsBodyDto {
-
-		SystemId selectedStarId;
-
-		Optional<String> fields = Optional.empty();
-
-		Optional<String> locked = Optional.empty();
-
-		Optional<Integer> ship = Optional.empty();
-
-		Optional<Integer> defence = Optional.empty();
-
-		Optional<Integer> industry = Optional.empty();
-
-		Optional<Integer> ecology = Optional.empty();
-
-		Optional<Integer> technology = Optional.empty();
-
-	}
-
 	@PostMapping(path = "/main-page/inspector/spendings", consumes = APPLICATION_JSON_VALUE)
-	ResponseEntity<Void> allocateSystemSpendings(@ModelAttribute final FrontendContext context,
-			@RequestBody final SystemSpendingsBodyDto body) {
+	ResponseEntity<Void> allocateSystemSpendings(@ModelAttribute FrontendContext context,
+			@RequestBody SystemSpendingsBodyDto body) {
 		return ResponseEntity.status(HttpStatus.SEE_OTHER)
 			.header(HttpHeaders.LOCATION,
 					context.withSelectedStar(body.selectedStarId)
@@ -261,21 +188,8 @@ class MainPageController {
 			.build();
 	}
 
-	static class NextShipTypeBodyDto {
-
-		SystemId selectedStarId;
-
-		Optional<String> fields = Optional.empty();
-
-		ColonyId colonyId;
-
-		Optional<String> locked = Optional.empty();
-
-	}
-
 	@PostMapping(path = "/main-page/inspector/ship-types", consumes = APPLICATION_JSON_VALUE)
-	ResponseEntity<Void> nextShipType(@ModelAttribute final FrontendContext context,
-			@RequestBody final NextShipTypeBodyDto body) {
+	ResponseEntity<Void> nextShipType(@ModelAttribute FrontendContext context, @RequestBody NextShipTypeBodyDto body) {
 		context.getPlayerGame().nextShipType(body.colonyId);
 
 		return ResponseEntity.status(HttpStatus.SEE_OTHER)
@@ -289,28 +203,27 @@ class MainPageController {
 	}
 
 	@GetMapping("/main-page")
-	@SuppressFBWarnings(value = "SPRING_FILE_DISCLOSURE", justification = "Controlled redirect... ;-)")
-	ResponseEntity<EntityModel<MainPageDto>> mainPage(final HttpServletRequest request,
-			@ModelAttribute final FrontendContext context, @RequestParam final Optional<String> selectedStarId,
-			@RequestParam final Optional<String> selectedFleetId,
-			@RequestParam(name = "spaceCombatSystemId") final Optional<List<String>> spaceCombatSystemIds,
-			@RequestParam(name = "exploredSystemId") final Optional<List<String>> exploredSystemIds,
-			@RequestParam(name = "colonizableSystemId") final Optional<List<String>> colonizableSystemIds,
-			@RequestParam(name = "annexableSystemId") final Optional<List<String>> annexableSystemIds,
-			@RequestParam(name = "notificationSystemId") final Optional<List<String>> notificationSystemIds,
-			@RequestParam final Optional<Integer> turnFinishedRound, @RequestParam final Optional<Boolean> newTurn,
-			@RequestParam final Map<String, String> shipTypeIdsAndCounts,
-			@RequestParam final Optional<String> lockedCategory, @RequestParam final Optional<String> fields) {
+	ResponseEntity<EntityModel<MainPageDto>> mainPage(HttpServletRequest request,
+			@ModelAttribute FrontendContext context, @RequestParam Optional<String> selectedStarId,
+			@RequestParam Optional<String> selectedFleetId,
+			@RequestParam(name = "spaceCombatSystemId") Optional<List<String>> spaceCombatSystemIds,
+			@RequestParam(name = "exploredSystemId") Optional<List<String>> exploredSystemIds,
+			@RequestParam(name = "colonizableSystemId") Optional<List<String>> colonizableSystemIds,
+			@RequestParam(name = "annexableSystemId") Optional<List<String>> annexableSystemIds,
+			@RequestParam(name = "notificationSystemId") Optional<List<String>> notificationSystemIds,
+			@RequestParam Optional<Integer> turnFinishedRound, @RequestParam Optional<Boolean> newTurn,
+			@RequestParam Map<String, String> shipTypeIdsAndCounts, @RequestParam Optional<String> lockedCategory,
+			@RequestParam Optional<String> fields) {
 		if (context.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.SEE_OTHER)
 				.header(HttpHeaders.LOCATION, context.toAction(HttpMethod.GET, "new-game-page").toGetUri())
 				.build();
 		}
 
-		final Game game = gameHolder.get(context.getGameId()).orElseThrow();
+		Game game = this.gameHolder.get(context.getGameId()).orElseThrow();
 		game.unregisterAi(context.getPlayer());
 
-		final MainPageState state = MainPageState.fromParameters(selectedStarId, selectedFleetId, shipTypeIdsAndCounts,
+		MainPageState state = MainPageState.fromParameters(selectedStarId, selectedFleetId, shipTypeIdsAndCounts,
 				spaceCombatSystemIds, exploredSystemIds, colonizableSystemIds, annexableSystemIds,
 				notificationSystemIds, lockedCategory,
 				turnFinishedRound.map(tfr -> tfr == context.getGameView().getRound()), newTurn.orElse(Boolean.FALSE),
@@ -338,7 +251,7 @@ class MainPageController {
 				.build();
 		}
 
-		final boolean selectTech = !context.getGameView().getSelectTechs().isEmpty();
+		boolean selectTech = !context.getGameView().getSelectTechs().isEmpty();
 		if (selectTech && !state.isTurnFinishedState() && !state.isFleetMovementState()
 				&& spaceCombatSystemIds.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.SEE_OTHER)
@@ -358,8 +271,8 @@ class MainPageController {
 				.flatMap(pv -> Stream.of(pv.getValue()).map(v -> new ActionField(pv.getKey(), v))))));
 	}
 
-	private static Stream<ActionField> getSteps(final GameView gameView) {
-		final Set<ActionField> fields = Stream.concat(Stream.concat(Stream.concat(Stream.concat(//
+	private static Stream<ActionField> getSteps(GameView gameView) {
+		Set<ActionField> fields = Stream.concat(Stream.concat(Stream.concat(Stream.concat(//
 				gameView.getSpaceCombats()
 					.stream()
 					.map(scv -> new ActionField("spaceCombatSystemId",
@@ -391,13 +304,87 @@ class MainPageController {
 		}
 	}
 
-	private static Map<ShipTypeView, Integer> toShipTypesAndCounts(final Map<ShipTypeView, Integer> fleetShips,
-			final Map<String, String> parameters) {
+	private static Map<ShipTypeView, Integer> toShipTypesAndCounts(Map<ShipTypeView, Integer> fleetShips,
+			Map<String, String> parameters) {
 		return fleetShips.keySet()
 			.stream()
 			.filter(st -> parameters.containsKey(st.getId().getValue()))
 			.collect(Collectors.toMap(Function.identity(),
 					st -> Integer.valueOf(parameters.get(st.getId().getValue()))));
+	}
+
+	static class ColonizeSystemBodyDto {
+
+		SystemId selectedStarId;
+
+		FleetId fleetId;
+
+		Optional<List<String>> colonizableSystemId = Optional.empty();
+
+		// The presence of a skip value is a terrible way to indicate that the action was
+		// invoked in the command phase
+		// and not as part of the flow at the begin of a player's turn.
+		Optional<Boolean> skip = Optional.empty();
+
+		Optional<String> fields = Optional.empty();
+
+	}
+
+	static class AnnexSystemBodyDto {
+
+		SystemId selectedStarId;
+
+		FleetId fleetId;
+
+		Optional<List<String>> annexableSystemId = Optional.empty();
+
+		// The presence of a skip value is a terrible way to indicate that the action was
+		// invoked in the command phase
+		// and not as part of the flow at the begin of a player's turn.
+		Optional<Boolean> skip = Optional.empty();
+
+		Optional<String> fields = Optional.empty();
+
+	}
+
+	static class SystemSpendingsBodyDto {
+
+		SystemId selectedStarId;
+
+		Optional<String> fields = Optional.empty();
+
+		Optional<String> locked = Optional.empty();
+
+		Optional<Integer> ship = Optional.empty();
+
+		Optional<Integer> defence = Optional.empty();
+
+		Optional<Integer> industry = Optional.empty();
+
+		Optional<Integer> ecology = Optional.empty();
+
+		Optional<Integer> technology = Optional.empty();
+
+	}
+
+	static class FinishTurnBodyDto {
+
+		SystemId selectedStarId;
+
+		int round;
+
+	}
+
+	static class NextShipTypeBodyDto {
+
+		SystemId selectedStarId;
+
+		Optional<String> fields = Optional.empty();
+
+		ColonyId colonyId;
+
+		Optional<String> locked = Optional.empty();
+
 	}
 
 }

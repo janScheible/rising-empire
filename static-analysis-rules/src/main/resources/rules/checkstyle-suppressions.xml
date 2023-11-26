@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC "Checkstyle SuppressionFilter Configuration 1.2" "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<suppressions>
+	<suppress id="SpringAvoidStaticImportTest"
+			  checks="io.spring.javaformat.checkstyle.check.SpringAvoidStaticImportCheck" 
+			  files=".*[\\/]src[\\/]test[\\/]java[\\/]"/>
+	
+	<suppress id="PackageNameTest" checks="PackageName" files=".*[\\/]src[\\/]main[\\/]java[\\/]"/>
+	<suppress id="PackageNameProduction" checks="PackageName" files=".*[\\/]src[\\/]test[\\/]java[\\/]"/>
+</suppressions>

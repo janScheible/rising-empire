@@ -73,12 +73,12 @@
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
-					<artifactId>jsr305</artifactId>
 					<groupId>com.google.code.findbugs</groupId>
+					<artifactId>jsr305</artifactId>
 				</exclusion>
 				<exclusion>
-					<artifactId>okio</artifactId>
 					<groupId>com.squareup.okio</groupId>
+					<artifactId>okio</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -99,13 +99,6 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>build-info</goal>
-						</goals>
-					</execution>
-				</executions>
 				<configuration>
 					<image>
 						<publish>true</publish>
@@ -130,6 +123,13 @@
 						</publishRegistry>
 					</docker>
 				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>build-info</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>io.github.git-commit-id</groupId>
@@ -141,6 +141,15 @@
 			<plugin>
 				<groupId>com.scheible.esbuild</groupId>
 				<artifactId>esbuild-maven-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>com.societegenerale.commons</groupId>
+				<artifactId>arch-unit-maven-plugin</artifactId>
+				<configuration>
+					<!-- Currently too many violations against CodeDependencies's layer rule... -->
+					<skip>true</skip>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

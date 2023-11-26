@@ -31,14 +31,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 class SpaceCombatPageController {
 
 	@GetMapping(path = "/space-combat-page/{currentSpaceCombatSystemId}")
-	EntityModel<SpaceCombatPageDto> spaceCombatPage(@ModelAttribute final FrontendContext context,
-			@PathVariable final String currentSpaceCombatSystemId,
-			@RequestParam(name = "spaceCombatSystemId") final Optional<List<String>> spaceCombatSystemIds,
-			@RequestParam(name = "exploredSystemId") final Optional<List<String>> exploredSystemIds,
-			@RequestParam(name = "colonizableSystemId") final Optional<List<String>> colonizableSystemIds,
-			@RequestParam(name = "annexableSystemId") final Optional<List<String>> annexableSystemIds,
-			@RequestParam(name = "notificationSystemId") final Optional<List<String>> notificationSystemIds) {
-		final SpaceCombatView spaceCombatView = context.getGameView()
+	EntityModel<SpaceCombatPageDto> spaceCombatPage(@ModelAttribute FrontendContext context,
+			@PathVariable String currentSpaceCombatSystemId,
+			@RequestParam(name = "spaceCombatSystemId") Optional<List<String>> spaceCombatSystemIds,
+			@RequestParam(name = "exploredSystemId") Optional<List<String>> exploredSystemIds,
+			@RequestParam(name = "colonizableSystemId") Optional<List<String>> colonizableSystemIds,
+			@RequestParam(name = "annexableSystemId") Optional<List<String>> annexableSystemIds,
+			@RequestParam(name = "notificationSystemId") Optional<List<String>> notificationSystemIds) {
+		SpaceCombatView spaceCombatView = context.getGameView()
 			.getSpaceCombats()
 			.stream()
 			.filter(sc -> sc.getSystemId().getValue().equals(currentSpaceCombatSystemId))
@@ -61,12 +61,11 @@ class SpaceCombatPageController {
 				.with(new ActionField("currentSpaceCombatSystemId", currentSpaceCombatSystemId)));
 	}
 
-	List<CombatantShipSpecsDto> toCombatantShipSpecsDtos(final Player player,
-			final Collection<CombatantShipSpecsView> combatantShipSpecs) {
+	List<CombatantShipSpecsDto> toCombatantShipSpecsDtos(Player player,
+			Collection<CombatantShipSpecsView> combatantShipSpecs) {
 		return combatantShipSpecs.stream().map(css -> {
-			return new CombatantShipSpecsDto(css.getId().getValue(), css.getName(), css.getShield().orElse(null),
-					css.getBeamDefence().orElse(null), css.getAttackLevel().orElse(null),
-					css.getMissleDefence().orElse(null), css.getHits().orElse(null), css.getSpeed().orElse(null),
+			return new CombatantShipSpecsDto(css.getId().getValue(), css.getName(), css.getShield(),
+					css.getBeamDefence(), css.getAttackLevel(), css.getMissleDefence(), css.getHits(), css.getSpeed(),
 					css.getEquipment(), new ShipsDto(css.getCount(), css.getPreviousCount(), css.getSize(), player),
 					css.getFireExchanges()
 						.stream()

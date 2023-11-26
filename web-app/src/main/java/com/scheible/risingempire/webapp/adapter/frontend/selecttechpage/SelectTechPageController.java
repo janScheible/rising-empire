@@ -17,14 +17,12 @@ import com.scheible.risingempire.webapp.adapter.frontend.selecttechpage.SelectTe
 import com.scheible.risingempire.webapp.hypermedia.Action;
 import com.scheible.risingempire.webapp.hypermedia.ActionField;
 import com.scheible.risingempire.webapp.hypermedia.EntityModel;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import static java.util.Collections.emptyList;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
@@ -34,11 +32,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 class SelectTechPageController {
 
 	@GetMapping(path = "/select-tech-page")
-	SelectTechPageDto selectTechPage(@ModelAttribute final FrontendContext context) {
-		final Set<TechGroupView> selectTechs = context.getGameView().getSelectTechs();
-		final GameView gameView = context.getGameView();
+	SelectTechPageDto selectTechPage(@ModelAttribute FrontendContext context) {
+		Set<TechGroupView> selectTechs = context.getGameView().getSelectTechs();
+		GameView gameView = context.getGameView();
 
-		List<EntityModel<TechDto>> selectTechsEntities = emptyList();
+		List<EntityModel<TechDto>> selectTechsEntities = List.of();
 		if (!selectTechs.isEmpty()) {
 			selectTechsEntities = selectTechs.iterator()
 				.next()
@@ -66,6 +64,15 @@ class SelectTechPageController {
 		return new SelectTechPageDto(selectTechsEntities);
 	}
 
+	@PostMapping(path = "/select-tech-page/selects", consumes = APPLICATION_JSON_VALUE)
+	ResponseEntity<Void> selectTech(@ModelAttribute FrontendContext context, @RequestBody SelectTechBodyDto body) {
+		context.getPlayerGame().selectTech(body.technologyId);
+
+		return TurnSteps.getMainPageRedirect(context, body.selectedStarId, Optional.empty(), body.exploredSystemId,
+				body.colonizableSystemId, body.annexableSystemId, body.notificationSystemId,
+				!context.getPlayerGame().getView().getSelectTechs().isEmpty());
+	}
+
 	static class SelectTechBodyDto {
 
 		TechId technologyId;
@@ -80,17 +87,6 @@ class SelectTechPageController {
 
 		Optional<List<String>> notificationSystemId = Optional.empty();
 
-	}
-
-	@PostMapping(path = "/select-tech-page/selects", consumes = APPLICATION_JSON_VALUE)
-	@SuppressFBWarnings(value = "SPRING_FILE_DISCLOSURE", justification = "Controlled redirect... ;-)")
-	ResponseEntity<Void> selectTech(@ModelAttribute final FrontendContext context,
-			@RequestBody final SelectTechBodyDto body) {
-		context.getPlayerGame().selectTech(body.technologyId);
-
-		return TurnSteps.getMainPageRedirect(context, body.selectedStarId, Optional.empty(), body.exploredSystemId,
-				body.colonizableSystemId, body.annexableSystemId, body.notificationSystemId,
-				!context.getPlayerGame().getView().getSelectTechs().isEmpty());
 	}
 
 }

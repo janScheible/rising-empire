@@ -17,7 +17,7 @@ public abstract class HypermediaModel<T extends HypermediaModel<? extends T>> {
 
 	@JsonProperty("_actions")
 	public List<Action> getActions() {
-		return Collections.unmodifiableList(actions);
+		return Collections.unmodifiableList(this.actions);
 	}
 
 }

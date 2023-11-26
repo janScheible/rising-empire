@@ -15,8 +15,6 @@ import com.scheible.risingempire.webapp.adapter.frontend.dto.AllocationsDto;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.PlayerDto;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.RaceDto;
 import com.scheible.risingempire.webapp.hypermedia.EntityModel;
-import edu.umd.cs.findbugs.annotations.Nullable;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import static java.util.Collections.unmodifiableList;
 
@@ -25,11 +23,27 @@ import static java.util.Collections.unmodifiableList;
  */
 class InspectorDto {
 
+	SystemDetailsDto systemDetails;
+
+	EntityModel<ExplorationDto> exploration;
+
+	EntityModel<ColonizationDto> colonization;
+
+	EntityModel<AnnexationDto> annexation;
+
+	EntityModel<FleetDeploymentDto> fleetDeployment;
+
+	EntityModel<FleetViewDto> fleetView;
+
+	EntityModel<SpaceCombatDto> spaceCombat;
+
+	UnexploredDto unexplored;
+
 	static class SystemNameDto {
 
 		final String name;
 
-		SystemNameDto(final String name) {
+		SystemNameDto(String name) {
 			this.name = name;
 		}
 
@@ -41,27 +55,23 @@ class InspectorDto {
 
 		final HabitabilityDto habitability;
 
-		@Nullable
-		final ColonyDto colony;
+		Optional<ColonyDto> colony;
 
-		@Nullable
-		final EntityModel<AllocationsDto> allocations;
+		Optional<EntityModel<AllocationsDto>> allocations;
 
-		@Nullable
-		final EntityModel<BuildQueueDto> buildQueue;
+		Optional<EntityModel<BuildQueueDto>> buildQueue;
 
-		@Nullable
-		final Integer range;
+		Optional<Integer> range;
 
-		SystemDetailsDto(final String name, final HabitabilityDto habitability, final Optional<ColonyDto> colony,
-				final Optional<EntityModel<AllocationsDto>> allocations,
-				final Optional<EntityModel<BuildQueueDto>> buildQueue, final Optional<Integer> range) {
+		SystemDetailsDto(String name, HabitabilityDto habitability, Optional<ColonyDto> colony,
+				Optional<EntityModel<AllocationsDto>> allocations, Optional<EntityModel<BuildQueueDto>> buildQueue,
+				Optional<Integer> range) {
 			this.systemName = new SystemNameDto(name);
 			this.habitability = habitability;
-			this.colony = colony.orElse(null);
-			this.allocations = allocations.orElse(null);
-			this.buildQueue = buildQueue.orElse(null);
-			this.range = range.orElse(null);
+			this.colony = colony;
+			this.allocations = allocations;
+			this.buildQueue = buildQueue;
+			this.range = range;
 		}
 
 	}
@@ -78,8 +88,7 @@ class InspectorDto {
 
 		final List<ShipsDto> ships;
 
-		FleetDeploymentDto(final Player player, final Integer eta, final Integer outOfRangeBy, final boolean deployable,
-				final List<ShipsDto> ships) {
+		FleetDeploymentDto(Player player, Integer eta, Integer outOfRangeBy, boolean deployable, List<ShipsDto> ships) {
 			this.playerColor = PlayerDto.fromPlayer(player);
 			this.eta = eta;
 			this.outOfRangeBy = outOfRangeBy;
@@ -99,7 +108,7 @@ class InspectorDto {
 
 		final List<ShipsDto> ships;
 
-		FleetViewDto(final Player player, final Race race, final Integer eta, final List<ShipsDto> ships) {
+		FleetViewDto(Player player, Race race, Integer eta, List<ShipsDto> ships) {
 			this.playerColor = PlayerDto.fromPlayer(player);
 			this.race = RaceDto.fromRace(race);
 			this.eta = eta;
@@ -120,7 +129,7 @@ class InspectorDto {
 
 		final Integer maxCount;
 
-		ShipsDto(final String id, final String name, final ShipSize size, final int count, final Integer maxCount) {
+		ShipsDto(String id, String name, ShipSize size, int count, Integer maxCount) {
 			this.id = id;
 			this.name = name;
 			this.size = size;
@@ -129,20 +138,19 @@ class InspectorDto {
 		}
 
 		@Override
-		@SuppressFBWarnings(value = "EQ_UNUSUAL", justification = "Object2.equals() is allowed.")
-		public boolean equals(final Object obj) {
+		public boolean equals(Object obj) {
 			return Objects2.equals(this, obj,
-					other -> Objects.equals(id, other.id) && Objects.equals(name, other.name));
+					other -> Objects.equals(this.id, other.id) && Objects.equals(this.name, other.name));
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(id, name);
+			return Objects.hash(this.id, this.name);
 		}
 
 		@Override
 		public String toString() {
-			return name;
+			return this.name;
 		}
 
 	}
@@ -153,7 +161,7 @@ class InspectorDto {
 
 		final HabitabilityDto habitability;
 
-		ExplorationDto(final String systemName, final HabitabilityDto habitability) {
+		ExplorationDto(String systemName, HabitabilityDto habitability) {
 			this.systemName = new SystemNameDto(systemName);
 			this.habitability = habitability;
 		}
@@ -168,7 +176,7 @@ class InspectorDto {
 
 		final Boolean colonizeCommand;
 
-		ColonizationDto(final String systemName, final HabitabilityDto habitability, final Boolean colonizeCommand) {
+		ColonizationDto(String systemName, HabitabilityDto habitability, Boolean colonizeCommand) {
 			this.systemName = new SystemNameDto(systemName);
 			this.habitability = habitability;
 			this.colonizeCommand = colonizeCommand;
@@ -184,7 +192,7 @@ class InspectorDto {
 
 		final Boolean annexCommand;
 
-		AnnexationDto(final String systemName, final HabitabilityDto habitability, final Boolean annexCommand) {
+		AnnexationDto(String systemName, HabitabilityDto habitability, Boolean annexCommand) {
 			this.systemName = new SystemNameDto(systemName);
 			this.habitability = habitability;
 			this.annexCommand = annexCommand;
@@ -198,7 +206,7 @@ class InspectorDto {
 
 		final HabitabilityDto habitability;
 
-		SpaceCombatSystem(final String systemName, final HabitabilityDto habitability) {
+		SpaceCombatSystem(String systemName, HabitabilityDto habitability) {
 			this.systemName = new SystemNameDto(systemName);
 			this.habitability = habitability;
 		}
@@ -207,11 +215,9 @@ class InspectorDto {
 
 	static class SpaceCombatDto {
 
-		@Nullable
-		final SystemNameDto systemName;
+		Optional<SystemNameDto> systemName;
 
-		@Nullable
-		final HabitabilityDto habitability;
+		Optional<HabitabilityDto> habitability;
 
 		final RaceDto attackerRace;
 
@@ -221,10 +227,10 @@ class InspectorDto {
 
 		final PlayerDto defenderColor;
 
-		SpaceCombatDto(final Optional<SpaceCombatSystem> spaceCombatSystem, final Race attackerRace,
-				final Player attackerPlayer, final Race defenderRace, final Player defenderPlayer) {
-			this.systemName = spaceCombatSystem.map(scs -> scs.systemName).orElse(null);
-			this.habitability = spaceCombatSystem.map(scs -> scs.habitability).orElse(null);
+		SpaceCombatDto(Optional<SpaceCombatSystem> spaceCombatSystem, Race attackerRace, Player attackerPlayer,
+				Race defenderRace, Player defenderPlayer) {
+			this.systemName = spaceCombatSystem.map(scs -> scs.systemName);
+			this.habitability = spaceCombatSystem.map(scs -> scs.habitability);
 
 			this.attackerRace = RaceDto.fromRace(attackerRace);
 			this.attackerColor = PlayerDto.fromPlayer(attackerPlayer);
@@ -241,7 +247,7 @@ class InspectorDto {
 
 		final int range;
 
-		UnexploredDto(final StarType starType, final int range) {
+		UnexploredDto(StarType starType, int range) {
 			this.starType = starType;
 			this.range = range;
 		}
@@ -258,7 +264,7 @@ class InspectorDto {
 
 		final int count;
 
-		BuildQueueDto(final String name, final ShipSize size, final Player player, final int count) {
+		BuildQueueDto(String name, ShipSize size, Player player, int count) {
 			this.name = name;
 			this.size = size;
 			this.playerColor = PlayerDto.fromPlayer(player);
@@ -275,7 +281,7 @@ class InspectorDto {
 
 		final int maxPopulation;
 
-		HabitabilityDto(final PlanetType type, final PlanetSpecial special, final int maxPopulation) {
+		HabitabilityDto(PlanetType type, PlanetSpecial special, int maxPopulation) {
 			this.type = type;
 			this.special = special;
 			this.maxPopulation = maxPopulation;
@@ -289,7 +295,7 @@ class InspectorDto {
 
 		final int gross;
 
-		ProductionDto(final int net, final int gross) {
+		ProductionDto(int net, int gross) {
 			this.net = net;
 			this.gross = gross;
 		}
@@ -302,7 +308,7 @@ class InspectorDto {
 
 		final Player playerColor;
 
-		ForeignColonyOwner(final Race race, final Player player) {
+		ForeignColonyOwner(Race race, Player player) {
 			this.race = race;
 			this.playerColor = player;
 		}
@@ -311,57 +317,34 @@ class InspectorDto {
 
 	static class ColonyDto {
 
-		@Nullable
-		final RaceDto race;
+		Optional<RaceDto> race;
 
-		@Nullable
-		final PlayerDto playerColor;
+		Optional<PlayerDto> playerColor;
 
 		final int population;
 
 		final int bases = 0;
 
-		@Nullable
-		final ProductionDto production;
+		Optional<ProductionDto> production;
 
-		@Nullable
-		final Integer roundsUntilAnnexable;
+		Optional<Integer> roundsUntilAnnexable;
 
-		@Nullable
-		final PlayerDto siegePlayerColor;
+		Optional<PlayerDto> siegePlayerColor;
 
-		@Nullable
-		final RaceDto siegeRace;
+		Optional<RaceDto> siegeRace;
 
-		ColonyDto(final Optional<ForeignColonyOwner> foreignColonyOwner, final int population,
-				final Optional<ProductionDto> production, final Optional<Integer> roundsUntilAnnexable,
-				final Optional<Player> siegePlayer, final Optional<Race> siegeRace) {
-			this.playerColor = foreignColonyOwner.map(co -> PlayerDto.fromPlayer(co.playerColor)).orElse(null);
-			this.race = foreignColonyOwner.map(co -> RaceDto.fromRace(co.race)).orElse(null);
+		ColonyDto(Optional<ForeignColonyOwner> foreignColonyOwner, int population, Optional<ProductionDto> production,
+				Optional<Integer> roundsUntilAnnexable, Optional<Player> siegePlayer, Optional<Race> siegeRace) {
+			this.playerColor = foreignColonyOwner.map(co -> PlayerDto.fromPlayer(co.playerColor));
+			this.race = foreignColonyOwner.map(co -> RaceDto.fromRace(co.race));
 			this.population = population;
-			this.production = production.orElse(null);
+			this.production = production;
 
-			this.roundsUntilAnnexable = roundsUntilAnnexable.orElse(null);
-			this.siegePlayerColor = siegePlayer.map(PlayerDto::fromPlayer).orElse(null);
-			this.siegeRace = siegeRace.map(RaceDto::fromRace).orElse(null);
+			this.roundsUntilAnnexable = roundsUntilAnnexable;
+			this.siegePlayerColor = siegePlayer.map(PlayerDto::fromPlayer);
+			this.siegeRace = siegeRace.map(RaceDto::fromRace);
 		}
 
 	}
-
-	SystemDetailsDto systemDetails;
-
-	EntityModel<ExplorationDto> exploration;
-
-	EntityModel<ColonizationDto> colonization;
-
-	EntityModel<AnnexationDto> annexation;
-
-	EntityModel<FleetDeploymentDto> fleetDeployment;
-
-	EntityModel<FleetViewDto> fleetView;
-
-	EntityModel<SpaceCombatDto> spaceCombat;
-
-	UnexploredDto unexplored;
 
 }

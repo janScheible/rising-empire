@@ -1,6 +1,7 @@
 package com.scheible.risingempire.webapp.adapter.frontend._scenario;
 
 import java.util.Map;
+import java.util.Set;
 
 import com.scheible.risingempire.game.api.Game;
 import com.scheible.risingempire.game.api.GameFactory;
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.Test;
 
 import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.FleetCondition.fleet;
 import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.JsonAssertCondition.mainPageState;
-import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.anyOf;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,18 +35,18 @@ class SpaceCombatFakeFleetsIT extends AbstractMainPageIT {
 				// make always blue win space combat
 				.spaceCombatWinner(Outcome.ATTACKER_WON)
 				// disable notifications
-				.fakeSystemNotificationProvider((player, round) -> emptySet())));
+				.fakeSystemNotificationProvider((player, round) -> Set.of())));
 
-		final Game game = getGame();
+		Game game = getGame();
 
 		game.registerAi(Player.WHITE);
 		game.registerAi(Player.YELLOW);
 
-		final PlayerGame blueGame = game.forPlayer(Player.BLUE);
-		final GameView blueGameView = blueGame.getView();
+		PlayerGame blueGame = game.forPlayer(Player.BLUE);
+		GameView blueGameView = blueGame.getView();
 
-		final SystemView blueHomeSystem = blueGameView.getHomeSystem();
-		final FleetView blueHomeFleet = blueGameView.getFleets()
+		SystemView blueHomeSystem = blueGameView.getHomeSystem();
+		FleetView blueHomeFleet = blueGameView.getFleets()
 			.stream()
 			.filter(f -> blueHomeSystem.getId().equals(f.getOrbiting().orElse(null)))
 			.findFirst()
@@ -57,7 +57,7 @@ class SpaceCombatFakeFleetsIT extends AbstractMainPageIT {
 		blueGame.deployFleet(blueHomeFleet.getId(), YELLOW_HOME_SYSTEM_ID,
 				Map.of(blueHomeFleet.getShipType("Colony Ship").getId(), 1));
 
-		final HypermediaClient blueClient = createHypermediaClient(Player.BLUE);
+		HypermediaClient blueClient = createHypermediaClient(Player.BLUE);
 		assertThat(blueClient).is(mainPageState("NewTurnState"));
 		assertThat(extractFleets(blueClient)).hasSize(3).areExactly(3, fleet("blue", 60, 60));
 

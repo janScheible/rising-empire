@@ -26,7 +26,7 @@ public enum PlayerDto {
 	@JsonProperty("yellow")
 	YELLOW;
 
-	public static PlayerDto fromPlayer(final Player player) {
+	public static PlayerDto fromPlayer(Player player) {
 		return PlayerDto.valueOf(player.name());
 	}
 

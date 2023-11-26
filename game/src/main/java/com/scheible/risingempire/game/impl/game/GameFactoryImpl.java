@@ -1,6 +1,5 @@
 package com.scheible.risingempire.game.impl.game;
 
-import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -229,9 +228,8 @@ public class GameFactoryImpl implements GameFactory {
 		if (solSystem == null || fierasSystem == null || centauriSystem == null) {
 			throw new IllegalStateException(
 					"It was not possible to find locations for the following home systems: " + Stream
-						.of(new SimpleImmutableEntry<>("solSystem", solSystem),
-								new SimpleImmutableEntry<>("fierasSystem", fierasSystem),
-								new SimpleImmutableEntry<>("centauriSystem", centauriSystem))
+						.of(Map.entry("solSystem", solSystem), Map.entry("fierasSystem", fierasSystem),
+								Map.entry("centauriSystem", centauriSystem))
 						.filter(e -> e.getValue() == null)
 						.map(Entry::getKey)
 						.collect(Collectors.joining(", ")));

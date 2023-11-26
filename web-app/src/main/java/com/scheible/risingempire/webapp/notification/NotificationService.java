@@ -2,13 +2,11 @@ package com.scheible.risingempire.webapp.notification;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.scheible.risingempire.game.api.view.universe.Player;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,33 +34,33 @@ public class NotificationService {
 
 	private final ApplicationEventPublisher eventPublisher;
 
-	public NotificationService(final ApplicationEventPublisher eventPublisher) {
+	public NotificationService(ApplicationEventPublisher eventPublisher) {
 		this.eventPublisher = eventPublisher;
 	}
 
-	public void registerBroadcastChannel(final String channelId, final NotificationChannel channel) {
-		broadcastChannels.put(channelId, channel);
+	public void registerBroadcastChannel(String channelId, NotificationChannel channel) {
+		this.broadcastChannels.put(channelId, channel);
 	}
 
 	/**
 	 * @return Return {@code true} if the channel can be sucessfully registered.
 	 */
-	public boolean registerChannel(final String gameId, final Player player, final String gameSessionId,
-			final NotificationChannel channel) throws IOException {
-		final String registeredGameSessionId = playerSessionIds
-			.computeIfAbsent(gameId, key -> new ConcurrentHashMap<>())
+	public boolean registerChannel(String gameId, Player player, String gameSessionId, NotificationChannel channel)
+			throws IOException {
+		String registeredGameSessionId = this.playerSessionIds.computeIfAbsent(gameId, key -> new ConcurrentHashMap<>())
 			.get(player);
 
 		if (registeredGameSessionId == null || registeredGameSessionId.equals(gameSessionId)) {
-			final NotificationChannel existingChannel = notificationChannels
+			NotificationChannel existingChannel = this.notificationChannels
 				.computeIfAbsent(gameId, key -> new ConcurrentHashMap<>())
 				.put(player, channel);
 			if (existingChannel == null) {
 				logger.info("Added notification channel for '{}' of gameId '{}'.", player, gameId);
 
-				playerSessionIds.computeIfAbsent(gameId, key -> new ConcurrentHashMap<>()).put(player, gameSessionId);
+				this.playerSessionIds.computeIfAbsent(gameId, key -> new ConcurrentHashMap<>())
+					.put(player, gameSessionId);
 
-				eventPublisher.publishEvent(new ChannelAddedEvent(this, player, gameId));
+				this.eventPublisher.publishEvent(new ChannelAddedEvent(this, player, gameId));
 
 				channel.sendMessage("player-available");
 
@@ -81,16 +79,12 @@ public class NotificationService {
 		return false;
 	}
 
-	public boolean hasChannel(final String gameId, final Player player) {
-		return notificationChannels.getOrDefault(gameId, Collections.emptyMap()).get(player) != null;
+	public boolean hasChannel(String gameId, Player player) {
+		return this.notificationChannels.getOrDefault(gameId, Map.of()).get(player) != null;
 	}
 
-	@SuppressFBWarnings(value = { "EXS_EXCEPTION_SOFTENING_RETURN_FALSE", "EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS" },
-			justification = "Notification channel is removed and exception is logged.")
-	public final boolean send(final String gameId, final Player player, final String type,
-			final Map<String, Object> payload) {
-		final NotificationChannel channel = notificationChannels.getOrDefault(gameId, Collections.emptyMap())
-			.get(player);
+	public boolean send(String gameId, Player player, String type, Map<String, Object> payload) {
+		NotificationChannel channel = this.notificationChannels.getOrDefault(gameId, Map.of()).get(player);
 		if (channel != null) {
 			try {
 				channel.sendMessage(type, payload);
@@ -106,14 +100,12 @@ public class NotificationService {
 		}
 	}
 
-	public final boolean send(final String gameId, final Player player, final String type) {
-		return send(gameId, player, type, Collections.emptyMap());
+	public boolean send(String gameId, Player player, String type) {
+		return send(gameId, player, type, Map.of());
 	}
 
-	@SuppressFBWarnings(value = "EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS",
-			justification = "Do not bother everybody with that IOException.")
-	public final void broadcast(final String type) {
-		for (final NotificationChannel broadcastChannel : broadcastChannels.values()) {
+	public void broadcast(String type) {
+		for (NotificationChannel broadcastChannel : this.broadcastChannels.values()) {
 			try {
 				broadcastChannel.sendMessage(type);
 			}
@@ -123,20 +115,20 @@ public class NotificationService {
 		}
 	}
 
-	public Optional<String> getPlayerSession(final String gameId, final Player player) {
-		return Optional.ofNullable(playerSessionIds.getOrDefault(gameId, Collections.emptyMap()).get(player));
+	public Optional<String> getPlayerSession(String gameId, Player player) {
+		return Optional.ofNullable(this.playerSessionIds.getOrDefault(gameId, Map.of()).get(player));
 	}
 
-	public void removePlayerSession(final String gameId, final Player player) {
-		playerSessionIds.getOrDefault(gameId, Collections.emptyMap()).remove(player);
+	public void removePlayerSession(String gameId, Player player) {
+		this.playerSessionIds.getOrDefault(gameId, Map.of()).remove(player);
 	}
 
-	public void unregisterBroadcastChannel(final String channelId) {
-		broadcastChannels.remove(channelId);
+	public void unregisterBroadcastChannel(String channelId) {
+		this.broadcastChannels.remove(channelId);
 	}
 
-	public void unregisterChannel(final String gameId, final Player player) {
-		notificationChannels.getOrDefault(gameId, Collections.emptyMap()).remove(player);
+	public void unregisterChannel(String gameId, Player player) {
+		this.notificationChannels.getOrDefault(gameId, Map.of()).remove(player);
 		logger.info("Removed notification channel for '{}' of gameId '{}'.", player, gameId);
 
 		broadcast("game-change");

@@ -14,7 +14,7 @@ public class ChannelAddedEvent extends ApplicationEvent {
 
 	private final String gameId;
 
-	public ChannelAddedEvent(final Object source, final Player player, final String gameId) {
+	public ChannelAddedEvent(Object source, Player player, String gameId) {
 		super(source);
 
 		this.player = player;
@@ -22,11 +22,11 @@ public class ChannelAddedEvent extends ApplicationEvent {
 	}
 
 	public Player getPlayer() {
-		return player;
+		return this.player;
 	}
 
 	public String getGameId() {
-		return gameId;
+		return this.gameId;
 	}
 
 }

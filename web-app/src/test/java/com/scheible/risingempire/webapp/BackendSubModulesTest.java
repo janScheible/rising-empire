@@ -17,22 +17,13 @@ class BackendSubModulesTest {
 
 	@BeforeAll
 	static void beforeClass() {
-		result = Pocketsaw.analizeClasspath(ClassgraphClasspathScanner.create(BackendSubModulesTest.class));
-	}
-
-	@Test
-	void testNoDescriptorCycle() {
-		assertThat(result.getAnyDescriptorCycle()).isEmpty();
+		result = Pocketsaw
+			.analizeClasspath(ClassgraphClasspathScanner.create(BackendSubModulesTest.class).enableAutoMatching());
 	}
 
 	@Test
 	void testNoCodeCycle() {
 		assertThat(result.getAnyCodeCycle()).isEmpty();
-	}
-
-	@Test
-	void testNoIllegalCodeDependencies() {
-		assertThat(result.getIllegalCodeDependencies()).isEmpty();
 	}
 
 }

@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.webapp.notification.NotificationChannel;
 import com.scheible.risingempire.webapp.notification.NotificationService;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.MultiValueMap;
@@ -36,23 +35,21 @@ public class GameNotificationWebSocketHandler extends TextWebSocketHandler {
 	 */
 	private final Set<String> rejectedWebSockerSessionIds = new ConcurrentSkipListSet<>();
 
-	@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "The objects are not mutated.")
-	public GameNotificationWebSocketHandler(final ObjectMapper objectMapper,
-			final NotificationService notificationService) {
+	public GameNotificationWebSocketHandler(ObjectMapper objectMapper, NotificationService notificationService) {
 		this.objectMapper = objectMapper;
 		this.notificationService = notificationService;
 	}
 
 	@Override
-	public void afterConnectionEstablished(final WebSocketSession session) throws Exception {
-		final WebSocketSession concurrentSession = new ConcurrentWebSocketSessionDecorator(session, 1000, 1024);
-		final NotificationChannel notificationChannel = new WebSocketNotification(concurrentSession, objectMapper);
+	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+		WebSocketSession concurrentSession = new ConcurrentWebSocketSessionDecorator(session, 1000, 1024);
+		NotificationChannel notificationChannel = new WebSocketNotification(concurrentSession, this.objectMapper);
 
-		final SessionContext sessionContext = getFromSession(session);
+		SessionContext sessionContext = getFromSession(session);
 		if (sessionContext != null) {
-			if (!notificationService.registerChannel(sessionContext.gameId(), sessionContext.player(),
+			if (!this.notificationService.registerChannel(sessionContext.gameId(), sessionContext.player(),
 					sessionContext.playerSessionId(), notificationChannel)) {
-				rejectedWebSockerSessionIds.add(session.getId());
+				this.rejectedWebSockerSessionIds.add(session.getId());
 			}
 		}
 		else {
@@ -61,8 +58,8 @@ public class GameNotificationWebSocketHandler extends TextWebSocketHandler {
 	}
 
 	@Override
-	public void handleTransportError(final WebSocketSession session, final Throwable exception) throws Exception {
-		final SessionContext sessionContext = getFromSession(session);
+	public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+		SessionContext sessionContext = getFromSession(session);
 		if (sessionContext != null) {
 			logger.warn("WebSocket transport error for '{}' ({}) of gameId '{}'.", sessionContext.player(),
 					sessionContext.playerSessionId(), sessionContext.gameId(), exception);
@@ -73,33 +70,31 @@ public class GameNotificationWebSocketHandler extends TextWebSocketHandler {
 	}
 
 	@Override
-	public void afterConnectionClosed(final WebSocketSession session, final CloseStatus status) throws Exception {
-		if (!rejectedWebSockerSessionIds.contains(session.getId())) {
-			final SessionContext sessionContext = getFromSession(session);
+	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+		if (!this.rejectedWebSockerSessionIds.contains(session.getId())) {
+			SessionContext sessionContext = getFromSession(session);
 			if (sessionContext != null) {
-				notificationService.unregisterChannel(sessionContext.gameId(), sessionContext.player());
+				this.notificationService.unregisterChannel(sessionContext.gameId(), sessionContext.player());
 			}
 			else {
 				logger.warn("Unable to get session context from '{}'.", session.getUri());
 			}
 		}
 		else {
-			rejectedWebSockerSessionIds.remove(session.getId());
+			this.rejectedWebSockerSessionIds.remove(session.getId());
 		}
 	}
 
-	@SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE",
-			justification = "No idea what else than a NullPointerException can be the result.")
-	private static SessionContext getFromSession(final WebSocketSession session) {
-		final MultiValueMap<String, String> queryParams = UriComponentsBuilder.fromUri(session.getUri())
+	private static SessionContext getFromSession(WebSocketSession session) {
+		MultiValueMap<String, String> queryParams = UriComponentsBuilder.fromUri(session.getUri())
 			.build()
 			.getQueryParams();
-		final String gameId = queryParams.getFirst("gameId");
-		final String playerString = queryParams.getFirst("player");
-		final String sessionId = queryParams.getFirst("sessionId");
+		String gameId = queryParams.getFirst("gameId");
+		String playerString = queryParams.getFirst("player");
+		String sessionId = queryParams.getFirst("sessionId");
 
 		if (gameId != null && playerString != null && sessionId != null) {
-			final Player player = Player.valueOf(URLDecoder.decode(playerString, StandardCharsets.UTF_8));
+			Player player = Player.valueOf(URLDecoder.decode(playerString, StandardCharsets.UTF_8));
 			return new SessionContext(URLDecoder.decode(gameId, StandardCharsets.UTF_8), player, sessionId);
 		}
 		else {

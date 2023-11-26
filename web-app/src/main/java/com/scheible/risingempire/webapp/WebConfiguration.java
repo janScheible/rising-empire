@@ -17,10 +17,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 class WebConfiguration implements WebMvcConfigurer {
 
 	@Override
-	public void addFormatters(final FormatterRegistry registry) {
+	public void addFormatters(FormatterRegistry registry) {
 		registry.addConverter(new Converter<String, Player>() {
 			@Override
-			public Player convert(final String source) {
+			public Player convert(String source) {
 				return Arrays.stream(Player.values())
 					.filter(e -> e.name().equalsIgnoreCase(source))
 					.findAny()
@@ -30,14 +30,14 @@ class WebConfiguration implements WebMvcConfigurer {
 
 		registry.addConverter(new Converter<String, SystemId>() {
 			@Override
-			public SystemId convert(final String source) {
+			public SystemId convert(String source) {
 				return new SystemId(source);
 			}
 		});
 
 		registry.addConverter(new Converter<String, FleetId>() {
 			@Override
-			public FleetId convert(final String source) {
+			public FleetId convert(String source) {
 				return new FleetId(source);
 			}
 		});

@@ -15,7 +15,7 @@ class NewGamePageDto {
 
 	final List<GalaxySize> galaxySizes;
 
-	NewGamePageDto(final List<GalaxySize> galaxySizes) {
+	NewGamePageDto(List<GalaxySize> galaxySizes) {
 		this.galaxySizes = galaxySizes;
 	}
 

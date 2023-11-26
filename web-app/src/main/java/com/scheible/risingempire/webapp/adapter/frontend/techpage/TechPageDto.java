@@ -14,7 +14,7 @@ class TechPageDto {
 
 	final EntityModel<AllocationsDto> allocations;
 
-	TechPageDto(final EntityModel<AllocationsDto> allocations) {
+	TechPageDto(EntityModel<AllocationsDto> allocations) {
 		this.allocations = allocations;
 	}
 

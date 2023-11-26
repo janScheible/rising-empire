@@ -14,20 +14,20 @@ public class GameHolder {
 
 	private final Map<String, Game> games = new ConcurrentHashMap<>();
 
-	void set(final String gameId, final Game game) {
-		games.put(gameId, SynchronizedGameProxyFactory.getProxy(game));
+	void set(String gameId, Game game) {
+		this.games.put(gameId, SynchronizedGameProxyFactory.getProxy(game));
 	}
 
-	public Optional<Game> get(final String gameId) {
-		return Optional.ofNullable(games.get(gameId));
+	public Optional<Game> get(String gameId) {
+		return Optional.ofNullable(this.games.get(gameId));
 	}
 
 	public Set<String> getGameIds() {
-		return games.keySet();
+		return this.games.keySet();
 	}
 
-	void removeGame(final String gameId) {
-		games.remove(gameId);
+	void removeGame(String gameId) {
+		this.games.remove(gameId);
 	}
 
 }

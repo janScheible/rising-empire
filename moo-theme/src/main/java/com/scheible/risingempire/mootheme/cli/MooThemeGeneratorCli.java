@@ -10,9 +10,9 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.AbstractMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
@@ -321,7 +321,7 @@ public class MooThemeGeneratorCli {
 	}
 
 	private static Entry<String, BufferedImage> sheetEntry(String path, BufferedImage image) {
-		return new AbstractMap.SimpleImmutableEntry<>(path, image);
+		return Map.entry(path, image);
 	}
 
 	private static Paintable process(BufferedImage image, Scale scale, Integer transparentColor) {

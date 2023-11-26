@@ -21,15 +21,14 @@ class FrontendContextAdvice {
 
 	private final GameHolder gameHolder;
 
-	FrontendContextAdvice(final GameHolder gameHolder) {
+	FrontendContextAdvice(GameHolder gameHolder) {
 		this.gameHolder = gameHolder;
 	}
 
 	@ModelAttribute
-	public FrontendContext createFrontendContext(@PathVariable final String gameId, @PathVariable final Player player,
-			@RequestParam final Optional<SystemId> selectedStarId,
-			@RequestParam final Optional<FleetId> selectedFleetId) {
-		final Optional<Game> game = gameHolder.get(gameId);
+	FrontendContext createFrontendContext(@PathVariable String gameId, @PathVariable Player player,
+			@RequestParam Optional<SystemId> selectedStarId, @RequestParam Optional<FleetId> selectedFleetId) {
+		Optional<Game> game = this.gameHolder.get(gameId);
 
 		return game
 			.map(g -> FrontendContext.createForGame(gameId, player, g.forPlayer(player), g.forPlayer(player).getView(),

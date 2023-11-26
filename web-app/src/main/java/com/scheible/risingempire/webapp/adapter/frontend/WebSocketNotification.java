@@ -18,17 +18,17 @@ class WebSocketNotification implements NotificationChannel {
 
 	private final ObjectMapper objectMapper;
 
-	WebSocketNotification(final WebSocketSession webSocketSession, final ObjectMapper objectMapper) {
+	WebSocketNotification(WebSocketSession webSocketSession, ObjectMapper objectMapper) {
 		this.webSocketSession = webSocketSession;
 		this.objectMapper = objectMapper;
 	}
 
 	@Override
-	public void sendMessage(final String type, final Map<String, Object> payload) throws IOException {
-		final Map<String, Object> message = new HashMap<>(payload);
+	public void sendMessage(String type, Map<String, Object> payload) throws IOException {
+		Map<String, Object> message = new HashMap<>(payload);
 		message.put("type", type);
-		final String json = objectMapper.writeValueAsString(message);
-		webSocketSession.sendMessage(new TextMessage(json));
+		String json = this.objectMapper.writeValueAsString(message);
+		this.webSocketSession.sendMessage(new TextMessage(json));
 	}
 
 }

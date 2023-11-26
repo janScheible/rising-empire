@@ -70,6 +70,7 @@
 					<skip>false</skip>
 					<includeTestSourceDirectory>true</includeTestSourceDirectory>
 					<configLocation>rules/checkstyle.xml</configLocation>
+					<suppressionsLocation>rules/checkstyle-suppressions.xml</suppressionsLocation>
 				</configuration>
 				<dependencies>
 					<dependency>

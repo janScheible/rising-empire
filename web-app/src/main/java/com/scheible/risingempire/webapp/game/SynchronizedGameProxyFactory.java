@@ -14,11 +14,11 @@ import com.scheible.risingempire.game.api.PlayerGame;
  */
 public class SynchronizedGameProxyFactory {
 
-	public static Game getProxy(final Game game) {
+	public static Game getProxy(Game game) {
 		return (Game) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-				new Class<?>[] { Game.class }, (Object proxy, Method method, Object[] args) -> {
+				new Class<?>[] { Game.class }, (Object proxy, Method method, Object... args) -> {
 					synchronized (game) {
-						final Object result = method.invoke(game, args);
+						Object result = method.invoke(game, args);
 						if (result instanceof PlayerGame) {
 							return synchronizePlayerGame((PlayerGame) result, game);
 						}
@@ -29,9 +29,9 @@ public class SynchronizedGameProxyFactory {
 				});
 	}
 
-	private static PlayerGame synchronizePlayerGame(final PlayerGame playerGame, final Game game) {
+	private static PlayerGame synchronizePlayerGame(PlayerGame playerGame, Game game) {
 		return (PlayerGame) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-				new Class<?>[] { PlayerGame.class }, (Object proxy, Method method, Object[] args) -> {
+				new Class<?>[] { PlayerGame.class }, (Object proxy, Method method, Object... args) -> {
 					synchronized (game) {
 						return method.invoke(playerGame, args);
 					}

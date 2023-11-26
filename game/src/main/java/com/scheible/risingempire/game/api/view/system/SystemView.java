@@ -72,8 +72,8 @@ public class SystemView {
 		this.extendedFleetRange = extendedFleetRange;
 		this.scannerRange = scannerRange;
 
-		if (Boolean.TRUE.equals(colonizable) && colonizeCommand == null) {
-			throw new IllegalArgumentException("colonizationCommand can't be null when canColonize = true!");
+		if (Boolean.TRUE.equals(colonizable.map(Boolean::valueOf)) && colonizeCommand.isEmpty()) {
+			throw new IllegalArgumentException("colonizationCommand can't be absent when canColonize = true!");
 		}
 		this.colonizable = colonizable;
 		this.colonizeCommand = colonizeCommand;
@@ -136,7 +136,7 @@ public class SystemView {
 	}
 
 	public boolean hasFleetRange() {
-		return this.fleetRange != null;
+		return this.fleetRange.isPresent();
 	}
 
 	public Optional<Integer> getExtendedFleetRange() {
@@ -144,7 +144,7 @@ public class SystemView {
 	}
 
 	public boolean hasExtendedFleetRange() {
-		return this.extendedFleetRange != null;
+		return this.extendedFleetRange.isPresent();
 	}
 
 	public Optional<Integer> getScannerRange() {
@@ -190,32 +190,32 @@ public class SystemView {
 			values.add("homeSytem=" + this.homeSystem);
 		}
 
-		if (this.range != null) {
-			values.add("range=" + this.range);
+		if (this.range.isPresent()) {
+			values.add("range=" + this.range.get());
 		}
 
-		if (this.starName != null) {
-			values.add("starName=" + this.starName);
+		if (this.starName.isPresent()) {
+			values.add("starName=" + this.starName.get());
 		}
 
-		if (this.planetType != null) {
-			values.add("planetType=" + this.planetType);
+		if (this.planetType.isPresent()) {
+			values.add("planetType=" + this.planetType.get());
 		}
 
-		if (this.planetSpecial != null) {
-			values.add("planetSpecial=" + this.planetSpecial);
+		if (this.planetSpecial.isPresent()) {
+			values.add("planetSpecial=" + this.planetSpecial.get());
 		}
 
-		if (this.seenInTurn != null) {
-			values.add("seenInTurn=" + this.seenInTurn);
+		if (this.seenInTurn.isPresent()) {
+			values.add("seenInTurn=" + this.seenInTurn.get());
 		}
 
-		if (this.colonizable != null) {
-			values.add("colonizable=" + this.colonizable).add("colonizeCommand=" + this.colonizeCommand);
+		if (this.colonizable.isPresent()) {
+			values.add("colonizable=" + this.colonizable.get()).add("colonizeCommand=" + this.colonizeCommand.get());
 		}
 
-		if (this.colony != null) {
-			String colonyString = this.colony.toString();
+		if (this.colony.isPresent()) {
+			String colonyString = this.colony.get().toString();
 			values.add("colony=" + colonyString.substring(colonyString.indexOf('[')));
 		}
 

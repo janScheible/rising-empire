@@ -37,7 +37,7 @@ public class System implements SystemOrb {
 
 	private final int planetMaxPopulation;
 
-	private Colony colony = null;
+	private Optional<Colony> colony = Optional.empty();
 
 	private System(String starName, Location location, StarType starType, Player homeSystem, PlanetType planetType,
 			PlanetSpecial planetSpecial, int planetMaxPopulation) {
@@ -61,21 +61,21 @@ public class System implements SystemOrb {
 			PlanetSpecial planetSpecial, int planetMaxPopulation, Player player, DesignSlot spaceDockDesign) {
 		System system = new System(starName, location, starType, player, planetType, planetSpecial,
 				planetMaxPopulation);
-		system.colony = new Colony(player, planetMaxPopulation / 2, spaceDockDesign);
+		system.colony = Optional.of(new Colony(player, planetMaxPopulation / 2, spaceDockDesign));
 		return system;
 	}
 
 	public void colonize(Player player, DesignSlot spaceDockDesign) {
-		if (this.colony != null) {
-			throw new IllegalStateException(
-					"The system '" + this.starName + "' is already colonized by '" + this.colony.getPlayer() + "!");
+		if (this.colony.isPresent()) {
+			throw new IllegalStateException("The system '" + this.starName + "' is already colonized by '"
+					+ this.colony.get().getPlayer() + "!");
 		}
 
-		this.colony = new Colony(player, this.planetMaxPopulation / 2, spaceDockDesign);
+		this.colony = Optional.of(new Colony(player, this.planetMaxPopulation / 2, spaceDockDesign));
 	}
 
 	public void annex(Player player, DesignSlot spaceDockDesign) {
-		this.colony = new Colony(player, this.planetMaxPopulation / 2, spaceDockDesign);
+		this.colony = Optional.of(new Colony(player, this.planetMaxPopulation / 2, spaceDockDesign));
 	}
 
 	/**
@@ -130,7 +130,7 @@ public class System implements SystemOrb {
 	}
 
 	public Optional<Colony> getColony() {
-		return Optional.ofNullable(this.colony);
+		return this.colony;
 	}
 
 	public Optional<Colony> getColony(Player player) {

@@ -10,7 +10,6 @@ import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.webapp.hypermedia.Action;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import org.springframework.http.HttpMethod;
 
 /**
@@ -18,10 +17,101 @@ import org.springframework.http.HttpMethod;
  */
 public class FrontendContext {
 
+	private final String gameId;
+
+	private final Player player;
+
+	private final PlayerGame playerGame;
+
+	private final GameView gameView;
+
+	private final Optional<SystemId> selectedStarId;
+
+	private final Optional<FleetId> selectedFleetId;
+
+	protected FrontendContext(String gameId, Player player, PlayerGame playerView, GameView gameView,
+			Optional<SystemId> selectedStarId, Optional<FleetId> selectedFleetId) {
+		this.gameId = gameId;
+		this.player = player;
+		this.playerGame = playerView;
+		this.gameView = gameView;
+		this.selectedStarId = selectedStarId;
+		this.selectedFleetId = selectedFleetId;
+	}
+
+	static FrontendContext createForGame(String gameId, Player player, PlayerGame playerView, GameView gameView,
+			Optional<SystemId> selectedStarId, Optional<FleetId> selectedFleetId) {
+		return new FrontendContext(gameId, player, playerView, gameView, selectedStarId, selectedFleetId);
+	}
+
+	static FrontendContext createEmpty(String gameId, Player player) {
+		return new EmptyFrontendContext(gameId, player);
+	}
+
+	public FrontendContext withSelectedStar(String selectedStarId) {
+		return withSelectedStar(new SystemId(selectedStarId));
+	}
+
+	public FrontendContext withSelectedStar(SystemId selectedStarId) {
+		return new FrontendContext(this.gameId, this.player, this.playerGame, this.gameView,
+				Optional.of(selectedStarId), this.selectedFleetId);
+	}
+
+	public String getGameId() {
+		return this.gameId;
+	}
+
+	public Player getPlayer() {
+		return this.player;
+	}
+
+	public PlayerGame getPlayerGame() {
+		return this.playerGame;
+	}
+
+	public GameView getGameView() {
+		return this.gameView;
+	}
+
+	public Optional<SystemId> getSelectedStarId() {
+		return this.selectedStarId;
+	}
+
+	public Optional<FleetId> getSelectedFleetId() {
+		return this.selectedFleetId;
+	}
+
+	private Stream<String> concatPathSegments(String... pathSegments) {
+		return Stream.concat(Arrays.stream(new String[] { "game", "games", this.gameId, this.player.name() }),
+				Arrays.stream(pathSegments));
+	}
+
+	public String[] toFrontendUri(String... pathSegments) {
+		return concatPathSegments(pathSegments).toArray(String[]::new);
+	}
+
+	public Action toNamedAction(String name, HttpMethod httpMethod, boolean includeStarId, boolean includeFleetId,
+			String... pathSegments) {
+		return (httpMethod == HttpMethod.GET ? Action.get(name, toFrontendUri(pathSegments))
+				: Action.jsonPost(name, toFrontendUri(pathSegments)))
+			.with(includeStarId && this.selectedStarId.isPresent(), "selectedStarId",
+					() -> this.selectedStarId.get().getValue())
+			.with(includeFleetId && this.selectedFleetId.isPresent(), "selectedFleetId",
+					() -> this.selectedFleetId.get().getValue());
+	}
+
+	public Action toAction(HttpMethod httpMethod, String... pathSegments) {
+		return toNamedAction("from-frontend-context", httpMethod, true, true, pathSegments);
+	}
+
+	public boolean isEmpty() {
+		return false;
+	}
+
 	private static class EmptyFrontendContext extends FrontendContext {
 
-		public EmptyFrontendContext(final String gameId, final Player player) {
-			super(gameId, player, null, null, null, (FleetId) null);
+		EmptyFrontendContext(String gameId, Player player) {
+			super(gameId, player, null, null, Optional.empty(), Optional.empty());
 		}
 
 		@Override
@@ -49,97 +139,6 @@ public class FrontendContext {
 			return true;
 		}
 
-	}
-
-	private final String gameId;
-
-	private final Player player;
-
-	private final PlayerGame playerGame;
-
-	private final GameView gameView;
-
-	@Nullable
-	private final SystemId selectedStarId;
-
-	@Nullable
-	private final FleetId selectedFleetId;
-
-	protected FrontendContext(final String gameId, final Player player, final PlayerGame playerView,
-			final GameView gameView, @Nullable final SystemId selectedStarId, @Nullable final FleetId selectedFleetId) {
-		this.gameId = gameId;
-		this.player = player;
-		this.playerGame = playerView;
-		this.gameView = gameView;
-		this.selectedStarId = selectedStarId;
-		this.selectedFleetId = selectedFleetId;
-	}
-
-	static FrontendContext createForGame(final String gameId, final Player player, final PlayerGame playerView,
-			final GameView gameView, final Optional<SystemId> selectedStarId, final Optional<FleetId> selectedFleetId) {
-		return new FrontendContext(gameId, player, playerView, gameView, selectedStarId.orElse(null),
-				selectedFleetId.orElse(null));
-	}
-
-	static FrontendContext createEmpty(final String gameId, final Player player) {
-		return new EmptyFrontendContext(gameId, player);
-	}
-
-	public FrontendContext withSelectedStar(final String selectedStarId) {
-		return withSelectedStar(new SystemId(selectedStarId));
-	}
-
-	public FrontendContext withSelectedStar(final SystemId selectedStarId) {
-		return new FrontendContext(gameId, player, playerGame, gameView, selectedStarId, selectedFleetId);
-	}
-
-	public String getGameId() {
-		return gameId;
-	}
-
-	public Player getPlayer() {
-		return player;
-	}
-
-	public PlayerGame getPlayerGame() {
-		return playerGame;
-	}
-
-	public GameView getGameView() {
-		return gameView;
-	}
-
-	public Optional<SystemId> getSelectedStarId() {
-		return Optional.ofNullable(selectedStarId);
-	}
-
-	public Optional<FleetId> getSelectedFleetId() {
-		return Optional.ofNullable(selectedFleetId);
-	}
-
-	private Stream<String> concatPathSegments(final String... pathSegments) {
-		return Stream.concat(Arrays.stream(new String[] { "game", "games", gameId, player.name() }),
-				Arrays.stream(pathSegments));
-	}
-
-	public String[] toFrontendUri(final String... pathSegments) {
-		return concatPathSegments(pathSegments).toArray(String[]::new);
-	}
-
-	public Action toNamedAction(final String name, final HttpMethod httpMethod, final boolean includeStarId,
-			final boolean includeFleetId, final String... pathSegments) {
-		return (httpMethod == HttpMethod.GET ? Action.get(name, toFrontendUri(pathSegments))
-				: Action.jsonPost(name, toFrontendUri(pathSegments)))
-			.with(includeStarId && selectedStarId != null, "selectedStarId", () -> selectedStarId.getValue())
-			.with(includeFleetId && selectedFleetId != null, "selectedFleetId", () -> selectedFleetId.getValue());
-	}
-
-	public Action toAction(final HttpMethod httpMethod, final String... pathSegments) {
-		return toNamedAction("from-frontend-context", httpMethod, true, true, pathSegments);
-	}
-
-	public boolean isEmpty() {
-		return false;
 	}
 
 }

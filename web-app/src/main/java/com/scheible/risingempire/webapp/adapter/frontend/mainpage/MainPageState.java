@@ -1,6 +1,5 @@
 package com.scheible.risingempire.webapp.adapter.frontend.mainpage;
 
-import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,7 +10,6 @@ import java.util.stream.Collectors;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
-import edu.umd.cs.findbugs.annotations.Nullable;
 
 import static java.util.Collections.unmodifiableMap;
 
@@ -20,317 +18,20 @@ import static java.util.Collections.unmodifiableMap;
  */
 abstract class MainPageState {
 
-	static class InitState extends MainPageState {
-
+	private static boolean onlyStar(Optional<SystemId> selectedSystemId, Optional<FleetId> selectedFleetId) {
+		return selectedSystemId.isPresent() && selectedFleetId.isEmpty();
 	}
 
-	static class SpaceCombatSystemState extends OneByOneSystemsState<Entry<SystemId, Integer>> {
-
-		private final int order;
-
-		private SpaceCombatSystemState(final SystemId selectedSystemId,
-				final List<Entry<SystemId, Integer>> spaceCombatSystemIds) {
-			super(selectedSystemId, spaceCombatSystemIds, Entry::getKey);
-			this.order = spaceCombatSystemIds.get(0).getValue();
-		}
-
-		List<Entry<SystemId, Integer>> getRemainingSpaceCombatSystemIds() {
-			return systemIds;
-		}
-
-		boolean hasRemainingSpaceCombatSystems() {
-			return !systemIds.isEmpty();
-		}
-
-		int getOrder() {
-			return order;
-		}
-
+	private static boolean onlyFleet(Optional<SystemId> selectedSystemId, Optional<FleetId> selectedFleetId) {
+		return selectedSystemId.isEmpty() && selectedFleetId.isPresent();
 	}
 
-	static class ExplorationState extends OneByOneSystemsState<SystemId> {
-
-		private ExplorationState(final SystemId selectedSystemId, final List<SystemId> exploredSystemIds) {
-			super(selectedSystemId, exploredSystemIds, Function.identity());
-		}
-
-		List<SystemId> getRemainingExplorationSystemIds() {
-			return systemIds;
-		}
-
-		boolean hasRemainingExploredSystems() {
-			return !systemIds.isEmpty();
-		}
-
+	private static boolean starAndFleet(Optional<SystemId> selectedSystemId, Optional<FleetId> selectedFleetId) {
+		return selectedSystemId.isPresent() && selectedFleetId.isPresent();
 	}
 
-	static class ColonizationState extends OneByOneSystemsState<SystemId> {
-
-		private ColonizationState(final SystemId selectedSystemId, final List<SystemId> colonizableSystemIds) {
-			super(selectedSystemId, colonizableSystemIds, Function.identity());
-		}
-
-		List<SystemId> getRemainingColonizableSystemIds() {
-			return systemIds;
-		}
-
-		boolean hasRemainingColonizableSystems() {
-			return !systemIds.isEmpty();
-		}
-
-	}
-
-	static class AnnexationState extends OneByOneSystemsState<SystemId> {
-
-		private AnnexationState(final SystemId selectedSystemId, final List<SystemId> annexableSystemIds) {
-			super(selectedSystemId, annexableSystemIds, Function.identity());
-		}
-
-		List<SystemId> getRemainingAnnexableSystemIds() {
-			return systemIds;
-		}
-
-		boolean hasRemainingAnnexableSystemIds() {
-			return !systemIds.isEmpty();
-		}
-
-	}
-
-	static class NotificationState extends OneByOneSystemsState<SystemId> {
-
-		public NotificationState(final SystemId selectedSystemId, final List<SystemId> systemIds) {
-			super(selectedSystemId, systemIds, Function.identity());
-		}
-
-		List<SystemId> getRemainingNotificationSystemIds() {
-			return systemIds;
-		}
-
-		boolean hasRemainingNotificationSystems() {
-			return !systemIds.isEmpty();
-		}
-
-		@Override
-		boolean isMiniMap() {
-			return false;
-		}
-
-	}
-
-	static class StarInspectionState extends MainPageState {
-
-		private final SystemId selectedSystemId;
-
-		private final Optional<String> lockedCategory;
-
-		private StarInspectionState(final SystemId selectedSystemId, final Optional<String> lockedCategory) {
-			this.selectedSystemId = selectedSystemId;
-			this.lockedCategory = lockedCategory;
-		}
-
-		@Override
-		boolean isSystemSelectable(final SystemId systemId) {
-			return !selectedSystemId.equals(systemId);
-		}
-
-		@Override
-		boolean isFleetSelectable(final FleetId fleetId) {
-			return true;
-		}
-
-		@Override
-		Optional<SystemId> getSelectedSystemId() {
-			return Optional.of(selectedSystemId);
-		}
-
-		@Override
-		Optional<String> getLockedCategory() {
-			return lockedCategory;
-		}
-
-	}
-
-	static class NewTurnState extends StarInspectionState {
-
-		private NewTurnState(final SystemId selectedSystemId) {
-			super(selectedSystemId, Optional.empty());
-		}
-
-	}
-
-	static class TurnFinishedState extends StarInspectionState {
-
-		private TurnFinishedState(final SystemId selectedSystemId) {
-			super(selectedSystemId, Optional.empty());
-		}
-
-		@Override
-		boolean isMiniMap() {
-			return true;
-		}
-
-		@Override
-		boolean isSystemSelectable(final SystemId systemId) {
-			return false;
-		}
-
-		@Override
-		boolean isFleetSelectable(final FleetId fleetId) {
-			return false;
-		}
-
-	}
-
-	static class FleetMovementState extends StarInspectionState {
-
-		private FleetMovementState(final SystemId selectedSystemId) {
-			super(selectedSystemId, Optional.empty());
-		}
-
-		@Override
-		boolean isMiniMap() {
-			return true;
-		}
-
-		@Override
-		boolean isSystemSelectable(final SystemId systemId) {
-			return false;
-		}
-
-		@Override
-		boolean isFleetSelectable(final FleetId fleetId) {
-			return false;
-		}
-
-	}
-
-	static class FleetInspectionState extends MainPageState {
-
-		private final FleetId selectedFleetId;
-
-		private final Map<ShipTypeView, Integer> ships;
-
-		private final DeployableFleetProvider deployableFleetProvider;
-
-		private final OrbitingSystemProvider orbitingSystemProvider;
-
-		private FleetInspectionState(final FleetId selectedFleetId, final Map<ShipTypeView, Integer> ships,
-				final DeployableFleetProvider deployableFleetProvider,
-				final OrbitingSystemProvider orbitingSystemProvider) {
-			this.selectedFleetId = selectedFleetId;
-			this.ships = ships.isEmpty() ? null : unmodifiableMap(ships);
-
-			this.deployableFleetProvider = deployableFleetProvider;
-			this.orbitingSystemProvider = orbitingSystemProvider;
-		}
-
-		@Override
-		boolean isSystemSelectable(final SystemId systemId) {
-			return !deployableFleetProvider.is(selectedFleetId)
-					|| !orbitingSystemProvider.is(selectedFleetId, systemId);
-		}
-
-		@Override
-		boolean isFleetSelectable(final FleetId fleetId) {
-			return !selectedFleetId.equals(fleetId);
-		}
-
-		@Override
-		Optional<FleetId> getSelectedFleetId() {
-			return Optional.of(selectedFleetId);
-		}
-
-		@Override
-		Optional<Map<ShipTypeView, Integer>> getShips() {
-			return Optional.ofNullable(ships);
-		}
-
-	}
-
-	static class FleetDeploymentState extends MainPageState {
-
-		private final SystemId selectedSystemId;
-
-		private final FleetId selectedFleetId;
-
-		private final Map<ShipTypeView, Integer> ships;
-
-		private final OrbitingSystemProvider orbitingSystemProvider;
-
-		private FleetDeploymentState(final FleetId selectedFleetId, final SystemId selectedSystemId,
-				final Map<ShipTypeView, Integer> ships, final OrbitingSystemProvider orbitingSystemProvider) {
-			this.selectedFleetId = selectedFleetId;
-			this.selectedSystemId = selectedSystemId;
-			this.ships = ships.isEmpty() ? null : unmodifiableMap(ships);
-
-			this.orbitingSystemProvider = orbitingSystemProvider;
-		}
-
-		@Override
-		boolean isSystemSelectable(final SystemId systemId) {
-			return !selectedSystemId.equals(systemId) && !orbitingSystemProvider.is(selectedFleetId, systemId);
-		}
-
-		@Override
-		boolean isFleetSelectable(final FleetId fleetId) {
-			return !selectedFleetId.equals(fleetId);
-		}
-
-		@Override
-		Optional<SystemId> getSelectedSystemId() {
-			return Optional.of(selectedSystemId);
-		}
-
-		@Override
-		Optional<FleetId> getSelectedFleetId() {
-			return Optional.of(selectedFleetId);
-		}
-
-		@Override
-		Optional<Map<ShipTypeView, Integer>> getShips() {
-			return Optional.ofNullable(ships);
-		}
-
-	}
-
-	@FunctionalInterface
-	interface ShipProvider {
-
-		Map<ShipTypeView, Integer> get(FleetId fleetId, Map<String, String> parameters);
-
-	}
-
-	@FunctionalInterface
-	interface OrbitingSystemProvider {
-
-		boolean is(FleetId fleetId, SystemId orbitingSystemId);
-
-	}
-
-	@FunctionalInterface
-	interface DeployableFleetProvider {
-
-		boolean is(FleetId fleetId);
-
-	}
-
-	private static boolean onlyStar(@Nullable final SystemId selectedSystemId,
-			@Nullable final FleetId selectedFleetId) {
-		return selectedSystemId != null && selectedFleetId == null;
-	}
-
-	private static boolean onlyFleet(@Nullable final SystemId selectedSystemId,
-			@Nullable final FleetId selectedFleetId) {
-		return selectedSystemId == null && selectedFleetId != null;
-	}
-
-	private static boolean starAndFleet(@Nullable final SystemId selectedSystemId,
-			@Nullable final FleetId selectedFleetId) {
-		return selectedSystemId != null && selectedFleetId != null;
-	}
-
-	private static MainPageState createStarInspectionState(final SystemId selectedSystemId,
-			final Optional<String> lockedCategory, final Optional<Boolean> finishedTurnInCurrentRound) {
+	private static MainPageState createStarInspectionState(SystemId selectedSystemId, Optional<String> lockedCategory,
+			Optional<Boolean> finishedTurnInCurrentRound) {
 		if (finishedTurnInCurrentRound.isPresent()) {
 
 			if (finishedTurnInCurrentRound.get()) {
@@ -346,80 +47,77 @@ abstract class MainPageState {
 		}
 	}
 
-	@SuppressWarnings("checkstyle:CyclomaticComplexity")
-	static MainPageState fromParameters(final Optional<String> rawSelectedStarId,
-			final Optional<String> rawSelectedFleetId, final Map<String, String> rawShipTypeIdsAndCounts,
-			final Optional<List<String>> rawSpaceCombatSystemIds, final Optional<List<String>> rawExploredSystemIds,
-			final Optional<List<String>> rawColonizableSystemIds, final Optional<List<String>> rawAnnexableSystemIds,
-			final Optional<List<String>> rawNotificationSystemIds, final Optional<String> lockedCategory,
-			final Optional<Boolean> finishedTurnInCurrentRound, final boolean newTurn, final ShipProvider shipProvider,
-			final OrbitingSystemProvider orbitingSystemProvider,
-			final DeployableFleetProvider deployableFleetProvider) {
-		final SystemId selectedSystemId = rawSelectedStarId.map(id -> new SystemId(id)).orElse(null);
-		final FleetId selectedFleetId = rawSelectedFleetId.map(id -> new FleetId(id)).orElse(null);
+	static MainPageState fromParameters(Optional<String> rawSelectedStarId, Optional<String> rawSelectedFleetId,
+			Map<String, String> rawShipTypeIdsAndCounts, Optional<List<String>> rawSpaceCombatSystemIds,
+			Optional<List<String>> rawExploredSystemIds, Optional<List<String>> rawColonizableSystemIds,
+			Optional<List<String>> rawAnnexableSystemIds, Optional<List<String>> rawNotificationSystemIds,
+			Optional<String> lockedCategory, Optional<Boolean> finishedTurnInCurrentRound, boolean newTurn,
+			ShipProvider shipProvider, OrbitingSystemProvider orbitingSystemProvider,
+			DeployableFleetProvider deployableFleetProvider) {
+		Optional<SystemId> selectedSystemId = rawSelectedStarId.map(id -> new SystemId(id));
+		Optional<FleetId> selectedFleetId = rawSelectedFleetId.map(id -> new FleetId(id));
 
 		if (rawSpaceCombatSystemIds.isPresent()) {
-			final List<Entry<SystemId, Integer>> spaceCombatSystemIds = rawSpaceCombatSystemIds
+			List<Entry<SystemId, Integer>> spaceCombatSystemIds = rawSpaceCombatSystemIds
 				.map(ids -> ids.stream()
-					.map(id -> new SimpleImmutableEntry<>(new SystemId(id.split("@")[0]),
-							Integer.valueOf(id.split("@")[1]))))
+					.map(id -> Map.entry(new SystemId(id.split("@")[0]), Integer.valueOf(id.split("@")[1]))))
 				.get()
 				.sorted((a, b) -> a.getValue().compareTo(b.getValue()))
 				.collect(Collectors.toList());
-			return new SpaceCombatSystemState(selectedSystemId, spaceCombatSystemIds);
+			return new SpaceCombatSystemState(selectedSystemId.get(), spaceCombatSystemIds);
 		}
 		else if (rawExploredSystemIds.isPresent()) {
-			final List<SystemId> exploredSystemIds = rawExploredSystemIds
-				.map(ids -> ids.stream().map(id -> new SystemId(id)))
+			List<SystemId> exploredSystemIds = rawExploredSystemIds.map(ids -> ids.stream().map(id -> new SystemId(id)))
 				.get()
 				.collect(Collectors.toList());
-			return new ExplorationState(selectedSystemId, exploredSystemIds);
+			return new ExplorationState(selectedSystemId.get(), exploredSystemIds);
 		}
 		else if (rawColonizableSystemIds.isPresent()) {
-			final List<SystemId> colonizableSystemIds = rawColonizableSystemIds
+			List<SystemId> colonizableSystemIds = rawColonizableSystemIds
 				.map(ids -> ids.stream().map(id -> new SystemId(id)))
 				.get()
 				.collect(Collectors.toList());
-			return new ColonizationState(selectedSystemId, colonizableSystemIds);
+			return new ColonizationState(selectedSystemId.get(), colonizableSystemIds);
 		}
 		else if (rawAnnexableSystemIds.isPresent()) {
-			final List<SystemId> annexableSystemIds = rawAnnexableSystemIds
+			List<SystemId> annexableSystemIds = rawAnnexableSystemIds
 				.map(ids -> ids.stream().map(id -> new SystemId(id)))
 				.get()
 				.collect(Collectors.toList());
-			return new AnnexationState(selectedSystemId, annexableSystemIds);
+			return new AnnexationState(selectedSystemId.get(), annexableSystemIds);
 		}
 		else if (rawNotificationSystemIds.isPresent()) {
-			final List<SystemId> notificationSystemIds = rawNotificationSystemIds
+			List<SystemId> notificationSystemIds = rawNotificationSystemIds
 				.map(ids -> ids.stream().map(id -> new SystemId(id)))
 				.get()
 				.collect(Collectors.toList());
-			return new NotificationState(selectedSystemId, notificationSystemIds);
+			return new NotificationState(selectedSystemId.get(), notificationSystemIds);
 		}
 		else if (newTurn && onlyStar(selectedSystemId, selectedFleetId)) {
-			return new NewTurnState(selectedSystemId);
+			return new NewTurnState(selectedSystemId.get());
 		}
 		else if (onlyStar(selectedSystemId, selectedFleetId)) {
-			return createStarInspectionState(selectedSystemId, lockedCategory, finishedTurnInCurrentRound);
+			return createStarInspectionState(selectedSystemId.get(), lockedCategory, finishedTurnInCurrentRound);
 		}
 		else if (onlyFleet(selectedSystemId, selectedFleetId)) {
-			return new FleetInspectionState(selectedFleetId, shipProvider.get(selectedFleetId, rawShipTypeIdsAndCounts),
-					deployableFleetProvider, orbitingSystemProvider);
+			return new FleetInspectionState(selectedFleetId.get(),
+					shipProvider.get(selectedFleetId.get(), rawShipTypeIdsAndCounts), deployableFleetProvider,
+					orbitingSystemProvider);
 		}
 		else if (starAndFleet(selectedSystemId, selectedFleetId)) {
-			return new FleetDeploymentState(selectedFleetId, selectedSystemId,
-					shipProvider.get(selectedFleetId, rawShipTypeIdsAndCounts), orbitingSystemProvider);
+			return new FleetDeploymentState(selectedFleetId.get(), selectedSystemId.get(),
+					shipProvider.get(selectedFleetId.get(), rawShipTypeIdsAndCounts), orbitingSystemProvider);
 		}
 		else {
 			return new InitState();
 		}
 	}
 
-	boolean isSystemSelectable(final SystemId systemId) {
+	boolean isSystemSelectable(SystemId systemId) {
 		return false;
 	}
 
-	boolean isFleetSelectable(final FleetId fleetId) {
+	boolean isFleetSelectable(FleetId fleetId) {
 		return false;
 	}
 
@@ -513,6 +211,299 @@ abstract class MainPageState {
 
 	boolean isNewTurnState() {
 		return this instanceof NewTurnState;
+	}
+
+	static class InitState extends MainPageState {
+
+	}
+
+	static class SpaceCombatSystemState extends OneByOneSystemsState<Entry<SystemId, Integer>> {
+
+		private final int order;
+
+		private SpaceCombatSystemState(SystemId selectedSystemId, List<Entry<SystemId, Integer>> spaceCombatSystemIds) {
+			super(selectedSystemId, spaceCombatSystemIds, Entry::getKey);
+			this.order = spaceCombatSystemIds.get(0).getValue();
+		}
+
+		List<Entry<SystemId, Integer>> getRemainingSpaceCombatSystemIds() {
+			return this.systemIds;
+		}
+
+		boolean hasRemainingSpaceCombatSystems() {
+			return !this.systemIds.isEmpty();
+		}
+
+		int getOrder() {
+			return this.order;
+		}
+
+	}
+
+	static class ExplorationState extends OneByOneSystemsState<SystemId> {
+
+		private ExplorationState(SystemId selectedSystemId, List<SystemId> exploredSystemIds) {
+			super(selectedSystemId, exploredSystemIds, Function.identity());
+		}
+
+		List<SystemId> getRemainingExplorationSystemIds() {
+			return this.systemIds;
+		}
+
+		boolean hasRemainingExploredSystems() {
+			return !this.systemIds.isEmpty();
+		}
+
+	}
+
+	static class ColonizationState extends OneByOneSystemsState<SystemId> {
+
+		private ColonizationState(SystemId selectedSystemId, List<SystemId> colonizableSystemIds) {
+			super(selectedSystemId, colonizableSystemIds, Function.identity());
+		}
+
+		List<SystemId> getRemainingColonizableSystemIds() {
+			return this.systemIds;
+		}
+
+		boolean hasRemainingColonizableSystems() {
+			return !this.systemIds.isEmpty();
+		}
+
+	}
+
+	static class AnnexationState extends OneByOneSystemsState<SystemId> {
+
+		private AnnexationState(SystemId selectedSystemId, List<SystemId> annexableSystemIds) {
+			super(selectedSystemId, annexableSystemIds, Function.identity());
+		}
+
+		List<SystemId> getRemainingAnnexableSystemIds() {
+			return this.systemIds;
+		}
+
+		boolean hasRemainingAnnexableSystemIds() {
+			return !this.systemIds.isEmpty();
+		}
+
+	}
+
+	static class NotificationState extends OneByOneSystemsState<SystemId> {
+
+		NotificationState(SystemId selectedSystemId, List<SystemId> systemIds) {
+			super(selectedSystemId, systemIds, Function.identity());
+		}
+
+		List<SystemId> getRemainingNotificationSystemIds() {
+			return this.systemIds;
+		}
+
+		boolean hasRemainingNotificationSystems() {
+			return !this.systemIds.isEmpty();
+		}
+
+		@Override
+		boolean isMiniMap() {
+			return false;
+		}
+
+	}
+
+	static class StarInspectionState extends MainPageState {
+
+		private final SystemId selectedSystemId;
+
+		private final Optional<String> lockedCategory;
+
+		private StarInspectionState(SystemId selectedSystemId, Optional<String> lockedCategory) {
+			this.selectedSystemId = selectedSystemId;
+			this.lockedCategory = lockedCategory;
+		}
+
+		@Override
+		boolean isSystemSelectable(SystemId systemId) {
+			return !this.selectedSystemId.equals(systemId);
+		}
+
+		@Override
+		boolean isFleetSelectable(FleetId fleetId) {
+			return true;
+		}
+
+		@Override
+		Optional<SystemId> getSelectedSystemId() {
+			return Optional.of(this.selectedSystemId);
+		}
+
+		@Override
+		Optional<String> getLockedCategory() {
+			return this.lockedCategory;
+		}
+
+	}
+
+	static class NewTurnState extends StarInspectionState {
+
+		private NewTurnState(SystemId selectedSystemId) {
+			super(selectedSystemId, Optional.empty());
+		}
+
+	}
+
+	static class TurnFinishedState extends StarInspectionState {
+
+		private TurnFinishedState(SystemId selectedSystemId) {
+			super(selectedSystemId, Optional.empty());
+		}
+
+		@Override
+		boolean isMiniMap() {
+			return true;
+		}
+
+		@Override
+		boolean isSystemSelectable(SystemId systemId) {
+			return false;
+		}
+
+		@Override
+		boolean isFleetSelectable(FleetId fleetId) {
+			return false;
+		}
+
+	}
+
+	static class FleetMovementState extends StarInspectionState {
+
+		private FleetMovementState(SystemId selectedSystemId) {
+			super(selectedSystemId, Optional.empty());
+		}
+
+		@Override
+		boolean isMiniMap() {
+			return true;
+		}
+
+		@Override
+		boolean isSystemSelectable(SystemId systemId) {
+			return false;
+		}
+
+		@Override
+		boolean isFleetSelectable(FleetId fleetId) {
+			return false;
+		}
+
+	}
+
+	static class FleetInspectionState extends MainPageState {
+
+		private final FleetId selectedFleetId;
+
+		private final Map<ShipTypeView, Integer> ships;
+
+		private final DeployableFleetProvider deployableFleetProvider;
+
+		private final OrbitingSystemProvider orbitingSystemProvider;
+
+		private FleetInspectionState(FleetId selectedFleetId, Map<ShipTypeView, Integer> ships,
+				DeployableFleetProvider deployableFleetProvider, OrbitingSystemProvider orbitingSystemProvider) {
+			this.selectedFleetId = selectedFleetId;
+			this.ships = ships.isEmpty() ? null : unmodifiableMap(ships);
+
+			this.deployableFleetProvider = deployableFleetProvider;
+			this.orbitingSystemProvider = orbitingSystemProvider;
+		}
+
+		@Override
+		boolean isSystemSelectable(SystemId systemId) {
+			return !this.deployableFleetProvider.is(this.selectedFleetId)
+					|| !this.orbitingSystemProvider.is(this.selectedFleetId, systemId);
+		}
+
+		@Override
+		boolean isFleetSelectable(FleetId fleetId) {
+			return !this.selectedFleetId.equals(fleetId);
+		}
+
+		@Override
+		Optional<FleetId> getSelectedFleetId() {
+			return Optional.of(this.selectedFleetId);
+		}
+
+		@Override
+		Optional<Map<ShipTypeView, Integer>> getShips() {
+			return Optional.ofNullable(this.ships);
+		}
+
+	}
+
+	static class FleetDeploymentState extends MainPageState {
+
+		private final SystemId selectedSystemId;
+
+		private final FleetId selectedFleetId;
+
+		private final Map<ShipTypeView, Integer> ships;
+
+		private final OrbitingSystemProvider orbitingSystemProvider;
+
+		private FleetDeploymentState(FleetId selectedFleetId, SystemId selectedSystemId,
+				Map<ShipTypeView, Integer> ships, OrbitingSystemProvider orbitingSystemProvider) {
+			this.selectedFleetId = selectedFleetId;
+			this.selectedSystemId = selectedSystemId;
+			this.ships = ships.isEmpty() ? null : unmodifiableMap(ships);
+
+			this.orbitingSystemProvider = orbitingSystemProvider;
+		}
+
+		@Override
+		boolean isSystemSelectable(SystemId systemId) {
+			return !this.selectedSystemId.equals(systemId)
+					&& !this.orbitingSystemProvider.is(this.selectedFleetId, systemId);
+		}
+
+		@Override
+		boolean isFleetSelectable(FleetId fleetId) {
+			return !this.selectedFleetId.equals(fleetId);
+		}
+
+		@Override
+		Optional<SystemId> getSelectedSystemId() {
+			return Optional.of(this.selectedSystemId);
+		}
+
+		@Override
+		Optional<FleetId> getSelectedFleetId() {
+			return Optional.of(this.selectedFleetId);
+		}
+
+		@Override
+		Optional<Map<ShipTypeView, Integer>> getShips() {
+			return Optional.ofNullable(this.ships);
+		}
+
+	}
+
+	@FunctionalInterface
+	interface ShipProvider {
+
+		Map<ShipTypeView, Integer> get(FleetId fleetId, Map<String, String> parameters);
+
+	}
+
+	@FunctionalInterface
+	interface OrbitingSystemProvider {
+
+		boolean is(FleetId fleetId, SystemId orbitingSystemId);
+
+	}
+
+	@FunctionalInterface
+	interface DeployableFleetProvider {
+
+		boolean is(FleetId fleetId);
+
 	}
 
 }

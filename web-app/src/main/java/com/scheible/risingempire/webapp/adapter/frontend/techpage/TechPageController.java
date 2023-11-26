@@ -29,8 +29,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 class TechPageController {
 
 	@GetMapping(path = "/tech-page")
-	EntityModel<TechPageDto> techPage(@ModelAttribute final FrontendContext context,
-			@RequestParam final Optional<String> lockedCategory) {
+	EntityModel<TechPageDto> techPage(@ModelAttribute FrontendContext context,
+			@RequestParam Optional<String> lockedCategory) {
 		return new EntityModel<>(new TechPageDto(new EntityModel<>(new AllocationsDto(Map.of( //
 				"computers", new AllocationCategoryDto(16, "1111RP"), //
 				"construction", new AllocationCategoryDto(17, "2222RP"), //
@@ -44,6 +44,19 @@ class TechPageController {
 			.with(Action.get("close", context.toFrontendUri("main-page")) //
 				.with(context.getSelectedStarId().isPresent(), "selectedStarId",
 						() -> context.getSelectedStarId().get().getValue()));
+	}
+
+	@PostMapping(path = "/tech-page/allocations", consumes = APPLICATION_JSON_VALUE)
+	ResponseEntity<Void> allocateResearch(@ModelAttribute FrontendContext context,
+			@RequestBody ResearchAllocationsBodyDto body) {
+		return ResponseEntity.status(HttpStatus.SEE_OTHER)
+			.header(HttpHeaders.LOCATION,
+					context.toAction(HttpMethod.GET, "tech-page")
+						.with(body.locked.isPresent(), "lockedCategory", () -> body.locked.get())
+						.with(body.selectedStarId.isPresent(), "selectedStarId",
+								() -> body.selectedStarId.get().getValue())
+						.toGetUri())
+			.build();
 	}
 
 	static class ResearchAllocationsBodyDto {
@@ -62,19 +75,6 @@ class TechPageController {
 
 		Optional<Integer> technology = Optional.empty();
 
-	}
-
-	@PostMapping(path = "/tech-page/allocations", consumes = APPLICATION_JSON_VALUE)
-	ResponseEntity<Void> allocateResearch(@ModelAttribute final FrontendContext context,
-			@RequestBody final ResearchAllocationsBodyDto body) {
-		return ResponseEntity.status(HttpStatus.SEE_OTHER)
-			.header(HttpHeaders.LOCATION,
-					context.toAction(HttpMethod.GET, "tech-page")
-						.with(body.locked.isPresent(), "lockedCategory", () -> body.locked.get())
-						.with(body.selectedStarId.isPresent(), "selectedStarId",
-								() -> body.selectedStarId.get().getValue())
-						.toGetUri())
-			.build();
 	}
 
 }

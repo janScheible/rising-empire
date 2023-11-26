@@ -17,7 +17,7 @@ public enum RaceDto {
 	@JsonProperty("Psilon")
 	PSILON;
 
-	public static RaceDto fromRace(final Race race) {
+	public static RaceDto fromRace(Race race) {
 		return RaceDto.valueOf(race.name());
 	}
 

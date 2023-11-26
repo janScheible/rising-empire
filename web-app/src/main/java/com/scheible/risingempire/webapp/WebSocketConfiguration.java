@@ -25,18 +25,20 @@ public class WebSocketConfiguration implements WebSocketConfigurer, ApplicationC
 	private ApplicationContext applicationContext;
 
 	@Override
-	public void registerWebSocketHandlers(final WebSocketHandlerRegistry registry) {
-		final GameNotificationWebSocketHandler gameHandler = new GameNotificationWebSocketHandler(
-				applicationContext.getBean(ObjectMapper.class), applicationContext.getBean(NotificationService.class));
+	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+		GameNotificationWebSocketHandler gameHandler = new GameNotificationWebSocketHandler(
+				this.applicationContext.getBean(ObjectMapper.class),
+				this.applicationContext.getBean(NotificationService.class));
 		registry.addHandler(gameHandler, "/game/notifications").setAllowedOrigins(ALLOWED_ORIGINS);
 
-		final GameBrowserNotificationWebSocketHandler gameBrowserHandler = new GameBrowserNotificationWebSocketHandler(
-				applicationContext.getBean(ObjectMapper.class), applicationContext.getBean(NotificationService.class));
+		GameBrowserNotificationWebSocketHandler gameBrowserHandler = new GameBrowserNotificationWebSocketHandler(
+				this.applicationContext.getBean(ObjectMapper.class),
+				this.applicationContext.getBean(NotificationService.class));
 		registry.addHandler(gameBrowserHandler, "/game-browser/notifications").setAllowedOrigins(ALLOWED_ORIGINS);
 	}
 
 	@Override
-	public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
 	}
 

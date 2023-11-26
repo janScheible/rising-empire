@@ -27,7 +27,7 @@ public class GameOptions {
 
 	private double fleetSpeedFactor = 1.0;
 
-	private Outcome spaceCombatOutcome = null;
+	private Optional<Outcome> spaceCombatOutcome = Optional.empty();
 
 	private int annexationSiegeRounds = 5;
 
@@ -66,7 +66,7 @@ public class GameOptions {
 	}
 
 	public GameOptions spaceCombatWinner(Outcome outcome) {
-		this.spaceCombatOutcome = outcome;
+		this.spaceCombatOutcome = Optional.of(outcome);
 		return this;
 	}
 
@@ -99,7 +99,7 @@ public class GameOptions {
 		return this.fleetSpeedFactor;
 	}
 
-	public Outcome getSpaceCombatOutcome() {
+	public Optional<Outcome> getSpaceCombatOutcome() {
 		return this.spaceCombatOutcome;
 	}
 

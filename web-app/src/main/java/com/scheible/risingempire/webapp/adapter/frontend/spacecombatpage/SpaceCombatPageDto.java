@@ -2,6 +2,7 @@ package com.scheible.risingempire.webapp.adapter.frontend.spacecombatpage;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scheible.risingempire.game.api.view.ship.ShipSize;
@@ -10,12 +11,43 @@ import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.api.view.universe.Race;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.PlayerDto;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.RaceDto;
-import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * @author sj
  */
 class SpaceCombatPageDto {
+
+	@JsonProperty(value = "@type")
+	final String type = getClass().getSimpleName();
+
+	final String systemName;
+
+	final RaceDto attacker;
+
+	final List<CombatantShipSpecsDto> attackerShipSpecs;
+
+	final RaceDto defender;
+
+	final List<CombatantShipSpecsDto> defenderShipSpecs;
+
+	final int fireExchangeCount;
+
+	final CombatOutcomeDto combatOutcome;
+
+	SpaceCombatPageDto(String systemName, Race attacker, List<CombatantShipSpecsDto> attackerShipSpecs, Race defender,
+			List<CombatantShipSpecsDto> defenderShipSpecs, int fireExchangeCount, CombatOutcomeDto combatOutcome) {
+		this.systemName = systemName;
+
+		this.attacker = RaceDto.fromRace(attacker);
+		this.attackerShipSpecs = attackerShipSpecs;
+
+		this.defender = RaceDto.fromRace(defender);
+		this.defenderShipSpecs = defenderShipSpecs;
+
+		this.fireExchangeCount = fireExchangeCount;
+
+		this.combatOutcome = combatOutcome;
+	}
 
 	static class FireExchangeDto {
 
@@ -25,7 +57,7 @@ class SpaceCombatPageDto {
 
 		final int count;
 
-		FireExchangeDto(final int lostHitPoints, final int damage, final int count) {
+		FireExchangeDto(int lostHitPoints, int damage, int count) {
 			this.lostHitPoints = lostHitPoints;
 			this.damage = damage;
 			this.count = count;
@@ -39,39 +71,31 @@ class SpaceCombatPageDto {
 
 		final String name;
 
-		@Nullable
-		final Integer shield;
+		Optional<Integer> shield;
 
-		@Nullable
-		final Integer beamDefence;
+		Optional<Integer> beamDefence;
 
-		@Nullable
-		final Integer attackLevel;
+		Optional<Integer> attackLevel;
 
-		@Nullable
-		final Integer damage = 0; // will be updated in the fire exchanges
+		Optional<Integer> damage = Optional.of(0); // will be updated in the fire
+													// exchanges
 
-		@Nullable
-		final Integer missleDefence;
+		Optional<Integer> missleDefence;
 
-		@Nullable
-		final Integer hits;
+		Optional<Integer> hits;
 
-		@Nullable
-		final Integer speed;
+		Optional<Integer> speed;
 
-		@Nullable
-		final List<String> equipment;
+		List<String> equipment;
 
 		final ShipsDto ships;
 
 		final Map<Integer, FireExchangeDto> fireExchanges;
 
-		CombatantShipSpecsDto(final String id, final String name, @Nullable final Integer shield,
-				@Nullable final Integer beamDefence, @Nullable final Integer attackLevel,
-				@Nullable final Integer missleDefence, @Nullable final Integer hits, @Nullable final Integer speed,
-				@Nullable final List<String> equipment, final ShipsDto ships,
-				final Map<Integer, FireExchangeDto> fireExchanges) {
+		CombatantShipSpecsDto(String id, String name, Optional<Integer> shield, Optional<Integer> beamDefence,
+				Optional<Integer> attackLevel, Optional<Integer> missleDefence, Optional<Integer> hits,
+				Optional<Integer> speed, List<String> equipment, ShipsDto ships,
+				Map<Integer, FireExchangeDto> fireExchanges) {
 			this.id = id;
 			this.name = name;
 
@@ -100,7 +124,7 @@ class SpaceCombatPageDto {
 
 		final PlayerDto playerColor;
 
-		ShipsDto(final int count, final int previousCount, final ShipSize size, final Player player) {
+		ShipsDto(int count, int previousCount, ShipSize size, Player player) {
 			this.count = count;
 			this.previousCount = previousCount;
 			this.size = size;
@@ -115,8 +139,8 @@ class SpaceCombatPageDto {
 
 			VICTORY, DEFEAT, RETREAT;
 
-			static OutcomeDto toOutcomeDto(final Player player, final Player attackerPlayer,
-					final Player defenderPlayer, final SpaceCombatView.Outcome outcome) {
+			static OutcomeDto toOutcomeDto(Player player, Player attackerPlayer, Player defenderPlayer,
+					SpaceCombatView.Outcome outcome) {
 				if (player == attackerPlayer) {
 					if (outcome == SpaceCombatView.Outcome.ATTACKER_WON) {
 						return OutcomeDto.VICTORY;
@@ -145,44 +169,10 @@ class SpaceCombatPageDto {
 
 		final OutcomeDto outcome;
 
-		CombatOutcomeDto(final OutcomeDto outcome) {
+		CombatOutcomeDto(OutcomeDto outcome) {
 			this.outcome = outcome;
 		}
 
-	}
-
-	@JsonProperty(value = "@type")
-	final String type = getClass().getSimpleName();
-
-	final String systemName;
-
-	final RaceDto attacker;
-
-	final List<CombatantShipSpecsDto> attackerShipSpecs;
-
-	final RaceDto defender;
-
-	final List<CombatantShipSpecsDto> defenderShipSpecs;
-
-	final int fireExchangeCount;
-
-	final CombatOutcomeDto combatOutcome;
-
-	SpaceCombatPageDto(final String systemName, final Race attacker,
-			final List<CombatantShipSpecsDto> attackerShipSpecs, final Race defender,
-			final List<CombatantShipSpecsDto> defenderShipSpecs, final int fireExchangeCount,
-			final CombatOutcomeDto combatOutcome) {
-		this.systemName = systemName;
-
-		this.attacker = RaceDto.fromRace(attacker);
-		this.attackerShipSpecs = attackerShipSpecs;
-
-		this.defender = RaceDto.fromRace(defender);
-		this.defenderShipSpecs = defenderShipSpecs;
-
-		this.fireExchangeCount = fireExchangeCount;
-
-		this.combatOutcome = combatOutcome;
 	}
 
 }

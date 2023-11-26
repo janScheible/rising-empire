@@ -7,24 +7,23 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import com.scheible.risingempire.util.jdk.Objects2;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class CollectionModel<T> extends HypermediaModel<CollectionModel<T>> implements Iterable<T> {
 
 	private final Collection<T> elements;
 
-	public CollectionModel(final Collection<T> elements) {
+	public CollectionModel(Collection<T> elements) {
 		this.elements = Collections.unmodifiableCollection(elements);
 	}
 
 	@Override
-	public CollectionModel<T> with(final Action action) {
-		actions.add(action);
+	public CollectionModel<T> with(Action action) {
+		this.actions.add(action);
 		return this;
 	}
 
 	@Override
-	public CollectionModel<T> with(final boolean predicate, final Supplier<Action> actionSupplier) {
+	public CollectionModel<T> with(boolean predicate, Supplier<Action> actionSupplier) {
 		if (predicate) {
 			return with(actionSupplier.get());
 		}
@@ -34,24 +33,23 @@ public class CollectionModel<T> extends HypermediaModel<CollectionModel<T>> impl
 	}
 
 	public Collection<T> getElements() {
-		return Collections.unmodifiableCollection(elements);
+		return Collections.unmodifiableCollection(this.elements);
 	}
 
 	@Override
 	public Iterator<T> iterator() {
-		return elements.iterator();
+		return this.elements.iterator();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return Objects2.equals(this, obj,
+				other -> Objects.equals(this.actions, other.actions) && Objects.equals(this.elements, other.elements));
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(actions, elements);
-	}
-
-	@Override
-	@SuppressFBWarnings(value = "EQ_UNUSUAL", justification = "Object2.equals() is allowed.")
-	public boolean equals(final Object obj) {
-		return Objects2.equals(this, obj,
-				other -> Objects.equals(actions, other.actions) && Objects.equals(elements, other.elements));
+		return Objects.hash(this.actions, this.elements);
 	}
 
 }

@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
-        "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
-
+<!DOCTYPE module PUBLIC "Check Configuration 1.3" "https://checkstyle.org/dtds/configuration_1_3.dtd">
 <module name="Checker">
 	<module name="TreeWalker">
 		<module name="InnerTypeLast"/>
@@ -12,10 +10,11 @@
 
 		<module name="RedundantImport"/>
 		<module name="UnusedImports"/>
-		 <module name="AvoidStarImport"/>
+		<module name="AvoidStarImport"/>
 		<!-- Excludes mainly test libraries: https://github.com/spring-io/spring-javaformat/blob/main/spring-javaformat/spring-javaformat-checkstyle/src/main/java/io/spring/javaformat/checkstyle/check/SpringAvoidStaticImportCheck.java -->
 		<module name="io.spring.javaformat.checkstyle.check.SpringAvoidStaticImportCheck">
-			<property name="excludes" value="java.nio.charset.StandardCharsets.*,com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*, com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.*,java.util.Objects.requireNonNull,java.util.Collections.unmodifiableCollection,java.util.Collections.unmodifiableList,java.util.Collections.unmodifiableMap,java.util.Collections.unmodifiableSet,com.scheible.risingempire.util.jdk.Objects2.toStringBuilder" />
+			<property name="id" value="SpringAvoidStaticImportTest"/>			
+			<property name="excludes" value="java.nio.charset.StandardCharsets.*,java.util.Objects.requireNonNull,java.util.Collections.unmodifiableCollection,java.util.Collections.unmodifiableList,java.util.Collections.unmodifiableMap,java.util.Collections.unmodifiableSet,com.scheible.risingempire.util.jdk.Objects2.toStringBuilder,org.springframework.http.MediaType.*,org.springframework.http.HttpStatus.*" />
 		</module>
 		
 		<module name="ModifierOrder"/>
@@ -23,7 +22,12 @@
 
 		<module name="PackageDeclaration"/>
 		<module name="PackageName">
+			<property name="id" value="PackageNameProduction"/>
 			<property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+		</module>
+		<module name="PackageName">
+			<property name="id" value="PackageNameTest"/>
+			<property name="format" value="^[a-z]+(\._?[a-z][a-z0-9]*)*$"/>
 		</module>
 
 		<module name="com.puppycrawl.tools.checkstyle.checks.coding.RequireThisCheck">
@@ -44,5 +48,8 @@
 		<module name="NeedBraces"/>
 		<module name="OneStatementPerLine"/>
 		<module name="UpperEll"/>
+		
+		<module name="SuppressWarningsHolder"/>
 	</module>
+	<module name="SuppressWarningsFilter"/>
 </module>

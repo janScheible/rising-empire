@@ -1,6 +1,5 @@
 package com.scheible.risingempire.game.impl.game;
 
-import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -48,6 +47,7 @@ import com.scheible.risingempire.game.impl.fleet.FleetManager;
 import com.scheible.risingempire.game.impl.fleet.FleetTurn;
 import com.scheible.risingempire.game.impl.fleet.JourneyCalculator;
 import com.scheible.risingempire.game.impl.fleet.OrbitingFleet;
+import com.scheible.risingempire.game.impl.fleet.SpaceCombatResolver;
 import com.scheible.risingempire.game.impl.fleet.StartFleet;
 import com.scheible.risingempire.game.impl.fraction.Fraction;
 import com.scheible.risingempire.game.impl.ship.DesignSlot;
@@ -135,8 +135,9 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		this.fleetTurn = new FleetTurn(() -> this.round, this.systems,
 				(player, systemId, snapshot) -> this.fractions.get(player).updateSnapshot(systemId, snapshot),
 				this.fleetFormer, fleetFinder,
-				gameOptions.getSpaceCombatOutcome() == null ? new SimulatingSpaceCombatResolver()
-						: new KnownInAdvanceWinnerSpaceCombatResolver(gameOptions.getSpaceCombatOutcome()),
+				gameOptions.getSpaceCombatOutcome()
+					.<SpaceCombatResolver>map(KnownInAdvanceWinnerSpaceCombatResolver::new)
+					.orElseGet(SimulatingSpaceCombatResolver::new),
 				this.shipDesignProvider);
 
 		this.annexationSiegeRounds = gameOptions.getAnnexationSiegeRounds();
@@ -240,7 +241,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 							.get(p, this.round)
 							.stream()
 							.map(tgv -> tgv.stream()
-								.map(tv -> (Entry<TechId, String>) new SimpleImmutableEntry<>(tv.getId(), tv.getName()))
+								.map(tv -> Map.entry(tv.getId(), tv.getName()))
 								.collect(Collectors.toList()))
 							.collect(Collectors.toList())));
 			}

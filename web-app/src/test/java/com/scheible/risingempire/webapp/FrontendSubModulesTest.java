@@ -43,7 +43,7 @@ class FrontendSubModulesTest {
 
 	@BeforeAll
 	static void beforeClass() throws IOException, InterruptedException {
-		for (final Entry<String, Path> esBuildMetadataInvocation : List.of(ES_BUILD_GAME_BROWSER, ES_BUILD_GAME,
+		for (Entry<String, Path> esBuildMetadataInvocation : List.of(ES_BUILD_GAME_BROWSER, ES_BUILD_GAME,
 				ES_BUILD_STORYBOOK)) {
 			EsBuild.run(Path.of("./src/main/frontend"), "--bundle", "--outfile=" + NUL_DEVICE,
 					"--metafile=" + esBuildMetadataInvocation.getValue().toAbsolutePath().toString(),
@@ -51,7 +51,7 @@ class FrontendSubModulesTest {
 					esBuildMetadataInvocation.getKey().toString());
 		}
 
-		final EsBuildMetadata esBuildMetaData = new EsBuildMetadata();
+		EsBuildMetadata esBuildMetaData = new EsBuildMetadata();
 
 		result = Pocketsaw.analize(new File("./src/main/frontend/sub-modules.json"),
 				PackageDependencies.merge(

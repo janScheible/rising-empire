@@ -125,8 +125,6 @@
 			<goal>failsafe:integration-test</goal>
 		</goals>
 		<properties>
-			<test>DummyToSkipUnitTests</test>
-			<failIfNoTests>false</failIfNoTests>
 			<it.test>${packageClassName}</it.test>
 			<argLine>-Dlogback.root.log.level=INFO</argLine>
 		</properties>
@@ -145,8 +143,6 @@
 			<goal>failsafe:integration-test</goal>
 		</goals>
 		<properties>
-			<test>DummyToSkipUnitTests</test>
-			<failIfNoTests>false</failIfNoTests>
 			<it.test>${packageClassName}</it.test>
 			<forkMode>once</forkMode>
 			<maven.failsafe.debug>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address}</maven.failsafe.debug>
@@ -200,17 +196,23 @@
 		<actionName>CUSTOM-Test Gap Analysis (Unit Test only)</actionName>
 		<displayName>Test Gap Analysis (Unit Test only)</displayName>
 		<goals>
+			<goal>process-test-classes</goal>
 			<goal>com.scheible.testgapanalysis:test-gap-analysis-maven-plugin:1.2.1:clean-jacoco-reports</goal>
 			<goal>jacoco:prepare-agent</goal>
 			<goal>surefire:test</goal>
 			<goal>jacoco:report</goal>
 			<goal>com.scheible.testgapanalysis:test-gap-analysis-maven-plugin:1.2.1:perform</goal>
 		</goals>
+		<activatedProfiles>
+			<activatedProfile>skip-all-but-compilation-and-resources-and-unit-tests</activatedProfile>
+			<activatedProfile>skip-flattening</activatedProfile>
+		</activatedProfiles>
 	</action>		
 	<action>
 		<actionName>CUSTOM-Test Gap Analysis</actionName>
 		<displayName>Test Gap Analysis</displayName>
 		<goals>
+			<goal>process-test-classes</goal>
 			<goal>com.scheible.testgapanalysis:test-gap-analysis-maven-plugin:1.2.1:clean-jacoco-reports</goal>
 			<goal>jacoco:prepare-agent</goal>
 			<goal>surefire:test</goal>
@@ -220,18 +222,28 @@
 			<goal>jacoco:report-integration</goal>
 			<goal>com.scheible.testgapanalysis:test-gap-analysis-maven-plugin:1.2.1:perform</goal>
 		</goals>
+		<activatedProfiles>
+			<activatedProfile>skip-all-but-compilation-and-resources-and-unit-tests</activatedProfile>
+			<activatedProfile>skip-flattening</activatedProfile>
+		</activatedProfiles>
 	</action>
 	<action>
 		<actionName>CUSTOM-Mutation Coverage</actionName>
 		<displayName>Mutation Coverage</displayName>
 		<goals>
+			<goal>process-test-classes</goal>
 			<goal>org.pitest:pitest-maven:mutationCoverage</goal>
 		</goals>
+		<activatedProfiles>
+			<activatedProfile>skip-all-but-compilation-and-resources-and-unit-tests</activatedProfile>
+			<activatedProfile>skip-flattening</activatedProfile>
+		</activatedProfiles>
 	</action>
 	<action>
 		<actionName>CUSTOM-Static Code Analysis</actionName>
 		<displayName>Static Code Analysis</displayName>
 		<goals>
+			<goal>process-test-classes</goal>
 			<goal>checkstyle:check</goal>
 			<goal>pmd:cpd-check</goal>
 			<goal>pmd:check</goal>
@@ -239,6 +251,10 @@
 			<goal>de.thetaphi:forbiddenapis:check@check-forbiddenapis</goal>
 			<goal>de.thetaphi:forbiddenapis:check@check-forbidden-test-apis</goal>
 		</goals>
+		<activatedProfiles>
+			<activatedProfile>skip-all-but-compilation-and-resources-and-unit-tests</activatedProfile>
+			<activatedProfile>skip-flattening</activatedProfile>
+		</activatedProfiles>
 	</action>
 	<action>
 		<actionName>CUSTOM-CheckStyle</actionName>
@@ -265,16 +281,26 @@
 		<actionName>CUSTOM-ArchUnit Maven plugin</actionName>
 		<displayName>ArchUnit Maven plugin</displayName>
 		<goals>
+			<goal>process-test-classes</goal>
 			<goal>arch-unit:arch-test</goal>
 		</goals>
+		<activatedProfiles>
+			<activatedProfile>skip-all-but-compilation-and-resources-and-unit-tests</activatedProfile>
+			<activatedProfile>skip-flattening</activatedProfile>
+		</activatedProfiles>
 	</action>
 	<action>
 		<actionName>CUSTOM-Forbidden API Checker</actionName>
 		<displayName>Forbidden API Checker</displayName>
 		<goals>
+			<goal>process-test-classes</goal>
 			<goal>de.thetaphi:forbiddenapis:check@check-forbiddenapis</goal>
 			<goal>de.thetaphi:forbiddenapis:check@check-forbidden-test-apis</goal>			
 		</goals>
+		<activatedProfiles>
+			<activatedProfile>skip-all-but-compilation-and-resources-and-unit-tests</activatedProfile>
+			<activatedProfile>skip-flattening</activatedProfile>
+		</activatedProfiles>
 	</action>
 	<action>
 		<actionName>CUSTOM-Dependency Tree</actionName>
@@ -330,13 +356,6 @@
 		<displayName>Source Lines of Code</displayName>
 		<goals>
 			<goal>kupusoglu.orhan:sloc-maven-plugin:sloc</goal>
-		</goals>
-	</action>
-	<action>
-		<actionName>CUSTOM-PIT Mutation Test</actionName>
-		<displayName>PIT Mutation Test</displayName>
-		<goals>
-			<goal>org.pitest:pitest-maven:mutationCoverage</goal>
 		</goals>
 	</action>
 </actions>

@@ -21,33 +21,6 @@ import static java.util.Collections.unmodifiableList;
  */
 class MainPageDto {
 
-	static class ButtonBarDto {
-
-	}
-
-	static class TurnStatusDto {
-
-		final boolean ownTurnFinished;
-
-		final List<TurnFinishedStatusPlayerDto> playerStatus;
-
-		TurnStatusDto(final boolean ownTurnFinished, final List<TurnFinishedStatusPlayerDto> turnStatus) {
-			this.ownTurnFinished = ownTurnFinished;
-			this.playerStatus = unmodifiableList(turnStatus);
-		}
-
-	}
-
-	static class StateDescriptionDto {
-
-		final String stateName;
-
-		StateDescriptionDto(final String stateName) {
-			this.stateName = stateName;
-		}
-
-	}
-
 	@JsonProperty(value = "@type")
 	final String type = getClass().getSimpleName();
 
@@ -67,8 +40,8 @@ class MainPageDto {
 
 	List<String> fields;
 
-	MainPageDto(final boolean fleetMovements, final int round, final TurnStatusDto turnStatus, final StarMapDto starMap,
-			final StateDescriptionDto stateDescription) {
+	MainPageDto(boolean fleetMovements, int round, TurnStatusDto turnStatus, StarMapDto starMap,
+			StateDescriptionDto stateDescription) {
 		this.fleetMovements = fleetMovements;
 		this.round = round;
 		this.turnStatus = turnStatus;
@@ -76,14 +49,13 @@ class MainPageDto {
 		this.stateDescription = stateDescription;
 	}
 
-	@SuppressWarnings("checkstyle:CyclomaticComplexity")
-	static EntityModel<MainPageDto> filterFields(final EntityModel<MainPageDto> mainPageModel,
-			final Optional<String> optionalFields) {
+	static EntityModel<MainPageDto> filterFields(EntityModel<MainPageDto> mainPageModel,
+			Optional<String> optionalFields) {
 		if (optionalFields.isPresent()) {
-			final MainPageDto mainPage = mainPageModel.getContent();
+			MainPageDto mainPage = mainPageModel.getContent();
 
 			mainPage.fields = Arrays.asList(optionalFields.get().split(","));
-			final Predicate<String> anyFieldStartsWith = fieldStart -> mainPage.fields.stream()
+			Predicate<String> anyFieldStartsWith = fieldStart -> mainPage.fields.stream()
 				.anyMatch(f -> f.startsWith(fieldStart));
 
 			mainPage.buttonBar = anyFieldStartsWith.test("$.buttonBar") ? mainPage.buttonBar : null;
@@ -93,7 +65,7 @@ class MainPageDto {
 			mainPage.starMap = anyFieldStartsWith.test("$.starMap") ? mainPage.starMap : null;
 			if (mainPage.starMap != null) {
 				if (anyFieldStartsWith.test("$.starMap.stars")) {
-					final Optional<Viewport> viewport = FieldUtils.getViewport(mainPage.fields, "stars");
+					Optional<Viewport> viewport = FieldUtils.getViewport(mainPage.fields, "stars");
 
 					mainPage.starMap.getContent().stars = mainPage.starMap.getContent().stars.stream()
 						.filter(s -> viewport.isEmpty() || viewport.get().contains(s.getContent().x, s.getContent().y))
@@ -113,7 +85,7 @@ class MainPageDto {
 				}
 
 				if (anyFieldStartsWith.test("$.starMap.fleets")) {
-					final Optional<Viewport> viewport = FieldUtils.getViewport(mainPage.fields, "fleets");
+					Optional<Viewport> viewport = FieldUtils.getViewport(mainPage.fields, "fleets");
 
 					mainPage.starMap.getContent().fleets = mainPage.starMap.getContent().fleets.stream()
 						.filter(f -> viewport.isEmpty() || viewport.get().contains(f.getContent().x, f.getContent().y))
@@ -131,11 +103,38 @@ class MainPageDto {
 		return mainPageModel;
 	}
 
-	static List<ScannerRangeDto> filterScannerRanges(final Collection<ScannerRangeDto> scannerRanges,
-			final Optional<Viewport> viewport) {
+	static List<ScannerRangeDto> filterScannerRanges(Collection<ScannerRangeDto> scannerRanges,
+			Optional<Viewport> viewport) {
 		return scannerRanges.stream()
 			.filter(csr -> viewport.isEmpty() || viewport.get().intersects(csr.centerX, csr.centerY, csr.radius))
 			.collect(Collectors.toList());
+	}
+
+	static class ButtonBarDto {
+
+	}
+
+	static class TurnStatusDto {
+
+		final boolean ownTurnFinished;
+
+		final List<TurnFinishedStatusPlayerDto> playerStatus;
+
+		TurnStatusDto(boolean ownTurnFinished, List<TurnFinishedStatusPlayerDto> turnStatus) {
+			this.ownTurnFinished = ownTurnFinished;
+			this.playerStatus = unmodifiableList(turnStatus);
+		}
+
+	}
+
+	static class StateDescriptionDto {
+
+		final String stateName;
+
+		StateDescriptionDto(String stateName) {
+			this.stateName = stateName;
+		}
+
 	}
 
 }

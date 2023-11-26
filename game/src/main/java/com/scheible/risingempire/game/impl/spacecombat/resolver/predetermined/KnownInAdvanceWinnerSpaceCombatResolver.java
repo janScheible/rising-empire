@@ -1,6 +1,5 @@
 package com.scheible.risingempire.game.impl.spacecombat.resolver.predetermined;
 
-import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -41,7 +40,7 @@ public class KnownInAdvanceWinnerSpaceCombatResolver implements SpaceCombatResol
 	static Map<DesignSlot, List<FireExchange>> toAllLost(Map<DesignSlot, Integer> shipCounts) {
 		return shipCounts.entrySet()
 			.stream()
-			.map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), List.of(new FireExchange(0, 42, 0, 0))))
+			.map(e -> Map.entry(e.getKey(), List.of(new FireExchange(0, 42, 0, 0))))
 			.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	}
 

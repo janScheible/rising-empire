@@ -1,7 +1,6 @@
 package com.scheible.risingempire.webapp._hypermedia;
 
 import java.io.UnsupportedEncodingException;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,65 +42,64 @@ public class HypermediaClient {
 
 	private MvcResult page = null;
 
-	private HypermediaClient(final MockMvc mockMvc) {
+	private HypermediaClient(MockMvc mockMvc) {
 		this.mockMvc = mockMvc;
 	}
 
-	public static HypermediaClient create(final String url, final MediaType accept, final MockMvc mockMvc)
-			throws Exception {
-		final HypermediaClient client = new HypermediaClient(mockMvc);
+	public static HypermediaClient create(String url, MediaType accept, MockMvc mockMvc) throws Exception {
+		HypermediaClient client = new HypermediaClient(mockMvc);
 		client.getInitial(get(url).accept(accept));
 		return client;
 	}
 
-	public static HypermediaClient create(final MockHttpServletRequestBuilder mockMvcRequestBuilder,
-			final MockMvc mockMvc) throws Exception {
-		final HypermediaClient client = new HypermediaClient(mockMvc);
+	public static HypermediaClient create(MockHttpServletRequestBuilder mockMvcRequestBuilder, MockMvc mockMvc)
+			throws Exception {
+		HypermediaClient client = new HypermediaClient(mockMvc);
 		client.getInitial(mockMvcRequestBuilder);
 		return client;
 	}
 
-	private MvcResult getInitial(final MockHttpServletRequestBuilder mockMvcRequestBuilder) throws Exception {
-		page = followRedirects(mockMvc.perform(mockMvcRequestBuilder).andReturn());
-		return page;
+	private MvcResult getInitial(MockHttpServletRequestBuilder mockMvcRequestBuilder) throws Exception {
+		this.page = followRedirects(this.mockMvc.perform(mockMvcRequestBuilder).andReturn());
+		return this.page;
 	}
 
-	public MvcResult submit(final String actionJsonPath, ActionField... fields) throws Exception {
-		if (page == null) {
+	public MvcResult submit(String actionJsonPath, ActionField... fields) throws Exception {
+		if (this.page == null) {
 			throw new IllegalStateException("getInitial(...) has to be called first!");
 		}
 
-		page = submitInternal(actionJsonPath, fields);
-		return page;
+		this.page = submitInternal(actionJsonPath, fields);
+		return this.page;
 	}
 
-	private MvcResult submitInternal(final String actionJsonPath, ActionField... clientFields) throws Exception {
-		final Object actions = JsonPath.parse(page.getResponse().getContentAsString()).read(actionJsonPath);
+	private MvcResult submitInternal(String actionJsonPath, ActionField... clientFields) throws Exception {
+		Object actions = JsonPath.parse(this.page.getResponse().getContentAsString()).read(actionJsonPath);
 		@SuppressWarnings(value = "unchecked")
-		final Map<String, Object> action = actions instanceof JSONArray
-				? ((Map<String, Object>) ((JSONArray) actions).get(0)) : (Map<String, Object>) actions;
-		final String method = action.get("method").toString();
-		final boolean post = "POST".equals(method);
-		final boolean get = "GET".equals(method);
+		Map<String, Object> action = actions instanceof JSONArray ? ((Map<String, Object>) ((JSONArray) actions).get(0))
+				: (Map<String, Object>) actions;
+		String method = action.get("method").toString();
+		boolean post = "POST".equals(method);
+		boolean get = "GET".equals(method);
 		if (!post && !get) {
 			throw new IllegalArgumentException("Unsupported HTTP method '" + method + "'!");
 		}
 		String url = action.get("href").toString();
 		@SuppressWarnings(value = "unchecked")
-		final Set<Entry<String, Object>> fields = ((JSONArray) action.get("fields")).stream()
+		Set<Entry<String, Object>> fields = ((JSONArray) action.get("fields")).stream()
 			.map(f -> ((Map<String, Object>) f))
-			.map(f -> new AbstractMap.SimpleImmutableEntry<>(f.get("name").toString(), f.get("value")))
+			.map(f -> Map.entry(f.get("name").toString(), f.get("value")))
 			.collect(Collectors.toSet());
 		if (!post) {
-			final UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath(action.get("href").toString());
+			UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath(action.get("href").toString());
 			fields.forEach(f -> uriBuilder.queryParam(f.getKey(), f.getValue()));
 			Stream.of(clientFields).forEach(cf -> uriBuilder.queryParam(cf.getName(), cf.getValue()));
 			url = uriBuilder.build().encode().toString();
 		}
-		final MockHttpServletRequestBuilder requestBuilder = post ? MockMvcRequestBuilders.post(url)
+		MockHttpServletRequestBuilder requestBuilder = post ? MockMvcRequestBuilders.post(url)
 				: MockMvcRequestBuilders.get(url);
 
-		final Map<String, List<Object>> postContent = new HashMap<>();
+		Map<String, List<Object>> postContent = new HashMap<>();
 		if (post) {
 			requestBuilder.contentType(action.get("contentType").toString());
 			fields.forEach(f -> postContent.computeIfAbsent(f.getKey(), key -> new ArrayList<>()).add(f.getValue()));
@@ -110,29 +108,29 @@ public class HypermediaClient {
 			requestBuilder.content(JSONObject.toJSONString(postContent));
 		}
 		else if (get) {
-			final String accept = page.getResponse().getContentType() != null ? page.getResponse().getContentType()
-					: page.getResponse().getHeader("Accept");
+			String accept = this.page.getResponse().getContentType() != null ? this.page.getResponse().getContentType()
+					: this.page.getResponse().getHeader("Accept");
 			requestBuilder.accept(accept);
 		}
 
 		logger.debug("submit action '{}' as {} to url {}{}", actionJsonPath, method, url,
 				post ? " with body " + postContent : "");
 
-		return followRedirects(mockMvc.perform(requestBuilder).andReturn());
+		return followRedirects(this.mockMvc.perform(requestBuilder).andReturn());
 	}
 
-	private MvcResult followRedirects(final MvcResult mvcResult) throws Exception {
+	private MvcResult followRedirects(MvcResult mvcResult) throws Exception {
 		return followRedirects(mvcResult, 0);
 	}
 
-	private MvcResult followRedirects(final MvcResult mvcResult, final int counter) throws Exception {
+	private MvcResult followRedirects(MvcResult mvcResult, int counter) throws Exception {
 		if (counter > 5) {
 			throw new IllegalStateException("Redirect loop?");
 		}
 		if (mvcResult.getResponse().getStatus() == HttpStatus.SEE_OTHER.value()) {
-			final String accept = mvcResult.getRequest().getContentType() != null
-					? mvcResult.getRequest().getContentType() : mvcResult.getRequest().getHeader("Accept");
-			return followRedirects(mockMvc
+			String accept = mvcResult.getRequest().getContentType() != null ? mvcResult.getRequest().getContentType()
+					: mvcResult.getRequest().getHeader("Accept");
+			return followRedirects(this.mockMvc
 				.perform(MockMvcRequestBuilders.get(mvcResult.getResponse().getRedirectedUrl()).accept(accept))
 				.andReturn(), counter + 1);
 		}
@@ -141,11 +139,10 @@ public class HypermediaClient {
 					mvcResult.getRequest().getRequestURI() + "?" + mvcResult.getRequest().getQueryString());
 
 			if (logger.isTraceEnabled()) {
-				final List<String> actionPaths = JsonPath
+				List<String> actionPaths = JsonPath
 					.parse(mvcResult.getResponse().getContentAsString(), AS_PATH_LIST_CONFIG)
 					.read("$.._actions[*].name");
-				final DocumentContext jsonPathParsedResponse = JsonPath
-					.parse(mvcResult.getResponse().getContentAsString());
+				DocumentContext jsonPathParsedResponse = JsonPath.parse(mvcResult.getResponse().getContentAsString());
 
 				logger.trace(actionPaths.stream()
 					.map(ap -> ap.replaceAll("\\[\\d+\\]\\['name'\\]$",
@@ -159,11 +156,11 @@ public class HypermediaClient {
 	}
 
 	public MvcResult getPage() {
-		return page;
+		return this.page;
 	}
 
 	public String getPageContentAsString() throws UnsupportedEncodingException {
-		return page.getResponse().getContentAsString();
+		return this.page.getResponse().getContentAsString();
 	}
 
 }

@@ -1,6 +1,5 @@
 package com.scheible.risingempire.game.api.view.fleet;
 
-import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -248,8 +247,7 @@ public class FleetView {
 
 		values.add("ships=" + getShips().entrySet()
 			.stream()
-			.map(typeAndAmmount -> new SimpleImmutableEntry<>(typeAndAmmount.getKey().getName(),
-					typeAndAmmount.getValue()))
+			.map(typeAndAmmount -> Map.entry(typeAndAmmount.getKey().getName(), typeAndAmmount.getValue()))
 			.collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
 
 		return values.toString();

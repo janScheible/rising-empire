@@ -2,6 +2,9 @@
 java.util.Collections#emptyList()
 java.util.Collections#emptyMap()
 java.util.Collections#emptySet()
+java.util.Collections#singleton(java.lang.Object);
+
+java.util.AbstractMap$SimpleImmutableEntry#<init>(java.lang.Object, java.lang.Object) @ Use 'Map.entry()' instead.
 
 java.util.Hashtable @ Use 'HashMap' instead.
 java.util.Vector @ Use 'ArrayList' instead.

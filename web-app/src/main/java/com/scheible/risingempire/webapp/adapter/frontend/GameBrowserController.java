@@ -2,6 +2,7 @@ package com.scheible.risingempire.webapp.adapter.frontend;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,6 @@ import com.scheible.risingempire.webapp.game.GameManager;
 import com.scheible.risingempire.webapp.hypermedia.Action;
 import com.scheible.risingempire.webapp.hypermedia.EntityModel;
 import com.scheible.risingempire.webapp.notification.NotificationService;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,17 +43,15 @@ class GameBrowserController {
 
 	private final NotificationService notificationService;
 
-	GameBrowserController(final GameHolder gameHolder, final GameManager gameManager,
-			final NotificationService notificationService) {
+	GameBrowserController(GameHolder gameHolder, GameManager gameManager, NotificationService notificationService) {
 		this.gameHolder = gameHolder;
 		this.gameManager = gameManager;
 		this.notificationService = notificationService;
 	}
 
 	@GetMapping("/game-browser")
-	@SuppressFBWarnings(value = "PREDICTABLE_RANDOM", justification = "Random enough for game ids.")
 	ResponseEntity<GameBrowserDto> gameBrowser() {
-		final String defaultGameId = ThreadLocalRandom.current()
+		String defaultGameId = ThreadLocalRandom.current()
 			.ints(0, SPACE_WORDS.size())
 			.distinct()
 			.limit(3)
@@ -63,42 +61,43 @@ class GameBrowserController {
 		return ResponseEntity.ok(new GameBrowserDto(new EntityModel<>(
 				new GameLauncherDto(defaultGameId, List.of(PlayerDto.YELLOW, PlayerDto.BLUE, PlayerDto.WHITE)))
 			.with(Action.get("start", "games", "{gameId}", "{player}").with("gameId", null).with("player", null)),
-				gameHolder.getGameIds()
+				this.gameHolder.getGameIds()
 					.stream()
 					.map(gameId -> new EntityModel<>(new RunningGameDto(gameId, toRunningGamePlayers(gameId),
-							gameHolder.get(gameId).get().getRound()))
+							this.gameHolder.get(gameId).get().getRound()))
 						.with(Action.delete("stop", "game-browser", "games", gameId)))
 					.toList()));
 	}
 
-	private List<EntityModel<RunningGamePlayerDto>> toRunningGamePlayers(final String gameId) {
-		final List<EntityModel<RunningGamePlayerDto>> result = new ArrayList<>();
+	private List<EntityModel<RunningGamePlayerDto>> toRunningGamePlayers(String gameId) {
+		List<EntityModel<RunningGamePlayerDto>> result = new ArrayList<>();
 
-		final Game game = gameHolder.get(gameId).get();
+		Game game = this.gameHolder.get(gameId).get();
 
-		for (final Player player : game.getPlayers()) {
-			final boolean canReceiveNotifications = notificationService.hasChannel(gameId, player);
+		for (Player player : game.getPlayers()) {
+			boolean canReceiveNotifications = this.notificationService.hasChannel(gameId, player);
 			result.add(new EntityModel<>(
 					new RunningGamePlayerDto(PlayerDto.fromPlayer(player), !game.isAiControlled(player),
-							notificationService.getPlayerSession(gameId, player).orElse(null), canReceiveNotifications))
+							this.notificationService.getPlayerSession(gameId, player), canReceiveNotifications))
 				.with(!game.isAiControlled(player) && !canReceiveNotifications,
-						() -> Action.delete("kick", "game-browser", "games", gameId, player.name().toLowerCase()))
+						() -> Action.delete("kick", "game-browser", "games", gameId,
+								player.name().toLowerCase(Locale.ROOT)))
 				.with(game.isAiControlled(player),
-						() -> Action.get("join", "games", gameId, player.name().toLowerCase())));
+						() -> Action.get("join", "games", gameId, player.name().toLowerCase(Locale.ROOT))));
 		}
 
 		return result;
 	}
 
 	@DeleteMapping(path = "/game-browser/games/{gameId}/{player}")
-	ResponseEntity<Object> kickPlayer(@ModelAttribute final FrontendContext context) {
-		gameManager.kickPlayer(context.getGameId(), context.getPlayer());
+	ResponseEntity<Object> kickPlayer(@ModelAttribute FrontendContext context) {
+		this.gameManager.kickPlayer(context.getGameId(), context.getPlayer());
 		return ResponseEntity.ok(new Object());
 	}
 
 	@DeleteMapping(path = "/game-browser/games/{gameId}")
-	ResponseEntity<Object> stopGame(@ModelAttribute final FrontendContext context) {
-		gameManager.stopGame(context.getGameId());
+	ResponseEntity<Object> stopGame(@ModelAttribute FrontendContext context) {
+		this.gameManager.stopGame(context.getGameId());
 		return ResponseEntity.ok(new Object());
 	}
 

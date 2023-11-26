@@ -1,6 +1,5 @@
 package com.scheible.risingempire.game.impl.view;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -237,8 +236,8 @@ public class GameViewBuilder {
 		Map<ShipTypeView, Integer> shipTypesAndCounts = fleet.getShips()
 			.entrySet()
 			.stream()
-			.map(slotAndCount -> new AbstractMap.SimpleImmutableEntry<>(
-					slotAndCount.getKey().toShipType(designs.get(slotAndCount.getKey())), slotAndCount.getValue()))
+			.map(slotAndCount -> Map.entry(slotAndCount.getKey().toShipType(designs.get(slotAndCount.getKey())),
+					slotAndCount.getValue()))
 			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
 		if (fleet.isDeployed()) {

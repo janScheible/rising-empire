@@ -1,5 +1,7 @@
 package com.scheible.risingempire.webapp.adapter.frontend._scenario;
 
+import java.util.Set;
+
 import com.scheible.risingempire.game.api.Game;
 import com.scheible.risingempire.game.api.GameFactory;
 import com.scheible.risingempire.game.api.GameOptions;
@@ -12,7 +14,6 @@ import static com.scheible.risingempire.webapp.adapter.frontend._scenario.Abstra
 import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.JsonAssertCondition.miniMap;
 import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.JsonAssertCondition.round;
 import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.NotificationEventCondition.notification;
-import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -25,16 +26,16 @@ class FinishTurnIT extends AbstractMainPageIT {
 		startGameForBlue(GameFactory.get()
 			.create(GameOptions.forTestGameScenario()
 				// disable notifications
-				.fakeSystemNotificationProvider((player, round) -> emptySet())));
+				.fakeSystemNotificationProvider((player, round) -> Set.of())));
 	}
 
 	@Test
 	void nextTurnSinglePlayer() throws Exception {
-		final Game game = getGame();
+		Game game = getGame();
 
 		registerChannel(Player.BLUE);
 
-		final HypermediaClient blueClient = createHypermediaClient(Player.BLUE);
+		HypermediaClient blueClient = createHypermediaClient(Player.BLUE);
 
 		assertThat(blueClient).has(miniMap(false)).is(mainPageState("NewTurnState")).is(round(1));
 		assertNotifications();
@@ -60,15 +61,15 @@ class FinishTurnIT extends AbstractMainPageIT {
 		registerChannel(Player.WHITE);
 		registerChannel(Player.YELLOW);
 
-		final HypermediaClient blueClient = createHypermediaClient(Player.BLUE);
+		HypermediaClient blueClient = createHypermediaClient(Player.BLUE);
 		assertThat(blueClient).has(miniMap(false)).is(mainPageState("NewTurnState")).is(round(1));
 		assertNotifications();
 
-		final HypermediaClient whiteClient = createHypermediaClient(Player.WHITE);
+		HypermediaClient whiteClient = createHypermediaClient(Player.WHITE);
 		assertThat(whiteClient).has(miniMap(false)).is(mainPageState("NewTurnState")).is(round(1));
 		assertNotifications();
 
-		final HypermediaClient yellowClient = createHypermediaClient(Player.YELLOW);
+		HypermediaClient yellowClient = createHypermediaClient(Player.YELLOW);
 		assertThat(yellowClient).has(miniMap(false)).is(mainPageState("NewTurnState")).is(round(1));
 		assertNotifications();
 

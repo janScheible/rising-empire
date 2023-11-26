@@ -11,8 +11,6 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import com.scheible.risingempire.util.jdk.Objects2;
-import edu.umd.cs.findbugs.annotations.Nullable;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.http.MediaType;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -33,8 +31,7 @@ public class Action {
 
 	private final ActionHttpMethod method;
 
-	@Nullable
-	private final String contentType;
+	private final Optional<String> contentType;
 
 	/**
 	 * @param name a name
@@ -42,8 +39,8 @@ public class Action {
 	 * @param method the HTTP method
 	 * @param contentType the content type
 	 */
-	public Action(final String name, final String href, final ActionHttpMethod method, final String contentType) {
-		if (contentType != null && method != ActionHttpMethod.POST) {
+	private Action(String name, String href, ActionHttpMethod method, Optional<String> contentType) {
+		if (contentType.isPresent() && method != ActionHttpMethod.POST) {
 			throw new IllegalStateException("Only POST actions have a content type!");
 		}
 
@@ -58,49 +55,49 @@ public class Action {
 	 * @param href the already encoded hyperlink reference
 	 * @param method the HTTP method
 	 */
-	public Action(final String name, final String href, final ActionHttpMethod method) {
-		this(name, href, method, null);
+	public Action(String name, String href, ActionHttpMethod method) {
+		this(name, href, method, Optional.empty());
 	}
 
-	public static Action jsonPost(final String name, final String... pathSegments) {
+	public static Action jsonPost(String name, String... pathSegments) {
 		return new Action(name,
 				UriComponentsBuilder.newInstance().pathSegment(pathSegments).encode().build().toUriString(),
-				ActionHttpMethod.POST, MediaType.APPLICATION_JSON_VALUE);
+				ActionHttpMethod.POST, Optional.of(MediaType.APPLICATION_JSON_VALUE));
 	}
 
-	public static Action get(final String name, final String... pathSegments) {
+	public static Action get(String name, String... pathSegments) {
 		return new Action(name,
 				UriComponentsBuilder.newInstance().pathSegment(pathSegments).encode().build().toUriString(),
 				ActionHttpMethod.GET);
 	}
 
-	public static Action delete(final String name, final String... pathSegments) {
+	public static Action delete(String name, String... pathSegments) {
 		return new Action(name,
 				UriComponentsBuilder.newInstance().pathSegment(pathSegments).encode().build().toUriString(),
 				ActionHttpMethod.DELETE);
 	}
 
 	public List<ActionField> getFields() {
-		return Collections.unmodifiableList(fields);
+		return Collections.unmodifiableList(this.fields);
 	}
 
-	public ActionField getField(final String name) {
-		return fields.stream().filter(ac -> ac.getName().equals(name)).findFirst().get();
+	public ActionField getField(String name) {
+		return this.fields.stream().filter(ac -> ac.getName().equals(name)).findFirst().get();
 	}
 
-	public Action with(final ActionField field) {
-		fields.add(field);
+	public Action with(ActionField field) {
+		this.fields.add(field);
 		return this;
 	}
 
-	public Action with(final Stream<ActionField> fieldStream) {
+	public Action with(Stream<ActionField> fieldStream) {
 		fieldStream.forEach(f -> with(f));
 		return this;
 	}
 
-	public Action with(final boolean predicate, final String name, final Supplier<Object> valueSupplier) {
+	public Action with(boolean predicate, String name, Supplier<Object> valueSupplier) {
 		if (predicate) {
-			final Object value = valueSupplier.get();
+			Object value = valueSupplier.get();
 			if (value instanceof Stream) {
 				((Stream<?>) value).forEach(v -> {
 					with(name, v);
@@ -114,7 +111,7 @@ public class Action {
 		return this;
 	}
 
-	public Action with(final boolean predicate, final Supplier<Stream<ActionField>> fieldStreamSupplier) {
+	public Action with(boolean predicate, Supplier<Stream<ActionField>> fieldStreamSupplier) {
 		if (predicate) {
 			return with(fieldStreamSupplier.get());
 		}
@@ -123,56 +120,53 @@ public class Action {
 		}
 	}
 
-	public Action with(final String name, final Object value) {
-		fields.add(new ActionField(name, value));
+	public Action with(String name, Object value) {
+		this.fields.add(new ActionField(name, value));
 		return this;
 	}
 
 	public String toGetUri() {
-		if (method != ActionHttpMethod.GET) {
+		if (this.method != ActionHttpMethod.GET) {
 			throw new IllegalStateException("Only GET actions can be converted to an Uri!");
 		}
 
 		// href (which is always encoded) is decoded first because it is encoded again by
 		// UriComponentsBuilder
-		final String decodedHref = URLDecoder.decode(href, StandardCharsets.UTF_8);
+		String decodedHref = URLDecoder.decode(this.href, StandardCharsets.UTF_8);
 
-		final UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(decodedHref);
-		fields.stream().forEach(f -> uriBuilder.queryParam(f.getName(), f.getValue().toString()));
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(decodedHref);
+		this.fields.stream().forEach(f -> uriBuilder.queryParam(f.getName(), f.getValue().toString()));
 
 		return uriBuilder.toUriString();
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public String getHref() {
-		return href;
+		return this.href;
 	}
 
 	public ActionHttpMethod getMethod() {
-		return method;
+		return this.method;
 	}
 
 	public Optional<String> getContentType() {
-		return Optional.ofNullable(contentType);
+		return this.contentType;
 	}
 
 	@Override
-	@SuppressFBWarnings(value = "COM_PARENT_DELEGATED_CALL",
-			justification = "To satisfy the rule of having hashCode() implemented.")
-	public int hashCode() {
-		return Objects.hash(fields, name, href, method, contentType);
-	}
-
-	@Override
-	@SuppressFBWarnings(value = "EQ_UNUSUAL", justification = "Object2.equals() is allowed.")
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		return Objects2.equals(this, obj,
-				other -> Objects.equals(fields, other.fields) && Objects.equals(name, other.name)
-						&& Objects.equals(href, other.href) && Objects.equals(method, other.method)
-						&& Objects.equals(contentType, other.contentType));
+				other -> Objects.equals(this.fields, other.fields) && Objects.equals(this.name, other.name)
+						&& Objects.equals(this.href, other.href) && Objects.equals(this.method, other.method)
+						&& Objects.equals(this.contentType, other.contentType));
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.fields, this.name, this.href, this.method, this.contentType);
 	}
 
 }
