@@ -3,8 +3,8 @@
 <suppressions>
 	<suppress id="SpringAvoidStaticImportTest"
 			  checks="io.spring.javaformat.checkstyle.check.SpringAvoidStaticImportCheck" 
-			  files=".*[\\/]src[\\/]test[\\/]java[\\/]"/>
-	
-	<suppress id="PackageNameTest" checks="PackageName" files=".*[\\/]src[\\/]main[\\/]java[\\/]"/>
-	<suppress id="PackageNameProduction" checks="PackageName" files=".*[\\/]src[\\/]test[\\/]java[\\/]"/>
+			  files="[\\/]src[\\/]test[\\/]java[\\/]"/>
+
+	<suppress id="PackageNameTest" checks="PackageName" files="[\\/]src[\\/]main[\\/]java[\\/]"/>
+	<suppress id="PackageNameProduction" checks="PackageName" files="[\\/]src[\\/]test[\\/]java[\\/]"/>
 </suppressions>
