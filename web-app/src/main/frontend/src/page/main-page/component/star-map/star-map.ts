@@ -16,6 +16,10 @@ import cssUrl from '~/util/cssUrl';
 export default class StarMap extends HTMLElement {
 	static NAME = 're-star-map';
 
+	static #SCROLL_SPEED_PIXEL_PER_SECOND = 1700;
+
+	#resizeObserver: ResizeObserver;
+
 	#wrapperEl: HTMLDivElement;
 
 	#starNotificationEl: StarNotification;
@@ -41,15 +45,19 @@ export default class StarMap extends HTMLElement {
 				@import ${cssUrl('~/element.css', import.meta.url)};
 
 				:host {
-					display: inline-block;
-					position: relative;
+					display: grid;
+  					place-items: center;
+
 					overflow: hidden;
 
 					background-color: rgba(0, 0, 0, 0.75);
 				}
 
 				#wrapper {
-					transform-origin: 0px 0px;
+					display: inline-block;
+					position: relative;
+
+					transform: none;
 				}
 
 				${StarNotification.NAME} {
@@ -99,6 +107,12 @@ export default class StarMap extends HTMLElement {
 		this.#rangesEl = this.shadowRoot.querySelector(Ranges.NAME);
 		this.#starBackgroundEl = this.shadowRoot.querySelector('#background');
 
+		this.addEventListener('auxclick', (e) => {
+			if (e.button === 1) {
+				this.#scaleMap(!this.#isMinimized());
+			}
+		});
+
 		this.addEventListener('click', (e) => {
 			const clickedEls = e
 				.composedPath()
@@ -120,7 +134,15 @@ export default class StarMap extends HTMLElement {
 					//      an scroll event at all... this makes sure that the debounceed scroll end is always started.
 					this.#onScroll();
 				}
-				this.scrollBy({ left: offsetX, top: offsetY, behavior: 'smooth' });
+
+				// NOTE As soon as `this.scrollBy({ left: offsetX, top: offsetY, behavior: 'smooth' })` is supported by all browsers this can be used.
+				const distance = Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2));
+				smoothScroll({
+					scrollingElement: this,
+					xPos: this.scrollLeft + offsetX,
+					yPos: this.scrollTop + offsetY,
+					duration: (distance / StarMap.#SCROLL_SPEED_PIXEL_PER_SECOND) * 1000,
+				});
 			} else {
 				const selectedFleetEl = clickedEls
 					.filter((el) => el instanceof Fleet)
@@ -157,7 +179,18 @@ export default class StarMap extends HTMLElement {
 			if (this.#endScrollAction) {
 				HypermediaUtil.submitAction(this.#endScrollAction);
 			}
-		}, 500);
+		}, 5);
+	}
+
+	connectedCallback() {
+		this.#resizeObserver = new ResizeObserver(
+			debounce(() => {
+				if (this.#isMinimized()) {
+					this.#scaleMap(true);
+				}
+			}, 50)
+		);
+		this.#resizeObserver.observe(this);
 	}
 
 	#getFleetEls() {
@@ -184,24 +217,7 @@ export default class StarMap extends HTMLElement {
 		Reconciler.reconcileProperty(this.#starBackgroundEl, 'width', data.starBackground.width);
 		Reconciler.reconcileProperty(this.#starBackgroundEl, 'height', data.starBackground.height);
 
-		if (data.miniMap) {
-			if (!this.#isMinimized()) {
-				const scale = Math.min(this.clientWidth / this.scrollWidth, this.clientHeight / this.scrollHeight);
-
-				const translateX =
-					this.scrollLeft + /* center part */ (this.clientWidth - this.scrollWidth * scale) / 2;
-				const translateY =
-					this.scrollTop + /* center part */ (this.clientHeight - this.scrollHeight * scale) / 2;
-
-				Reconciler.reconcileStyle(
-					this.#wrapperEl,
-					'transform',
-					`translate(${translateX}px, ${translateY}px) scale(${scale})`
-				);
-			}
-		} else {
-			Reconciler.reconcileStyle(this.#wrapperEl, 'transform', '');
-		}
+		this.#scaleMap(data.miniMap);
 
 		if (data.scrollTo) {
 			if (data.scrollTo.center || !this.getStarMapViewport().contains(data.scrollTo)) {
@@ -219,17 +235,36 @@ export default class StarMap extends HTMLElement {
 		}
 	}
 
+	#scaleMap(miniMap) {
+		let transform = 'none';
+		if (miniMap) {
+			const scale = Math.min(this.clientWidth / this.scrollWidth, this.clientHeight / this.scrollHeight);
+
+			if (scale < 1) {
+				const translateX = -1 * ((this.scrollWidth - this.clientWidth) / 2) + this.scrollLeft;
+				const translateY = -1 * ((this.scrollHeight - this.clientHeight) / 2) + this.scrollTop;
+
+				transform = `translate(${translateX}px, ${translateY}px) scale(min(${scale}, 1))`;
+			}
+		}
+		Reconciler.reconcileStyle(this.#wrapperEl, 'transform', transform);
+	}
+
 	getStarMapViewport() {
 		return new Viewport(
-			this.scrollLeft - Math.max(Star.WIDTH, Fleet.WIDTH) / 2,
-			this.scrollLeft + this.clientWidth + Math.max(Star.WIDTH, Fleet.WIDTH) / 2,
-			this.scrollTop - Math.max(Star.HEIGHT, Fleet.HEIGHT) / 2,
-			this.scrollTop + this.clientHeight + Math.max(Star.HEIGHT, Fleet.HEIGHT) / 2
+			Math.round(this.scrollLeft - Math.max(Star.WIDTH, Fleet.WIDTH) / 2),
+			Math.round(this.scrollLeft + this.clientWidth + Math.max(Star.WIDTH, Fleet.WIDTH) / 2),
+			Math.round(this.scrollTop - Math.max(Star.HEIGHT, Fleet.HEIGHT) / 2),
+			Math.round(this.scrollTop + this.clientHeight + Math.max(Star.HEIGHT, Fleet.HEIGHT) / 2)
 		);
 	}
 
 	#isMinimized() {
-		return this.#wrapperEl.style.transform !== '';
+		return this.#wrapperEl.style.transform !== 'none';
+	}
+
+	disconnectedCallback() {
+		this.#resizeObserver.disconnect();
 	}
 }
 

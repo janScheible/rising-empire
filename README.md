@@ -61,6 +61,7 @@ Although third-party libraries should be avoided, in some cases it makes sense t
 1. [fflate](https://github.com/101arrowz/fflate) ([MIT License](https://opensource.org/license/MIT/))
 1. [IDB-Keyval](https://github.com/jakearchibald/idb-keyval) ([Apache License 2.0](https://opensource.org/license/apache-2-0/))
 1. [Sockette](https://github.com/lukeed/sockette) ([MIT License](https://opensource.org/license/MIT/))
+1. [SmoothScroll.js](https://github.com/LieutenantPeacock/SmoothScroll) ([MIT License](https://opensource.org/license/MIT/))
 
 ### Assets
 

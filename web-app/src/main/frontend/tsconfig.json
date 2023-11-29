@@ -11,6 +11,7 @@
 			"~/idb-keyval-6.2.0": ["./lib/idb-keyval-6.2.0"],
 			"~/fflate-0.7.4": ["./lib/fflate-0.7.4"],
 			"~/sockette-2.0.6": ["./lib/sockette-2.0.6"],
+			"~/smooth-scroll-1.2": ["./lib/smooth-scroll-1.2"],
 			"~/*": ["./src/*"]
 		}
 	}
