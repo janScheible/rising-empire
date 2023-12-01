@@ -1,8 +1,11 @@
 package com.scheible.risingempire.webapp.adapter.frontend;
 
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -17,6 +20,8 @@ import com.scheible.risingempire.webapp.game.GameManager;
 import com.scheible.risingempire.webapp.hypermedia.Action;
 import com.scheible.risingempire.webapp.hypermedia.EntityModel;
 import com.scheible.risingempire.webapp.notification.NotificationService;
+import org.springframework.boot.info.BuildProperties;
+import org.springframework.boot.info.GitProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,10 +47,18 @@ class GameBrowserController {
 
 	private final NotificationService notificationService;
 
-	GameBrowserController(GameHolder gameHolder, GameManager gameManager, NotificationService notificationService) {
+	private final Optional<GitProperties> gitProperties;
+
+	private final Optional<BuildProperties> buildProperties;
+
+	GameBrowserController(GameHolder gameHolder, GameManager gameManager, NotificationService notificationService,
+			Optional<GitProperties> gitProperties, Optional<BuildProperties> buildProperties) {
 		this.gameHolder = gameHolder;
 		this.gameManager = gameManager;
 		this.notificationService = notificationService;
+
+		this.gitProperties = gitProperties;
+		this.buildProperties = buildProperties;
 	}
 
 	@GetMapping("/game-browser")
@@ -65,7 +78,10 @@ class GameBrowserController {
 					.map(gameId -> new EntityModel<>(new RunningGameDto(gameId, toRunningGamePlayers(gameId),
 							this.gameHolder.get(gameId).get().getRound()))
 						.with(Action.delete("stop", "game-browser", "games", gameId)))
-					.toList()));
+					.toList(),
+				this.gitProperties.map(GitProperties::getShortCommitId),
+				this.buildProperties.map(BuildProperties::getTime)
+					.map(ts -> DateTimeFormatter.ISO_DATE_TIME.format(ts.atOffset(ZoneOffset.UTC)))));
 	}
 
 	private List<EntityModel<RunningGamePlayerDto>> toRunningGamePlayers(String gameId) {

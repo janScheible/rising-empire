@@ -8,12 +8,16 @@ import FetchUtil from '~/util/fetch-util';
 import HypermediaUtil from '~/util/hypermedia-util';
 import Sockette from '~/sockette-2.0.6';
 import RisingEmppireLogo from '~/component/rising-empire-logo';
+import FlowLayout from '~/component/flow-layout';
 
 class GameBrowser extends HTMLElement {
 	static NAME = 're-game-browser';
 
 	#gameLauncherEl;
 	#runningGamesEl;
+
+	#buildTimestampEl;
+	#gitHashEl;
 
 	constructor() {
 		super();
@@ -44,19 +48,40 @@ class GameBrowser extends HTMLElement {
 				${RisingEmppireLogo.NAME}::part(text) {
 					font-size: clamp(10px, 1rem + 8vw, 85px);
 				}
+
+				#build-info {
+					font-size: 75%;
+					color: gray;
+				}
+
 			</style>
 
 			<${Container.NAME} id="running-games" gap="L">
 				<${RisingEmppireLogo.NAME}></${RisingEmppireLogo.NAME}>
 				<${GameLauncher.NAME}></${GameLauncher.NAME}>
+				
+				<${FlowLayout.NAME} id="build-info" axis-align="end">
+					<span><span id="git-hash">-</span> built at <span id="build-timestamp">-</span></span>
+				</${FlowLayout.NAME}>
 			</${Container.NAME}>`;
 
 		this.#gameLauncherEl = this.shadowRoot.querySelector(GameLauncher.NAME);
 		this.#runningGamesEl = this.shadowRoot.querySelector('#running-games');
+
+		this.#buildTimestampEl = this.shadowRoot.querySelector('#build-timestamp');
+		this.#gitHashEl = this.shadowRoot.querySelector('#git-hash');
 	}
 
 	render(data) {
 		this.#gameLauncherEl.render(data.gameLauncher);
+
+		const buildTimestamp = data.buildIsoTimestamp
+			? new Intl.DateTimeFormat(undefined, { dateStyle: 'short', timeStyle: 'short' }).format(
+					new Date(data.buildIsoTimestamp)
+			  )
+			: '-';
+		Reconciler.reconcileProperty(this.#buildTimestampEl, 'innerText', buildTimestamp);
+		Reconciler.reconcileProperty(this.#gitHashEl, 'innerText', data.gitHash ?? '-');
 
 		Reconciler.reconcileChildren(
 			this.#runningGamesEl,

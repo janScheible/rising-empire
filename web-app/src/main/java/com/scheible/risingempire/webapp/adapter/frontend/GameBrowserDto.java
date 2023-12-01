@@ -10,7 +10,8 @@ import com.scheible.risingempire.webapp.hypermedia.EntityModel;
 /**
  * @author sj
  */
-record GameBrowserDto(EntityModel<GameLauncherDto> gameLauncher, List<EntityModel<RunningGameDto>> runningGames) {
+record GameBrowserDto(EntityModel<GameLauncherDto> gameLauncher, List<EntityModel<RunningGameDto>> runningGames,
+		Optional<String> gitHash, Optional<String> buildIsoTimestamp) {
 
 	GameBrowserDto {
 		runningGames = Collections.unmodifiableList(runningGames);
