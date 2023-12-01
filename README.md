@@ -21,10 +21,10 @@ Design goals:
 ## Prerequisites for building
 
 1. at least JDK 17
-1. recent Maven (tested with 3.9.2)
-1. `mvn clean install` of [Pocketsaw 1.7.0](https://github.com/janScheible/pocketsaw/tree/1.7.0)
+1. recent Maven (tested with 3.9.5)
 1. requires `mvn clean install` of [javascript-es2020-parser 0.5.1](https://github.com/janScheible/javascript-es2020-parser/tree/0.5.1)
-1. `mvn clean install` of [esbuild-java-spring-boot 0.1.3](https://github.com/janScheible/esbuild-java-spring-boot)
+1. `mvn clean install` of [Pocketsaw 1.7.1](https://github.com/janScheible/pocketsaw/tree/1.7.1)
+1. `mvn clean install` of [esbuild-java-spring-boot 0.1.4](https://github.com/janScheible/esbuild-java-spring-boot/tree/esbuild-devserver-spring-boot-starter-v0.1.4)
 1. **[optionally]** [maven-skip-execution-profile-extension](https://github.com/janScheible/spring-boot-netbeans-getting-started/tree/master/skip-execution-profile/maven-skip-execution-profile-extension) for a smooth Netbeans experience
 
 ## Prerequisites for developing
