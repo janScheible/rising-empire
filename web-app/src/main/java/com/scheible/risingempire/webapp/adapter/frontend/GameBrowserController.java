@@ -11,7 +11,6 @@ import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.webapp.adapter.frontend.GameBrowserDto.GameLauncherDto;
 import com.scheible.risingempire.webapp.adapter.frontend.GameBrowserDto.RunningGameDto;
 import com.scheible.risingempire.webapp.adapter.frontend.GameBrowserDto.RunningGameDto.RunningGamePlayerDto;
-import com.scheible.risingempire.webapp.adapter.frontend.context.FrontendContext;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.PlayerDto;
 import com.scheible.risingempire.webapp.game.GameHolder;
 import com.scheible.risingempire.webapp.game.GameManager;
@@ -21,7 +20,7 @@ import com.scheible.risingempire.webapp.notification.NotificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -90,14 +89,14 @@ class GameBrowserController {
 	}
 
 	@DeleteMapping(path = "/game-browser/games/{gameId}/{player}")
-	ResponseEntity<Object> kickPlayer(@ModelAttribute FrontendContext context) {
-		this.gameManager.kickPlayer(context.getGameId(), context.getPlayer());
+	ResponseEntity<Object> kickPlayer(@PathVariable String gameId, @PathVariable Player player) {
+		this.gameManager.kickPlayer(gameId, player);
 		return ResponseEntity.ok(new Object());
 	}
 
 	@DeleteMapping(path = "/game-browser/games/{gameId}")
-	ResponseEntity<Object> stopGame(@ModelAttribute FrontendContext context) {
-		this.gameManager.stopGame(context.getGameId());
+	ResponseEntity<Object> stopGame(@PathVariable String gameId) {
+		this.gameManager.stopGame(gameId);
 		return ResponseEntity.ok(new Object());
 	}
 
