@@ -28,8 +28,8 @@
 	<properties>
 		<revision>2.0.0-SNAPSHOT</revision>
 
-		<java.version>17</java.version>
-		<netbeans.hint.jdkPlatform>JDK_17</netbeans.hint.jdkPlatform>
+		<java.version>21</java.version>
+		<netbeans.hint.jdkPlatform>JDK_${java.version}</netbeans.hint.jdkPlatform>
 
 		<netbeans.compile.on.save>none</netbeans.compile.on.save>
 
@@ -55,7 +55,7 @@
 		<impsort-maven-plugin.version>1.9.0</impsort-maven-plugin.version>
 		<maven-pmd-plugin.version>3.21.2</maven-pmd-plugin.version>
 		<maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
-		<maven-forbiddenapis-plugin.version>3.5.1</maven-forbiddenapis-plugin.version>
+		<maven-forbiddenapis-plugin.version>3.6</maven-forbiddenapis-plugin.version>
 		<archunit-maven-plugin.version>3.0.0</archunit-maven-plugin.version>
 		<pitest-maven.version>1.15.3</pitest-maven.version>
 		<pitest-junit5-plugin.version>1.2.1</pitest-junit5-plugin.version>
@@ -381,6 +381,8 @@
 					<lineEnding>LF</lineEnding>
 					<groups>jakarta.,java.,javax.,*</groups>
 					<staticAfter>true</staticAfter>
+					<!-- Unfortunately the used javaparser does not yet support Java 21. -->
+					<compliance>17</compliance>
 				</configuration>
 				<executions>
 					<execution>
