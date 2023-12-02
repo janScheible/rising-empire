@@ -47,7 +47,7 @@ class FrontendSubModulesTest {
 				ES_BUILD_STORYBOOK)) {
 			EsBuild.run(Path.of("./src/main/frontend"), "--bundle", "--outfile=" + NUL_DEVICE,
 					"--metafile=" + esBuildMetadataInvocation.getValue().toAbsolutePath().toString(),
-					"--external:~/idb-keyval-6.2.0", "--external:~/fflate-0.7.4", "--external:~/sockette-2.0.6",
+					"--external:~/idb-keyval-6.2.1", "--external:~/fflate-0.8.1", "--external:~/sockette-2.0.6",
 					esBuildMetadataInvocation.getKey().toString());
 		}
 

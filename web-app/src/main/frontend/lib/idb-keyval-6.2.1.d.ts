@@ -1,9 +1,6 @@
 export declare function promisifyRequest<T = undefined>(request: IDBRequest<T> | IDBTransaction): Promise<T>;
 export declare function createStore(dbName: string, storeName: string): UseStore;
-export declare type UseStore = <T>(
-	txMode: IDBTransactionMode,
-	callback: (store: IDBObjectStore) => T | PromiseLike<T>
-) => Promise<T>;
+export declare type UseStore = <T>(txMode: IDBTransactionMode, callback: (store: IDBObjectStore) => T | PromiseLike<T>) => Promise<T>;
 /**
  * Get a value by its key.
  *
@@ -41,11 +38,7 @@ export declare function getMany<T = any>(keys: IDBValidKey[], customStore?: UseS
  * @param updater A callback that takes the old value and returns a new value.
  * @param customStore Method to get a custom store. Use with caution (see the docs).
  */
-export declare function update<T = any>(
-	key: IDBValidKey,
-	updater: (oldValue: T | undefined) => T,
-	customStore?: UseStore
-): Promise<void>;
+export declare function update<T = any>(key: IDBValidKey, updater: (oldValue: T | undefined) => T, customStore?: UseStore): Promise<void>;
 /**
  * Delete a particular key from the store.
  *
@@ -83,6 +76,4 @@ export declare function values<T = any>(customStore?: UseStore): Promise<T[]>;
  *
  * @param customStore Method to get a custom store. Use with caution (see the docs).
  */
-export declare function entries<KeyType extends IDBValidKey, ValueType = any>(
-	customStore?: UseStore
-): Promise<[KeyType, ValueType][]>;
+export declare function entries<KeyType extends IDBValidKey, ValueType = any>(customStore?: UseStore): Promise<[KeyType, ValueType][]>;

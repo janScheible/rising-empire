@@ -1,4 +1,4 @@
-import * as fflate from '~/fflate-0.7.4';
+import * as fflate from '~/fflate-0.8.1';
 
 export default async function unzip(fileContent: Uint8Array): Promise<{ [path: string]: Uint8Array }> {
 	return new Promise((resolve, reject) => {

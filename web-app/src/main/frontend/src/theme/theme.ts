@@ -1,4 +1,4 @@
-import { get, set, del } from '~/idb-keyval-6.2.0';
+import { get, set, del } from '~/idb-keyval-6.2.1';
 import Logger from '~/util/logger/logger';
 import LoggerFactory from '~/util/logger/logger-factory';
 import unzip from '~/theme/unzip';
