@@ -288,7 +288,7 @@ public class GameViewBuilder {
 
 			return FleetView.createOrbiting(fleet.getId(), fleet.getPlayer(), race, Map.of(),
 					orbitingFleet.getSystem().getId(), orbitingFleet.getSystem().getLocation(), fleetsBeforeArrival,
-					false, null);
+					false, Optional.empty());
 		}
 
 		throw new IllegalStateException("Unknown fleet type!");
