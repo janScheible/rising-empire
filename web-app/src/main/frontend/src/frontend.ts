@@ -175,8 +175,6 @@ export default class Frontend extends HTMLElement {
 		this.#mainPageEl.showConnected(connected);
 	}
 
-	showPlayerAlreadyTaken() {}
-
 	showPlayerError(type: 'kicked' | 'already-taken' | 'game-stopped') {
 		this.#themeManagerContainerEl.hidden = true;
 		this.loadIndicator(false);
