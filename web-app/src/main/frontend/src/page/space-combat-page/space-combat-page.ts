@@ -106,7 +106,7 @@ export default class SpaceCombatPage extends HTMLElement {
 		}
 	}
 
-	async render(data) {
+	render(data) {
 		this.#data = data;
 		this.#continueAction = HypermediaUtil.getAction(data, 'continue');
 
@@ -121,30 +121,33 @@ export default class SpaceCombatPage extends HTMLElement {
 
 		Reconciler.reconcileProperty(this.#buttonEl, 'innerText', 'Skip...');
 
-		const currentCombatAnimationToken = (this.#combatAnimationToken += 1);
-		for (let i = -1; i < data.fireExchangeCount; i++) {
-			Reconciler.reconcileProperty(this.#fireExchangeEl, 'hidden', false);
+		// make sure that the render function returns immediately to disable the load indicator, nevertheless do the animation (that can be cancled with the skip button)
+		setTimeout(async () => {
+			const currentCombatAnimationToken = (this.#combatAnimationToken += 1);
+			for (let i = -1; i < data.fireExchangeCount; i++) {
+				Reconciler.reconcileProperty(this.#fireExchangeEl, 'hidden', false);
 
-			SpaceCombatPage.#logger.debug(
-				`fire exchange ${i} with local token ${currentCombatAnimationToken} (global token ${
-					this.#combatAnimationToken
-				})`
-			);
+				SpaceCombatPage.#logger.debug(
+					`fire exchange ${i} with local token ${currentCombatAnimationToken} (global token ${
+						this.#combatAnimationToken
+					})`
+				);
 
-			Reconciler.reconcileProperty(
-				this.#fireExchangeEl,
-				'innerText',
-				`Fire exchange ${Math.max(1, i + 1)} of ${data.fireExchangeCount}...`
-			);
+				Reconciler.reconcileProperty(
+					this.#fireExchangeEl,
+					'innerText',
+					`Fire exchange ${Math.max(1, i + 1)} of ${data.fireExchangeCount}...`
+				);
 
-			await Promise.all(this.#renderShipSpecs(data, i, false));
+				await Promise.all(this.#renderShipSpecs(data, i, false));
 
-			if (currentCombatAnimationToken !== this.#combatAnimationToken) {
-				break;
+				if (currentCombatAnimationToken !== this.#combatAnimationToken) {
+					break;
+				}
 			}
-		}
 
-		this.#renderOutcome(data);
+			this.#renderOutcome(data);
+		}, 0);
 	}
 
 	#renderShipSpecs(data, i, skipAnimation) {
