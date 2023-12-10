@@ -6,8 +6,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -88,12 +86,7 @@ class HtmlController {
 	}
 
 	private static String urlEncode(String value) {
-		try {
-			return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
-		}
-		catch (UnsupportedEncodingException ex) {
-			throw new UncheckedIOException(ex);
-		}
+		return URLEncoder.encode(value, StandardCharsets.UTF_8);
 	}
 
 	@GetMapping(path = "/storybook.html", produces = TEXT_HTML_VALUE)
