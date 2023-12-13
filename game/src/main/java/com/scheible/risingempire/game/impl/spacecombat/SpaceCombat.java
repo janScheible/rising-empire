@@ -2,6 +2,9 @@ package com.scheible.risingempire.game.impl.spacecombat;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
@@ -25,7 +28,7 @@ public class SpaceCombat {
 
 	private final FleetBeforeArrival attackerFleet;
 
-	private final Map<DesignSlot, Integer> attackerShipCounts;
+	private final Map<DesignSlot, Integer> previousAttackerShipCounts;
 
 	private final Map<DesignSlot, List<FireExchange>> attackerFireExchanges;
 
@@ -33,7 +36,7 @@ public class SpaceCombat {
 
 	private final FleetId defenderFleet;
 
-	private final Map<DesignSlot, Integer> defenderShipCounts;
+	private final Map<DesignSlot, Integer> previousDefenderShipCounts;
 
 	private final Map<DesignSlot, List<FireExchange>> defenderFireExchanges;
 
@@ -42,8 +45,9 @@ public class SpaceCombat {
 	private final Integer order;
 
 	private SpaceCombat(SystemId systemId, int fireExchangeCount, Player attacker, FleetBeforeArrival attackerFleet,
-			Map<DesignSlot, Integer> attackerShipCounts, Map<DesignSlot, List<FireExchange>> attackerFireExchanges,
-			Player defender, FleetId defenderFleet, Map<DesignSlot, Integer> defenderShipCounts,
+			Map<DesignSlot, Integer> previousAttackerShipCounts,
+			Map<DesignSlot, List<FireExchange>> attackerFireExchanges, Player defender, FleetId defenderFleet,
+			Map<DesignSlot, Integer> previousDefenderShipCounts,
 			Map<DesignSlot, List<FireExchange>> defenderFireExchanges, Outcome outcome, Integer order) {
 		this.systemId = systemId;
 
@@ -51,12 +55,12 @@ public class SpaceCombat {
 
 		this.attacker = attacker;
 		this.attackerFleet = attackerFleet;
-		this.attackerShipCounts = unmodifiableMap(attackerShipCounts);
+		this.previousAttackerShipCounts = unmodifiableMap(previousAttackerShipCounts);
 		this.attackerFireExchanges = unmodifiableMap(attackerFireExchanges);
 
 		this.defender = defender;
 		this.defenderFleet = defenderFleet;
-		this.defenderShipCounts = unmodifiableMap(defenderShipCounts);
+		this.previousDefenderShipCounts = unmodifiableMap(previousDefenderShipCounts);
 		this.defenderFireExchanges = unmodifiableMap(defenderFireExchanges);
 
 		this.outcome = outcome;
@@ -74,10 +78,24 @@ public class SpaceCombat {
 
 	public static SpaceCombat withOrder(SpaceCombat spaceCombat, int order) {
 		return new SpaceCombat(spaceCombat.getSystemId(), spaceCombat.getFireExchangeCount(), spaceCombat.getAttacker(),
-				spaceCombat.getAttackerFleet(), spaceCombat.getAttackerShipCounts(),
+				spaceCombat.getAttackerFleet(), spaceCombat.getPreviousAttackerShipCounts(),
 				spaceCombat.getAttackerFireExchanges(), spaceCombat.getDefender(), spaceCombat.getDefenderFleet(),
-				spaceCombat.getDefenderShipCounts(), spaceCombat.getDefenderFireExchanges(), spaceCombat.getOutcome(),
-				order);
+				spaceCombat.getPreviousDefenderShipCounts(), spaceCombat.getDefenderFireExchanges(),
+				spaceCombat.getOutcome(), order);
+	}
+
+	private Map<DesignSlot, Integer> getShipCounts(Map<DesignSlot, Integer> shipCounts,
+			Map<DesignSlot, List<FireExchange>> fireExchanges) {
+		return shipCounts.entrySet()
+			.stream()
+			.collect(Collectors.toMap(Entry::getKey, e -> getEitherFromLastFireExchangeOrPrevious(e, fireExchanges)));
+	}
+
+	private int getEitherFromLastFireExchangeOrPrevious(Entry<DesignSlot, Integer> shipCount,
+			Map<DesignSlot, List<FireExchange>> fireExchanges) {
+		return Optional.ofNullable(fireExchanges.get(shipCount.getKey()))
+			.flatMap(fe -> Optional.ofNullable(fe.isEmpty() ? null : fe.getLast().getShipCount()))
+			.orElse(shipCount.getValue());
 	}
 
 	public SystemId getSystemId() {
@@ -96,8 +114,12 @@ public class SpaceCombat {
 		return this.attackerFleet;
 	}
 
+	public Map<DesignSlot, Integer> getPreviousAttackerShipCounts() {
+		return this.previousAttackerShipCounts;
+	}
+
 	public Map<DesignSlot, Integer> getAttackerShipCounts() {
-		return this.attackerShipCounts;
+		return getShipCounts(this.previousAttackerShipCounts, this.attackerFireExchanges);
 	}
 
 	public Map<DesignSlot, List<FireExchange>> getAttackerFireExchanges() {
@@ -112,8 +134,12 @@ public class SpaceCombat {
 		return this.defenderFleet;
 	}
 
+	public Map<DesignSlot, Integer> getPreviousDefenderShipCounts() {
+		return this.previousDefenderShipCounts;
+	}
+
 	public Map<DesignSlot, Integer> getDefenderShipCounts() {
-		return this.defenderShipCounts;
+		return getShipCounts(this.previousDefenderShipCounts, this.defenderFireExchanges);
 	}
 
 	public Map<DesignSlot, List<FireExchange>> getDefenderFireExchanges() {

@@ -65,6 +65,10 @@ public class GameOptions {
 		return this;
 	}
 
+	/**
+	 * Predetermines the outcome of all space combats. If a fleet survives all ship counts
+	 * are halved.
+	 */
 	public GameOptions spaceCombatWinner(Outcome outcome) {
 		this.spaceCombatOutcome = Optional.of(outcome);
 		return this;

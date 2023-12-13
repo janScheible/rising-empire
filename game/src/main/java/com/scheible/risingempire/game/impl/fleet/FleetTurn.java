@@ -91,9 +91,11 @@ public class FleetTurn {
 								defendingFleet, deployedFleet, this.shipDesignProvider);
 						if (spaceCombat.getOutcome() == Outcome.ATTACKER_WON) {
 							emptyFleets.add(defendingFleet);
+							orbitingFleet.get().retain(spaceCombat.getAttackerShipCounts());
 						}
 						else if (spaceCombat.getOutcome() == Outcome.DEFENDER_WON) {
 							newFleets.clear();
+							defendingFleet.retain(spaceCombat.getDefenderShipCounts());
 						}
 						else { // ATTACKER_RETREATED
 							defendingFleet.retain(spaceCombat.getDefenderShipCounts());

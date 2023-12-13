@@ -134,6 +134,10 @@ public class GameView {
 		return this.fleetsSet;
 	}
 
+	public Set<FleetView> getFleets(Player player) {
+		return this.fleetsSet.stream().filter(fleet -> fleet.getPlayer() == player).collect(Collectors.toSet());
+	}
+
 	public Set<SystemId> getColonizableSystemIds() {
 		return this.colonizableSystemIds;
 	}

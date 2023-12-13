@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
+import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.system.SystemId;
@@ -19,6 +21,8 @@ import com.scheible.risingempire.game.api.view.tech.TechGroupView;
 import com.scheible.risingempire.game.api.view.universe.Location;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -85,19 +89,27 @@ class GameTest {
 		assertThat(blueGameView.getSystem("Ajax").getLocation()).isEqualTo(new Location(180, 220));
 	}
 
-	@Test
-	void testRetreatingFleet() {
+	@ParameterizedTest
+	@EnumSource(Outcome.class)
+	@SuppressWarnings("PMD.MissingSwitchDefault")
+	void testSpaceCombat(Outcome outcome) {
 		Game game = GameFactory.get()
 			.create(GameOptions.forTestGameScenario() //
-				.spaceCombatWinner(Outcome.ATTACKER_RETREATED)
+				.spaceCombatWinner(outcome)
 				.fleetSpeedFactor(2000.0));
 		game.registerAi(Player.WHITE);
 		game.registerAi(Player.YELLOW);
+
+		PlayerGame whiteGame = game.forPlayer(Player.WHITE);
+		GameView whiteGameView = whiteGame.getView();
+		FleetView fleetAtFieras = whiteGameView.getOrbiting(whiteGameView.getSystem("Fieras").getId()).orElseThrow();
+		Map<ShipTypeView, Integer> previousFierasFleetShips = fleetAtFieras.getShips();
 
 		PlayerGame blueGame = game.forPlayer(Player.BLUE);
 		GameView blueGameView = blueGame.getView();
 
 		FleetView fleetAtSol = blueGameView.getOrbiting(blueGameView.getSystem("Sol").getId()).orElseThrow();
+		Map<ShipTypeView, Integer> previousSolFleetShips = fleetAtSol.getShips();
 		blueGame.deployFleet(fleetAtSol.getId(), blueGameView.getSystem(new SystemId("s220x100")).getId(),
 				fleetAtSol.getShips()
 					.entrySet()
@@ -109,14 +121,56 @@ class GameTest {
 		blueGame.finishTurn();
 
 		blueGameView = blueGame.getView();
-		for (FleetView fleet : blueGameView.getFleets()
-			.stream()
-			.filter(f -> f.getPlayer() == Player.BLUE)
-			.collect(Collectors.toSet())) {
+		whiteGameView = game.forPlayer(Player.WHITE).getView();
+
+		BiFunction<Map<ShipTypeView, Integer>, GameView, Boolean> checkShipsHalfed = (previousShips, playerView) -> {
+			Map<ShipTypeView, Integer> ships = playerView.getFleets(playerView.getPlayer())
+				.stream()
+				.findFirst()
+				.get()
+				.getShips();
+			Map<ShipTypeView, Integer> doubledShips = ships.entrySet()
+				.stream()
+				.collect(Collectors.toMap(Entry::getKey, e -> e.getValue() * 2));
+
+			return previousShips.equals(doubledShips);
+		};
+
+		switch (outcome) {
+			case ATTACKER_WON -> {
+				assertThat(blueGameView.getFleets(Player.BLUE)).hasSize(1);
+				assertThat(checkShipsHalfed.apply(previousSolFleetShips, blueGameView)).isTrue();
+				assertThat(blueGameView.getFleets(Player.WHITE)).hasSize(0);
+
+				assertThat(whiteGameView.getFleets(Player.WHITE)).hasSize(0);
+				assertThat(whiteGameView.getFleets(Player.BLUE)).hasSize(1);
+			}
+			case ATTACKER_RETREATED -> {
+				assertThat(blueGameView.getFleets(Player.BLUE)).hasSize(1);
+				assertThat(checkShipsHalfed.apply(previousSolFleetShips, blueGameView)).isTrue();
+				assertThat(blueGameView.getFleets(Player.WHITE)).hasSize(1);
+
+				assertThat(whiteGameView.getFleets(Player.WHITE)).hasSize(1);
+				assertThat(checkShipsHalfed.apply(previousFierasFleetShips, whiteGameView)).isTrue();
+				assertThat(whiteGameView.getFleets(Player.BLUE)).hasSize(1);
+			}
+			case DEFENDER_WON -> {
+				assertThat(blueGameView.getFleets(Player.BLUE)).hasSize(0);
+				assertThat(blueGameView.getFleets(Player.WHITE)).hasSize(0);
+
+				assertThat(whiteGameView.getFleets(Player.WHITE)).hasSize(1);
+				assertThat(checkShipsHalfed.apply(previousFierasFleetShips, whiteGameView)).isTrue();
+				assertThat(whiteGameView.getFleets(Player.BLUE)).hasSize(0);
+			}
+		}
+
+		FleetView blueFleet = blueGameView.getFleets(Player.BLUE).stream().findFirst().orElse(null);
+		if (blueFleet != null) {
 			assertThat(deployedFleedId)
 				.isEqualTo(blueGameView.getSpaceCombats().iterator().next().getAttackerFleet().getId());
-			assertThat(fleet.getFleetIdsBeforeArrive()).extracting(FleetBeforeArrival::getId).contains(deployedFleedId);
-			assertThat(fleet.getId()).isNotEqualTo(deployedFleedId);
+			assertThat(blueFleet.getFleetIdsBeforeArrive()).extracting(FleetBeforeArrival::getId)
+				.contains(deployedFleedId);
+			assertThat(blueFleet.getId()).isNotEqualTo(deployedFleedId);
 		}
 	}
 

@@ -3,6 +3,7 @@ package com.scheible.risingempire.game.impl.spacecombat.resolver.predetermined;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
@@ -17,6 +18,9 @@ import com.scheible.risingempire.game.impl.spacecombat.FireExchange;
 import com.scheible.risingempire.game.impl.spacecombat.SpaceCombat;
 
 /**
+ * Space combat with predetermined outcome. If a fleet survives all ship counts are
+ * halved.
+ *
  * @author sj
  */
 public class KnownInAdvanceWinnerSpaceCombatResolver implements SpaceCombatResolver {
@@ -32,15 +36,20 @@ public class KnownInAdvanceWinnerSpaceCombatResolver implements SpaceCombatResol
 			ShipDesignProvider shipDesignProvider) {
 		return new SpaceCombat(systemId, 1, attacking.getPlayer(),
 				new FleetBeforeArrival(attacking.getId(), attacking.getHorizontalDirection(), attacking.getSpeed()),
-				attacking.getShips(), this.outcome == Outcome.ATTACKER_WON ? Map.of() : toAllLost(attacking.getShips()),
+				attacking.getShips(),
+				this.outcome == Outcome.DEFENDER_WON ? changeShipCount(attacking.getShips(), count -> 0)
+						: changeShipCount(attacking.getShips(), count -> count / 2),
 				defending.getPlayer(), defending.getId(), defending.getShips(),
-				this.outcome == Outcome.DEFENDER_WON ? toAllLost(defending.getShips()) : Map.of(), this.outcome);
+				this.outcome == Outcome.ATTACKER_WON ? changeShipCount(defending.getShips(), (count) -> 0)
+						: changeShipCount(defending.getShips(), (count) -> count / 2),
+				this.outcome);
 	}
 
-	static Map<DesignSlot, List<FireExchange>> toAllLost(Map<DesignSlot, Integer> shipCounts) {
+	static Map<DesignSlot, List<FireExchange>> changeShipCount(Map<DesignSlot, Integer> shipCounts,
+			Function<Integer, Integer> calculation) {
 		return shipCounts.entrySet()
 			.stream()
-			.map(e -> Map.entry(e.getKey(), List.of(new FireExchange(0, 42, 0, 0))))
+			.map(e -> Map.entry(e.getKey(), List.of(new FireExchange(0, 42, 100, calculation.apply(e.getValue())))))
 			.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	}
 

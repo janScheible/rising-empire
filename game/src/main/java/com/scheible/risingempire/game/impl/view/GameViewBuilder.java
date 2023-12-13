@@ -167,11 +167,11 @@ public class GameViewBuilder {
 			.filter(sc -> sc.getAttacker() == player || sc.getDefender() == player)
 			.map(sc -> new SpaceCombatView(sc.getSystemId(), sc.getOrder(), sc.getFireExchangeCount(),
 					playerRaceMapping.get(sc.getAttacker()), sc.getAttacker(), sc.getAttackerFleet(),
-					toCombatantShipSpecs(sc.getAttackerShipCounts(), sc.getAttackerFireExchanges(),
-							designs.get(sc.getAttacker())),
+					toCombatantShipSpecs(sc.getPreviousAttackerShipCounts(), sc.getAttackerShipCounts(),
+							sc.getAttackerFireExchanges(), designs.get(sc.getAttacker())),
 					playerRaceMapping.get(sc.getDefender()), sc.getDefender(), sc.getDefenderFleet(),
-					toCombatantShipSpecs(sc.getDefenderShipCounts(), sc.getDefenderFireExchanges(),
-							designs.get(sc.getDefender())),
+					toCombatantShipSpecs(sc.getPreviousDefenderShipCounts(), sc.getDefenderShipCounts(),
+							sc.getDefenderFireExchanges(), designs.get(sc.getDefender())),
 					sc.getOutcome()))
 			.collect(Collectors.toSet());
 
@@ -189,18 +189,17 @@ public class GameViewBuilder {
 				annexableSystemIds, spaceCombatViews, justExploredSystem, technologies, systemNotifications);
 	}
 
-	private static List<CombatantShipSpecsView> toCombatantShipSpecs(Map<DesignSlot, Integer> shipCounts,
-			Map<DesignSlot, List<FireExchange>> fireExchanges, Map<DesignSlot, ShipDesign> designs) {
+	private static List<CombatantShipSpecsView> toCombatantShipSpecs(Map<DesignSlot, Integer> previosShipCounts,
+			Map<DesignSlot, Integer> shipCounts, Map<DesignSlot, List<FireExchange>> fireExchanges,
+			Map<DesignSlot, ShipDesign> designs) {
 		List<CombatantShipSpecsView> result = new ArrayList<>();
 
 		for (Entry<DesignSlot, Integer> shipCount : shipCounts.entrySet()) {
 			ShipDesign shipDesign = designs.get(shipCount.getKey());
 			ShipTypeView shipType = shipCount.getKey().toShipType(shipDesign);
 
-			List<FireExchange> shipsFireExchange = fireExchanges.get(shipCount.getKey());
-			int previousCount = shipCount.getValue();
-			int count = shipsFireExchange == null || shipsFireExchange.isEmpty() ? previousCount
-					: shipsFireExchange.get(shipsFireExchange.size() - 1).getShipCount();
+			int previousCount = previosShipCounts.get(shipCount.getKey());
+			int count = shipCount.getValue();
 
 			List<String> equipment = Stream
 				.concat(shipDesign.getWeaponSlots().stream().map(ws -> ws.getCount() + " " + ws.getWeapon().getName()),
@@ -212,7 +211,8 @@ public class GameViewBuilder {
 					shipDesign.getAttackLevel(), shipDesign.getWarpSpeed(), shipDesign.getMissileDefence(),
 					shipDesign.getHitPoints(), shipDesign.getCombatSpeed(), equipment,
 					count == previousCount ? List.of()
-							: shipsFireExchange.stream()
+							: fireExchanges.getOrDefault(shipCount.getKey(), List.of())
+								.stream()
 								.map(fe -> new FireExchangeView(fe.getRound(), fe.getLostHitPoints(), fe.getDamage(),
 										fe.getShipCount()))
 								.collect(Collectors.toList())));
