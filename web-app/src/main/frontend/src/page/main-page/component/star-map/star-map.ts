@@ -12,11 +12,15 @@ import debounce from '~/util/debounce';
 import Viewport from '~/partial/viewport';
 import Ranges from '~/page/main-page/component/star-map/component/ranges';
 import cssUrl from '~/util/cssUrl';
+import LoggerFactory from '~/util/logger/logger-factory';
+import Logger from '~/util/logger/logger';
 
 export default class StarMap extends HTMLElement {
 	static NAME = 're-star-map';
 
 	static #SCROLL_SPEED_PIXEL_PER_SECOND = 1700;
+
+	static #logger: Logger = LoggerFactory.get(`${import.meta.url}`);
 
 	#resizeObserver: ResizeObserver;
 
@@ -33,9 +37,9 @@ export default class StarMap extends HTMLElement {
 	#reloadAction;
 	#endScrollAction;
 
-	#scrolling: boolean;
+	#scrolling: number = 0;
 	#fleetZIndex: number;
-	#onScroll;
+	#onCompleteScroll;
 
 	constructor() {
 		super();
@@ -124,24 +128,31 @@ export default class StarMap extends HTMLElement {
 				const offsetX = e.clientX - boundingClientRect.left - this.clientWidth / 2;
 				const offsetY = e.clientY - boundingClientRect.top - this.clientHeight / 2;
 
-				if (this.#startScrollAction && this.#scrolling !== true) {
-					this.#scrolling = true;
-
-					HypermediaUtil.submitAction(this.#startScrollAction);
-
-					this.addEventListener('scroll', this.#onScroll);
-					// NOTE If for example clicked in the left top corner when already being most top and left does not trigger
-					//      an scroll event at all... this makes sure that the debounceed scroll end is always started.
-					this.#onScroll();
+				// Workaround for smoothScroll not scrolling and triggering the complete function when already in the top left
+				// corner and scrolling to the top left.
+				if (this.scrollLeft === 0 && offsetX < 0 && this.scrollTop === 0 && offsetY < 0) {
+					this.scrollLeft = 1;
 				}
 
-				// NOTE As soon as `this.scrollBy({ left: offsetX, top: offsetY, behavior: 'smooth' })` is supported by all browsers this can be used.
+				if (this.#startScrollAction && this.#scrolling === 0) {
+					StarMap.#logger.debug('start scroll action ' + this.#scrolling);
+					HypermediaUtil.submitAction(this.#startScrollAction);
+				}
+				this.#scrolling++;
+
 				const distance = Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2));
 				smoothScroll({
 					scrollingElement: this,
 					xPos: this.scrollLeft + offsetX,
 					yPos: this.scrollTop + offsetY,
 					duration: (distance / StarMap.#SCROLL_SPEED_PIXEL_PER_SECOND) * 1000,
+					complete: async () => {
+						this.#scrolling--;
+
+						if (this.#scrolling === 0) {
+							this.#onCompleteScroll();
+						}
+					},
 				});
 			} else {
 				const selectedFleetEl = clickedEls
@@ -171,15 +182,14 @@ export default class StarMap extends HTMLElement {
 			}
 		});
 
-		this.#onScroll = debounce(async () => {
+		this.#onCompleteScroll = debounce(async () => {
 			await HypermediaUtil.submitAction(this.#reloadAction);
 
-			this.#scrolling = false;
-			this.removeEventListener('scroll', this.#onScroll);
 			if (this.#endScrollAction) {
+				StarMap.#logger.debug('end scroll action ' + this.#scrolling);
 				HypermediaUtil.submitAction(this.#endScrollAction);
 			}
-		}, 5);
+		}, 500);
 	}
 
 	connectedCallback() {
