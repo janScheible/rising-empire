@@ -12,6 +12,91 @@ export default class PartialUpdater {
 		this.#renderFn = renderFn;
 	}
 
+	interceptSubmit(action, values) {
+		if (action.origin === '$.starMap' && (action.name === 'start-scroll' || action.name === 'end-scroll')) {
+			const blocked = action.name.includes('start-');
+			this.#mainPageData.buttonBar.blocked = blocked;
+			this.#mainPageData.inspector.blocked = blocked;
+
+			for (const star of this.#mainPageData.starMap.stars) {
+				star.blocked = blocked;
+			}
+			for (const fleet of this.#mainPageData.starMap.fleets) {
+				fleet.blocked = blocked;
+			}
+
+			this.#renderFn(this.#mainPageData);
+
+			return false;
+		}
+
+		const starOrFleetSelect =
+			action.name === 'select' &&
+			action.origin &&
+			(action.origin.startsWith('$.starMap.stars') || action.origin.startsWith('$.starMap.fleets'));
+		const fleetDeploymentCancelOrDeploy =
+			(action.name === 'cancel' || action.name === 'deploy') && action.origin == '$.inspector.fleetDeployment';
+		if (starOrFleetSelect || fleetDeploymentCancelOrDeploy) {
+			const starMapViewport = this.#viewportFn();
+			values.fields = [
+				'$.inspector',
+				'$.buttonBar',
+				FieldUtils.toStarMapFieldsViewport(starMapViewport, 'stars'),
+				FieldUtils.toStarMapFieldsViewport(starMapViewport, 'fleets'),
+			].join(',');
+		} else if (action.name === 'reload' && action.origin === '$.starMap') {
+			const starMapViewport = this.#viewportFn();
+			values.fields = [
+				FieldUtils.toStarMapFieldsViewport(starMapViewport, 'stars'),
+				FieldUtils.toStarMapFieldsViewport(starMapViewport, 'fleets'),
+			].join(',');
+		} else if (action.name === 'assign-ships' && action.origin === '$.inspector.fleetDeployment') {
+			const fleetDeploymentData = this.#mainPageData.inspector.fleetDeployment;
+
+			const shipType = Object.keys(values)[0];
+			const newCount = values[shipType];
+			const previousCount = action.fields.filter((f) => f.name === shipType)[0].value;
+
+			for (const star of this.#mainPageData.starMap.stars) {
+				HypermediaUtil.setField(star, 'select', shipType, newCount);
+			}
+
+			// NOTE In case of no ship type added or removed we can cheat and update the fleet deployment and all
+			//      star select actions on the client side.
+			const shipTypeAddedOrRemoved =
+				(previousCount === 0 && newCount !== 0) || (previousCount !== 0 && newCount === 0);
+			if (!shipTypeAddedOrRemoved) {
+				fleetDeploymentData.ships.filter((s) => s.id === shipType)[0].count = newCount;
+
+				HypermediaUtil.setField(fleetDeploymentData, 'assign-ships', shipType, newCount);
+				HypermediaUtil.setField(fleetDeploymentData, 'deploy', shipType, newCount);
+
+				this.#renderFn(this.#mainPageData);
+				return false;
+			} else {
+				values.fields = ['$.inspector', '$.starMap'].join(',');
+			}
+		} else if (
+			(action.name === 'allocate-spending' || action.name === 'next-ship-type') &&
+			action.origin === '$.inspector.systemDetails'
+		) {
+			values.fields = ['$.inspector'].join(',');
+		} else if (
+			(action.name === 'colonize' || action.name === 'cancel') &&
+			action.origin === '$.inspector.colonization'
+		) {
+			values.fields = ['$.inspector'].join(',');
+		} else if (
+			(action.name === 'annex' || action.name === 'cancel') &&
+			action.origin === '$.inspector.annexation' &&
+			action.fields.filter((field) => field.name === 'skip').length > 0
+		) {
+			values.fields = ['$.inspector'].join(',');
+		}
+
+		return true;
+	}
+
 	beforeRender(data) {
 		if (data['@type'] !== 'MainPageDto') {
 			if (data['@type'] === 'TechPageDto') {
@@ -163,90 +248,5 @@ export default class PartialUpdater {
 		}
 
 		return this.#mainPageData;
-	}
-
-	interceptSubmit(action, values) {
-		if (action.origin === '$.starMap' && (action.name === 'start-scroll' || action.name === 'end-scroll')) {
-			const blocked = action.name.includes('start-');
-			this.#mainPageData.buttonBar.blocked = blocked;
-			this.#mainPageData.inspector.blocked = blocked;
-
-			for (const star of this.#mainPageData.starMap.stars) {
-				star.blocked = blocked;
-			}
-			for (const fleet of this.#mainPageData.starMap.fleets) {
-				fleet.blocked = blocked;
-			}
-
-			this.#renderFn(this.#mainPageData);
-
-			return false;
-		}
-
-		const starOrFleetSelect =
-			action.name === 'select' &&
-			action.origin &&
-			(action.origin.startsWith('$.starMap.stars') || action.origin.startsWith('$.starMap.fleets'));
-		const fleetDeploymentCancelOrDeploy =
-			(action.name === 'cancel' || action.name === 'deploy') && action.origin == '$.inspector.fleetDeployment';
-		if (starOrFleetSelect || fleetDeploymentCancelOrDeploy) {
-			const starMapViewport = this.#viewportFn();
-			values.fields = [
-				'$.inspector',
-				'$.buttonBar',
-				FieldUtils.toStarMapFieldsViewport(starMapViewport, 'stars'),
-				FieldUtils.toStarMapFieldsViewport(starMapViewport, 'fleets'),
-			].join(',');
-		} else if (action.name === 'reload' && action.origin === '$.starMap') {
-			const starMapViewport = this.#viewportFn();
-			values.fields = [
-				FieldUtils.toStarMapFieldsViewport(starMapViewport, 'stars'),
-				FieldUtils.toStarMapFieldsViewport(starMapViewport, 'fleets'),
-			].join(',');
-		} else if (action.name === 'assign-ships' && action.origin === '$.inspector.fleetDeployment') {
-			const fleetDeploymentData = this.#mainPageData.inspector.fleetDeployment;
-
-			const shipType = Object.keys(values)[0];
-			const newCount = values[shipType];
-			const previousCount = action.fields.filter((f) => f.name === shipType)[0].value;
-
-			for (const star of this.#mainPageData.starMap.stars) {
-				HypermediaUtil.setField(star, 'select', shipType, newCount);
-			}
-
-			// NOTE In case of no ship type added or removed we can cheat and update the fleet deployment and all
-			//      star select actions on the client side.
-			const shipTypeAddedOrRemoved =
-				(previousCount === 0 && newCount !== 0) || (previousCount !== 0 && newCount === 0);
-			if (!shipTypeAddedOrRemoved) {
-				fleetDeploymentData.ships.filter((s) => s.id === shipType)[0].count = newCount;
-
-				HypermediaUtil.setField(fleetDeploymentData, 'assign-ships', shipType, newCount);
-				HypermediaUtil.setField(fleetDeploymentData, 'deploy', shipType, newCount);
-
-				this.#renderFn(this.#mainPageData);
-				return false;
-			} else {
-				values.fields = ['$.inspector', '$.starMap'].join(',');
-			}
-		} else if (
-			(action.name === 'allocate-spending' || action.name === 'next-ship-type') &&
-			action.origin === '$.inspector.systemDetails'
-		) {
-			values.fields = ['$.inspector'].join(',');
-		} else if (
-			(action.name === 'colonize' || action.name === 'cancel') &&
-			action.origin === '$.inspector.colonization'
-		) {
-			values.fields = ['$.inspector'].join(',');
-		} else if (
-			(action.name === 'annex' || action.name === 'cancel') &&
-			action.origin === '$.inspector.annexation' &&
-			action.fields.filter((field) => field.name === 'skip').length > 0
-		) {
-			values.fields = ['$.inspector'].join(',');
-		}
-
-		return true;
 	}
 }
