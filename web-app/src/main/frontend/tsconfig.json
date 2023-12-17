@@ -7,6 +7,7 @@
 		"jsxFragmentFactory": "Fragment",
 		"isolatedModules": true,
 		"noEmit": true,
+		"noImplicitOverride": true,
 		"paths": {
 			"~/idb-keyval-6.2.1": ["./lib/idb-keyval-6.2.1"],
 			"~/fflate-0.8.1": ["./lib/fflate-0.8.1"],
