@@ -40,6 +40,8 @@ import ThemeManagerStories from '~/storybook/stories/theme-manager-stories';
 import ThemeStories from '~/storybook/stories/theme-stories';
 import TurnFinishedDialogStories from '~/storybook/stories/turn-finished-dialog-stories';
 import UnexploredStories from '~/storybook/stories/unexplored-stories';
+import SubmitInterceptor from '~/util/submit-interceptor';
+import Action from '~/util/action';
 
 class Storybook extends HTMLElement {
 	static NAME = 're-storybook';
@@ -341,7 +343,13 @@ const storybookEl = new Storybook();
 document.body.appendChild(storybookEl);
 
 HypermediaUtil.addSubmitInterceptor(
-	(action, values) => (storybookEl.dispatchHypermediaSubmitEvent(action, values), false)
+	new (class extends SubmitInterceptor {
+		override preHandle(action: Action, values: any): Promise<any> | undefined {
+			// intercept all requests to the backend
+			return Promise.resolve({});
+		}
+	})()
 );
+HypermediaUtil.setActionResponseCallbackFn((data) => null);
 
 storybookEl.showStory(window.location.hash.replace('#', ''));

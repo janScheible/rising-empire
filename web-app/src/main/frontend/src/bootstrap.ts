@@ -1,14 +1,14 @@
 import Frontend from '~/frontend';
 import HypermediaUtil from '~/util/hypermedia-util';
 import PartialUpdater from '~/partial/partial-updater';
-import FetchUtil from '~/util/fetch-util';
-import PartialUpdaterDelegate from '~/partial/partial-updater-delegate';
 import Reconciler from '~/util/reconciler';
 import ErrorUtil from '~/util/error-util';
 import LoggerFactory from '~/util/logger/logger-factory';
 import Logger from '~/util/logger/logger';
 import Theme from '~/theme/theme';
 import Sockette from '~/sockette-2.0.6';
+import SubmitInterceptor from '~/util/submit-interceptor';
+import Action from '~/util/action';
 
 ErrorUtil.registerGlobalErrorListener(document.body.dataset.errorsUri);
 
@@ -21,9 +21,6 @@ LoggerFactory.configure('WARN', {
 document.addEventListener('keydown', async (event) => {
 	if (event.ctrlKey && event.altKey && event.key === 'r') {
 		logger.info(Reconciler.toggleDebugLog() ? 'activated reconciliation log' : 'deactivated reconciliation log');
-	} else if (event.ctrlKey && event.altKey && event.key === 'p') {
-		logger.info(partialUpdater.toggle() ? 'activated partial updates' : 'deactivated partial updates');
-		init();
 	} else if (event.ctrlKey && event.altKey && event.key === 'h') {
 		logger.info(
 			HypermediaUtil.toggleDebugLog() ? 'activated hypermedia action log' : 'deactivated hypermedia action log'
@@ -40,15 +37,8 @@ document.addEventListener('keydown', async (event) => {
 const frontendEl = new Frontend();
 document.body.appendChild(frontendEl);
 
-const partialUpdater = new PartialUpdaterDelegate(
-	new PartialUpdater(
-		() => frontendEl.getStarMapViewport(),
-		(data) => render(data)
-	)
-);
-
 async function render(data) {
-	await frontendEl.render(partialUpdater.beforeRender(data));
+	await frontendEl.render(data);
 	frontendEl.loadIndicator(false);
 
 	if (data.fleetMovements) {
@@ -56,8 +46,16 @@ async function render(data) {
 	}
 }
 
-HypermediaUtil.addSubmitInterceptor((action, values) => partialUpdater.interceptSubmit(action, values));
-HypermediaUtil.addSubmitInterceptor((action, values) => (frontendEl.loadIndicator(true), true));
+HypermediaUtil.addSubmitInterceptor(new PartialUpdater(() => frontendEl.getStarMapViewport()));
+HypermediaUtil.addSubmitInterceptor(
+	new (class extends SubmitInterceptor {
+		override preHandle(action: Action, values: any): Promise<any> | undefined {
+			frontendEl.loadIndicator(true);
+			return undefined;
+		}
+	})()
+);
+
 HypermediaUtil.setActionResponseCallbackFn((data) => render(data));
 
 const sessionId = sessionStorage.getItem('sessionId') ?? crypto.randomUUID();
@@ -76,7 +74,12 @@ const notificationWebSocket = new Sockette(notificationWebSocketUri.toString(), 
 		} else if (data.type === 'turn-finish-status') {
 			frontendEl.updateTurnStatus(data.playerStatus);
 		} else if (data.type === 'player-available') {
-			init();
+			HypermediaUtil.submitAction({
+				name: 'init',
+				href: document.body.dataset.frontendInitUri,
+				method: 'GET',
+				fields: [],
+			});
 		} else if (
 			data.type === 'player-already-taken' ||
 			data.type === 'player-kicked' ||
@@ -96,8 +99,3 @@ const notificationWebSocket = new Sockette(notificationWebSocketUri.toString(), 
 	onerror: (event) => frontendEl.showConnected(false),
 	onclose: (event) => frontendEl.showConnected(false),
 });
-
-async function init() {
-	const data = await FetchUtil.jsonFetch(document.body.dataset.frontendInitUri);
-	render(data);
-}

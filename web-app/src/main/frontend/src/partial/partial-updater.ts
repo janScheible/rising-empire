@@ -1,18 +1,19 @@
 import FieldUtils from '~/partial/field-utils';
 import HypermediaUtil from '~/util/hypermedia-util';
+import SubmitInterceptor from '~/util/submit-interceptor';
 
-export default class PartialUpdater {
+export default class PartialUpdater extends SubmitInterceptor {
 	#viewportFn;
-	#renderFn;
 
 	#mainPageData;
 
-	constructor(viewportFn, renderFn) {
+	constructor(viewportFn) {
+		super();
+
 		this.#viewportFn = viewportFn;
-		this.#renderFn = renderFn;
 	}
 
-	interceptSubmit(action, values) {
+	override preHandle(action, values): Promise<any> | undefined {
 		if (action.origin === '$.starMap' && (action.name === 'start-scroll' || action.name === 'end-scroll')) {
 			const blocked = action.name.includes('start-');
 			this.#mainPageData.buttonBar.blocked = blocked;
@@ -25,9 +26,7 @@ export default class PartialUpdater {
 				fleet.blocked = blocked;
 			}
 
-			this.#renderFn(this.#mainPageData);
-
-			return false;
+			return Promise.resolve(this.#mainPageData);
 		}
 
 		const starOrFleetSelect =
@@ -71,8 +70,7 @@ export default class PartialUpdater {
 				HypermediaUtil.setField(fleetDeploymentData, 'assign-ships', shipType, newCount);
 				HypermediaUtil.setField(fleetDeploymentData, 'deploy', shipType, newCount);
 
-				this.#renderFn(this.#mainPageData);
-				return false;
+				return Promise.resolve(this.#mainPageData);
 			} else {
 				values.fields = ['$.inspector', '$.starMap'].join(',');
 			}
@@ -94,10 +92,10 @@ export default class PartialUpdater {
 			values.fields = ['$.inspector'].join(',');
 		}
 
-		return true;
+		return undefined;
 	}
 
-	beforeRender(data) {
+	override postHandle(data): any {
 		if (data['@type'] !== 'MainPageDto') {
 			if (data['@type'] === 'TechPageDto') {
 				const closeAction = HypermediaUtil.getAction(data, 'close');

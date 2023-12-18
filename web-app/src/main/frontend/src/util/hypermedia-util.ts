@@ -1,4 +1,5 @@
 import FetchUtil from '~/util/fetch-util';
+import SubmitInterceptor from '~/util/submit-interceptor';
 import LoggerFactory from '~/util/logger/logger-factory';
 import Logger from '~/util/logger/logger';
 import Action from '~/util/action';
@@ -13,16 +14,13 @@ export default class HypermediaUtil {
 	}
 
 	static #actionResponseCallbackFn = undefined;
-	static #submitInterceptors = [];
+	static #submitInterceptors: SubmitInterceptor[] = [];
 
 	static setActionResponseCallbackFn(callbackFn) {
 		HypermediaUtil.#actionResponseCallbackFn = callbackFn;
 	}
 
-	/**
-	 * @param {(action, values) => void} interceptor
-	 */
-	static addSubmitInterceptor(interceptor) {
+	static addSubmitInterceptor(interceptor: SubmitInterceptor) {
 		HypermediaUtil.#submitInterceptors.push(interceptor);
 	}
 
@@ -54,59 +52,69 @@ export default class HypermediaUtil {
 		}
 	}
 
-	static async submitAction(action: Action, values?: { [key: string]: any }, callbackFn?) {
+	static async submitAction(action: Action, values?: { [key: string]: any }, callbackFn?): Promise<any> {
 		values = values ?? {};
+		let interceptorEntity = undefined;
 		for (const interceptor of HypermediaUtil.#submitInterceptors) {
-			if (interceptor(action, values) === false) {
-				return;
+			interceptorEntity = interceptor.preHandle(action, values);
+			if (interceptorEntity) {
+				break;
 			}
 		}
 
-		// todo check if all values are allowed (mandatory/optinal concept does not yet exist)
-		const valuesAsArrayMap = Object.keys(values).reduce((map, key) => ((map[key] = [values[key]]), map), {});
-		const body = action.fields.reduce((map, obj) => {
-			if (!map[obj.name]) {
-				map[obj.name] = [obj.value];
-			} else {
-				map[obj.name].push(obj.value);
-			}
-
-			return map;
-		}, valuesAsArrayMap);
-
-		let href = action.href;
-
-		const query = new URLSearchParams();
-		action.fields.forEach((f) => query.append(f.name, f.value));
-		Object.entries(values).forEach(([key, value]) => {
-			const templateKey = `{${key}}`;
-			if (href.includes(templateKey)) {
-				href = href.replace(templateKey, encodeURIComponent(value));
-			} else {
-				query.delete(key);
-				if (!Array.isArray(value)) {
-					query.append(key, value);
+		let entity;
+		if (!interceptorEntity) {
+			// todo check if all values are allowed (mandatory/optinal concept does not yet exist)
+			const valuesAsArrayMap = Object.keys(values).reduce((map, key) => ((map[key] = [values[key]]), map), {});
+			const body = action.fields.reduce((map, obj) => {
+				if (!map[obj.name]) {
+					map[obj.name] = [obj.value];
 				} else {
-					value.forEach((v) => query.append(key, v));
+					map[obj.name].push(obj.value);
 				}
+
+				return map;
+			}, valuesAsArrayMap);
+
+			let href = action.href;
+
+			const query = new URLSearchParams();
+			action.fields.forEach((f) => query.append(f.name, f.value));
+			Object.entries(values).forEach(([key, value]) => {
+				const templateKey = `{${key}}`;
+				if (href.includes(templateKey)) {
+					href = href.replace(templateKey, encodeURIComponent(value));
+				} else {
+					query.delete(key);
+					if (!Array.isArray(value)) {
+						query.append(key, value);
+					} else {
+						value.forEach((v) => query.append(key, v));
+					}
+				}
+			});
+
+			const encodedQuery = action.method === 'GET' && Array.from(query).length > 0 ? '?' + query.toString() : '';
+
+			if (HypermediaUtil.#logger.isDebugEnabled) {
+				HypermediaUtil.#logger.debug(
+					`submit ${action.synthetic ? 'synthetic ' : ''}action ${action.name} as ${action.method} to ${
+						href + decodeURIComponent(encodedQuery)
+					}${action.method !== 'GET' ? ' with body ' + JSON.stringify(body) : ''}`
+				);
 			}
-		});
 
-		const encodedQuery = action.method === 'GET' && Array.from(query).length > 0 ? '?' + query.toString() : '';
+			entity = await FetchUtil.jsonFetch(href + encodedQuery, {
+				method: action.method,
+				headers: action.method !== 'GET' ? { 'Content-Type': action.contentType } : undefined,
+				body: action.method !== 'GET' ? JSON.stringify(body) : undefined,
+			});
 
-		if (HypermediaUtil.#logger.isDebugEnabled) {
-			HypermediaUtil.#logger.debug(
-				`submit ${action.synthetic ? 'synthetic ' : ''}action ${action.name} as ${action.method} to ${
-					href + decodeURIComponent(encodedQuery)
-				}${action.method !== 'GET' ? ' with body ' + JSON.stringify(body) : ''}`
-			);
+			for (const interceptor of HypermediaUtil.#submitInterceptors) {
+				entity = interceptor.postHandle(entity) ?? entity;
+			}
 		}
-
-		const entity = await FetchUtil.jsonFetch(href + encodedQuery, {
-			method: action.method,
-			headers: action.method !== 'GET' ? { 'Content-Type': action.contentType } : undefined,
-			body: action.method !== 'GET' ? JSON.stringify(body) : undefined,
-		});
+		entity = interceptorEntity ? await interceptorEntity : entity;
 
 		if (callbackFn) {
 			callbackFn(entity);
