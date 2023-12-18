@@ -20,6 +20,7 @@ export default class HypermediaUtil {
 		HypermediaUtil.#actionResponseCallbackFn = callbackFn;
 	}
 
+	/** Submit interceptors are processed from first added to last added. */
 	static addSubmitInterceptor(interceptor: SubmitInterceptor) {
 		HypermediaUtil.#submitInterceptors.push(interceptor);
 	}
@@ -54,8 +55,12 @@ export default class HypermediaUtil {
 
 	static async submitAction(action: Action, values?: { [key: string]: any }, callbackFn?): Promise<any> {
 		values = values ?? {};
+
 		let interceptorEntity = undefined;
+		let abortingInterceptorIndex: number = -1;
 		for (const interceptor of HypermediaUtil.#submitInterceptors) {
+			abortingInterceptorIndex++;
+
 			interceptorEntity = interceptor.preHandle(action, values);
 			if (interceptorEntity) {
 				break;
@@ -109,12 +114,13 @@ export default class HypermediaUtil {
 				headers: action.method !== 'GET' ? { 'Content-Type': action.contentType } : undefined,
 				body: action.method !== 'GET' ? JSON.stringify(body) : undefined,
 			});
-
-			for (const interceptor of HypermediaUtil.#submitInterceptors) {
-				entity = interceptor.postHandle(entity) ?? entity;
-			}
 		}
 		entity = interceptorEntity ? await interceptorEntity : entity;
+
+		for (let i = 0; i < abortingInterceptorIndex; i++) {
+			const interceptor = HypermediaUtil.#submitInterceptors[i];
+			entity = interceptor.postHandle(entity) ?? entity;
+		}
 
 		if (callbackFn) {
 			callbackFn(entity);
