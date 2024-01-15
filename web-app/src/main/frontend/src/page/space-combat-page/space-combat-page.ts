@@ -106,7 +106,7 @@ export default class SpaceCombatPage extends HTMLElement {
 		}
 	}
 
-	render(data) {
+	async render(data) {
 		this.#data = data;
 		this.#continueAction = HypermediaUtil.getAction(data, 'continue');
 
@@ -120,6 +120,9 @@ export default class SpaceCombatPage extends HTMLElement {
 		Reconciler.reconcileStyle(this.#outcomeEl, 'visibility', 'hidden');
 
 		Reconciler.reconcileProperty(this.#buttonEl, 'innerText', 'Skip...');
+
+		// make sure that initially displayed
+		await Promise.all(this.#renderShipSpecs(data, 0, true));
 
 		// make sure that the render function returns immediately to disable the load indicator, nevertheless do the animation (that can be cancled with the skip button)
 		setTimeout(async () => {
@@ -216,5 +219,3 @@ export default class SpaceCombatPage extends HTMLElement {
 }
 
 customElements.define(SpaceCombatPage.NAME, SpaceCombatPage);
-
-function test() {}
