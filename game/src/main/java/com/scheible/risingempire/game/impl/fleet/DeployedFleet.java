@@ -22,6 +22,10 @@ public class DeployedFleet extends Fleet {
 
 	private final SystemOrb destination;
 
+	private Location previousLocation;
+
+	private boolean previousJustLeaving;
+
 	private Location location;
 
 	private int speed;
@@ -33,6 +37,8 @@ public class DeployedFleet extends Fleet {
 		this.source = source;
 		this.destination = destination;
 
+		this.previousLocation = source.getLocation();
+		this.previousJustLeaving = true;
 		this.location = source.getLocation();
 
 		this.speed = speed;
@@ -43,6 +49,8 @@ public class DeployedFleet extends Fleet {
 			throw new IllegalStateException("The fleet " + id + " already arrived!");
 		}
 
+		this.previousLocation = this.location;
+		this.previousJustLeaving = this.previousLocation.equals(this.source.getLocation());
 		this.location = this.location.moveAlong(this.destination.getLocation(), this.speed);
 	}
 
@@ -76,6 +84,14 @@ public class DeployedFleet extends Fleet {
 		return this.destination;
 	}
 
+	public Location getPreviousLocation() {
+		return this.previousLocation;
+	}
+
+	public boolean isPreviousJustLeaving() {
+		return this.previousJustLeaving;
+	}
+
 	@Override
 	public Location getLocation() {
 		return this.location;
@@ -100,6 +116,8 @@ public class DeployedFleet extends Fleet {
 		return toStringBuilder(getClass()).add("id", this.id)
 			.add("source", this.source.getName())
 			.add("destination", this.destination.getName())
+			.add("previousLocation", this.previousLocation)
+			.add("previousJustLeaving", this.previousJustLeaving)
 			.add("location", this.location)
 			.add("horizontalDirection", getHorizontalDirection())
 			.add("speed", this.speed)

@@ -32,7 +32,7 @@ class FleetHelper {
 		boolean arrivingSpaceCombatFleet = spaceCombats.stream()
 			.filter(sc -> state.isSpaceCombatSystemState()
 					&& sc.getOrder() >= state.asSpaceCombatSystemState().getOrder())
-			.filter(sc -> fleet.getFleetIdsBeforeArrive().contains(sc.getAttackerFleet()))
+			.filter(sc -> fleet.getFleetsBeforeArrival().stream().anyMatch(fba -> sc.getAttackerFleets().contains(fba)))
 			.findFirst()
 			.isPresent();
 
@@ -43,7 +43,7 @@ class FleetHelper {
 		// back the original deployed
 		// fleets with their ids
 		return (animateArriving
-				? fleet.getFleetIdsBeforeArrive()
+				? fleet.getFleetsBeforeArrival()
 					.stream()
 					.map(fiba -> new StarMapFleetBeforeArrival(fiba.getId(), Optional.of(fiba.getHorizontalDirection()),
 							Optional.of(fiba.getSpeed())))
@@ -67,7 +67,7 @@ class FleetHelper {
 		Set<FleetId> fleetIds = gameView.getFleets()
 			.stream()
 			.flatMap(fleet -> Stream.concat(Stream.of(fleet.getId()),
-					fleet.getFleetIdsBeforeArrive().stream().map(FleetBeforeArrival::getId)))
+					fleet.getFleetsBeforeArrival().stream().map(FleetBeforeArrival::getId)))
 			.collect(Collectors.toSet());
 
 		return gameView.getSpaceCombats()
@@ -78,20 +78,37 @@ class FleetHelper {
 				Location spaceCombatLocation = gameView.getSystem(sc.getSystemId()).getLocation();
 				List<StarMapFleet> starMapFleets = new ArrayList<>();
 
-				if (!fleetIds.contains(sc.getAttackerFleet().getId())) {
-					fleetIds.add(sc.getAttackerFleet().getId());
+				for (FleetBeforeArrival arrivingAttackerFleet : sc.getAttackerFleets()) {
+					if (!fleetIds.contains(arrivingAttackerFleet.getId())) {
+						fleetIds.add(arrivingAttackerFleet.getId());
 
-					starMapFleets.add(StarMapFleet.createArrivingSpaceCombatFakeFleet(sc.getAttackerFleet().getId(),
-							sc.getAttackerPlayer(), sc.getSystemId(), sc.getAttackerFleet().getSpeed(),
-							sc.getAttackerFleet().getHorizontalDirection(), spaceCombatLocation.getX(),
-							spaceCombatLocation.getY()));
+						starMapFleets.add(StarMapFleet.createArrivingSpaceCombatFakeFleet(arrivingAttackerFleet.getId(),
+								sc.getAttackerPlayer(), sc.getSystemId(), arrivingAttackerFleet.getSpeed(),
+								arrivingAttackerFleet.getHorizontalDirection(), spaceCombatLocation.getX(),
+								spaceCombatLocation.getY()));
+					}
 				}
 
-				if (!fleetIds.contains(sc.getDefenderFleet())) {
-					fleetIds.add(sc.getDefenderFleet());
+				if (sc.getDefenderFleet().isPresent()) {
+					FleetId orbitingDefenderFleet = sc.getDefenderFleet().get();
 
-					starMapFleets.add(StarMapFleet.createOrbitingSpaceCombatFakeFleet(sc.getDefenderFleet(),
-							sc.getDefenderPlayer(), spaceCombatLocation.getX(), spaceCombatLocation.getY()));
+					if (!fleetIds.contains(orbitingDefenderFleet)) {
+						fleetIds.add(orbitingDefenderFleet);
+
+						starMapFleets.add(StarMapFleet.createOrbitingSpaceCombatFakeFleet(orbitingDefenderFleet,
+								sc.getDefenderPlayer(), spaceCombatLocation.getX(), spaceCombatLocation.getY()));
+					}
+				}
+
+				for (FleetBeforeArrival arrivingDefenderFleet : sc.getDefenderFleetsBeforeArrival()) {
+					if (!fleetIds.contains(arrivingDefenderFleet.getId())) {
+						fleetIds.add(arrivingDefenderFleet.getId());
+
+						starMapFleets.add(StarMapFleet.createArrivingSpaceCombatFakeFleet(arrivingDefenderFleet.getId(),
+								sc.getDefenderPlayer(), sc.getSystemId(), arrivingDefenderFleet.getSpeed(),
+								arrivingDefenderFleet.getHorizontalDirection(), spaceCombatLocation.getX(),
+								spaceCombatLocation.getY()));
+					}
 				}
 
 				return starMapFleets.stream();

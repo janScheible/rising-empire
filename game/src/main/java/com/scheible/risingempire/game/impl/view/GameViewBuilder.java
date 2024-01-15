@@ -166,10 +166,11 @@ public class GameViewBuilder {
 		Set<SpaceCombatView> spaceCombatViews = spaceCombats.stream()
 			.filter(sc -> sc.getAttacker() == player || sc.getDefender() == player)
 			.map(sc -> new SpaceCombatView(sc.getSystemId(), sc.getOrder(), sc.getFireExchangeCount(),
-					playerRaceMapping.get(sc.getAttacker()), sc.getAttacker(), sc.getAttackerFleet(),
+					playerRaceMapping.get(sc.getAttacker()), sc.getAttacker(), Set.of(sc.getAttackerFleet()),
 					toCombatantShipSpecs(sc.getPreviousAttackerShipCounts(), sc.getAttackerShipCounts(),
 							sc.getAttackerFireExchanges(), designs.get(sc.getAttacker())),
-					playerRaceMapping.get(sc.getDefender()), sc.getDefender(), sc.getDefenderFleet(),
+					playerRaceMapping.get(sc.getDefender()), sc.getDefender(), Optional.of(sc.getDefenderFleet()),
+					Set.of() /* TODO pass data */,
 					toCombatantShipSpecs(sc.getPreviousDefenderShipCounts(), sc.getDefenderShipCounts(),
 							sc.getDefenderFireExchanges(), designs.get(sc.getDefender())),
 					sc.getOutcome()))
@@ -245,6 +246,7 @@ public class GameViewBuilder {
 
 			return FleetView.createDeployed(fleet.getId(), player, race, shipTypesAndCounts,
 					Optional.of(deployedFleet.getSource().getId()), Optional.of(deployedFleet.getDestination().getId()),
+					deployedFleet.getPreviousLocation(), deployedFleet.isPreviousJustLeaving(),
 					deployedFleet.getLocation(), deployedFleet.getSpeed(), closest,
 					deployedFleet.getHorizontalDirection(), deployedFleet.isJustLeaving(), Optional.of(scannerRange),
 					fleetsBeforeArrival, deployedFleet.isJustLeaving());
@@ -280,8 +282,10 @@ public class GameViewBuilder {
 			SystemId closest) {
 		if (fleet.isDeployed()) {
 			return FleetView.createDeployed(fleet.getId(), fleet.getPlayer(), race, Map.of(), Optional.empty(),
-					Optional.empty(), fleet.getLocation(), fleet.asDeployed().getSpeed(), closest,
-					fleet.asDeployed().getHorizontalDirection(), false, Optional.empty(), fleetsBeforeArrival, false);
+					Optional.empty(), fleet.asDeployed().getPreviousLocation(),
+					fleet.asDeployed().isPreviousJustLeaving(), fleet.getLocation(), fleet.asDeployed().getSpeed(),
+					closest, fleet.asDeployed().getHorizontalDirection(), false, Optional.empty(), fleetsBeforeArrival,
+					fleet.asDeployed().isJustLeaving());
 		}
 		else if (fleet.isOrbiting()) {
 			OrbitingFleet orbitingFleet = fleet.asOrbiting();

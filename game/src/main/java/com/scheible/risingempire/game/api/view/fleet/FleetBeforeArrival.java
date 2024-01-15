@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 import com.scheible.risingempire.game.api.view.fleet.FleetView.HorizontalDirection;
+import com.scheible.risingempire.game.api.view.universe.Location;
 
 /**
  * @author sj
@@ -16,10 +17,17 @@ public class FleetBeforeArrival {
 
 	private final int speed;
 
-	public FleetBeforeArrival(FleetId id, HorizontalDirection horizontalDirection, int speed) {
+	private final Location location;
+
+	private final boolean justLeaving;
+
+	public FleetBeforeArrival(FleetId id, HorizontalDirection horizontalDirection, int speed, Location location,
+			boolean justLeaving) {
 		this.id = id;
 		this.horizontalDirection = horizontalDirection;
 		this.speed = speed;
+		this.location = location;
+		this.justLeaving = justLeaving;
 	}
 
 	public FleetId getId() {
@@ -34,6 +42,14 @@ public class FleetBeforeArrival {
 		return this.speed;
 	}
 
+	public Location getLocation() {
+		return this.location;
+	}
+
+	public boolean isJustLeaving() {
+		return this.justLeaving;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -43,7 +59,8 @@ public class FleetBeforeArrival {
 			FleetBeforeArrival other = (FleetBeforeArrival) obj;
 			return Objects.equals(this.id, other.id)
 					&& Objects.equals(this.horizontalDirection, other.horizontalDirection)
-					&& Objects.equals(this.speed, other.speed);
+					&& Objects.equals(this.speed, other.speed) && Objects.equals(this.location, other.location)
+					&& Objects.equals(this.justLeaving, other.justLeaving);
 		}
 		else {
 			return false;
@@ -52,7 +69,7 @@ public class FleetBeforeArrival {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.id, this.horizontalDirection, this.speed);
+		return Objects.hash(this.id, this.horizontalDirection, this.speed, this.location, this.justLeaving);
 	}
 
 	@Override
@@ -60,6 +77,8 @@ public class FleetBeforeArrival {
 		return new StringJoiner(", ", "FleetBeforeArrival[", "]").add("id=" + this.id)
 			.add("horizontalDirection=" + this.horizontalDirection)
 			.add("speed=" + this.speed)
+			.add("location=" + this.location)
+			.add("justLeaving=" + this.justLeaving)
 			.toString();
 	}
 

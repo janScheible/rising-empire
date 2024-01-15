@@ -35,7 +35,8 @@ public class KnownInAdvanceWinnerSpaceCombatResolver implements SpaceCombatResol
 	public SpaceCombat resolve(SystemId systemId, OrbitingFleet defending, DeployedFleet attacking,
 			ShipDesignProvider shipDesignProvider) {
 		return new SpaceCombat(systemId, 1, attacking.getPlayer(),
-				new FleetBeforeArrival(attacking.getId(), attacking.getHorizontalDirection(), attacking.getSpeed()),
+				new FleetBeforeArrival(attacking.getId(), attacking.getHorizontalDirection(), attacking.getSpeed(),
+						attacking.getPreviousLocation(), attacking.isPreviousJustLeaving()),
 				attacking.getShips(),
 				this.outcome == Outcome.DEFENDER_WON ? changeShipCount(attacking.getShips(), count -> 0)
 						: changeShipCount(attacking.getShips(), count -> count / 2),

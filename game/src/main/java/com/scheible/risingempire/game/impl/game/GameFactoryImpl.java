@@ -154,7 +154,7 @@ public class GameFactoryImpl implements GameFactory {
 							50),
 					rigelSystem = new System("Rigel", new Location(240, 440), StarType.GREEN, PlanetType.TUNDRA,
 							PlanetSpecial.NONE, 50),
-					spicaSystem = new System("Spicia", new Location(300, 140), StarType.BLUE, PlanetType.ARID,
+					spicaSystem = new System("Spicia", new Location(380, 300), StarType.YELLOW, PlanetType.ARID,
 							PlanetSpecial.NONE, 50));
 			rigelSystem.colonize(Player.YELLOW, DesignSlot.FIRST);
 			spicaSystem.colonize(Player.WHITE, DesignSlot.FIRST);

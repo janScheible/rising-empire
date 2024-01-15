@@ -128,7 +128,7 @@ class NewTurnStepsIT extends AbstractMainPageIT {
 		doBlueTurn(game, bluePlayerGame -> {
 			if (steps.contains(Step.ANNEXATION)) {
 				bluePlayerGame.deployHomeFleet("Cruiser", 1, "s240x440");
-				bluePlayerGame.deployHomeFleet("Cruiser", 1, "s300x140");
+				bluePlayerGame.deployHomeFleet("Cruiser", 1, "s380x300");
 			}
 		});
 

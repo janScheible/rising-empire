@@ -166,9 +166,9 @@ class GameTest {
 
 		FleetView blueFleet = blueGameView.getFleets(Player.BLUE).stream().findFirst().orElse(null);
 		if (blueFleet != null) {
-			assertThat(deployedFleedId)
-				.isEqualTo(blueGameView.getSpaceCombats().iterator().next().getAttackerFleet().getId());
-			assertThat(blueFleet.getFleetIdsBeforeArrive()).extracting(FleetBeforeArrival::getId)
+			assertThat(deployedFleedId).isEqualTo(
+					blueGameView.getSpaceCombats().iterator().next().getAttackerFleets().iterator().next().getId());
+			assertThat(blueFleet.getFleetsBeforeArrival()).extracting(FleetBeforeArrival::getId)
 				.contains(deployedFleedId);
 			assertThat(blueFleet.getId()).isNotEqualTo(deployedFleedId);
 		}

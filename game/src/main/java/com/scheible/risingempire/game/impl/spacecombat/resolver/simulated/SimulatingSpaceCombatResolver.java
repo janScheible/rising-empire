@@ -61,7 +61,8 @@ public class SimulatingSpaceCombatResolver implements SpaceCombatResolver {
 					.collect(Collectors.toMap(e -> toDesginSlot.apply(e.getKey(), player), Entry::getValue));
 
 		return new SpaceCombat(systemId, summary.fireExchangeCount, attacking.getPlayer(),
-				new FleetBeforeArrival(attacking.getId(), attacking.getHorizontalDirection(), attacking.getSpeed()),
+				new FleetBeforeArrival(attacking.getId(), attacking.getHorizontalDirection(), attacking.getSpeed(),
+						attacking.getPreviousLocation(), attacking.isPreviousJustLeaving()),
 				new HashMap<>(attacking.getShips()),
 				toDesignSlotsCombatantFireExchanges.apply(summary.attackerFireExchanges, attacking.getPlayer()),
 				defending.getPlayer(), defending.getId(), new HashMap<>(defending.getShips()),

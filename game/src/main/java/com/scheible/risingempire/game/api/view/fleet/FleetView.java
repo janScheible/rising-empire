@@ -45,6 +45,10 @@ public class FleetView {
 
 	private final Map<ShipTypeView, Integer> ships;
 
+	private final Optional<Location> previousLocation;
+
+	private final Optional<Boolean> previousJustLeaving;
+
 	private final Location location;
 
 	private final boolean deployable;
@@ -68,7 +72,8 @@ public class FleetView {
 	private final Optional<Boolean> justLeaving;
 
 	private FleetView(FleetId id, FleetViewType type, Player player, Race race, Map<ShipTypeView, Integer> ships,
-			Location location, boolean deployable, Optional<Integer> scannerRange, Optional<SystemId> source,
+			Optional<Location> previousLocation, Optional<Boolean> previousJustLeaving, Location location,
+			boolean deployable, Optional<Integer> scannerRange, Optional<SystemId> source,
 			Optional<SystemId> destination, Optional<Integer> speed, Optional<SystemId> closest,
 			Optional<HorizontalDirection> horizontalDirection, Optional<SystemId> orbiting,
 			Set<FleetBeforeArrival> fleetsBeforeArrival, Optional<Boolean> justLeaving) {
@@ -78,6 +83,8 @@ public class FleetView {
 		this.player = player;
 		this.race = race;
 		this.ships = unmodifiableMap(ships);
+		this.previousLocation = previousLocation;
+		this.previousJustLeaving = previousJustLeaving;
 		this.location = location;
 		this.deployable = deployable;
 		this.scannerRange = scannerRange;
@@ -94,20 +101,22 @@ public class FleetView {
 	}
 
 	public static FleetView createDeployed(FleetId id, Player player, Race race, Map<ShipTypeView, Integer> ships,
-			Optional<SystemId> source, Optional<SystemId> destination, Location location, int speed, SystemId closest,
+			Optional<SystemId> source, Optional<SystemId> destination, Location previousLocation,
+			boolean previousJustLeaving, Location location, int speed, SystemId closest,
 			HorizontalDirection orientation, boolean deployable, Optional<Integer> scannerRange,
 			Set<FleetBeforeArrival> fleetsBeforeArrival, boolean justLeaving) {
-		return new FleetView(id, FleetViewType.DEPLOYED, player, race, ships, location, deployable, scannerRange,
-				source, destination, Optional.of(speed), Optional.of(closest), Optional.of(orientation),
-				Optional.empty(), fleetsBeforeArrival, Optional.of(justLeaving));
+		return new FleetView(id, FleetViewType.DEPLOYED, player, race, ships, Optional.of(previousLocation),
+				Optional.of(previousJustLeaving), location, deployable, scannerRange, source, destination,
+				Optional.of(speed), Optional.of(closest), Optional.of(orientation), Optional.empty(),
+				fleetsBeforeArrival, Optional.of(justLeaving));
 	}
 
 	public static FleetView createOrbiting(FleetId id, Player player, Race race, Map<ShipTypeView, Integer> ships,
 			SystemId orbiting, Location location, Set<FleetBeforeArrival> fleetsBeforeArrival, boolean deployable,
 			Optional<Integer> scannerRange) {
-		return new FleetView(id, FleetViewType.ORBITING, player, race, ships, location, deployable, scannerRange,
-				Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
-				Optional.of(orbiting), fleetsBeforeArrival, Optional.empty());
+		return new FleetView(id, FleetViewType.ORBITING, player, race, ships, Optional.empty(), Optional.empty(),
+				location, deployable, scannerRange, Optional.empty(), Optional.empty(), Optional.empty(),
+				Optional.empty(), Optional.empty(), Optional.of(orbiting), fleetsBeforeArrival, Optional.empty());
 	}
 
 	public FleetId getId() {
@@ -128,6 +137,14 @@ public class FleetView {
 
 	public Map<ShipTypeView, Integer> getShips() {
 		return this.ships;
+	}
+
+	public Optional<Location> getPreviousLocation() {
+		return this.previousLocation;
+	}
+
+	public Optional<Boolean> isPreviousJustLeaving() {
+		return this.previousJustLeaving;
 	}
 
 	public Location getLocation() {
@@ -183,7 +200,7 @@ public class FleetView {
 		return !this.fleetsBeforeArrival.isEmpty();
 	}
 
-	public Set<FleetBeforeArrival> getFleetIdsBeforeArrive() {
+	public Set<FleetBeforeArrival> getFleetsBeforeArrival() {
 		return this.fleetsBeforeArrival;
 	}
 
@@ -217,9 +234,18 @@ public class FleetView {
 			.add("id=" + this.id)
 			.add("type=" + this.type)
 			.add("player=" + this.player)
-			.add("race=" + this.race)
-			.add("location=" + this.location)
-			.add("deployable=" + this.deployable);
+			.add("race=" + this.race);
+
+		if (this.previousLocation.isPresent()) {
+			values.add("previousLocation=" + this.previousLocation.get());
+		}
+		if (this.previousJustLeaving.isPresent()) {
+			values.add("previousJustLeaving=" + this.previousJustLeaving.get());
+		}
+
+		values.add("location=" + this.location);
+
+		values.add("deployable=" + this.deployable);
 		if (this.horizontalDirection.isPresent()) {
 			values.add("horizontalDirection=" + this.horizontalDirection.get());
 		}

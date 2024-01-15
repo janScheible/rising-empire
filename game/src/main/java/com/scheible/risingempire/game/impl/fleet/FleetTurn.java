@@ -75,7 +75,8 @@ public class FleetTurn {
 				emptyFleets.add(deployedFleet);
 				orbitingArrivingMapping.computeIfAbsent(orbitingFleet.get().getId(), key -> new HashSet<>())
 					.add(new FleetBeforeArrival(deployedFleet.getId(), deployedFleet.getHorizontalDirection(),
-							deployedFleet.getSpeed()));
+							deployedFleet.getSpeed(), deployedFleet.getPreviousLocation(),
+							deployedFleet.isPreviousJustLeaving()));
 
 				System destinationSystem = this.systems.get(destination.getId());
 				if (!destinationSystem.getColony(fleet.getPlayer()).isPresent()) {
@@ -87,6 +88,10 @@ public class FleetTurn {
 					.stream()
 					.filter(clashingOrbitingFleet -> clashingOrbitingFleet.getPlayer() != deployedFleet.getPlayer())
 					.forEach(defendingFleet -> {
+						// TODO This is not correct... space combats must be done after
+						// all
+						// fleets had the chance to arrive (SpaceCombatResolver needs a
+						// possibility to be passed all the arriving fleets)
 						SpaceCombat spaceCombat = this.spaceCombatResolver.resolve(destinationSystem.getId(),
 								defendingFleet, deployedFleet, this.shipDesignProvider);
 						if (spaceCombat.getOutcome() == Outcome.ATTACKER_WON) {

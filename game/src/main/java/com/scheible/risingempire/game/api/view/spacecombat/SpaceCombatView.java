@@ -1,6 +1,8 @@
 package com.scheible.risingempire.game.api.view.spacecombat;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
@@ -31,7 +33,7 @@ public class SpaceCombatView {
 
 	private final Player attackerPlayer;
 
-	private final FleetBeforeArrival attackerFleet;
+	private final Set<FleetBeforeArrival> attackerFleets;
 
 	private final List<CombatantShipSpecsView> attackerShipSpecs;
 
@@ -39,16 +41,18 @@ public class SpaceCombatView {
 
 	private final Player defenderPlayer;
 
-	private final FleetId defenderFleet;
+	private final Optional<FleetId> defenderFleet;
+
+	private final Set<FleetBeforeArrival> defenderFleetsBeforeArrival;
 
 	private final List<CombatantShipSpecsView> defenderShipSpecs;
 
 	private final Outcome outcome;
 
 	public SpaceCombatView(SystemId systemId, int order, int fireExchangeCount, Race attacker, Player attackerPlayer,
-			FleetBeforeArrival attackerFleet, List<CombatantShipSpecsView> attackerShipSpecs, Race defender,
-			Player defenderPlayer, FleetId defenderFleet, List<CombatantShipSpecsView> defenderShipSpecs,
-			Outcome outcome) {
+			Set<FleetBeforeArrival> attackerFleets, List<CombatantShipSpecsView> attackerShipSpecs, Race defender,
+			Player defenderPlayer, Optional<FleetId> defenderFleet, Set<FleetBeforeArrival> defenderFleetsBeforeArrival,
+			List<CombatantShipSpecsView> defenderShipSpecs, Outcome outcome) {
 		this.systemId = systemId;
 
 		this.order = order;
@@ -57,12 +61,13 @@ public class SpaceCombatView {
 
 		this.attacker = attacker;
 		this.attackerPlayer = attackerPlayer;
-		this.attackerFleet = attackerFleet;
+		this.attackerFleets = attackerFleets;
 		this.attackerShipSpecs = unmodifiableList(attackerShipSpecs);
 
 		this.defender = defender;
 		this.defenderPlayer = defenderPlayer;
 		this.defenderFleet = defenderFleet;
+		this.defenderFleetsBeforeArrival = defenderFleetsBeforeArrival;
 		this.defenderShipSpecs = unmodifiableList(defenderShipSpecs);
 
 		this.outcome = outcome;
@@ -88,8 +93,8 @@ public class SpaceCombatView {
 		return this.attackerPlayer;
 	}
 
-	public FleetBeforeArrival getAttackerFleet() {
-		return this.attackerFleet;
+	public Set<FleetBeforeArrival> getAttackerFleets() {
+		return this.attackerFleets;
 	}
 
 	public List<CombatantShipSpecsView> getAttackerShipSpecs() {
@@ -104,8 +109,12 @@ public class SpaceCombatView {
 		return this.defenderPlayer;
 	}
 
-	public FleetId getDefenderFleet() {
+	public Optional<FleetId> getDefenderFleet() {
 		return this.defenderFleet;
+	}
+
+	public Set<FleetBeforeArrival> getDefenderFleetsBeforeArrival() {
+		return this.defenderFleetsBeforeArrival;
 	}
 
 	public List<CombatantShipSpecsView> getDefenderShipSpecs() {
