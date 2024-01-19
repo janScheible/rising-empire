@@ -26,7 +26,7 @@ public record AnnexationStatusView(Optional<Integer> siegeRounds, Optional<Integ
 	public Optional<Integer> getProgress() {
 		if (this.siegeRounds.isPresent() && this.roundsUntilAnnexable.isPresent()) {
 			return Optional.of(Math.round(this.siegeRounds().get()
-					/ (float) (this.siegeRounds().get() + this.roundsUntilAnnexable().get()) * 100.0f));
+					/ (this.siegeRounds().get() + this.roundsUntilAnnexable().get()) * 100.0f));
 		}
 		else {
 			return Optional.empty();

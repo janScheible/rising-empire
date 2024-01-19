@@ -31,7 +31,7 @@
 		</properties>
 	</rule>
 	<rule ref="category/java/design.xml/SimplifyConditional" />
-	<!-- <rule ref="category/java/codestyle.xml/UnnecessaryBoxing" /> needs PMD 7.0 -->
+	<rule ref="category/java/codestyle.xml/UnnecessaryBoxing" />
 	<rule ref="category/java/codestyle.xml/UnnecessaryCast" />
 	<rule ref="category/java/errorprone.xml/UnnecessaryConversionTemporary" />
 	<rule ref="category/java/codestyle.xml/UnnecessaryReturn" />

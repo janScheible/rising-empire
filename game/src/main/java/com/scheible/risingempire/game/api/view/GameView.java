@@ -190,7 +190,7 @@ public class GameView {
 		result.append("current turn: ").append(this.round).append('\n');
 
 		this.systemsSet.stream()
-			.sorted(Comparator.comparing(sv -> getSystemSortPlayer(sv)))
+			.sorted(Comparator.comparing(GameView::getSystemSortPlayer))
 			.map(Object::toString)
 			.forEachOrdered(s -> result.append(s).append('\n'));
 

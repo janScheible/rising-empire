@@ -1,5 +1,6 @@
 package com.scheible.risingempire.util.jdk;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -13,9 +14,7 @@ public class Collections2 {
 	@SafeVarargs
 	public static <T> void replaceAll(Collection<T> collection, T... newElements) {
 		collection.clear();
-		for (T element : newElements) {
-			collection.add(element);
-		}
+		collection.addAll(Arrays.asList(newElements));
 	}
 
 }

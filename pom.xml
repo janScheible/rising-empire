@@ -61,7 +61,7 @@
 		<pitest-junit5-plugin.version>1.2.1</pitest-junit5-plugin.version>
 		<esbuild-maven-plugin.version>0.1.4</esbuild-maven-plugin.version>
 
-		<pmd.version>6.55.0</pmd.version>
+		<pmd.version>7.0.0-rc4</pmd.version>
 		<forbiddenapis.version>3.6</forbiddenapis.version>
 		<checksytle.version>10.12.4</checksytle.version>
 		<spring-javaformat-checkstyle.version>0.0.39</spring-javaformat-checkstyle.version>

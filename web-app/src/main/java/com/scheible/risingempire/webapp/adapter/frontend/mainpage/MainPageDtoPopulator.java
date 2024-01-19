@@ -138,7 +138,7 @@ public class MainPageDtoPopulator {
 						.flatMap(ColonyView::getAnnexationStatus)
 						.flatMap(as -> as.siegeRounds().isPresent() && as.roundsUntilAnnexable().isPresent()
 								? Optional.of(Math.round(as.siegeRounds().get()
-										/ (float) (as.siegeRounds().get() + as.roundsUntilAnnexable().get()) * 100.0f))
+										/ (as.siegeRounds().get() + as.roundsUntilAnnexable().get()) * 100.0f))
 								: Optional.empty()),
 					s.getLocation().getX(), s.getLocation().getY()))
 				.with(state.isSystemSelectable(s.getId()), () -> Action
