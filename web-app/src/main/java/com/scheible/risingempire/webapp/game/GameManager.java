@@ -49,7 +49,7 @@ public class GameManager {
 				.keySet()
 				.stream()
 				.filter(c -> c != player)
-				.forEach(p -> this.notificationService.send(gameId, p, "turn-finished"));
+				.forEach(p -> this.notificationService.send(gameId, p, "round-finished"));
 
 			this.notificationService.broadcast("game-change");
 		}

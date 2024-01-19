@@ -174,9 +174,9 @@ class InspectorDto {
 
 		final HabitabilityDto habitability;
 
-		final Boolean colonizeCommand;
+		final Optional<Boolean> colonizeCommand;
 
-		ColonizationDto(String systemName, HabitabilityDto habitability, Boolean colonizeCommand) {
+		ColonizationDto(String systemName, HabitabilityDto habitability, Optional<Boolean> colonizeCommand) {
 			this.systemName = new SystemNameDto(systemName);
 			this.habitability = habitability;
 			this.colonizeCommand = colonizeCommand;
@@ -190,9 +190,9 @@ class InspectorDto {
 
 		final HabitabilityDto habitability;
 
-		final Boolean annexCommand;
+		final Optional<Boolean> annexCommand;
 
-		AnnexationDto(String systemName, HabitabilityDto habitability, Boolean annexCommand) {
+		AnnexationDto(String systemName, HabitabilityDto habitability, Optional<Boolean> annexCommand) {
 			this.systemName = new SystemNameDto(systemName);
 			this.habitability = habitability;
 			this.annexCommand = annexCommand;

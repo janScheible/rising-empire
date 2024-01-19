@@ -16,8 +16,6 @@ export default class Star extends HTMLElement {
 
 	#selectAction;
 
-	#blocked: boolean;
-
 	constructor() {
 		super();
 
@@ -52,10 +50,6 @@ export default class Star extends HTMLElement {
 					margin: var(--star-margin);
 				}
 
-				#star-image.blocked {
-					filter: grayscale(100%);
-				}
-
 				#name-wrapper {
 					margin-left: calc(-50%);
 					margin-top: 36px;
@@ -78,7 +72,7 @@ export default class Star extends HTMLElement {
 
 		[this.#starEl, this.#starImageEl].forEach((starEl) =>
 			starEl.addEventListener('click', (e) => {
-				if (this.#selectAction && !this.#blocked) {
+				if (this.#selectAction) {
 					HypermediaUtil.submitAction(this.#selectAction, {});
 				}
 			})
@@ -87,7 +81,6 @@ export default class Star extends HTMLElement {
 
 	render(data) {
 		this.#selectAction = HypermediaUtil.getAction(data, 'select');
-		this.#blocked = data.blocked;
 
 		Reconciler.reconcileCssVariable(this, 'star-left', data.x - Star.WIDTH / 2 + 'px');
 		Reconciler.reconcileCssVariable(this, 'star-top', data.y - Star.HEIGHT / 2 + 'px');
@@ -103,17 +96,14 @@ export default class Star extends HTMLElement {
 		if (starImageDataUrl) {
 			Reconciler.reconcileAttribute(this.#starImageEl, 'src', starImageDataUrl);
 
-			Reconciler.reconcileClass(this.#starImageEl, 'blocked', data.blocked);
-
 			Reconciler.reconcileProperty(this.#starImageEl, 'hidden', false);
 			Reconciler.reconcileStyle(this.#starEl, 'display', 'none');
 		} else {
 			Reconciler.reconcileStyle(
 				this.#starEl,
 				'background',
-				`radial-gradient(${!data.blocked ? data.type : 'gray'}, #000)`,
-				(elValue, value) =>
-					!(data.blocked ? elValue.includes('gray') : elValue.toLowerCase().includes(data.type.toLowerCase()))
+				`radial-gradient(${data.type}, #000)`,
+				(elValue, value) => !elValue.toLowerCase().includes(data.type.toLowerCase())
 			);
 
 			Reconciler.reconcileStyle(this.#starEl, 'display', 'inline-block');

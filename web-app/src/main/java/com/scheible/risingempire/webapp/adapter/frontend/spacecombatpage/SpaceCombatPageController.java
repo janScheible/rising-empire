@@ -2,7 +2,6 @@ package com.scheible.risingempire.webapp.adapter.frontend.spacecombatpage;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.view.spacecombat.CombatantShipSpecsView;
@@ -11,12 +10,12 @@ import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.webapp.adapter.frontend.annotation.FrontendController;
 import com.scheible.risingempire.webapp.adapter.frontend.context.FrontendContext;
-import com.scheible.risingempire.webapp.adapter.frontend.mainpage.TurnSteps;
 import com.scheible.risingempire.webapp.adapter.frontend.spacecombatpage.SpaceCombatPageDto.CombatOutcomeDto;
 import com.scheible.risingempire.webapp.adapter.frontend.spacecombatpage.SpaceCombatPageDto.CombatOutcomeDto.OutcomeDto;
 import com.scheible.risingempire.webapp.adapter.frontend.spacecombatpage.SpaceCombatPageDto.CombatantShipSpecsDto;
 import com.scheible.risingempire.webapp.adapter.frontend.spacecombatpage.SpaceCombatPageDto.FireExchangeDto;
 import com.scheible.risingempire.webapp.adapter.frontend.spacecombatpage.SpaceCombatPageDto.ShipsDto;
+import com.scheible.risingempire.webapp.hypermedia.Action;
 import com.scheible.risingempire.webapp.hypermedia.ActionField;
 import com.scheible.risingempire.webapp.hypermedia.EntityModel;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,12 +31,7 @@ class SpaceCombatPageController {
 
 	@GetMapping(path = "/space-combat-page/{currentSpaceCombatSystemId}")
 	EntityModel<SpaceCombatPageDto> spaceCombatPage(@ModelAttribute FrontendContext context,
-			@PathVariable String currentSpaceCombatSystemId,
-			@RequestParam(name = "spaceCombatSystemId") Optional<List<String>> spaceCombatSystemIds,
-			@RequestParam(name = "exploredSystemId") Optional<List<String>> exploredSystemIds,
-			@RequestParam(name = "colonizableSystemId") Optional<List<String>> colonizableSystemIds,
-			@RequestParam(name = "annexableSystemId") Optional<List<String>> annexableSystemIds,
-			@RequestParam(name = "notificationSystemId") Optional<List<String>> notificationSystemIds) {
+			@PathVariable String currentSpaceCombatSystemId, @RequestParam String selectedStarId) {
 		SpaceCombatView spaceCombatView = context.getGameView()
 			.getSpaceCombats()
 			.stream()
@@ -54,11 +48,8 @@ class SpaceCombatPageController {
 				spaceCombatView.getFireExchangeCount(),
 				new CombatOutcomeDto(OutcomeDto.toOutcomeDto(context.getPlayer(), spaceCombatView.getAttackerPlayer(),
 						spaceCombatView.getDefenderPlayer(), spaceCombatView.getOutcome()))))
-			.with(TurnSteps
-				.getMainPageAction(context, "continue", context.getSelectedStarId().get(), spaceCombatSystemIds,
-						exploredSystemIds, colonizableSystemIds, annexableSystemIds, notificationSystemIds,
-						!context.getGameView().getSelectTechs().isEmpty())
-				.with(new ActionField("currentSpaceCombatSystemId", currentSpaceCombatSystemId)));
+			.with(Action.get("continue", context.toFrontendUri("main-page"))
+				.with(new ActionField("selectedStarId", selectedStarId)));
 	}
 
 	List<CombatantShipSpecsDto> toCombatantShipSpecsDtos(Player player,

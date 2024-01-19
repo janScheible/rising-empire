@@ -16,39 +16,22 @@ import com.scheible.risingempire.webapp.hypermedia.EntityModel;
  */
 class StarMapDto {
 
-	final boolean miniMap;
-
-	final boolean fleetMovements;
-
 	StarBackgroundDto starBackground;
 
 	StarSelectionDto starSelection;
 
 	FleetSelectionDto fleetSelection;
 
-	ItineraryDto itinerary;
-
 	List<EntityModel<StarDto>> stars;
 
 	List<EntityModel<FleetDto>> fleets;
 
-	EntityModel<StarNotificationDto> starNotification;
-
-	ScrollToDto scrollTo;
+	List<StarNotificationDto> starNotifications;
 
 	RangesDto ranges;
 
-	StarMapDto(int width, int height, boolean miniMap, boolean fleetMovements) {
+	StarMapDto(int width, int height) {
 		this.starBackground = new StarBackgroundDto(width, height);
-		this.miniMap = miniMap;
-		this.fleetMovements = fleetMovements;
-	}
-
-	void setStarNotification(EntityModel<StarNotificationDto> notificationModel) {
-		this.scrollTo = new ScrollToDto(notificationModel.getContent().x, notificationModel.getContent().y, true);
-		notificationModel.getContent().starMapWidth = this.starBackground.width;
-		notificationModel.getContent().starMapHeight = this.starBackground.height;
-		this.starNotification = notificationModel;
 	}
 
 	static class StarBackgroundDto {
@@ -86,6 +69,8 @@ class StarMapDto {
 		final boolean orbiting;
 
 		final boolean justLeaving;
+
+		Optional<ItineraryDto> itinerary;
 
 		FleetSelectionDto(int x, int y, boolean orbiting, boolean justLeaving) {
 			this.x = x;
@@ -180,6 +165,12 @@ class StarMapDto {
 
 		final PlayerDto playerColor;
 
+		final Optional<Integer> previousX;
+
+		final Optional<Integer> previousY;
+
+		final Optional<Boolean> previousJustLeaving;
+
 		final int x;
 
 		final int y;
@@ -192,21 +183,34 @@ class StarMapDto {
 
 		final Optional<HorizontalDirectionDto> horizontalDirection;
 
-		FleetDto(String id, Player playerColor, int x, int y, boolean orbiting, boolean justLeaving,
-				Optional<Integer> speed, Optional<HorizontalDirection> horizontalDirection) {
+		final List<EntityModel<FleetDto>> fleetsBeforeArrival;
+
+		// TODO later...
+		// final List<FleetDto> detachments;
+
+		FleetDto(String id, Player playerColor, Optional<Integer> previousX, Optional<Integer> previousY,
+				Optional<Boolean> previousJustLeaving, int x, int y, boolean orbiting, boolean justLeaving,
+				Optional<Integer> speed, Optional<HorizontalDirection> horizontalDirection,
+				List<EntityModel<FleetDto>> fleetsBeforeArrival) {
 			this.id = id;
 			this.playerColor = PlayerDto.fromPlayer(playerColor);
+			this.previousX = previousX;
+			this.previousY = previousY;
+			this.previousJustLeaving = previousJustLeaving;
 			this.x = x;
 			this.y = y;
 			this.orbiting = orbiting;
 			this.justLeaving = justLeaving;
 			this.speed = speed;
 			this.horizontalDirection = horizontalDirection.map(HorizontalDirectionDto::fromHorizontalDirection);
+			this.fleetsBeforeArrival = fleetsBeforeArrival;
 		}
 
 	}
 
 	static class StarNotificationDto {
+
+		final String starId;
 
 		final int x;
 
@@ -214,30 +218,13 @@ class StarMapDto {
 
 		final String text;
 
-		int starMapWidth;
+		StarNotificationDto(String starId, int x, int y, String text) {
+			this.starId = starId;
 
-		int starMapHeight;
-
-		StarNotificationDto(int x, int y, String text) {
 			this.x = x;
 			this.y = y;
+
 			this.text = text;
-		}
-
-	}
-
-	static class ScrollToDto {
-
-		final int x;
-
-		final int y;
-
-		final boolean center;
-
-		ScrollToDto(int x, int y, boolean center) {
-			this.x = x;
-			this.y = y;
-			this.center = center;
 		}
 
 	}
@@ -262,45 +249,45 @@ class StarMapDto {
 			this.playerColor = PlayerDto.fromPlayer(playerColor);
 		}
 
-	}
+		static class FleetRangeDto {
 
-	static class FleetRangeDto {
+			final String id;
 
-		final String id;
+			final int centerX;
 
-		final int centerX;
+			final int centerY;
 
-		final int centerY;
+			final int radius;
 
-		final int radius;
+			final int extendedRadius;
 
-		final int extendedRadius;
+			FleetRangeDto(String id, int centerX, int centerY, int radius, int extendedRadius) {
+				this.id = id;
+				this.centerX = centerX;
+				this.centerY = centerY;
+				this.radius = radius;
+				this.extendedRadius = extendedRadius;
+			}
 
-		FleetRangeDto(String id, int centerX, int centerY, int radius, int extendedRadius) {
-			this.id = id;
-			this.centerX = centerX;
-			this.centerY = centerY;
-			this.radius = radius;
-			this.extendedRadius = extendedRadius;
 		}
 
-	}
+		static class ScannerRangeDto {
 
-	static class ScannerRangeDto {
+			final String id;
 
-		final String id;
+			final int centerX;
 
-		final int centerX;
+			final int centerY;
 
-		final int centerY;
+			final int radius;
 
-		final int radius;
+			ScannerRangeDto(String id, int centerX, int centerY, int radius) {
+				this.id = id;
+				this.centerX = centerX;
+				this.centerY = centerY;
+				this.radius = radius;
+			}
 
-		ScannerRangeDto(String id, int centerX, int centerY, int radius) {
-			this.id = id;
-			this.centerX = centerX;
-			this.centerY = centerY;
-			this.radius = radius;
 		}
 
 	}

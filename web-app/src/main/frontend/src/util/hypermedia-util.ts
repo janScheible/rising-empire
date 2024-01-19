@@ -33,8 +33,8 @@ export default class HypermediaUtil {
 		return model['_actions'].filter((a) => a.name === name)[0];
 	}
 
-	static getActions(model) {
-		return model['_actions'];
+	static getActions(model, name?: string) {
+		return model['_actions'].filter((a) => !name || a.name === name);
 	}
 
 	static getField(model, actionName, fieldName) {

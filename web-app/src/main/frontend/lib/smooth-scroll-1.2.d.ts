@@ -3,5 +3,5 @@ declare function smoothScroll(options: {
 	xPos: number;
 	yPos: number;
 	duration: number;
-	complete: () => void;
+	complete?: () => void;
 }): void;

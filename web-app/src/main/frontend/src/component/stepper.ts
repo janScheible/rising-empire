@@ -31,7 +31,7 @@ export default class Stepper extends HTMLElement {
 			const previousValue = this.#value;
 
 			if (previousValue !== (this.#value = valueUpdater())) {
-				this.dispatchEvent(new CustomEvent('change', { detail: { value: this.#value } }));
+				this.dispatchEvent(new CustomEvent('change', { detail: { previousValue, value: this.#value } }));
 			}
 		};
 

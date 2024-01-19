@@ -9,8 +9,6 @@ export default class StarNotification extends HTMLElement {
 	#boxEl: HTMLDivElement;
 	#textEl: HTMLSpanElement;
 
-	#confirmAction;
-
 	constructor() {
 		super();
 
@@ -19,6 +17,9 @@ export default class StarNotification extends HTMLElement {
 				@import ${cssUrl('~/element.css', import.meta.url)};
 				
 				:host {
+					width: 100%;
+					height: 100%;
+
 					position: absolute;
 				}
 
@@ -33,36 +34,26 @@ export default class StarNotification extends HTMLElement {
 			</${Container.NAME}>`;
 
 		this.#boxEl = this.shadowRoot.querySelector('#box');
-		this.#textEl = this.shadowRoot.querySelector('#text');
-
-		this.addEventListener('click', (e) => {
-			HypermediaUtil.submitAction(this.#confirmAction, {});
+		this.#boxEl.addEventListener('click', (e) => {
+			this.dispatchEvent(
+				new CustomEvent('notification-confirm', {
+					detail: { starId: this.getAttribute('id').replace('notification-', '') },
+				})
+			);
 		});
+
+		this.#textEl = this.shadowRoot.querySelector('#text');
 	}
 
 	render(data) {
 		if (!Reconciler.isHiddenAfterPropertyReconciliation(this, !data)) {
-			Reconciler.reconcileStyle(this, 'width', data.starMapWidth + 'px');
-			Reconciler.reconcileStyle(this, 'height', data.starMapHeight + 'px');
-
+			Reconciler.reconcileAttribute(this, 'id', `notification-${data.starId}`);
 			Reconciler.reconcileStyle(this.#boxEl, 'left', data.x + 'px');
 			Reconciler.reconcileStyle(this.#boxEl, 'top', data.y + 'px');
 
-			this.#confirmAction = HypermediaUtil.getAction(data, 'confirm');
 			Reconciler.reconcileProperty(this.#textEl, 'innerText', data.text);
 		}
 	}
 }
 
 customElements.define(StarNotification.NAME, StarNotification);
-
-class Test extends HTMLElement {
-	constructor() {
-		super();
-
-		this.attachShadow({ mode: 'open' }).innerHTML = `
-			<style>
-				@import ${cssUrl('~/element.css', import.meta.url)};
-			</style>`;
-	}
-}

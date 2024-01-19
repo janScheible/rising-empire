@@ -82,11 +82,19 @@ export default class FleetDeployment extends HTMLElement {
 						shipNameEl: HTMLDivElement;
 						stepperEl: Stepper;
 					})
-			)).forEach(({ stepperEl }, index) => {
+			)).forEach(({ stepperEl, shipsEl }, index) => {
 			stepperEl.addEventListener('change', (e: CustomEvent) => {
-				HypermediaUtil.submitAction(this.#assignShipsAction, {
-					[this.#ships[index].id]: e.detail.value,
-				});
+				// NOTE In case of no ship type added or removed we can cheat and update the ship count on the client side only
+				if (
+					(e.detail.previousValue === 0 && e.detail.value > 0) ||
+					(e.detail.previousValue > 0 && e.detail.value === 0)
+				) {
+					HypermediaUtil.submitAction(this.#assignShipsAction, {
+						[this.#ships[index].id]: e.detail.value,
+					});
+				} else {
+					shipsEl.updateCount(e.detail.value);
+				}
 			});
 		});
 

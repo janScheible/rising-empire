@@ -21,7 +21,6 @@ export default class Inspector extends HTMLElement {
 	#annexationEl: Annexation;
 	#spaceCombatEl: SpaceCombat;
 	#unexploredEl: Unexplored;
-	#blockerEl: ModalDialog;
 
 	constructor() {
 		super();
@@ -57,12 +56,9 @@ export default class Inspector extends HTMLElement {
 		this.#annexationEl = this.shadowRoot.querySelector(Annexation.NAME);
 		this.#spaceCombatEl = this.shadowRoot.querySelector(SpaceCombat.NAME);
 		this.#unexploredEl = this.shadowRoot.querySelector(Unexplored.NAME);
-		this.#blockerEl = this.shadowRoot.querySelector(ModalDialog.NAME);
 	}
 
 	render(data) {
-		this.#blockerEl.hidden = !data.blocked;
-
 		this.#systemDetailsEl.render(data.systemDetails);
 		this.#fleetDeploymentEl.render(data.fleetDeployment);
 		this.#fleetViewEl.render(data.fleetView);

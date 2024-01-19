@@ -1,7 +1,6 @@
 package com.scheible.risingempire.webapp.adapter.frontend._scenario;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +10,9 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.jayway.jsonpath.JsonPath;
 import com.scheible.risingempire.game.api.Game;
@@ -129,14 +130,6 @@ abstract class AbstractMainPageIT {
 		return client.submit("$.buttonBar._actions[?(@.name=='finish-turn')]");
 	}
 
-	protected MvcResult fleetMovements(HypermediaClient client) throws Exception {
-		return client.submit("$._actions[?(@.name=='fleet-movements')]");
-	}
-
-	protected MvcResult beginNewTurn(HypermediaClient client) throws Exception {
-		return client.submit("$._actions[?(@.name=='begin-new-turn')]");
-	}
-
 	protected void assertNotifications(FinishTurnIT.NotificationEventCondition... notifications) {
 		for (Player player : Player.values()) {
 			for (String type : new String[] { "next-turn", "turn-finish-status" }) {
@@ -162,12 +155,16 @@ abstract class AbstractMainPageIT {
 	}
 
 	@SuppressWarnings("unchecked")
-	Set<MainPageFleet> extractFleets(HypermediaClient blueClient) throws UnsupportedEncodingException {
-		return ((List<Map<String, Object>>) JsonPath.parse(blueClient.getPageContentAsString())
-			.read("$.starMap.fleets", List.class))
-			.stream()
-			.map(e -> new MainPageFleet(e.get("id").toString(), e.get("playerColor").toString(), (int) e.get("x"),
-					(int) e.get("y")))
+	Set<MainPageFleet> extractFleets(HypermediaClient client) {
+		BiFunction<String, Boolean, Stream<MainPageFleet>> toMainPageFleet = (jsonPath,
+				deleted) -> ((List<Map<String, Object>>) JsonPath.parse(client.getPageContentAsString())
+					.read(jsonPath, List.class)).stream()
+					.map(e -> new MainPageFleet(e.get("id").toString(), e.get("playerColor").toString(),
+							(int) e.get("x"), (int) e.get("y"), deleted));
+
+		return Stream
+			.concat(toMainPageFleet.apply("$.spaceCombats[*].destroyedFleets[*]", true),
+					toMainPageFleet.apply("$.starMap.fleets", false))
 			.collect(Collectors.toSet());
 	}
 
@@ -272,7 +269,7 @@ abstract class AbstractMainPageIT {
 						.info(JsonPath.parse(client.getPageContentAsString()).read(this.logJsonPath.get()).toString());
 				}
 			}
-			catch (UnsupportedEncodingException | JSONException | AssertionError ex) {
+			catch (JSONException | AssertionError ex) {
 				return false;
 			}
 
@@ -282,10 +279,6 @@ abstract class AbstractMainPageIT {
 		@Override
 		public Description description() {
 			return new TextDescription("matching JSON of '%s'", this.json);
-		}
-
-		static JsonAssertCondition miniMap(boolean miniMap) {
-			return new JsonAssertCondition("{ starMap: { miniMap: " + miniMap + " } }", Optional.empty());
 		}
 
 		static JsonAssertCondition mainPageState(String stateName) {
@@ -309,11 +302,17 @@ abstract class AbstractMainPageIT {
 
 		final int y;
 
-		MainPageFleet(String id, String player, int x, int y) {
+		final boolean destroyed;
+
+		MainPageFleet(String id, String player, int x, int y, boolean destroyed) {
 			this.id = id;
+
 			this.player = player;
+
 			this.x = x;
 			this.y = y;
+
+			this.destroyed = destroyed;
 		}
 
 		@Override
@@ -338,7 +337,8 @@ abstract class AbstractMainPageIT {
 
 		@Override
 		public String toString() {
-			return this.id + "@" + this.player + " at (" + this.x + "," + this.y + ")";
+			return this.id + "@" + this.player + " at (" + this.x + "," + this.y + ")"
+					+ (this.destroyed ? " destroyed " : "");
 		}
 
 	}
@@ -351,24 +351,31 @@ abstract class AbstractMainPageIT {
 
 		final int y;
 
-		FleetCondition(String player, int x, int y) {
+		final boolean destroyed;
+
+		FleetCondition(String player, int x, int y, boolean destroyed) {
 			this.player = player;
+
 			this.x = x;
 			this.y = y;
+
+			this.destroyed = destroyed;
 		}
 
-		static FleetCondition fleet(String player, int x, int y) {
-			return new FleetCondition(player, x, y);
+		static FleetCondition fleet(String player, int x, int y, boolean destroyed) {
+			return new FleetCondition(player, x, y, destroyed);
 		}
 
 		@Override
 		public boolean matches(MainPageFleet fleet) {
-			return fleet.player.equals(this.player) && fleet.x == this.x && fleet.y == this.y;
+			return fleet.player.equals(this.player) && fleet.x == this.x && fleet.y == this.y
+					&& fleet.destroyed == this.destroyed;
 		}
 
 		@Override
 		public Description description() {
-			return new TextDescription("being %s at (%d, %d)", this.player, this.x, this.y);
+			return new TextDescription("being %s at (%d, %d)%s", this.player, this.x, this.y,
+					this.destroyed ? " destroyed" : "");
 		}
 
 	}

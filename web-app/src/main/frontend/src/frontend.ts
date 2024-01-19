@@ -155,16 +155,8 @@ export default class Frontend extends HTMLElement {
 		this.#mainPageEl.updateTurnStatus(playerStatus);
 	}
 
-	fleetMovements() {
-		return this.#mainPageEl.fleetMovements();
-	}
-
-	beginNewTurn() {
-		return this.#mainPageEl.beginNewTurn();
-	}
-
-	getStarMapViewport() {
-		return this.#mainPageEl.getStarMapViewport();
+	roundFinished() {
+		this.#mainPageEl.roundFinished();
 	}
 
 	loadIndicator(show) {

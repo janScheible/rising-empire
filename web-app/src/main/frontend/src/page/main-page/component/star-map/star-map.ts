@@ -6,10 +6,8 @@ import StarBackground from '~/component/star-background';
 import FleetSelection from '~/page/main-page/component/star-map/component/fleet-selection';
 import Itinerary from '~/page/main-page/component/star-map/component/itinerary';
 import StarNotification from '~/page/main-page/component/star-map/component/star-notification';
-import HypermediaUtil from '~/util/hypermedia-util';
 import sleep from '~/util/sleep';
 import debounce from '~/util/debounce';
-import Viewport from '~/partial/viewport';
 import Ranges from '~/page/main-page/component/star-map/component/ranges';
 import cssUrl from '~/util/cssUrl';
 import LoggerFactory from '~/util/logger/logger-factory';
@@ -33,13 +31,7 @@ export default class StarMap extends HTMLElement {
 	#rangesEl: Ranges;
 	#starBackgroundEl: StarBackground;
 
-	#startScrollAction;
-	#reloadAction;
-	#endScrollAction;
-
-	#scrolling: number = 0;
 	#fleetZIndex: number;
-	#onCompleteScroll;
 
 	constructor() {
 		super();
@@ -60,8 +52,6 @@ export default class StarMap extends HTMLElement {
 				#wrapper {
 					display: inline-block;
 					position: relative;
-
-					transform: none;
 				}
 
 				${StarNotification.NAME} {
@@ -94,7 +84,7 @@ export default class StarMap extends HTMLElement {
 			</style>
 
 			<div id="wrapper">
-				<${StarNotification.NAME}></${StarNotification.NAME}>
+				<${StarNotification.NAME} hidden></${StarNotification.NAME}>
 				<${StarSelection.NAME} hidden></${StarSelection.NAME}>
 				<${FleetSelection.NAME} hidden></${FleetSelection.NAME}>
 				<${Itinerary.NAME} hidden></${Itinerary.NAME}>
@@ -103,8 +93,11 @@ export default class StarMap extends HTMLElement {
 			</div>`;
 
 		this.#wrapperEl = this.shadowRoot.querySelector('#wrapper');
+		this.#wrapperEl.style.transform = 'none';
 
 		this.#starNotificationEl = this.shadowRoot.querySelector(StarNotification.NAME);
+		this.#starNotificationEl.addEventListener('notification-confirm', this.#onShowNextNotification.bind(this));
+
 		this.#starSelectionEl = this.shadowRoot.querySelector(StarSelection.NAME);
 		this.#fleetSelectionEl = this.shadowRoot.querySelector(FleetSelection.NAME);
 		this.#itineraryEl = this.shadowRoot.querySelector(Itinerary.NAME);
@@ -128,31 +121,12 @@ export default class StarMap extends HTMLElement {
 				const offsetX = e.clientX - boundingClientRect.left - this.clientWidth / 2;
 				const offsetY = e.clientY - boundingClientRect.top - this.clientHeight / 2;
 
-				// Workaround for smoothScroll not scrolling and triggering the complete function when already in the top left
-				// corner and scrolling to the top left.
-				if (this.scrollLeft === 0 && offsetX < 0 && this.scrollTop === 0 && offsetY < 0) {
-					this.scrollLeft = 1;
-				}
-
-				if (this.#startScrollAction && this.#scrolling === 0) {
-					StarMap.#logger.debug('start scroll action ' + this.#scrolling);
-					HypermediaUtil.submitAction(this.#startScrollAction);
-				}
-				this.#scrolling++;
-
 				const distance = Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2));
 				smoothScroll({
 					scrollingElement: this,
 					xPos: this.scrollLeft + offsetX,
 					yPos: this.scrollTop + offsetY,
 					duration: (distance / StarMap.#SCROLL_SPEED_PIXEL_PER_SECOND) * 1000,
-					complete: async () => {
-						this.#scrolling--;
-
-						if (this.#scrolling === 0) {
-							this.#onCompleteScroll();
-						}
-					},
 				});
 			} else {
 				const selectedFleetEl = clickedEls
@@ -181,15 +155,6 @@ export default class StarMap extends HTMLElement {
 				}
 			}
 		});
-
-		this.#onCompleteScroll = debounce(async () => {
-			await HypermediaUtil.submitAction(this.#reloadAction);
-
-			if (this.#endScrollAction) {
-				StarMap.#logger.debug('end scroll action ' + this.#scrolling);
-				HypermediaUtil.submitAction(this.#endScrollAction);
-			}
-		}, 500);
 	}
 
 	connectedCallback() {
@@ -212,32 +177,36 @@ export default class StarMap extends HTMLElement {
 	}
 
 	async render(data) {
-		this.#reloadAction = HypermediaUtil.getAction(data, 'reload');
-		this.#startScrollAction = HypermediaUtil.getAction(data, 'start-scroll');
-		this.#endScrollAction = HypermediaUtil.getAction(data, 'end-scroll');
-
 		Reconciler.reconcileChildren(this.#wrapperEl, this.#getStarEls(), data.stars, Star.NAME);
-		Reconciler.reconcileChildren(this.#wrapperEl, this.#getFleetEls(), data.fleets, Fleet.NAME);
+
+		// when displaying fleet movements show the animated fleets before arrival instead of the fleets
+		const fleets = data.fleets.flatMap((fleet) =>
+			!data.fleetMovements
+				? [Object.assign({}, fleet, { previousX: undefined, previousY: undefined })]
+				: fleet.fleetsBeforeArrival.length > 0
+				? fleet.fleetsBeforeArrival
+				: [fleet]
+		);
+		Reconciler.reconcileChildren(this.#wrapperEl, this.#getFleetEls(), fleets, Fleet.NAME);
 
 		this.#starSelectionEl.render(data.starSelection);
 		this.#fleetSelectionEl.render(data.fleetSelection);
-		this.#itineraryEl.render(data.itinerary);
-		this.#rangesEl.render(data.ranges);
+		this.#itineraryEl.render(data.fleetSelection?.itinerary);
+		const ranges = !data.fleetMovements ? data.ranges : Object.assign({}, data.ranges, { fleetScannerRanges: [] });
+		this.#rangesEl.render(ranges);
 
 		Reconciler.reconcileProperty(this.#starBackgroundEl, 'width', data.starBackground.width);
 		Reconciler.reconcileProperty(this.#starBackgroundEl, 'height', data.starBackground.height);
 
 		this.#scaleMap(data.miniMap);
 
-		if (data.scrollTo) {
-			if (data.scrollTo.center || !this.getStarMapViewport().contains(data.scrollTo)) {
-				this.scrollTo({
-					left: data.scrollTo.x - this.clientWidth / 2,
-					top: data.scrollTo.y - this.clientHeight / 2,
-				});
-			}
+		if (data.starNotifications.length > 0) {
+			this.#notifications = data.starNotifications;
+			// start showing notifications
+			this.#onShowNextNotification(undefined);
+		} else {
+			Reconciler.reconcileProperty(this.#starNotificationEl, 'hidden', true);
 		}
-		this.#starNotificationEl.render(data.starNotification);
 
 		// we just have to wait for the CSS animations of the fleets to finish
 		if (data.fleetMovements) {
@@ -245,9 +214,27 @@ export default class StarMap extends HTMLElement {
 		}
 	}
 
+	#notifications = [];
+
+	#onShowNextNotification(event: CustomEvent) {
+		if (this.#notifications.length > 0) {
+			const starNotification = this.#notifications.shift();
+
+			this.#starNotificationEl.render(starNotification);
+			this.centerStar(starNotification.x, starNotification.y);
+			this.#starSelectionEl.render({ x: starNotification.x, y: starNotification.y });
+		} else {
+			this.dispatchEvent(new CustomEvent('notifications-done', { detail: { starId: event.detail.starId } }));
+		}
+	}
+
 	#scaleMap(miniMap) {
 		let transform = 'none';
 		if (miniMap) {
+			if (this.#isMinimized()) {
+				return;
+			}
+
 			const scale = Math.min(this.clientWidth / this.scrollWidth, this.clientHeight / this.scrollHeight);
 
 			if (scale < 1) {
@@ -260,17 +247,12 @@ export default class StarMap extends HTMLElement {
 		Reconciler.reconcileStyle(this.#wrapperEl, 'transform', transform);
 	}
 
-	getStarMapViewport() {
-		return new Viewport(
-			Math.round(this.scrollLeft - Math.max(Star.WIDTH, Fleet.WIDTH) / 2),
-			Math.round(this.scrollLeft + this.clientWidth + Math.max(Star.WIDTH, Fleet.WIDTH) / 2),
-			Math.round(this.scrollTop - Math.max(Star.HEIGHT, Fleet.HEIGHT) / 2),
-			Math.round(this.scrollTop + this.clientHeight + Math.max(Star.HEIGHT, Fleet.HEIGHT) / 2)
-		);
-	}
-
 	#isMinimized() {
 		return this.#wrapperEl.style.transform !== 'none';
+	}
+
+	centerStar(x: number, y: number) {
+		this.scrollTo(x - this.clientWidth / 2, y - this.clientHeight / 2);
 	}
 
 	disconnectedCallback() {

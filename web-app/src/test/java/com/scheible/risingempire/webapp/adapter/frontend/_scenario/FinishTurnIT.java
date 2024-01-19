@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.JsonAssertCondition.mainPageState;
-import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.JsonAssertCondition.miniMap;
 import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.JsonAssertCondition.round;
 import static com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.NotificationEventCondition.notification;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,19 +36,11 @@ class FinishTurnIT extends AbstractMainPageIT {
 
 		HypermediaClient blueClient = createHypermediaClient(Player.BLUE);
 
-		assertThat(blueClient).has(miniMap(false)).is(mainPageState("NewTurnState")).is(round(1));
-		assertNotifications();
-
-		selectStar(blueClient, WHITE_HOME_SYSTEM_ID);
-		assertThat(blueClient).has(miniMap(false)).is(mainPageState("StarInspectionState")).is(round(1));
+		assertThat(blueClient).is(mainPageState("StarInspectionState")).is(round(1));
 		assertNotifications();
 
 		finishTurn(blueClient);
-		assertThat(blueClient).has(miniMap(true)).is(mainPageState("FleetMovementState")).is(round(2));
-		assertNotifications();
-
-		beginNewTurn(blueClient);
-		assertThat(blueClient).has(miniMap(false)).is(mainPageState("NewTurnState")).is(round(2));
+		assertThat(blueClient).is(mainPageState("StarInspectionState")).is(round(2));
 		assertNotifications();
 
 		unregisterChannel(Player.BLUE);
@@ -62,46 +53,28 @@ class FinishTurnIT extends AbstractMainPageIT {
 		registerChannel(Player.YELLOW);
 
 		HypermediaClient blueClient = createHypermediaClient(Player.BLUE);
-		assertThat(blueClient).has(miniMap(false)).is(mainPageState("NewTurnState")).is(round(1));
+		assertThat(blueClient).is(mainPageState("StarInspectionState")).is(round(1));
 		assertNotifications();
 
 		HypermediaClient whiteClient = createHypermediaClient(Player.WHITE);
-		assertThat(whiteClient).has(miniMap(false)).is(mainPageState("NewTurnState")).is(round(1));
+		assertThat(whiteClient).is(mainPageState("StarInspectionState")).is(round(1));
 		assertNotifications();
 
 		HypermediaClient yellowClient = createHypermediaClient(Player.YELLOW);
-		assertThat(yellowClient).has(miniMap(false)).is(mainPageState("NewTurnState")).is(round(1));
+		assertThat(yellowClient).is(mainPageState("StarInspectionState")).is(round(1));
 		assertNotifications();
 
 		finishTurn(blueClient);
-		assertThat(blueClient).has(miniMap(true)).is(mainPageState("TurnFinishedState")).is(round(1));
+		assertThat(blueClient).is(mainPageState("StarInspectionState")).is(round(1));
 		assertNotifications();
 
 		finishTurn(whiteClient);
-		assertThat(whiteClient).has(miniMap(true)).is(mainPageState("TurnFinishedState")).is(round(1));
+		assertThat(whiteClient).is(mainPageState("StarInspectionState")).is(round(1));
 		assertNotifications(notification(Player.BLUE, "turn-finish-status"));
 
 		finishTurn(yellowClient);
-		assertThat(yellowClient).has(miniMap(true)).is(mainPageState("FleetMovementState")).is(round(2));
+		assertThat(yellowClient).is(mainPageState("StarInspectionState")).is(round(2));
 		assertNotifications(notification(Player.BLUE, "turn-finished"), notification(Player.WHITE, "turn-finished"));
-
-		fleetMovements(blueClient);
-		assertThat(blueClient).has(miniMap(true)).is(mainPageState("FleetMovementState")).is(round(2));
-		assertNotifications();
-		beginNewTurn(blueClient);
-		assertThat(blueClient).has(miniMap(false)).is(mainPageState("NewTurnState")).is(round(2));
-		assertNotifications();
-
-		fleetMovements(whiteClient);
-		assertThat(whiteClient).has(miniMap(true)).is(mainPageState("FleetMovementState")).is(round(2));
-		assertNotifications();
-		beginNewTurn(whiteClient);
-		assertThat(whiteClient).has(miniMap(false)).is(mainPageState("NewTurnState")).is(round(2));
-		assertNotifications();
-
-		beginNewTurn(yellowClient);
-		assertThat(yellowClient).has(miniMap(false)).is(mainPageState("NewTurnState")).is(round(2));
-		assertNotifications();
 
 		unregisterChannel(Player.BLUE);
 		unregisterChannel(Player.WHITE);

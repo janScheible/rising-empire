@@ -8,6 +8,7 @@ import FlowLayout from '~/component/flow-layout';
 import Reconciler from '~/util/reconciler';
 import cssUrl from '~/util/cssUrl';
 import ConnectionIndicator from '~/component/connection-indicator';
+import MainPageState from '~/page/main-page/main-page-state';
 
 export default class MainPage extends HTMLElement {
 	static NAME = 're-main-page';
@@ -19,8 +20,7 @@ export default class MainPage extends HTMLElement {
 	#connectionIndicatorEl: ConnectionIndicator;
 	#turnStatusDialogEl: TurnStatusDialog;
 
-	#fleetMovementsAction;
-	#beginNewTurnAction;
+	#selfAction;
 
 	constructor() {
 		super();
@@ -41,6 +41,8 @@ export default class MainPage extends HTMLElement {
 					top: 4px;
 
 					z-index: 2000;
+
+					pointer-events: none;
 				}
 
 				#round-text-center-wrapper {
@@ -49,8 +51,11 @@ export default class MainPage extends HTMLElement {
 
 				#round-text {
 					padding: 0px 4px;
+
 					font-family: var(--theme-scifi-font);
 					background-color: var(--theme-background-color);
+
+					pointer-events: auto;
 				}
 			</style>			
 
@@ -74,6 +79,10 @@ export default class MainPage extends HTMLElement {
 			<${TurnStatusDialog.NAME} hidden></${TurnStatusDialog.NAME}>`;
 
 		this.#starMapEl = this.shadowRoot.querySelector(StarMap.NAME);
+		this.#starMapEl.addEventListener('notifications-done', (e: CustomEvent) => {
+			this.#state.onNotificationsDone(this.#selfAction, e.detail.starId);
+		});
+
 		this.#inspectorEl = this.shadowRoot.querySelector(Inspector.NAME);
 		this.#buttonBarEl = this.shadowRoot.querySelector(ButtonBar.NAME);
 		this.#roundEl = this.shadowRoot.querySelector('#round');
@@ -81,11 +90,27 @@ export default class MainPage extends HTMLElement {
 		this.#turnStatusDialogEl = this.shadowRoot.querySelector(TurnStatusDialog.NAME);
 	}
 
-	async render(data) {
-		this.#fleetMovementsAction = HypermediaUtil.getAction(data, 'fleet-movements');
-		this.#beginNewTurnAction = HypermediaUtil.getAction(data, 'begin-new-turn');
+	#state = new MainPageState();
 
-		const starMapAnimation = this.#starMapEl.render(data.starMap);
+	async render(data) {
+		this.#state.next(data);
+
+		data.starMap.miniMap = this.#state.miniMap;
+		data.starMap.fleetMovements = this.#state.fleetMovements;
+
+		this.#selfAction = HypermediaUtil.getAction(data, '_self');
+
+		const starMap = Object.assign({}, data.starMap, {
+			// also display destroyed fleets (they will vanish as soon as the spaceCombats will be removed from the state)
+			fleets: data.starMap.fleets.concat(this.#state.destroyedFleets),
+			starNotifications: this.#state.isNotificationState() ? this.#state.starNotifications : [],
+		});
+		await this.#starMapEl.render(starMap);
+
+		if (this.#state.isTurnState() && this.#state.didStateChange() && data.starMap.starSelection) {
+			this.#starMapEl.centerStar(data.starMap.starSelection.x, data.starMap.starSelection.y);
+		}
+
 		this.#inspectorEl.render(data.inspector);
 		this.#buttonBarEl.render(data.buttonBar);
 		Reconciler.reconcileProperty(this.#roundEl, 'innerText', data.round);
@@ -93,23 +118,18 @@ export default class MainPage extends HTMLElement {
 
 		Reconciler.reconcileAttribute(this.#connectionIndicatorEl, 'title', sessionStorage.getItem('sessionId'));
 
-		return starMapAnimation;
+		if (this.#state.isFleetMovementsState()) {
+			// after animating the fleet movements we need to trigger the next step automatically
+			await this.render(data);
+		}
 	}
 
 	updateTurnStatus(playerStatus) {
 		this.#turnStatusDialogEl.updateTurnStatus(playerStatus);
 	}
 
-	fleetMovements() {
-		return HypermediaUtil.submitAction(this.#fleetMovementsAction, {});
-	}
-
-	beginNewTurn() {
-		return HypermediaUtil.submitAction(this.#beginNewTurnAction, {});
-	}
-
-	getStarMapViewport() {
-		return this.#starMapEl.getStarMapViewport();
+	roundFinished() {
+		HypermediaUtil.submitAction(this.#selfAction, { partial: false });
 	}
 
 	showConnected(connected: boolean) {

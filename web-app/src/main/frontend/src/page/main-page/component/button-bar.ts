@@ -9,8 +9,6 @@ export default class ButtonBar extends HTMLElement {
 	#turnEl: HTMLButtonElement;
 	#techEl: HTMLButtonElement;
 
-	#blockerEl: ModalDialog;
-
 	#finishTurnAction;
 	#showTechPageAction;
 
@@ -54,13 +52,9 @@ export default class ButtonBar extends HTMLElement {
 
 		this.#techEl = this.shadowRoot.querySelector('#tech');
 		this.#techEl.addEventListener('click', () => HypermediaUtil.submitAction(this.#showTechPageAction, {}));
-
-		this.#blockerEl = this.shadowRoot.querySelector(ModalDialog.NAME);
 	}
 
 	render(data) {
-		this.#blockerEl.hidden = !data.blocked;
-
 		this.#finishTurnAction = HypermediaUtil.getAction(data, 'finish-turn');
 		Reconciler.reconcileProperty(this.#turnEl, 'disabled', !this.#finishTurnAction);
 

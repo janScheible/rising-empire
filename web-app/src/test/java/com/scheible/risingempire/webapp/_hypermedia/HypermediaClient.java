@@ -159,8 +159,13 @@ public class HypermediaClient {
 		return this.page;
 	}
 
-	public String getPageContentAsString() throws UnsupportedEncodingException {
-		return this.page.getResponse().getContentAsString();
+	public String getPageContentAsString() {
+		try {
+			return this.page.getResponse().getContentAsString();
+		}
+		catch (UnsupportedEncodingException ex) {
+			throw new IllegalStateException(ex);
+		}
 	}
 
 }

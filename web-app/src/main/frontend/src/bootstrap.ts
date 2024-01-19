@@ -40,13 +40,9 @@ document.body.appendChild(frontendEl);
 async function render(data) {
 	await frontendEl.render(data);
 	frontendEl.loadIndicator(false);
-
-	if (data.fleetMovements) {
-		frontendEl.beginNewTurn();
-	}
 }
 
-HypermediaUtil.addSubmitInterceptor(new PartialUpdater(() => frontendEl.getStarMapViewport()));
+HypermediaUtil.addSubmitInterceptor(new PartialUpdater());
 HypermediaUtil.addSubmitInterceptor(
 	new (class extends SubmitInterceptor {
 		override preHandle(action: Action, values: any): Promise<any> | undefined {
@@ -69,17 +65,20 @@ const notificationWebSocket = new Sockette(notificationWebSocketUri.toString(), 
 	onmessage: async (event) => {
 		const data = JSON.parse(event.data);
 
-		if (data.type === 'turn-finished') {
-			frontendEl.fleetMovements();
+		if (data.type === 'round-finished') {
+			frontendEl.roundFinished();
 		} else if (data.type === 'turn-finish-status') {
 			frontendEl.updateTurnStatus(data.playerStatus);
 		} else if (data.type === 'player-available') {
-			HypermediaUtil.submitAction({
-				name: 'init',
-				href: document.body.dataset.frontendInitUri,
-				method: 'GET',
-				fields: [],
-			});
+			HypermediaUtil.submitAction(
+				{
+					name: 'init',
+					href: document.body.dataset.frontendInitUri,
+					method: 'GET',
+					fields: [],
+				},
+				{ partial: false }
+			);
 		} else if (
 			data.type === 'player-already-taken' ||
 			data.type === 'player-kicked' ||

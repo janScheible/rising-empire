@@ -1,11 +1,7 @@
 package com.scheible.risingempire.webapp.adapter.frontend.mainpage;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
@@ -30,74 +26,19 @@ abstract class MainPageState {
 		return selectedSystemId.isPresent() && selectedFleetId.isPresent();
 	}
 
-	private static MainPageState createStarInspectionState(SystemId selectedSystemId, Optional<String> lockedCategory,
-			Optional<Boolean> finishedTurnInCurrentRound) {
-		if (finishedTurnInCurrentRound.isPresent()) {
-
-			if (finishedTurnInCurrentRound.get()) {
-				return new TurnFinishedState(selectedSystemId);
-			}
-			else {
-				return new FleetMovementState(selectedSystemId);
-			}
-		}
-		else {
-
-			return new StarInspectionState(selectedSystemId, lockedCategory);
-		}
-	}
-
-	static MainPageState fromParameters(Optional<String> rawSelectedStarId, Optional<String> rawSelectedFleetId,
-			Map<String, String> rawShipTypeIdsAndCounts, Optional<List<String>> rawSpaceCombatSystemIds,
-			Optional<List<String>> rawExploredSystemIds, Optional<List<String>> rawColonizableSystemIds,
-			Optional<List<String>> rawAnnexableSystemIds, Optional<List<String>> rawNotificationSystemIds,
-			Optional<String> lockedCategory, Optional<Boolean> finishedTurnInCurrentRound, boolean newTurn,
-			ShipProvider shipProvider, OrbitingSystemProvider orbitingSystemProvider,
+	static MainPageState fromParameters(Optional<String> rawSelectedStarId, Optional<String> rawSpotlightedStarId,
+			Optional<String> rawSelectedFleetId, Map<String, String> rawShipTypeIdsAndCounts,
+			Optional<String> lockedCategory, ShipProvider shipProvider, OrbitingSystemProvider orbitingSystemProvider,
 			DeployableFleetProvider deployableFleetProvider) {
 		Optional<SystemId> selectedSystemId = rawSelectedStarId.map(id -> new SystemId(id));
+		Optional<SystemId> spotlightedSystemId = rawSpotlightedStarId.map(id -> new SystemId(id));
 		Optional<FleetId> selectedFleetId = rawSelectedFleetId.map(id -> new FleetId(id));
 
-		if (rawSpaceCombatSystemIds.isPresent()) {
-			List<Entry<SystemId, Integer>> spaceCombatSystemIds = rawSpaceCombatSystemIds
-				.map(ids -> ids.stream()
-					.map(id -> Map.entry(new SystemId(id.split("@")[0]), Integer.valueOf(id.split("@")[1]))))
-				.get()
-				.sorted((a, b) -> a.getValue().compareTo(b.getValue()))
-				.collect(Collectors.toList());
-			return new SpaceCombatSystemState(selectedSystemId.get(), spaceCombatSystemIds);
-		}
-		else if (rawExploredSystemIds.isPresent()) {
-			List<SystemId> exploredSystemIds = rawExploredSystemIds.map(ids -> ids.stream().map(id -> new SystemId(id)))
-				.get()
-				.collect(Collectors.toList());
-			return new ExplorationState(selectedSystemId.get(), exploredSystemIds);
-		}
-		else if (rawColonizableSystemIds.isPresent()) {
-			List<SystemId> colonizableSystemIds = rawColonizableSystemIds
-				.map(ids -> ids.stream().map(id -> new SystemId(id)))
-				.get()
-				.collect(Collectors.toList());
-			return new ColonizationState(selectedSystemId.get(), colonizableSystemIds);
-		}
-		else if (rawAnnexableSystemIds.isPresent()) {
-			List<SystemId> annexableSystemIds = rawAnnexableSystemIds
-				.map(ids -> ids.stream().map(id -> new SystemId(id)))
-				.get()
-				.collect(Collectors.toList());
-			return new AnnexationState(selectedSystemId.get(), annexableSystemIds);
-		}
-		else if (rawNotificationSystemIds.isPresent()) {
-			List<SystemId> notificationSystemIds = rawNotificationSystemIds
-				.map(ids -> ids.stream().map(id -> new SystemId(id)))
-				.get()
-				.collect(Collectors.toList());
-			return new NotificationState(selectedSystemId.get(), notificationSystemIds);
-		}
-		else if (newTurn && onlyStar(selectedSystemId, selectedFleetId)) {
-			return new NewTurnState(selectedSystemId.get());
+		if (onlyStar(selectedSystemId, selectedFleetId) && spotlightedSystemId.isPresent()) {
+			return new StarSpotlightState(selectedSystemId.get(), spotlightedSystemId.get());
 		}
 		else if (onlyStar(selectedSystemId, selectedFleetId)) {
-			return createStarInspectionState(selectedSystemId.get(), lockedCategory, finishedTurnInCurrentRound);
+			return new StarInspectionState(selectedSystemId.get(), lockedCategory);
 		}
 		else if (onlyFleet(selectedSystemId, selectedFleetId)) {
 			return new FleetInspectionState(selectedFleetId.get(),
@@ -137,60 +78,20 @@ abstract class MainPageState {
 		return Optional.empty();
 	}
 
-	boolean isMiniMap() {
-		return false;
-	}
-
 	boolean isInitState() {
 		return this instanceof InitState;
 	}
 
-	boolean isOneByOneSystemsState() {
-		return this instanceof OneByOneSystemsState;
-	}
-
-	boolean isSpaceCombatSystemState() {
-		return this instanceof SpaceCombatSystemState;
-	}
-
-	boolean isExplorationState() {
-		return this instanceof ExplorationState;
-	}
-
-	boolean isColonizationState() {
-		return this instanceof ColonizationState;
-	}
-
-	boolean isAnnexationState() {
-		return this instanceof AnnexationState;
-	}
-
-	boolean isNotificationState() {
-		return this instanceof NotificationState;
-	}
-
-	ExplorationState asExplorationState() {
-		return (ExplorationState) this;
-	}
-
-	ColonizationState asColonizationState() {
-		return (ColonizationState) this;
-	}
-
-	AnnexationState asAnnexationState() {
-		return (AnnexationState) this;
-	}
-
-	NotificationState asNotificationState() {
-		return (NotificationState) this;
-	}
-
-	SpaceCombatSystemState asSpaceCombatSystemState() {
-		return (SpaceCombatSystemState) this;
+	StarSpotlightState asStarSpotlightState() {
+		return (StarSpotlightState) this;
 	}
 
 	boolean isStarInspectionState() {
 		return this instanceof StarInspectionState;
+	}
+
+	boolean isStarSpotlightState() {
+		return this instanceof StarSpotlightState;
 	}
 
 	boolean isFleetInspectionState() {
@@ -201,111 +102,7 @@ abstract class MainPageState {
 		return this instanceof FleetDeploymentState;
 	}
 
-	boolean isTurnFinishedState() {
-		return this instanceof TurnFinishedState;
-	}
-
-	boolean isFleetMovementState() {
-		return this instanceof FleetMovementState;
-	}
-
-	boolean isNewTurnState() {
-		return this instanceof NewTurnState;
-	}
-
 	static class InitState extends MainPageState {
-
-	}
-
-	static class SpaceCombatSystemState extends OneByOneSystemsState<Entry<SystemId, Integer>> {
-
-		private final int order;
-
-		private SpaceCombatSystemState(SystemId selectedSystemId, List<Entry<SystemId, Integer>> spaceCombatSystemIds) {
-			super(selectedSystemId, spaceCombatSystemIds, Entry::getKey);
-			this.order = spaceCombatSystemIds.get(0).getValue();
-		}
-
-		List<Entry<SystemId, Integer>> getRemainingSpaceCombatSystemIds() {
-			return this.systemIds;
-		}
-
-		boolean hasRemainingSpaceCombatSystems() {
-			return !this.systemIds.isEmpty();
-		}
-
-		int getOrder() {
-			return this.order;
-		}
-
-	}
-
-	static class ExplorationState extends OneByOneSystemsState<SystemId> {
-
-		private ExplorationState(SystemId selectedSystemId, List<SystemId> exploredSystemIds) {
-			super(selectedSystemId, exploredSystemIds, Function.identity());
-		}
-
-		List<SystemId> getRemainingExplorationSystemIds() {
-			return this.systemIds;
-		}
-
-		boolean hasRemainingExploredSystems() {
-			return !this.systemIds.isEmpty();
-		}
-
-	}
-
-	static class ColonizationState extends OneByOneSystemsState<SystemId> {
-
-		private ColonizationState(SystemId selectedSystemId, List<SystemId> colonizableSystemIds) {
-			super(selectedSystemId, colonizableSystemIds, Function.identity());
-		}
-
-		List<SystemId> getRemainingColonizableSystemIds() {
-			return this.systemIds;
-		}
-
-		boolean hasRemainingColonizableSystems() {
-			return !this.systemIds.isEmpty();
-		}
-
-	}
-
-	static class AnnexationState extends OneByOneSystemsState<SystemId> {
-
-		private AnnexationState(SystemId selectedSystemId, List<SystemId> annexableSystemIds) {
-			super(selectedSystemId, annexableSystemIds, Function.identity());
-		}
-
-		List<SystemId> getRemainingAnnexableSystemIds() {
-			return this.systemIds;
-		}
-
-		boolean hasRemainingAnnexableSystemIds() {
-			return !this.systemIds.isEmpty();
-		}
-
-	}
-
-	static class NotificationState extends OneByOneSystemsState<SystemId> {
-
-		NotificationState(SystemId selectedSystemId, List<SystemId> systemIds) {
-			super(selectedSystemId, systemIds, Function.identity());
-		}
-
-		List<SystemId> getRemainingNotificationSystemIds() {
-			return this.systemIds;
-		}
-
-		boolean hasRemainingNotificationSystems() {
-			return !this.systemIds.isEmpty();
-		}
-
-		@Override
-		boolean isMiniMap() {
-			return false;
-		}
 
 	}
 
@@ -342,56 +139,24 @@ abstract class MainPageState {
 
 	}
 
-	static class NewTurnState extends StarInspectionState {
+	static class StarSpotlightState extends MainPageState {
 
-		private NewTurnState(SystemId selectedSystemId) {
-			super(selectedSystemId, Optional.empty());
-		}
+		private final SystemId selectedSystemId;
 
-	}
+		private final SystemId spotlightedSystemId;
 
-	static class TurnFinishedState extends StarInspectionState {
-
-		private TurnFinishedState(SystemId selectedSystemId) {
-			super(selectedSystemId, Optional.empty());
+		StarSpotlightState(SystemId selectedSystemId, SystemId spotlightedSystemId) {
+			this.selectedSystemId = selectedSystemId;
+			this.spotlightedSystemId = spotlightedSystemId;
 		}
 
 		@Override
-		boolean isMiniMap() {
-			return true;
+		Optional<SystemId> getSelectedSystemId() {
+			return Optional.of(this.spotlightedSystemId);
 		}
 
-		@Override
-		boolean isSystemSelectable(SystemId systemId) {
-			return false;
-		}
-
-		@Override
-		boolean isFleetSelectable(FleetId fleetId) {
-			return false;
-		}
-
-	}
-
-	static class FleetMovementState extends StarInspectionState {
-
-		private FleetMovementState(SystemId selectedSystemId) {
-			super(selectedSystemId, Optional.empty());
-		}
-
-		@Override
-		boolean isMiniMap() {
-			return true;
-		}
-
-		@Override
-		boolean isSystemSelectable(SystemId systemId) {
-			return false;
-		}
-
-		@Override
-		boolean isFleetSelectable(FleetId fleetId) {
-			return false;
+		SystemId getActualSelectedSystemId() {
+			return this.selectedSystemId;
 		}
 
 	}

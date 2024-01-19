@@ -30,6 +30,8 @@ export default class Ships extends HTMLElement {
 
 	#countElText: string;
 
+	#data = undefined;
+
 	constructor() {
 		super();
 
@@ -143,6 +145,8 @@ export default class Ships extends HTMLElement {
 	}
 
 	async render(data) {
+		this.#data = data;
+
 		const countElText = data.previousCount ? data.count + '/' + data.previousCount : data.count;
 		if (data.lostHitPoints) {
 			this.#countElText = countElText;
@@ -184,6 +188,14 @@ export default class Ships extends HTMLElement {
 			Reconciler.reconcileProperty(this.#lostHitPoints, 'innerText', '-' + data.lostHitPoints);
 
 			return sleep(1050);
+		}
+	}
+
+	/** Shortcut to just update the count on client-side. */
+	updateCount(count) {
+		if (this.#data) {
+			this.#data.count = count;
+			this.render(this.#data);
 		}
 	}
 }

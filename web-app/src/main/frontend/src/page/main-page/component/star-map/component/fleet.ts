@@ -21,11 +21,6 @@ export default class Fleet extends HTMLElement {
 
 	#selectAction;
 
-	#blocked: boolean;
-
-	#previousX: number;
-	#previousY: number;
-
 	constructor() {
 		super();
 
@@ -36,12 +31,6 @@ export default class Fleet extends HTMLElement {
 
 					width: ${Fleet.WIDTH}px;
 					height: ${Fleet.HEIGHT}px;
-					
-					left: var(--fleet-left);
-					top: var(--fleet-top);
-
-					transition: left var(--fleet-animation-duration), top var(--fleet-animation-duration);
-					transition-timing-function: linear;
 				}
 				
 				:host::before {
@@ -76,7 +65,7 @@ export default class Fleet extends HTMLElement {
 		this.#fleetImageEl = this.shadowRoot.querySelector('#fleet-image');
 
 		this.addEventListener('click', (e) => {
-			if (this.#selectAction && !this.#blocked) {
+			if (this.#selectAction) {
 				HypermediaUtil.submitAction(this.#selectAction, {});
 			}
 		});
@@ -89,10 +78,6 @@ export default class Fleet extends HTMLElement {
 
 	render(data) {
 		this.#selectAction = HypermediaUtil.getAction(data, 'select');
-		this.#blocked = data.blocked;
-
-		this.#previousX = parseInt(this.style.getPropertyValue('--fleet-left').replace('px', ''));
-		this.#previousY = parseInt(this.style.getPropertyValue('--fleet-top').replace('px', ''));
 
 		const fleetQualifier = `fleet-${data.playerColor}`;
 		const fleetImageDataUrl = Theme.getDataUrl(fleetQualifier);
@@ -103,11 +88,7 @@ export default class Fleet extends HTMLElement {
 			Reconciler.reconcileCssVariable(this, 'fleet-before-content', `''`);
 			Reconciler.reconcileProperty(this.#fleetImageEl, 'hidden', true);
 
-			Reconciler.reconcileCssVariable(
-				this,
-				'fleet-color',
-				!data.blocked ? `var(--${data.playerColor}-player-color)` : 'gray'
-			);
+			Reconciler.reconcileCssVariable(this, 'fleet-color', `var(--${data.playerColor}-player-color)`);
 
 			Reconciler.reconcileClass(this, 'oriented-right', orientedRight);
 		} else {
@@ -119,6 +100,17 @@ export default class Fleet extends HTMLElement {
 			Reconciler.reconcileClass(this.#fleetImageEl, 'oriented-right', orientedRight);
 		}
 
+		const previousLocation =
+			!isNaN(data.previousX) && !isNaN(data.previousY)
+				? FleetLocationUtil.withOffsetCentered(
+						data.previousX,
+						data.previousY,
+						Fleet.#SIZE,
+						false,
+						data.previousJustLeaving
+				  )
+				: undefined;
+
 		const location = FleetLocationUtil.withOffsetCentered(
 			data.x,
 			data.y,
@@ -127,29 +119,34 @@ export default class Fleet extends HTMLElement {
 			data.justLeaving
 		);
 
-		if (
-			!isNaN(this.#previousX) &&
-			!isNaN(this.#previousY) &&
-			this.#previousX !== location.x &&
-			this.#previousY !== location.y
-		) {
+		const currentX = parseInt(this.style.left.replace('px', ''));
+		const currentY = parseInt(this.style.top.replace('px', ''));
+		if (!previousLocation || (currentX === location.x && currentY === location.y)) {
+			Reconciler.reconcileStyle(this, 'left', location.x + 'px');
+			Reconciler.reconcileStyle(this, 'top', location.y + 'px');
+		} else {
 			const distance = Math.sqrt(
-				Math.pow(this.#previousX - location.x, 2) + Math.pow(this.#previousY - location.y, 2)
+				Math.pow((previousLocation ?? location).x - location.x, 2) +
+					Math.pow((previousLocation ?? location).y - location.y, 2)
 			);
-			const animationDuration = ((Fleet.#BASE_ANIMATION_DURATION * distance) / data.speed).toFixed(2);
+			const animationDuration = Math.max((Fleet.#BASE_ANIMATION_DURATION * distance) / data.speed, 0);
 
-			if (Fleet.#logger.isDebugEnabled()) {
-				Fleet.#logger.debug(
-					`fleet movement (${this.#previousX},${this.#previousY}) -> (${location.x},${
-						location.y
-					}) in ${animationDuration}sec (orbiting: ${data.orbiting}, justLeaving: ${data.justLeaving})`
-				);
-			}
-			Reconciler.reconcileCssVariable(this, 'fleet-animation-duration', animationDuration + 's');
+			const fleetAnimation = this.animate(
+				[
+					{ left: previousLocation.x + 'px', top: previousLocation.y + 'px' },
+					{ left: location.x + 'px', top: location.y + 'px' },
+				],
+				{ duration: animationDuration * 1000, fill: 'forwards' }
+			);
+			fleetAnimation.addEventListener('finish', () => {
+				fleetAnimation.commitStyles();
+				fleetAnimation.cancel();
+			});
+
+			Fleet.#logger.debug(
+				`fleet movement (${previousLocation.x},${previousLocation.y}) (previousJustLeaving: ${data.previousJustLeaving}) -> (${location.x},${location.y}) in ${animationDuration}sec (orbiting: ${data.orbiting}, justLeaving: ${data.justLeaving})`
+			);
 		}
-
-		Reconciler.reconcileCssVariable(this, 'fleet-left', location.x + 'px');
-		Reconciler.reconcileCssVariable(this, 'fleet-top', location.y + 'px');
 	}
 }
 
