@@ -25,7 +25,9 @@ export default class FleetDeployment extends HTMLElement {
 	#cancelAction;
 	#assignShipsAction;
 
+	#fleetIdAndRound;
 	#ships;
+	#clientSideShipCounts = {};
 
 	constructor() {
 		super();
@@ -89,10 +91,15 @@ export default class FleetDeployment extends HTMLElement {
 					(e.detail.previousValue === 0 && e.detail.value > 0) ||
 					(e.detail.previousValue > 0 && e.detail.value === 0)
 				) {
-					HypermediaUtil.submitAction(this.#assignShipsAction, {
-						[this.#ships[index].id]: e.detail.value,
-					});
+					HypermediaUtil.submitAction(
+						this.#assignShipsAction,
+						Object.assign({}, this.#clientSideShipCounts, {
+							[this.#ships[index].id]: e.detail.value,
+						})
+					);
+					this.#clientSideShipCounts = {};
 				} else {
+					this.#clientSideShipCounts[this.#ships[index].id] = e.detail.value;
 					shipsEl.updateCount(e.detail.value);
 				}
 			});
@@ -106,6 +113,7 @@ export default class FleetDeployment extends HTMLElement {
 		this.#cancelButtonEl = this.shadowRoot.querySelector('#cancel-button');
 		this.#cancelButtonEl.addEventListener('click', (e) => {
 			if (this.#cancelAction) {
+				this.#clientSideShipCounts = {};
 				HypermediaUtil.submitAction(this.#cancelAction, {});
 			}
 		});
@@ -113,7 +121,8 @@ export default class FleetDeployment extends HTMLElement {
 		this.#deployButtonEl = this.shadowRoot.querySelector('#deploy-button');
 		this.shadowRoot.querySelector('#deploy-button').addEventListener('click', (e) => {
 			if (this.#deployAction) {
-				HypermediaUtil.submitAction(this.#deployAction, {});
+				this.#clientSideShipCounts = {};
+				HypermediaUtil.submitAction(this.#deployAction, this.#clientSideShipCounts);
 			}
 		});
 	}
@@ -127,6 +136,16 @@ export default class FleetDeployment extends HTMLElement {
 
 	render(data) {
 		if (!Reconciler.isHiddenAfterPropertyReconciliation(this, !data)) {
+			const dataFleetIdAndRound = `${data.fleetId}@${data.round}`;
+			if (this.#fleetIdAndRound !== dataFleetIdAndRound) {
+				this.#clientSideShipCounts = {};
+				this.#fleetIdAndRound = dataFleetIdAndRound;
+			} else {
+				for (const shipIdWithCount of Object.entries(this.#clientSideShipCounts)) {
+					data.ships.find((ship) => ship.id === shipIdWithCount[0]).count = shipIdWithCount[1];
+				}
+			}
+
 			this.#ships = data.ships;
 
 			this.#deployAction = HypermediaUtil.getAction(data, 'deploy');

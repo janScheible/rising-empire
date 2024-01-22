@@ -78,6 +78,10 @@ class InspectorDto {
 
 	static class FleetDeploymentDto {
 
+		final String fleetId;
+
+		final int round;
+
 		final PlayerDto playerColor;
 
 		final Integer eta;
@@ -88,7 +92,10 @@ class InspectorDto {
 
 		final List<ShipsDto> ships;
 
-		FleetDeploymentDto(Player player, Integer eta, Integer outOfRangeBy, boolean deployable, List<ShipsDto> ships) {
+		FleetDeploymentDto(String fleetId, int round, Player player, Integer eta, Integer outOfRangeBy,
+				boolean deployable, List<ShipsDto> ships) {
+			this.fleetId = fleetId;
+			this.round = round;
 			this.playerColor = PlayerDto.fromPlayer(player);
 			this.eta = eta;
 			this.outOfRangeBy = outOfRangeBy;

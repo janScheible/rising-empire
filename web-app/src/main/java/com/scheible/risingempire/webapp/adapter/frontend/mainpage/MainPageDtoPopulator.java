@@ -386,8 +386,9 @@ public class MainPageDtoPopulator {
 
 		if (state.isFleetInspectionState()) {
 			if (selectedFleet.isDeployable()) {
-				mainPage.inspector.fleetDeployment = new EntityModel<>(new FleetDeploymentDto(selectedFleet.getPlayer(),
-						null, null, false, toDtoShipList(ships, totalShips)));
+				mainPage.inspector.fleetDeployment = new EntityModel<>(
+						new FleetDeploymentDto(selectedFleet.getId().getValue(), gameView.getRound(),
+								selectedFleet.getPlayer(), null, null, false, toDtoShipList(ships, totalShips)));
 			}
 			else {
 				mainPage.inspector.fleetView = new EntityModel<>(new FleetViewDto(selectedFleet.getPlayer(),
@@ -404,7 +405,9 @@ public class MainPageDtoPopulator {
 
 			if (selectedFleet.isDeployable()) {
 				mainPage.inspector.fleetDeployment = new EntityModel<>(
-						new FleetDeploymentDto(selectedFleet.getPlayer(), eta.orElse(null),
+						new FleetDeploymentDto(selectedFleet.getId().getValue(), gameView.getRound(),
+								selectedFleet.getPlayer(),
+								eta.orElse(null),
 								eta.isPresent() ? null : selectedSystem.getRange().orElse(null), true, toDtoShipList(
 										ships, totalShips)))
 					.with(selectedFleet.isDeployable() && eta.isPresent(),
