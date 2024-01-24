@@ -6,6 +6,7 @@ import java.util.StringJoiner;
 
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.universe.Location;
+import com.scheible.risingempire.game.api.view.universe.Player;
 
 /**
  * @author sj
@@ -72,7 +73,7 @@ public class SystemView {
 		this.extendedFleetRange = extendedFleetRange;
 		this.scannerRange = scannerRange;
 
-		if (Boolean.TRUE.equals(colonizable.map(Boolean::valueOf)) && colonizeCommand.isEmpty()) {
+		if (Boolean.TRUE.equals(colonizable.orElse(Boolean.FALSE)) && colonizeCommand.isEmpty()) {
 			throw new IllegalArgumentException("colonizationCommand can't be absent when canColonize = true!");
 		}
 		this.colonizable = colonizable;
@@ -129,6 +130,10 @@ public class SystemView {
 
 	public Optional<ColonyView> getColonyView() {
 		return this.colony;
+	}
+
+	public Optional<ColonyView> getColonyView(Player player) {
+		return this.colony.filter(c -> c.getPlayer().equals(player));
 	}
 
 	public Optional<Integer> getFleetRange() {

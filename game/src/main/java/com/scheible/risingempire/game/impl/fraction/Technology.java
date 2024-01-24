@@ -35,6 +35,10 @@ public class Technology {
 		return this.fleetScannerRange;
 	}
 
+	public int getMaxWarpSpeed() {
+		return 1;
+	}
+
 	@Override
 	public String toString() {
 		return toStringBuilder(getClass()).add("fleetRange", this.fleetRange)

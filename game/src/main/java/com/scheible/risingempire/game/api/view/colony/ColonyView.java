@@ -10,6 +10,8 @@ import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.api.view.universe.Race;
 
+import static java.util.Collections.unmodifiableMap;
+
 /**
  * @author sj
  */
@@ -29,8 +31,11 @@ public class ColonyView {
 
 	private final Optional<AnnexationStatusView> annexationStatus;
 
+	private final Map<ColonyId, Integer> colonistTransfers;
+
 	public ColonyView(ColonyId id, Player player, Race race, int population, Optional<ShipTypeView> spaceDock,
-			Optional<Map<ProductionArea, Integer>> ratios, Optional<AnnexationStatusView> annexationStatus) {
+			Optional<Map<ProductionArea, Integer>> ratios, Optional<AnnexationStatusView> annexationStatus,
+			Map<ColonyId, Integer> colonistTransfers) {
 		this.id = id;
 
 		this.player = player;
@@ -39,6 +44,7 @@ public class ColonyView {
 		this.spaceDock = spaceDock;
 		this.ratios = ratios.map(EnumMap::new).map(Collections::unmodifiableMap);
 		this.annexationStatus = annexationStatus;
+		this.colonistTransfers = unmodifiableMap(colonistTransfers);
 	}
 
 	public Optional<ShipTypeView> getSpaceDock() {
@@ -69,6 +75,10 @@ public class ColonyView {
 		return this.annexationStatus;
 	}
 
+	public Map<ColonyId, Integer> getColonistTransfers() {
+		return this.colonistTransfers;
+	}
+
 	@Override
 	public String toString() {
 		StringJoiner values = new StringJoiner(", ", "ColonyView[", "]").add("player=" + this.player)
@@ -85,6 +95,10 @@ public class ColonyView {
 
 		if (this.annexationStatus.isPresent()) {
 			values.add("annexationStatus=" + this.annexationStatus.get());
+		}
+
+		if (!this.colonistTransfers.isEmpty()) {
+			values.add("colonistTransfers=" + this.colonistTransfers);
 		}
 
 		return values.toString();

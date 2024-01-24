@@ -3,6 +3,7 @@ package com.scheible.risingempire.game.impl.fleet;
 import java.util.Map;
 import java.util.Optional;
 
+import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.system.SystemId;
@@ -30,6 +31,10 @@ public interface FleetManager {
 	Optional<Integer> getSiegeProgress(FleetId fleetId);
 
 	Optional<Integer> calcEta(Player player, FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships);
+
+	Optional<Integer> calcTranportColonistsEta(Player player, SystemId originId, SystemId destinationId);
+
+	void transferColonists(Player player, ColonyId originId, ColonyId destinationId, int colonists);
 
 	SystemId getClosest(FleetId fleetId);
 

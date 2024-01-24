@@ -55,22 +55,25 @@ class InspectorDto {
 
 		final HabitabilityDto habitability;
 
-		Optional<ColonyDto> colony;
+		final Optional<ColonyDto> colony;
 
-		Optional<EntityModel<AllocationsDto>> allocations;
+		final Optional<EntityModel<AllocationsDto>> allocations;
 
-		Optional<EntityModel<BuildQueueDto>> buildQueue;
+		final Optional<EntityModel<BuildQueueDto>> buildQueue;
 
-		Optional<Integer> range;
+		final Optional<EntityModel<TransferColonistsDto>> transferColonists;
+
+		final Optional<Integer> range;
 
 		SystemDetailsDto(String name, HabitabilityDto habitability, Optional<ColonyDto> colony,
 				Optional<EntityModel<AllocationsDto>> allocations, Optional<EntityModel<BuildQueueDto>> buildQueue,
-				Optional<Integer> range) {
+				Optional<EntityModel<TransferColonistsDto>> transferColonists, Optional<Integer> range) {
 			this.systemName = new SystemNameDto(name);
 			this.habitability = habitability;
 			this.colony = colony;
 			this.allocations = allocations;
 			this.buildQueue = buildQueue;
+			this.transferColonists = transferColonists;
 			this.range = range;
 		}
 
@@ -276,6 +279,22 @@ class InspectorDto {
 			this.size = size;
 			this.playerColor = PlayerDto.fromPlayer(player);
 			this.count = count;
+		}
+
+	}
+
+	static class TransferColonistsDto {
+
+		final int colonists;
+
+		final int maxColonists;
+
+		final Optional<Integer> eta;
+
+		TransferColonistsDto(int colonists, int maxColonists, Optional<Integer> eta) {
+			this.colonists = colonists;
+			this.maxColonists = maxColonists;
+			this.eta = eta;
 		}
 
 	}

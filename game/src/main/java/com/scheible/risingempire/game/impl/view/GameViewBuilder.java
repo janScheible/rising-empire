@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.colony.AnnexationStatusView;
+import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
@@ -60,7 +61,8 @@ public class GameViewBuilder {
 			Map<FleetId, Set<FleetBeforeArrival>> orbitingArrivingMapping,
 			BiFunction<Player, SystemId, Optional<SystemSnapshot>> snapshotProvider, Technology technology,
 			Set<SpaceCombat> spaceCombats, FleetManager fleetManager, TechManager techManager,
-			Set<SystemNotificationView> systemNotifications, int annexationSiegeRounds) {
+			Set<SystemNotificationView> systemNotifications, int annexationSiegeRounds,
+			Map<Player, Map<ColonyId, Map<ColonyId, Integer>>> colonistTransfers) {
 		Set<SystemView> systemViews = new HashSet<>(systems.size());
 		Set<FleetView> fleetViews = new HashSet<>(30);
 
@@ -122,7 +124,9 @@ public class GameViewBuilder {
 													.map(playerRaceMapping::get),
 												Optional.of(isAnnexable.test(system)),
 												Optional.of(hasAnnexCommand.test(system)))
-										: null)));
+										: null),
+								colonistTransfers.getOrDefault(player, Map.of())
+									.getOrDefault(snapshot.getId().toColonyId(), Map.of())));
 
 					Optional<Integer> seenInTurn = Optional.ofNullable(snapshot.getLastSeenTurn())
 						.filter(t -> t != round);

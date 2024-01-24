@@ -191,7 +191,7 @@ export default class StarMap extends HTMLElement {
 
 		this.#starSelectionEl.render(data.starSelection);
 		this.#fleetSelectionEl.render(data.fleetSelection);
-		this.#itineraryEl.render(data.fleetSelection?.itinerary);
+		this.#itineraryEl.render(data.fleetSelection?.itinerary ?? data.starSelection?.itinerary);
 		const ranges = !data.fleetMovements ? data.ranges : Object.assign({}, data.ranges, { fleetScannerRanges: [] });
 		this.#rangesEl.render(ranges);
 

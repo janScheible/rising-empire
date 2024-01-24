@@ -94,6 +94,8 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 
 	private final Set<AnnexCommand> annexCommands = new HashSet<>();
 
+	private final Map<Player, Map<ColonyId, Map<ColonyId, Integer>>> colonistTransfers = new HashMap<>();
+
 	private final ShipDesignProvider shipDesignProvider;
 
 	private final FleetFormer fleetFormer;
@@ -127,7 +129,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		this.fakeNotificationProvider = gameOptions.getFakeNotificationProvider();
 
 		this.shipDesignProvider = (player, slot) -> this.fractions.get(player).getShipDesigns().get(slot);
-		this.journeyCalculator = new JourneyCalculator(this.systems, this.fleets, this.shipDesignProvider,
+		this.journeyCalculator = new JourneyCalculator(this.systems, this.shipDesignProvider,
 				gameOptions.getFleetSpeedFactor());
 
 		FleetFinder fleetFinder = new FleetFinder(this.fleets, this.journeyCalculator);
@@ -165,6 +167,9 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 					.computeIfAbsent(orbitingId, key -> new HashSet<>())
 					.addAll(deployedIds));
 		}
+
+		// TODO Create a new kind of transporter fleet for each transfer.
+		this.colonistTransfers.clear();
 
 		this.colonizeCommands.stream().forEach(command -> {
 			if (this.fleets.containsKey(command.fleetId())) {
@@ -440,9 +445,39 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	@Override
 	public Optional<Integer> calcEta(Player player, FleetId fleetId, SystemId destinationId,
 			Map<ShipTypeId, Integer> ships) {
-		return this.journeyCalculator.calcEta(player, fleetId, destinationId,
+		return this.journeyCalculator.calcEta(player, this.fleets.get(fleetId).getLocation(), destinationId,
 				DesignSlot.toSlotAndCounts(ships.entrySet()),
 				this.fractions.get(player).getTechnology().getFleetRange());
+	}
+
+	@Override
+	public Optional<Integer> calcTranportColonistsEta(Player player, SystemId originId, SystemId destinationId) {
+		return this.journeyCalculator.calcEta(player, this.systems.get(originId).getLocation(), destinationId,
+				this.fractions.get(player).getTechnology().getMaxWarpSpeed(),
+				this.fractions.get(player).getTechnology().getFleetRange());
+	}
+
+	@Override
+	public void transferColonists(Player player, ColonyId originId, ColonyId destinationId, int colonists) {
+		System originSystem = this.systems.get(SystemId.fromColonyId(originId));
+		if (originSystem.getColony(player).isEmpty()) {
+			throw new IllegalArgumentException(
+					"Can't transfer colonists from " + originId + " bacause " + player + " has no colony there!");
+		}
+		Colony originColony = originSystem.getColony().get();
+		if (colonists > originColony.getPopulation() / 2) {
+			throw new IllegalArgumentException("At most half of a colony's population can be transfered!");
+		}
+
+		System destinationSystem = this.systems.get(SystemId.fromColonyId(destinationId));
+		if (destinationSystem.getColony(player).isEmpty()) {
+			throw new IllegalArgumentException(
+					"Can't transfer colonists from " + destinationId + " bacause " + player + " has no colony there!");
+		}
+
+		this.colonistTransfers.computeIfAbsent(player, key -> new HashMap<>())
+			.computeIfAbsent(originId, key -> new HashMap<>())
+			.put(destinationId, colonists);
 	}
 
 	@Override
@@ -497,7 +532,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		return GameViewBuilder.buildView(this.galaxySize, this.round, getTurnFinishedStatus(), player,
 				playerRaceMapping, this.systems.values(), this.fleets.values(), designs, this.orbitingArrivingMapping,
 				(c, sid) -> this.fractions.get(c).getSnapshot(sid), this.fractions.get(player).getTechnology(),
-				this.spaceCombats, this, this, systemNotifications, this.annexationSiegeRounds);
+				this.spaceCombats, this, this, systemNotifications, this.annexationSiegeRounds, this.colonistTransfers);
 	}
 
 	@Override

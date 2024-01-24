@@ -6,6 +6,7 @@ import SystemName from '~/page/main-page/component/inspector/component/system-na
 import Colony from '~/page/main-page/component/inspector/component/system-details/component/colony';
 import Allocations from '~/page/main-page/component/inspector/component/system-details/component/allocations';
 import cssUrl from '~/util/cssUrl';
+import TransferColonists from '~/page/main-page/component/inspector/component/system-details/component/transfer-colonists';
 
 export default class SystemDetails extends HTMLElement {
 	static NAME = 're-system-details';
@@ -15,6 +16,7 @@ export default class SystemDetails extends HTMLElement {
 	#colonyEl: Colony;
 	#allocationsEl: Allocations;
 	#buildQueueEl: BuildQueue;
+	#transferColonistsEl: TransferColonists;
 
 	#rangeWrapperEl: HTMLDivElement;
 	#rangeEl: HTMLSpanElement;
@@ -33,6 +35,7 @@ export default class SystemDetails extends HTMLElement {
 				<${Colony.NAME}></${Colony.NAME}>
 				<${Allocations.NAME}></${Allocations.NAME}>
 				<${BuildQueue.NAME}></${BuildQueue.NAME}>
+				<${TransferColonists.NAME}></${TransferColonists.NAME}>
 				<div id="range-wrapper">Range <span id="range"></span> parsecs</div>
 			</${Container.NAME}>`;
 
@@ -41,6 +44,7 @@ export default class SystemDetails extends HTMLElement {
 		this.#colonyEl = this.shadowRoot.querySelector(Colony.NAME);
 		this.#allocationsEl = this.shadowRoot.querySelector(Allocations.NAME);
 		this.#buildQueueEl = this.shadowRoot.querySelector(BuildQueue.NAME);
+		this.#transferColonistsEl = this.shadowRoot.querySelector(TransferColonists.NAME);
 
 		this.#rangeWrapperEl = this.shadowRoot.querySelector('#range-wrapper');
 		this.#rangeEl = this.shadowRoot.querySelector('#range');
@@ -53,6 +57,7 @@ export default class SystemDetails extends HTMLElement {
 			this.#colonyEl.render(data.colony);
 			this.#allocationsEl.render(data.allocations);
 			this.#buildQueueEl.render(data.buildQueue);
+			this.#transferColonistsEl.render(data.transferColonists);
 
 			if (!Reconciler.isHiddenAfterPropertyReconciliation(this.#rangeWrapperEl, !data.range)) {
 				Reconciler.reconcileProperty(this.#rangeEl, 'innerText', data.range);

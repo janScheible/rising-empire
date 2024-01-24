@@ -53,6 +53,8 @@ class StarMapDto {
 
 		final int y;
 
+		Optional<ItineraryDto> itinerary;
+
 		StarSelectionDto(int x, int y) {
 			this.x = x;
 			this.y = y;

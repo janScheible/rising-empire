@@ -63,6 +63,16 @@ public class PlayerGameImpl implements PlayerGame {
 	}
 
 	@Override
+	public Optional<Integer> calcTranportColonistsEta(SystemId originId, SystemId destinationId) {
+		return this.game.calcTranportColonistsEta(this.player, originId, destinationId);
+	}
+
+	@Override
+	public void transferColonists(ColonyId originId, ColonyId destinationId, int colonists) {
+		this.game.transferColonists(this.player, originId, destinationId, colonists);
+	}
+
+	@Override
 	public GameView getView() {
 		return this.game.getGameState(this.player);
 	}

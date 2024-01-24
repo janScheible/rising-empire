@@ -146,12 +146,24 @@ class MainPageController {
 			.build();
 	}
 
+	@PostMapping(path = "/main-page/inspector/colonist-transfers", consumes = APPLICATION_JSON_VALUE)
+	ResponseEntity<Void> transferColonists(@ModelAttribute FrontendContext context,
+			@RequestBody TransferColonistsBodyDto body) {
+		context.getPlayerGame()
+			.transferColonists(body.selectedStarId.toColonyId(), body.transferColonyId, body.colonists);
+
+		return ResponseEntity.status(HttpStatus.SEE_OTHER)
+			.header(HttpHeaders.LOCATION,
+					context.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page").toGetUri())
+			.build();
+	}
+
 	@GetMapping("/main-page")
 	ResponseEntity<EntityModel<MainPageDto>> mainPage(HttpServletRequest request,
 			@ModelAttribute FrontendContext context, @RequestParam Optional<String> selectedStarId,
 			@RequestParam Optional<String> selectedFleetId, Optional<String> spotlightedStarId,
-			@RequestParam Map<String, String> shipTypeIdsAndCounts, @RequestParam Optional<String> lockedCategory,
-			@RequestParam Optional<Boolean> partial) {
+			@RequestParam Optional<String> transferStarId, @RequestParam Map<String, String> shipTypeIdsAndCounts,
+			@RequestParam Optional<String> lockedCategory, @RequestParam Optional<Boolean> partial) {
 		if (context.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.SEE_OTHER)
 				.header(HttpHeaders.LOCATION, context.toAction(HttpMethod.GET, "new-game-page").toGetUri())
@@ -161,8 +173,8 @@ class MainPageController {
 		Game game = this.gameHolder.get(context.getGameId()).orElseThrow();
 		game.unregisterAi(context.getPlayer());
 
-		MainPageState state = MainPageState.fromParameters(selectedStarId, spotlightedStarId, selectedFleetId,
-				shipTypeIdsAndCounts, lockedCategory,
+		MainPageState state = MainPageState.fromParameters(selectedStarId, spotlightedStarId, transferStarId,
+				selectedFleetId, shipTypeIdsAndCounts, lockedCategory,
 				(fleetId, parameters) -> toShipTypesAndCounts(context.getGameView().getFleet(fleetId).getShips(),
 						parameters),
 				(fleetId, orbitingSystemId) -> context.getGameView()
@@ -170,7 +182,11 @@ class MainPageController {
 					.getOrbiting()
 					.map(d -> d.equals(orbitingSystemId))
 					.orElse(Boolean.FALSE),
-				fleetId -> context.getGameView().getFleet(fleetId).isDeployable());
+				fleetId -> context.getGameView().getFleet(fleetId).isDeployable(),
+				systemId -> context.getGameView()
+					.getSystem(systemId)
+					.getColonyView(context.getGameView().getPlayer())
+					.isPresent());
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("player: {}, state: {}", context.getPlayer(), state.getClass().getSimpleName());
@@ -255,6 +271,16 @@ class MainPageController {
 		ColonyId colonyId;
 
 		Optional<String> locked = Optional.empty();
+
+	}
+
+	static class TransferColonistsBodyDto {
+
+		SystemId selectedStarId;
+
+		int colonists;
+
+		ColonyId transferColonyId;
 
 	}
 

@@ -24,13 +24,18 @@ public interface PlayerGame {
 
 	Optional<Integer> calcEta(FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships);
 
+	Optional<Integer> calcTranportColonistsEta(SystemId originId, SystemId destinationId);
+
 	Player getPlayer();
 
 	//
-	// Commands of the player that will be executed at end of turn.
+	// Commands of the player that change the state of the game (some have immediate
+	// effect, others will be enqueued and executed at end of turn).
 	//
 
 	void nextShipType(ColonyId colonyId);
+
+	void transferColonists(ColonyId originId, ColonyId destinationId, int colonists);
 
 	void colonizeSystem(SystemId systemId, FleetId fleetId, boolean skip);
 

@@ -42,6 +42,7 @@ import com.scheible.risingempire.webapp.adapter.frontend.mainpage.InspectorDto.S
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.InspectorDto.SpaceCombatDto;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.InspectorDto.SpaceCombatSystem;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.InspectorDto.SystemDetailsDto;
+import com.scheible.risingempire.webapp.adapter.frontend.mainpage.InspectorDto.TransferColonistsDto;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.InspectorDto.UnexploredDto;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.MainPageDto.ButtonBarDto;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.MainPageDto.TurnStatusDto;
@@ -106,7 +107,10 @@ public class MainPageDtoPopulator {
 			turnSelectedStarId = fromSelectedStar(gameView, state, mainPage, context);
 		}
 
-		Optional<Map<ShipTypeView, Integer>> maybeShips = state.getShips()
+		Optional<Map<ShipTypeView, Integer>> stateShips = state.isFleetDeploymentState()
+				? state.asFleetDeploymentState().getShips() : state.isFleetInspectionState()
+						? state.asFleetInspectionState().getShips() : Optional.of(Map.<ShipTypeView, Integer>of());
+		Optional<Map<ShipTypeView, Integer>> maybeShips = stateShips
 			.or(() -> state.getSelectedFleetId().map(id -> gameView.getFleet(id).getShips()));
 
 		if (state.getSelectedFleetId().isPresent()) {
@@ -136,7 +140,10 @@ public class MainPageDtoPopulator {
 					s.getLocation().getX(), s.getLocation().getY()))
 				.with(state.isSystemSelectable(s.getId()), () -> Action
 					.get("select", context.toFrontendUri("main-page"))
-					.with("selectedStarId", s.getId().getValue())
+					.with("selectedStarId",
+							state.isTransferColonistsState() ? state.getSelectedSystemId().get().getValue()
+									: s.getId().getValue())
+					.with(state.isTransferColonistsState(), "transferStarId", () -> s.getId().getValue())
 					.with(state.getSelectedFleetId().isPresent()
 							&& gameView.getFleet(state.getSelectedFleetId().orElseThrow()).isDeployable(),
 							"selectedFleetId", () -> state.getSelectedFleetId().map(FleetId::getValue).orElseThrow())
@@ -216,7 +223,7 @@ public class MainPageDtoPopulator {
 
 		return new EntityModel<>(mainPage).with(!context.getGameView().getSelectTechs().isEmpty(),
 				() -> Action.get("select-tech", context.toFrontendUri("select-tech-page"))
-					.with(finalTurnSelectedStarId != null, "selectedStarId", () -> finalTurnSelectedStarId.getValue()));
+					.with("selectedStarId", finalTurnSelectedStarId.getValue()));
 	}
 
 	private static SystemId fromSelectedStar(GameView gameView, MainPageState state, MainPageDto mainPage,
@@ -240,8 +247,24 @@ public class MainPageDtoPopulator {
 				selectedSystem.getPlanetType().get(), selectedSystem.getPlanetSpecial().get(),
 				selectedSystem.getPlanetMaxPopulation().get());
 
-		if (state.isStarInspectionState() && !(colonization || annexation)) {
+		if ((state.isStarInspectionState() || state.isTransferColonistsState()) && !(colonization || annexation)) {
 			if (selectedSystem.getStarName().isPresent()) {
+				Optional<Integer> transferEta = Optional.empty();
+				if (state.isTransferColonistsState() && !state.getSelectedSystemId()
+					.equals(state.asTransferColonistsState().getTransferSystemId())) {
+					SystemView transferDestinationSystem = gameView
+						.getSystem(state.asTransferColonistsState().getTransferSystemId());
+
+					transferEta = context.getPlayerGame()
+						.calcTranportColonistsEta(selectedSystem.getId(), transferDestinationSystem.getId())
+						.filter(eta -> transferDestinationSystem.getColonyView(gameView.getPlayer()).isPresent());
+
+					mainPage.starMap.getContent().starSelection.itinerary = Optional
+						.of(new ItineraryDto(transferDestinationSystem.getLocation().getX(),
+								transferDestinationSystem.getLocation().getY(), selectedSystem.getLocation().getX(),
+								selectedSystem.getLocation().getY(), false, false, transferEta.isPresent()));
+				}
+
 				mainPage.inspector.systemDetails = new SystemDetailsDto(selectedSystem.getStarName().get(),
 						habitabilityDtoSupplier.get(),
 						selectedSystem.getColonyView()
@@ -257,29 +280,57 @@ public class MainPageDtoPopulator {
 										.filter(as -> context.getPlayer() == c.getPlayer())
 										.flatMap(AnnexationStatusView::siegingRace))),
 						selectedSystem.getColonyView()
-							.filter(c -> c.getPlayer() == gameView.getPlayer())
+							.filter(c -> c.getPlayer() == gameView.getPlayer() && !state.isTransferColonistsState())
 							.map(c -> new EntityModel<>(new AllocationsDto(Map.of( //
 									"ship", new AllocationCategoryDto(10, "None"), //
 									"defence", new AllocationCategoryDto(15, "None"), //
 									"industry", new AllocationCategoryDto(20, "2.7/y"), //
 									"ecology", new AllocationCategoryDto(25, "Clean"), //
-									"technology", new AllocationCategoryDto(30, "0RP")), state.getLockedCategory()))
+									"technology", new AllocationCategoryDto(30, "0RP")),
+									state.asStarInspectionState().getLockedCategory()))
 								.with(Action
 									.jsonPost("allocate-spending",
 											context.toFrontendUri("main-page", "inspector", "spendings"))
 									.with("selectedStarId", selectedSystem.getId().getValue()))),
 						selectedSystem.getColonyView()
-							.filter(c -> c.getPlayer() == gameView.getPlayer())
-							.map(c -> new EntityModel<>(
-									new BuildQueueDto(c.getSpaceDock().get().getName(),
-											c.getSpaceDock().get().getSize(), gameView.getPlayer(), 1))
+							.filter(c -> c.getPlayer() == gameView.getPlayer() && !state.isTransferColonistsState())
+							.map(c -> new EntityModel<>(new BuildQueueDto(c.getSpaceDock().get().getName(),
+									c.getSpaceDock().get().getSize(), gameView.getPlayer(), 1))
 								.with(Action
 									.jsonPost("next-ship-type",
 											context.toFrontendUri("main-page", "inspector", "ship-types"))
 									.with("selectedStarId", selectedSystem.getId().getValue())
-									.with(state.getLockedCategory().isPresent(), "locked",
-											() -> state.getLockedCategory().get())
-									.with("colonyId", c.getId().getValue()))),
+									.with(state.asStarInspectionState().getLockedCategory().isPresent(), "locked",
+											() -> state.asStarInspectionState().getLockedCategory().get())
+									.with("colonyId", c.getId().getValue()))
+								.with(Action.get("transfer-colonists", context.toFrontendUri("main-page"))
+									.with("selectedStarId", selectedSystem.getId().getValue())
+									.with("transferStarId", selectedSystem.getId().getValue()))),
+						state.isTransferColonistsState() ? Optional
+							.of(new EntityModel<>(new TransferColonistsDto(selectedSystem.getColonyView()
+								.get()
+								.getColonistTransfers()
+								.getOrDefault(state.asTransferColonistsState().getTransferSystemId().toColonyId(), 0),
+									selectedSystem.getColonyView()
+										.map(ColonyView::getPopulation)
+										.map(p -> p / 2)
+										.orElseThrow(),
+									transferEta))
+								.with(Action.get("cancel", context.toFrontendUri("main-page"))
+									.with("selectedStarId", selectedSystem.getId().getValue()))
+								.with(transferEta.isPresent() && transferEta.get() > 0,
+										() -> Action
+											.jsonPost("transfer",
+													context.toFrontendUri("main-page", "inspector",
+															"colonist-transfers"))
+											.with("selectedStarId", selectedSystem.getId().getValue())
+											.with("colonists", 0)
+											.with("transferColonyId",
+													state.asTransferColonistsState()
+														.getTransferSystemId()
+														.toColonyId()
+														.getValue())))
+								: Optional.empty(),
 						selectedSystem.getRange());
 
 			}
@@ -406,8 +457,7 @@ public class MainPageDtoPopulator {
 			if (selectedFleet.isDeployable()) {
 				mainPage.inspector.fleetDeployment = new EntityModel<>(
 						new FleetDeploymentDto(selectedFleet.getId().getValue(), gameView.getRound(),
-								selectedFleet.getPlayer(),
-								eta.orElse(null),
+								selectedFleet.getPlayer(), eta.orElse(null),
 								eta.isPresent() ? null : selectedSystem.getRange().orElse(null), true, toDtoShipList(
 										ships, totalShips)))
 					.with(selectedFleet.isDeployable() && eta.isPresent(),

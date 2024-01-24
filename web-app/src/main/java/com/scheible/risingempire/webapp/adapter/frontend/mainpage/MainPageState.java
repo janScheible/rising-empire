@@ -27,15 +27,20 @@ abstract class MainPageState {
 	}
 
 	static MainPageState fromParameters(Optional<String> rawSelectedStarId, Optional<String> rawSpotlightedStarId,
-			Optional<String> rawSelectedFleetId, Map<String, String> rawShipTypeIdsAndCounts,
-			Optional<String> lockedCategory, ShipProvider shipProvider, OrbitingSystemProvider orbitingSystemProvider,
-			DeployableFleetProvider deployableFleetProvider) {
+			Optional<String> rawTransferStarId, Optional<String> rawSelectedFleetId,
+			Map<String, String> rawShipTypeIdsAndCounts, Optional<String> lockedCategory, ShipProvider shipProvider,
+			OrbitingSystemProvider orbitingSystemProvider, DeployableFleetProvider deployableFleetProvider,
+			OwnColonyProvider ownColonyProvider) {
 		Optional<SystemId> selectedSystemId = rawSelectedStarId.map(id -> new SystemId(id));
 		Optional<SystemId> spotlightedSystemId = rawSpotlightedStarId.map(id -> new SystemId(id));
+		Optional<SystemId> transferSystemId = rawTransferStarId.map(id -> new SystemId(id));
 		Optional<FleetId> selectedFleetId = rawSelectedFleetId.map(id -> new FleetId(id));
 
 		if (onlyStar(selectedSystemId, selectedFleetId) && spotlightedSystemId.isPresent()) {
 			return new StarSpotlightState(selectedSystemId.get(), spotlightedSystemId.get());
+		}
+		else if (onlyStar(selectedSystemId, selectedFleetId) && transferSystemId.isPresent()) {
+			return new TransferColonistsState(selectedSystemId.get(), transferSystemId.get(), ownColonyProvider);
 		}
 		else if (onlyStar(selectedSystemId, selectedFleetId)) {
 			return new StarInspectionState(selectedSystemId.get(), lockedCategory);
@@ -70,20 +75,8 @@ abstract class MainPageState {
 		return Optional.empty();
 	}
 
-	Optional<Map<ShipTypeView, Integer>> getShips() {
-		return Optional.empty();
-	}
-
-	Optional<String> getLockedCategory() {
-		return Optional.empty();
-	}
-
 	boolean isInitState() {
 		return this instanceof InitState;
-	}
-
-	StarSpotlightState asStarSpotlightState() {
-		return (StarSpotlightState) this;
 	}
 
 	boolean isStarInspectionState() {
@@ -100,6 +93,30 @@ abstract class MainPageState {
 
 	boolean isFleetDeploymentState() {
 		return this instanceof FleetDeploymentState;
+	}
+
+	boolean isTransferColonistsState() {
+		return this instanceof TransferColonistsState;
+	}
+
+	StarInspectionState asStarInspectionState() {
+		return (StarInspectionState) this;
+	}
+
+	StarSpotlightState asStarSpotlightState() {
+		return (StarSpotlightState) this;
+	}
+
+	TransferColonistsState asTransferColonistsState() {
+		return (TransferColonistsState) this;
+	}
+
+	FleetDeploymentState asFleetDeploymentState() {
+		return (FleetDeploymentState) this;
+	}
+
+	FleetInspectionState asFleetInspectionState() {
+		return (FleetInspectionState) this;
 	}
 
 	static class InitState extends MainPageState {
@@ -132,7 +149,6 @@ abstract class MainPageState {
 			return Optional.of(this.selectedSystemId);
 		}
 
-		@Override
 		Optional<String> getLockedCategory() {
 			return this.lockedCategory;
 		}
@@ -157,6 +173,37 @@ abstract class MainPageState {
 
 		SystemId getActualSelectedSystemId() {
 			return this.selectedSystemId;
+		}
+
+	}
+
+	static class TransferColonistsState extends MainPageState {
+
+		private final SystemId selectedSystemId;
+
+		private final SystemId transferSystemId;
+
+		private final OwnColonyProvider ownColonyProvider;
+
+		TransferColonistsState(SystemId selectedSystemId, SystemId transferSystemId,
+				OwnColonyProvider ownColonyProvider) {
+			this.selectedSystemId = selectedSystemId;
+			this.transferSystemId = transferSystemId;
+			this.ownColonyProvider = ownColonyProvider;
+		}
+
+		@Override
+		boolean isSystemSelectable(SystemId systemId) {
+			return this.ownColonyProvider.hasOwnColony(systemId);
+		}
+
+		@Override
+		Optional<SystemId> getSelectedSystemId() {
+			return Optional.of(this.selectedSystemId);
+		}
+
+		SystemId getTransferSystemId() {
+			return this.transferSystemId;
 		}
 
 	}
@@ -196,7 +243,6 @@ abstract class MainPageState {
 			return Optional.of(this.selectedFleetId);
 		}
 
-		@Override
 		Optional<Map<ShipTypeView, Integer>> getShips() {
 			return Optional.ofNullable(this.ships);
 		}
@@ -243,7 +289,6 @@ abstract class MainPageState {
 			return Optional.of(this.selectedFleetId);
 		}
 
-		@Override
 		Optional<Map<ShipTypeView, Integer>> getShips() {
 			return Optional.ofNullable(this.ships);
 		}
@@ -268,6 +313,13 @@ abstract class MainPageState {
 	interface DeployableFleetProvider {
 
 		boolean is(FleetId fleetId);
+
+	}
+
+	@FunctionalInterface
+	interface OwnColonyProvider {
+
+		boolean hasOwnColony(SystemId systemId);
 
 	}
 

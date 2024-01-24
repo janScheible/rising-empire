@@ -29,11 +29,11 @@ export default class HypermediaUtil {
 		return collectionModel.elements;
 	}
 
-	static getAction(model, name: string) {
+	static getAction(model, name: string): Action {
 		return model['_actions'].filter((a) => a.name === name)[0];
 	}
 
-	static getActions(model, name?: string) {
+	static getActions(model, name?: string): Action[] {
 		return model['_actions'].filter((a) => !name || a.name === name);
 	}
 
