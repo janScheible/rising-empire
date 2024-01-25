@@ -33,9 +33,11 @@ public class ColonyView {
 
 	private final Map<ColonyId, Integer> colonistTransfers;
 
+	private final Optional<ColonyId> relocationTarget;
+
 	public ColonyView(ColonyId id, Player player, Race race, int population, Optional<ShipTypeView> spaceDock,
 			Optional<Map<ProductionArea, Integer>> ratios, Optional<AnnexationStatusView> annexationStatus,
-			Map<ColonyId, Integer> colonistTransfers) {
+			Map<ColonyId, Integer> colonistTransfers, Optional<ColonyId> relocationTarget) {
 		this.id = id;
 
 		this.player = player;
@@ -45,6 +47,7 @@ public class ColonyView {
 		this.ratios = ratios.map(EnumMap::new).map(Collections::unmodifiableMap);
 		this.annexationStatus = annexationStatus;
 		this.colonistTransfers = unmodifiableMap(colonistTransfers);
+		this.relocationTarget = relocationTarget;
 	}
 
 	public Optional<ShipTypeView> getSpaceDock() {
@@ -79,6 +82,10 @@ public class ColonyView {
 		return this.colonistTransfers;
 	}
 
+	public Optional<ColonyId> getRelocationTarget() {
+		return this.relocationTarget;
+	}
+
 	@Override
 	public String toString() {
 		StringJoiner values = new StringJoiner(", ", "ColonyView[", "]").add("player=" + this.player)
@@ -99,6 +106,10 @@ public class ColonyView {
 
 		if (!this.colonistTransfers.isEmpty()) {
 			values.add("colonistTransfers=" + this.colonistTransfers);
+		}
+
+		if (this.relocationTarget.isPresent()) {
+			values.add("relocationTarget=" + this.relocationTarget.get());
 		}
 
 		return values.toString();

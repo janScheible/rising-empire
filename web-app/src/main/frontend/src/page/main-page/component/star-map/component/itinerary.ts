@@ -71,7 +71,11 @@ export default class Itinerary extends HTMLElement {
 			Reconciler.reconcileAttribute(this.#lineEl, fleetY > starY ? 'y1' : 'y2', height);
 			Reconciler.reconcileAttribute(this.#lineEl, fleetY > starY ? 'y2' : 'y1', '0');
 
-			Reconciler.reconcileAttribute(this.#lineEl, 'stroke', data.inRange ? 'green' : 'red');
+			Reconciler.reconcileAttribute(
+				this.#lineEl,
+				'stroke',
+				data.relocation ? 'purple' : data.inRange ? 'green' : 'red'
+			);
 
 			Reconciler.reconcileCssVariable(this, 'itinerary-left', Math.min(fleetX, starX) + 'px');
 			Reconciler.reconcileCssVariable(this, 'itinerary-top', Math.min(fleetY, starY) + 'px');

@@ -99,8 +99,10 @@ class StarMapDto {
 
 		final boolean inRange;
 
+		final boolean relocation;
+
 		ItineraryDto(int fleetX, int fleetY, int starX, int starY, boolean orbiting, boolean justLeaving,
-				boolean inRange) {
+				boolean inRange, boolean relocation) {
 			this.fleetX = fleetX;
 			this.fleetY = fleetY;
 			this.starX = starX;
@@ -108,6 +110,7 @@ class StarMapDto {
 			this.orbiting = orbiting;
 			this.justLeaving = justLeaving;
 			this.inRange = inRange;
+			this.relocation = relocation;
 		}
 
 	}
@@ -116,24 +119,27 @@ class StarMapDto {
 
 		final String id;
 
-		Optional<String> name;
+		final Optional<String> name;
 
 		final StarType type;
 
 		final boolean small;
 
-		Optional<PlayerDto> playerColor;
+		final Optional<PlayerDto> playerColor;
 
-		Optional<PlayerDto> siegePlayerColor;
+		final Optional<PlayerDto> siegePlayerColor;
 
-		Optional<Integer> siegeProgress; // 0..100
+		final Optional<Integer> siegeProgress; // 0..100
 
 		final int x;
 
 		final int y;
 
+		final Optional<ItineraryDto> relocation;
+
 		StarDto(String id, Optional<String> name, StarType type, boolean small, Optional<Player> playerColor,
-				Optional<Player> siegePlayerColor, Optional<Integer> siegeProgress, int x, int y) {
+				Optional<Player> siegePlayerColor, Optional<Integer> siegeProgress, int x, int y,
+				Optional<ItineraryDto> relocation) {
 			this.id = id;
 			this.name = name;
 			this.type = type;
@@ -143,6 +149,7 @@ class StarMapDto {
 			this.siegeProgress = siegeProgress;
 			this.x = x;
 			this.y = y;
+			this.relocation = relocation;
 		}
 
 	}

@@ -73,6 +73,11 @@ public class PlayerGameImpl implements PlayerGame {
 	}
 
 	@Override
+	public void relocateShips(ColonyId originId, ColonyId destinationId) {
+		this.game.relocateShips(this.player, originId, destinationId);
+	}
+
+	@Override
 	public GameView getView() {
 		return this.game.getGameState(this.player);
 	}

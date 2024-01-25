@@ -13,6 +13,7 @@ export default class BuildQueue extends HTMLElement {
 	#transferButtonEl: HTMLButtonElement;
 
 	#nextShipTypeAction;
+	#relocateShipsAction;
 	#transferColonistsAction;
 
 	constructor() {
@@ -32,8 +33,8 @@ export default class BuildQueue extends HTMLElement {
 					<div data-row-span="2">
 						<${GridLayout.NAME} cols="1">
 							<button id="next-ship-type">Ships</button>
-							<button disabled>Relocate</button>
-							<button id="transfer">Transfer</button>
+							<button id="relocate-ships">Relocate</button>
+							<button id="transfer-colonists">Transfer</button>
 						</${GridLayout.NAME}>
 					</div>
 					<${FlowLayout.NAME} id="name" axis-align="center"></${FlowLayout.NAME}>
@@ -47,7 +48,11 @@ export default class BuildQueue extends HTMLElement {
 			HypermediaUtil.submitAction(this.#nextShipTypeAction);
 		});
 
-		this.shadowRoot.querySelector('#transfer').addEventListener('click', (e) => {
+		this.shadowRoot.querySelector('#relocate-ships').addEventListener('click', (e) => {
+			HypermediaUtil.submitAction(this.#relocateShipsAction);
+		});
+
+		this.shadowRoot.querySelector('#transfer-colonists').addEventListener('click', (e) => {
 			HypermediaUtil.submitAction(this.#transferColonistsAction);
 		});
 	}
@@ -55,6 +60,7 @@ export default class BuildQueue extends HTMLElement {
 	render(data) {
 		if (!Reconciler.isHiddenAfterPropertyReconciliation(this, !data)) {
 			this.#nextShipTypeAction = HypermediaUtil.getAction(data, 'next-ship-type');
+			this.#relocateShipsAction = HypermediaUtil.getAction(data, 'relocate-ships');
 			this.#transferColonistsAction = HypermediaUtil.getAction(data, 'transfer-colonists');
 
 			this.#shipsEl.render(data);

@@ -63,17 +63,21 @@ class InspectorDto {
 
 		final Optional<EntityModel<TransferColonistsDto>> transferColonists;
 
+		final Optional<EntityModel<RelocateShipsDto>> relocateShips;
+
 		final Optional<Integer> range;
 
 		SystemDetailsDto(String name, HabitabilityDto habitability, Optional<ColonyDto> colony,
 				Optional<EntityModel<AllocationsDto>> allocations, Optional<EntityModel<BuildQueueDto>> buildQueue,
-				Optional<EntityModel<TransferColonistsDto>> transferColonists, Optional<Integer> range) {
+				Optional<EntityModel<TransferColonistsDto>> transferColonists,
+				Optional<EntityModel<RelocateShipsDto>> relocateShips, Optional<Integer> range) {
 			this.systemName = new SystemNameDto(name);
 			this.habitability = habitability;
 			this.colony = colony;
 			this.allocations = allocations;
 			this.buildQueue = buildQueue;
 			this.transferColonists = transferColonists;
+			this.relocateShips = relocateShips;
 			this.range = range;
 		}
 
@@ -295,6 +299,16 @@ class InspectorDto {
 			this.colonists = colonists;
 			this.maxColonists = maxColonists;
 			this.eta = eta;
+		}
+
+	}
+
+	static class RelocateShipsDto {
+
+		final Optional<Integer> delay;
+
+		RelocateShipsDto(Optional<Integer> delay) {
+			this.delay = delay;
 		}
 
 	}

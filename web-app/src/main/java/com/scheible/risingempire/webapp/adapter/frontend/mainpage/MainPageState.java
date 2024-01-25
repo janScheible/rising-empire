@@ -27,13 +27,14 @@ abstract class MainPageState {
 	}
 
 	static MainPageState fromParameters(Optional<String> rawSelectedStarId, Optional<String> rawSpotlightedStarId,
-			Optional<String> rawTransferStarId, Optional<String> rawSelectedFleetId,
+			Optional<String> rawTransferStarId, Optional<String> rawRelocateStarId, Optional<String> rawSelectedFleetId,
 			Map<String, String> rawShipTypeIdsAndCounts, Optional<String> lockedCategory, ShipProvider shipProvider,
 			OrbitingSystemProvider orbitingSystemProvider, DeployableFleetProvider deployableFleetProvider,
 			OwnColonyProvider ownColonyProvider) {
 		Optional<SystemId> selectedSystemId = rawSelectedStarId.map(id -> new SystemId(id));
 		Optional<SystemId> spotlightedSystemId = rawSpotlightedStarId.map(id -> new SystemId(id));
 		Optional<SystemId> transferSystemId = rawTransferStarId.map(id -> new SystemId(id));
+		Optional<SystemId> relocateSystemId = rawRelocateStarId.map(id -> new SystemId(id));
 		Optional<FleetId> selectedFleetId = rawSelectedFleetId.map(id -> new FleetId(id));
 
 		if (onlyStar(selectedSystemId, selectedFleetId) && spotlightedSystemId.isPresent()) {
@@ -41,6 +42,9 @@ abstract class MainPageState {
 		}
 		else if (onlyStar(selectedSystemId, selectedFleetId) && transferSystemId.isPresent()) {
 			return new TransferColonistsState(selectedSystemId.get(), transferSystemId.get(), ownColonyProvider);
+		}
+		else if (onlyStar(selectedSystemId, selectedFleetId) && relocateSystemId.isPresent()) {
+			return new RelocateShipsState(selectedSystemId.get(), relocateSystemId.get(), ownColonyProvider);
 		}
 		else if (onlyStar(selectedSystemId, selectedFleetId)) {
 			return new StarInspectionState(selectedSystemId.get(), lockedCategory);
@@ -99,6 +103,10 @@ abstract class MainPageState {
 		return this instanceof TransferColonistsState;
 	}
 
+	boolean isRelocateShipsState() {
+		return this instanceof RelocateShipsState;
+	}
+
 	StarInspectionState asStarInspectionState() {
 		return (StarInspectionState) this;
 	}
@@ -109,6 +117,10 @@ abstract class MainPageState {
 
 	TransferColonistsState asTransferColonistsState() {
 		return (TransferColonistsState) this;
+	}
+
+	RelocateShipsState asRelocateShipsState() {
+		return (RelocateShipsState) this;
 	}
 
 	FleetDeploymentState asFleetDeploymentState() {
@@ -204,6 +216,36 @@ abstract class MainPageState {
 
 		SystemId getTransferSystemId() {
 			return this.transferSystemId;
+		}
+
+	}
+
+	static class RelocateShipsState extends MainPageState {
+
+		private final SystemId selectedSystemId;
+
+		private final SystemId relocateSystemId;
+
+		private final OwnColonyProvider ownColonyProvider;
+
+		RelocateShipsState(SystemId selectedSystemId, SystemId relocateSystemId, OwnColonyProvider ownColonyProvider) {
+			this.selectedSystemId = selectedSystemId;
+			this.relocateSystemId = relocateSystemId;
+			this.ownColonyProvider = ownColonyProvider;
+		}
+
+		@Override
+		boolean isSystemSelectable(SystemId systemId) {
+			return this.ownColonyProvider.hasOwnColony(systemId);
+		}
+
+		@Override
+		Optional<SystemId> getSelectedSystemId() {
+			return Optional.of(this.selectedSystemId);
+		}
+
+		SystemId getRelocateSystemId() {
+			return this.relocateSystemId;
 		}
 
 	}

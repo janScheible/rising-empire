@@ -158,12 +158,24 @@ class MainPageController {
 			.build();
 	}
 
+	@PostMapping(path = "/main-page/inspector/ship-relocations", consumes = APPLICATION_JSON_VALUE)
+	ResponseEntity<Void> relocateShips(@ModelAttribute FrontendContext context,
+			@RequestBody RelocateShipsBodyDto body) {
+		context.getPlayerGame().relocateShips(body.selectedStarId.toColonyId(), body.relocateColonyId);
+
+		return ResponseEntity.status(HttpStatus.SEE_OTHER)
+			.header(HttpHeaders.LOCATION,
+					context.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page").toGetUri())
+			.build();
+	}
+
 	@GetMapping("/main-page")
 	ResponseEntity<EntityModel<MainPageDto>> mainPage(HttpServletRequest request,
 			@ModelAttribute FrontendContext context, @RequestParam Optional<String> selectedStarId,
 			@RequestParam Optional<String> selectedFleetId, Optional<String> spotlightedStarId,
-			@RequestParam Optional<String> transferStarId, @RequestParam Map<String, String> shipTypeIdsAndCounts,
-			@RequestParam Optional<String> lockedCategory, @RequestParam Optional<Boolean> partial) {
+			@RequestParam Optional<String> transferStarId, @RequestParam Optional<String> relocateStarId,
+			@RequestParam Map<String, String> shipTypeIdsAndCounts, @RequestParam Optional<String> lockedCategory,
+			@RequestParam Optional<Boolean> partial) {
 		if (context.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.SEE_OTHER)
 				.header(HttpHeaders.LOCATION, context.toAction(HttpMethod.GET, "new-game-page").toGetUri())
@@ -174,7 +186,7 @@ class MainPageController {
 		game.unregisterAi(context.getPlayer());
 
 		MainPageState state = MainPageState.fromParameters(selectedStarId, spotlightedStarId, transferStarId,
-				selectedFleetId, shipTypeIdsAndCounts, lockedCategory,
+				relocateStarId, selectedFleetId, shipTypeIdsAndCounts, lockedCategory,
 				(fleetId, parameters) -> toShipTypesAndCounts(context.getGameView().getFleet(fleetId).getShips(),
 						parameters),
 				(fleetId, orbitingSystemId) -> context.getGameView()
@@ -281,6 +293,14 @@ class MainPageController {
 		int colonists;
 
 		ColonyId transferColonyId;
+
+	}
+
+	static class RelocateShipsBodyDto {
+
+		SystemId selectedStarId;
+
+		ColonyId relocateColonyId;
 
 	}
 

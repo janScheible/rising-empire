@@ -96,6 +96,8 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 
 	private final Map<Player, Map<ColonyId, Map<ColonyId, Integer>>> colonistTransfers = new HashMap<>();
 
+	private final Map<Player, Map<ColonyId, ColonyId>> shipRelocations = new HashMap<>();
+
 	private final ShipDesignProvider shipDesignProvider;
 
 	private final FleetFormer fleetFormer;
@@ -481,6 +483,30 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	}
 
 	@Override
+	public void relocateShips(Player player, ColonyId originId, ColonyId destinationId) {
+		System originSystem = this.systems.get(SystemId.fromColonyId(originId));
+		if (originSystem.getColony(player).isEmpty()) {
+			throw new IllegalArgumentException(
+					"Can't relocate ships from " + originId + " bacause " + player + " has no colony there!");
+		}
+
+		System destinationSystem = this.systems.get(SystemId.fromColonyId(destinationId));
+		if (destinationSystem.getColony(player).isEmpty()) {
+			throw new IllegalArgumentException(
+					"Can't relocate ships to " + destinationId + " bacause " + player + " has no colony there!");
+		}
+		if (!originId.equals(destinationId)) {
+			this.shipRelocations.computeIfAbsent(player, key -> new HashMap<>()).put(originId, destinationId);
+		}
+		else {
+			Map<ColonyId, ColonyId> playersRelocations = this.shipRelocations.getOrDefault(player, Map.of());
+			if (playersRelocations.containsKey(originId)) {
+				playersRelocations.remove(originId);
+			}
+		}
+	}
+
+	@Override
 	public SystemId getClosest(FleetId fleetId) {
 		Fleet fleet = this.fleets.get(fleetId);
 
@@ -532,7 +558,9 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		return GameViewBuilder.buildView(this.galaxySize, this.round, getTurnFinishedStatus(), player,
 				playerRaceMapping, this.systems.values(), this.fleets.values(), designs, this.orbitingArrivingMapping,
 				(c, sid) -> this.fractions.get(c).getSnapshot(sid), this.fractions.get(player).getTechnology(),
-				this.spaceCombats, this, this, systemNotifications, this.annexationSiegeRounds, this.colonistTransfers);
+				this.spaceCombats, this, this, systemNotifications, this.annexationSiegeRounds,
+				this.colonistTransfers.getOrDefault(player, Map.of()),
+				this.shipRelocations.getOrDefault(player, Map.of()));
 	}
 
 	@Override

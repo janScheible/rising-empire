@@ -43,6 +43,7 @@ import UnexploredStories from '~/storybook/stories/unexplored-stories';
 import SubmitInterceptor from '~/util/submit-interceptor';
 import Action from '~/util/action';
 import TransferColonistsStories from '~/storybook/stories/transfer-colonists-stories';
+import RelocateStories from '~/storybook/stories/relocate-ships-stories';
 
 class Storybook extends HTMLElement {
 	static NAME = 're-storybook';
@@ -81,6 +82,7 @@ class Storybook extends HTMLElement {
 		'build-queue': (story) => BuildQueueStories.showBuildQueue(story),
 		colony: (story) => ColonyStories.showColony(story),
 		'transfer-colonists': (story) => TransferColonistsStories.showTransferColonists(story),
+		'relocate-ships': (story) => RelocateStories.showRelocateShips(story),
 		'system-details-foreign-colony': (story) => SystemDetailsStories.showSystemDetailsForeignColony(story),
 		'system-details-no-colony': (story) => SystemDetailsStories.showSystemDetailsNoColony(story),
 		unexplored: (story) => UnexploredStories.showUnexplored(story),
@@ -202,6 +204,7 @@ class Storybook extends HTMLElement {
 										<option value="build-queue" class="lv-4">build-queue</option>
 										<option value="colony" class="lv-4">colony</option>
 										<option value="transfer-colonists" class="lv-4">transfer-colonists</option>
+										<option value="relocate-ships" class="lv-4">relocate-ships</option>
 									<option value="system-details-foreign-colony" class="lv-3">system-details with foreign colony</option>
 									<option value="system-details-no-colony" class="lv-3">system-details with no colony</option>
 									<option value="unexplored" class="lv-3">unexplored</option>

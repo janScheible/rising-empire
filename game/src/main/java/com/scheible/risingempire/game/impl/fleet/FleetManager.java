@@ -36,6 +36,8 @@ public interface FleetManager {
 
 	void transferColonists(Player player, ColonyId originId, ColonyId destinationId, int colonists);
 
+	void relocateShips(Player player, ColonyId originId, ColonyId destinationId);
+
 	SystemId getClosest(FleetId fleetId);
 
 }

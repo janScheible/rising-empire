@@ -77,7 +77,11 @@ export default class StarMap extends HTMLElement {
 				${Itinerary.NAME} {
 					z-index: 1300;
 				}
-				
+	
+				${Itinerary.NAME}.ship-relocation {
+					z-index: 700;
+				}
+
 				${Ranges.NAME} {
 					z-index: 250;
 				}
@@ -191,7 +195,22 @@ export default class StarMap extends HTMLElement {
 
 		this.#starSelectionEl.render(data.starSelection);
 		this.#fleetSelectionEl.render(data.fleetSelection);
+
 		this.#itineraryEl.render(data.fleetSelection?.itinerary ?? data.starSelection?.itinerary);
+		Reconciler.reconcileChildren(
+			this.#wrapperEl,
+			this.#wrapperEl.querySelectorAll(`:scope > ${Itinerary.NAME}.ship-relocation`),
+			data.stars.filter((star) => star.relocation).map((star) => star.relocation),
+			Itinerary.NAME,
+			{
+				idValueFn: (relocation) =>
+					`ship-relocation-${relocation.fleetX}-${relocation.fleetY}-${relocation.starX}-${relocation.starY}`,
+				afterCreateCallbackFn(relocationItineraryEl, relocation) {
+					relocationItineraryEl.classList.add('ship-relocation');
+				},
+			}
+		);
+
 		const ranges = !data.fleetMovements ? data.ranges : Object.assign({}, data.ranges, { fleetScannerRanges: [] });
 		this.#rangesEl.render(ranges);
 

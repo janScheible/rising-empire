@@ -7,6 +7,7 @@ import Colony from '~/page/main-page/component/inspector/component/system-detail
 import Allocations from '~/page/main-page/component/inspector/component/system-details/component/allocations';
 import cssUrl from '~/util/cssUrl';
 import TransferColonists from '~/page/main-page/component/inspector/component/system-details/component/transfer-colonists';
+import RelocateShips from '~/page/main-page/component/inspector/component/system-details/component/relocate-ships';
 
 export default class SystemDetails extends HTMLElement {
 	static NAME = 're-system-details';
@@ -17,6 +18,7 @@ export default class SystemDetails extends HTMLElement {
 	#allocationsEl: Allocations;
 	#buildQueueEl: BuildQueue;
 	#transferColonistsEl: TransferColonists;
+	#relocateShipsEl: RelocateShips;
 
 	#rangeWrapperEl: HTMLDivElement;
 	#rangeEl: HTMLSpanElement;
@@ -36,6 +38,7 @@ export default class SystemDetails extends HTMLElement {
 				<${Allocations.NAME}></${Allocations.NAME}>
 				<${BuildQueue.NAME}></${BuildQueue.NAME}>
 				<${TransferColonists.NAME}></${TransferColonists.NAME}>
+				<${RelocateShips.NAME}></${RelocateShips.NAME}>
 				<div id="range-wrapper">Range <span id="range"></span> parsecs</div>
 			</${Container.NAME}>`;
 
@@ -45,6 +48,7 @@ export default class SystemDetails extends HTMLElement {
 		this.#allocationsEl = this.shadowRoot.querySelector(Allocations.NAME);
 		this.#buildQueueEl = this.shadowRoot.querySelector(BuildQueue.NAME);
 		this.#transferColonistsEl = this.shadowRoot.querySelector(TransferColonists.NAME);
+		this.#relocateShipsEl = this.shadowRoot.querySelector(RelocateShips.NAME);
 
 		this.#rangeWrapperEl = this.shadowRoot.querySelector('#range-wrapper');
 		this.#rangeEl = this.shadowRoot.querySelector('#range');
@@ -58,6 +62,7 @@ export default class SystemDetails extends HTMLElement {
 			this.#allocationsEl.render(data.allocations);
 			this.#buildQueueEl.render(data.buildQueue);
 			this.#transferColonistsEl.render(data.transferColonists);
+			this.#relocateShipsEl.render(data.relocateShips);
 
 			if (!Reconciler.isHiddenAfterPropertyReconciliation(this.#rangeWrapperEl, !data.range)) {
 				Reconciler.reconcileProperty(this.#rangeEl, 'innerText', data.range);

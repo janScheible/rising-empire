@@ -37,6 +37,8 @@ public interface PlayerGame {
 
 	void transferColonists(ColonyId originId, ColonyId destinationId, int colonists);
 
+	void relocateShips(ColonyId originId, ColonyId destinationId);
+
 	void colonizeSystem(SystemId systemId, FleetId fleetId, boolean skip);
 
 	void annexSystem(ColonyId colonyId, FleetId fleetId, boolean skip);
