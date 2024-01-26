@@ -11,6 +11,7 @@ import com.scheible.risingempire.game.impl.ship.Missile;
 import com.scheible.risingempire.game.impl.ship.Missile.RackSize;
 import com.scheible.risingempire.game.impl.ship.ShipDesign;
 import com.scheible.risingempire.game.impl.spacecombat.resolver.simulated.SimulatingSpaceCombatResolver.SpaceCombatSummary;
+import com.scheible.risingempire.util.SeededRandom;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,8 +53,8 @@ class SimulatingSpaceCombatResolverTest {
 			.weapons(1, LASER)
 			.specials();
 
-		SpaceCombatSummary summary = new SimulatingSpaceCombatResolver().simulate(Map.of(attackingFighterDesing, 3),
-				Map.of(defendingFighterDesing, 7));
+		SpaceCombatSummary summary = new SimulatingSpaceCombatResolver(new SeededRandom(345_492_973_976L))
+			.simulate(Map.of(attackingFighterDesing, 3), Map.of(defendingFighterDesing, 7));
 
 		assertThat(summary.outcome).isEqualTo(Outcome.DEFENDER_WON);
 	}

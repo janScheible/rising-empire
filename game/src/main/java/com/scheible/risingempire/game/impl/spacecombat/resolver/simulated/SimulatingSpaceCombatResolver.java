@@ -28,12 +28,19 @@ import com.scheible.risingempire.game.impl.ship.WeaponSlot;
 import com.scheible.risingempire.game.impl.spacecombat.FireExchange;
 import com.scheible.risingempire.game.impl.spacecombat.SpaceCombat;
 import com.scheible.risingempire.game.impl.spacecombat.resolver.simulated.CombatStack.Side;
+import com.scheible.risingempire.util.SeededRandom;
 import com.scheible.risingempire.util.jdk.Lists2;
 
 /**
  * @author sj
  */
 public class SimulatingSpaceCombatResolver implements SpaceCombatResolver {
+
+	private final SeededRandom random;
+
+	public SimulatingSpaceCombatResolver(SeededRandom random) {
+		this.random = random;
+	}
 
 	@Override
 	public SpaceCombat resolve(SystemId systemId, OrbitingFleet defending, DeployedFleet attacking,
@@ -75,8 +82,8 @@ public class SimulatingSpaceCombatResolver implements SpaceCombatResolver {
 		Map<ShipDesign, List<FireExchange>> defenderFireExchanges = new HashMap<>();
 		Outcome outcome = Outcome.ATTACKER_RETREATED;
 
-		Set<CombatStack> attackingStacks = toStack(attacker, Side.ATTACKER);
-		Set<CombatStack> defendingStacks = toStack(defender, Side.DEFENDER);
+		Set<CombatStack> attackingStacks = toStack(attacker, Side.ATTACKER, this.random);
+		Set<CombatStack> defendingStacks = toStack(defender, Side.DEFENDER, this.random);
 
 		List<CombatStack> allStacksList = Stream.concat(attackingStacks.stream(), defendingStacks.stream())
 			.sorted(Comparator.<CombatStack>comparingInt(s -> s.design.getInitiative() + s.design.getCombatSpeed())
@@ -100,7 +107,7 @@ public class SimulatingSpaceCombatResolver implements SpaceCombatResolver {
 					outcome = attackingStack.side == Side.ATTACKER ? Outcome.ATTACKER_WON : Outcome.DEFENDER_WON;
 				}
 				else {
-					CombatStack defendingStack = Lists2.getRandomElement(otherSideStacks);
+					CombatStack defendingStack = Lists2.getRandomElement(otherSideStacks, this.random);
 					int totalLostHitPoints = fireWeapons(attackingStack, defendingStack);
 
 					if (totalLostHitPoints > 0) {
@@ -161,10 +168,10 @@ public class SimulatingSpaceCombatResolver implements SpaceCombatResolver {
 		return totalLostHitPoints;
 	}
 
-	private static Set<CombatStack> toStack(Map<ShipDesign, Integer> fleet, Side side) {
+	private static Set<CombatStack> toStack(Map<ShipDesign, Integer> fleet, Side side, SeededRandom random) {
 		return fleet.entrySet()
 			.stream()
-			.map(e -> new CombatStack(e.getKey(), e.getValue(), side))
+			.map(e -> new CombatStack(e.getKey(), e.getValue(), side, random))
 			.collect(Collectors.toSet());
 	}
 

@@ -3,7 +3,6 @@ package com.scheible.risingempire.game.impl.universe;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -47,10 +46,8 @@ class UniformBigBang implements BigBang {
 
 		private final List<Vector> active;
 
-		private final Random random;
-
-		private PoissonDiscSamplingAlogirthm(double r, double w, int cols, int rows, Vector[] grid, List<Vector> active,
-				Random random) {
+		private PoissonDiscSamplingAlogirthm(double r, double w, int cols, int rows, Vector[] grid,
+				List<Vector> active) {
 			this.r = r;
 			this.w = w;
 
@@ -59,12 +56,10 @@ class UniformBigBang implements BigBang {
 			this.grid = grid;
 
 			this.active = active;
-			this.random = random;
 		}
 
 		private static PoissonDiscSamplingAlogirthm create(int width, int height, double r) {
 			List<Vector> active = new ArrayList<>();
-			Random random = ThreadLocalRandom.current();
 
 			double w = r / Math.sqrt(2);
 
@@ -73,7 +68,7 @@ class UniformBigBang implements BigBang {
 
 			Vector[] grid = new Vector[rows * cols];
 
-			return new PoissonDiscSamplingAlogirthm(r, w, cols, rows, grid, active, random);
+			return new PoissonDiscSamplingAlogirthm(r, w, cols, rows, grid, active);
 		}
 
 		private Set<Vector> sample() {
@@ -89,12 +84,12 @@ class UniformBigBang implements BigBang {
 			this.active.add(start);
 
 			while (!this.active.isEmpty()) {
-				int i = (int) Math.floor(this.random.nextInt(this.active.size()));
+				int i = (int) Math.floor(ThreadLocalRandom.current().nextInt(this.active.size()));
 				Vector pos = this.active.get(i);
 
 				for (int j = 0; j < K; j++) {
 					Vector sample = Vector.random2d();
-					double m = this.r * (1 + this.random.nextDouble());
+					double m = this.r * (1 + ThreadLocalRandom.current().nextDouble());
 					sample.setLength(m);
 					sample.add(pos);
 

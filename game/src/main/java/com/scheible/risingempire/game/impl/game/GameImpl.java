@@ -60,6 +60,7 @@ import com.scheible.risingempire.game.impl.system.System;
 import com.scheible.risingempire.game.impl.system.SystemOrb;
 import com.scheible.risingempire.game.impl.tech.TechManager;
 import com.scheible.risingempire.game.impl.view.GameViewBuilder;
+import com.scheible.risingempire.util.SeededRandom;
 
 import static java.util.Collections.unmodifiableList;
 
@@ -135,13 +136,14 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 				gameOptions.getFleetSpeedFactor());
 
 		FleetFinder fleetFinder = new FleetFinder(this.fleets, this.journeyCalculator);
+		SeededRandom random = new SeededRandom();
 		this.fleetFormer = new FleetFormer(this.fleetIdGenerator, fleetFinder, this.journeyCalculator);
 		this.fleetTurn = new FleetTurn(() -> this.round, this.systems,
 				(player, systemId, snapshot) -> this.fractions.get(player).updateSnapshot(systemId, snapshot),
 				this.fleetFormer, fleetFinder,
 				gameOptions.getSpaceCombatOutcome()
 					.<SpaceCombatResolver>map(KnownInAdvanceWinnerSpaceCombatResolver::new)
-					.orElseGet(SimulatingSpaceCombatResolver::new),
+					.orElseGet(() -> new SimulatingSpaceCombatResolver(random)),
 				this.shipDesignProvider);
 
 		this.annexationSiegeRounds = gameOptions.getAnnexationSiegeRounds();
