@@ -91,13 +91,11 @@ export default class FleetDeployment extends HTMLElement {
 					(e.detail.previousValue === 0 && e.detail.value > 0) ||
 					(e.detail.previousValue > 0 && e.detail.value === 0)
 				) {
-					HypermediaUtil.submitAction(
-						this.#assignShipsAction,
-						Object.assign({}, this.#clientSideShipCounts, {
-							[this.#ships[index].id]: e.detail.value,
-						})
-					);
+					const actionValues = Object.assign({}, this.#clientSideShipCounts, {
+						[this.#ships[index].id]: e.detail.value,
+					});
 					this.#clientSideShipCounts = {};
+					HypermediaUtil.submitAction(this.#assignShipsAction), actionValues;
 				} else {
 					this.#clientSideShipCounts[this.#ships[index].id] = e.detail.value;
 					shipsEl.updateCount(e.detail.value);
@@ -114,15 +112,16 @@ export default class FleetDeployment extends HTMLElement {
 		this.#cancelButtonEl.addEventListener('click', (e) => {
 			if (this.#cancelAction) {
 				this.#clientSideShipCounts = {};
-				HypermediaUtil.submitAction(this.#cancelAction, {});
+				HypermediaUtil.submitAction(this.#cancelAction);
 			}
 		});
 
 		this.#deployButtonEl = this.shadowRoot.querySelector('#deploy-button');
 		this.shadowRoot.querySelector('#deploy-button').addEventListener('click', (e) => {
 			if (this.#deployAction) {
+				const actionValues = Object.assign({}, this.#clientSideShipCounts);
 				this.#clientSideShipCounts = {};
-				HypermediaUtil.submitAction(this.#deployAction, this.#clientSideShipCounts);
+				HypermediaUtil.submitAction(this.#deployAction, actionValues);
 			}
 		});
 	}
