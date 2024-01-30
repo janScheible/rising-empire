@@ -91,16 +91,16 @@ class InspectorDto {
 
 		final PlayerDto playerColor;
 
-		final Integer eta;
+		final Optional<Integer> eta;
 
-		final Integer outOfRangeBy;
+		final Optional<Integer> outOfRangeBy;
 
 		final boolean deployable;
 
 		final List<ShipsDto> ships;
 
-		FleetDeploymentDto(String fleetId, int round, Player player, Integer eta, Integer outOfRangeBy,
-				boolean deployable, List<ShipsDto> ships) {
+		FleetDeploymentDto(String fleetId, int round, Player player, Optional<Integer> eta,
+				Optional<Integer> outOfRangeBy, boolean deployable, List<ShipsDto> ships) {
 			this.fleetId = fleetId;
 			this.round = round;
 			this.playerColor = PlayerDto.fromPlayer(player);
@@ -118,11 +118,11 @@ class InspectorDto {
 
 		final RaceDto race;
 
-		final Integer eta;
+		final Optional<Integer> eta;
 
 		final List<ShipsDto> ships;
 
-		FleetViewDto(Player player, Race race, Integer eta, List<ShipsDto> ships) {
+		FleetViewDto(Player player, Race race, Optional<Integer> eta, List<ShipsDto> ships) {
 			this.playerColor = PlayerDto.fromPlayer(player);
 			this.race = RaceDto.fromRace(race);
 			this.eta = eta;

@@ -496,9 +496,10 @@ public class MainPageDtoPopulator {
 			if (selectedFleet.isDeployable()) {
 				mainPage.inspector.fleetDeployment = new EntityModel<>(
 						new FleetDeploymentDto(selectedFleet.getId().getValue(), gameView.getRound(),
-								selectedFleet.getPlayer(), eta.orElse(null),
-								eta.isPresent() ? null : selectedSystem.getRange().orElse(null), true, toDtoShipList(
-										ships, totalShips)))
+								selectedFleet.getPlayer(), eta,
+								eta.isPresent() ? Optional.empty()
+										: selectedSystem.getRange(),
+								true, toDtoShipList(ships, totalShips)))
 					.with(selectedFleet.isDeployable() && eta.isPresent(),
 							() -> Action
 								.jsonPost("deploy", context.toFrontendUri("main-page", "inspector", "deployments"))
@@ -508,7 +509,7 @@ public class MainPageDtoPopulator {
 			}
 			else {
 				mainPage.inspector.fleetView = new EntityModel<>(new FleetViewDto(selectedFleet.getPlayer(),
-						selectedFleet.getRace(), eta.orElse(null), toDtoShipList(ships)));
+						selectedFleet.getRace(), eta, toDtoShipList(ships)));
 			}
 
 			mainPage.starMap.getContent().fleetSelection.itinerary = Optional
