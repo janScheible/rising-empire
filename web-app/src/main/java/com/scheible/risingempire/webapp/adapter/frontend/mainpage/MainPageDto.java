@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scheible.risingempire.game.api.view.system.SystemId;
+import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.PlayerDto;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.TurnFinishedStatusPlayerDto;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.StarMapDto.FleetDto;
@@ -48,10 +49,10 @@ class MainPageDto {
 
 	List<EntityModel<AnnexationDto>> annexations;
 
-	MainPageDto(int round, PlayerDto playerColor, TurnStatusDto turnStatus, StarMapDto starMap,
+	MainPageDto(int round, Player player, TurnStatusDto turnStatus, StarMapDto starMap,
 			StateDescriptionDto stateDescription) {
 		this.round = round;
-		this.playerColor = playerColor;
+		this.playerColor = PlayerDto.fromPlayer(player);
 		this.turnStatus = turnStatus;
 		this.starMap = new EntityModel<>(starMap);
 		this.stateDescription = stateDescription;
@@ -140,8 +141,8 @@ class MainPageDto {
 
 		final String starId;
 
-		ColonizationDto(String starId) {
-			this.starId = starId;
+		ColonizationDto(SystemId starId) {
+			this.starId = starId.getValue();
 		}
 
 	}
@@ -150,8 +151,8 @@ class MainPageDto {
 
 		final String starId;
 
-		ExplorationDto(String starId) {
-			this.starId = starId;
+		ExplorationDto(SystemId starId) {
+			this.starId = starId.getValue();
 		}
 
 	}
@@ -160,8 +161,8 @@ class MainPageDto {
 
 		final String starId;
 
-		AnnexationDto(String starId) {
-			this.starId = starId;
+		AnnexationDto(SystemId starId) {
+			this.starId = starId.getValue();
 		}
 
 	}

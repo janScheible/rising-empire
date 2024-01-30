@@ -27,7 +27,6 @@ import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.webapp.adapter.frontend.context.FrontendContext;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.AllocationCategoryDto;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.AllocationsDto;
-import com.scheible.risingempire.webapp.adapter.frontend.dto.PlayerDto;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.TurnFinishedStatusPlayerDto;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.InspectorDto.AnnexationDto;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.InspectorDto.BuildQueueDto;
@@ -70,7 +69,7 @@ public class MainPageDtoPopulator {
 	static EntityModel<MainPageDto> populate(FrontendContext context, MainPageState state) {
 		GameView gameView = context.getGameView();
 
-		MainPageDto mainPage = new MainPageDto(gameView.getRound(), PlayerDto.fromPlayer(gameView.getPlayer()),
+		MainPageDto mainPage = new MainPageDto(gameView.getRound(), gameView.getPlayer(),
 				new TurnStatusDto(gameView.getTurnFinishedStatus().get(gameView.getPlayer()),
 						gameView.getTurnFinishedStatus()
 							.entrySet()
@@ -133,7 +132,7 @@ public class MainPageDtoPopulator {
 
 		mainPage.starMap.getContent().stars = gameView.getSystems()
 			.stream()
-			.map(s -> new EntityModel<>(new StarDto(s.getId().getValue(), s.getStarName(), s.getStarType(), s.isSmall(),
+			.map(s -> new EntityModel<>(new StarDto(s.getId(), s.getStarName(), s.getStarType(), s.isSmall(),
 					s.getColonyView().map(ColonyView::getPlayer),
 					s.getColonyView()
 						.flatMap(ColonyView::getAnnexationStatus)
@@ -166,14 +165,14 @@ public class MainPageDtoPopulator {
 
 		mainPage.starMap.getContent().fleets = gameView.getFleets()
 			.stream()
-			.map(fleet -> new EntityModel<>(new FleetDto(fleet.getId().getValue(), fleet.getPlayer(),
+			.map(fleet -> new EntityModel<>(new FleetDto(fleet.getId(), fleet.getPlayer(),
 					fleet.getPreviousLocation().map(Location::getX), fleet.getPreviousLocation().map(Location::getY),
 					fleet.isPreviousJustLeaving(), fleet.getLocation().getX(), fleet.getLocation().getY(),
 					fleet.getType() == FleetViewType.ORBITING, fleet.isJustLeaving().orElse(Boolean.FALSE),
 					fleet.getSpeed(), fleet.getHorizontalDirection(),
 					fleet.getFleetsBeforeArrival()
 						.stream()
-						.map(fba -> new EntityModel<>(new FleetDto(fba.getId().getValue(), fleet.getPlayer(),
+						.map(fba -> new EntityModel<>(new FleetDto(fba.getId(), fleet.getPlayer(),
 								Optional.of(fba.getLocation().getX()), Optional.of(fba.getLocation().getY()),
 								Optional.of(fba.isJustLeaving()), fleet.getLocation().getX(),
 								fleet.getLocation().getY(), !isSpaceCombatAttacker.test(fba.getId()),
@@ -195,8 +194,8 @@ public class MainPageDtoPopulator {
 			.stream()
 			.flatMap(sn -> sn.getMessages().stream().map(message -> {
 				SystemView notificationSystem = gameView.getSystem(sn.getSystemId());
-				return new StarNotificationDto(notificationSystem.getId().getValue(),
-						notificationSystem.getLocation().getX(), notificationSystem.getLocation().getY(), message);
+				return new StarNotificationDto(notificationSystem.getId(), notificationSystem.getLocation().getX(),
+						notificationSystem.getLocation().getY(), message);
 			}))
 			.toList();
 
@@ -213,20 +212,17 @@ public class MainPageDtoPopulator {
 
 		mainPage.explorations = gameView.getJustExploredSystemIds()
 			.stream()
-			.map(jesi -> new EntityModel<>(new MainPageDto.ExplorationDto(jesi.getValue()))
-				.with(spotlightAction.apply(jesi)))
+			.map(jesi -> new EntityModel<>(new MainPageDto.ExplorationDto(jesi)).with(spotlightAction.apply(jesi)))
 			.toList();
 
 		mainPage.colonizations = gameView.getColonizableSystemIds()
 			.stream()
-			.map(csi -> new EntityModel<>(new MainPageDto.ColonizationDto(csi.getValue()))
-				.with(spotlightAction.apply(csi)))
+			.map(csi -> new EntityModel<>(new MainPageDto.ColonizationDto(csi)).with(spotlightAction.apply(csi)))
 			.toList();
 
 		mainPage.annexations = gameView.getAnnexableSystemIds()
 			.stream()
-			.map(asi -> new EntityModel<>(new MainPageDto.AnnexationDto(asi.getValue()))
-				.with(spotlightAction.apply(asi)))
+			.map(asi -> new EntityModel<>(new MainPageDto.AnnexationDto(asi)).with(spotlightAction.apply(asi)))
 			.toList();
 
 		return new EntityModel<>(mainPage).with(!context.getGameView().getSelectTechs().isEmpty(),
@@ -238,7 +234,7 @@ public class MainPageDtoPopulator {
 			FrontendContext context) {
 		SystemView selectedSystem = gameView.getSystem(state.getSelectedSystemId().orElseThrow());
 
-		mainPage.starMap.getContent().starSelection = new StarSelectionDto(selectedSystem.getId().getValue(),
+		mainPage.starMap.getContent().starSelection = new StarSelectionDto(selectedSystem.getId(),
 				selectedSystem.getLocation().getX(), selectedSystem.getLocation().getY());
 
 		boolean colonization = (state.isStarInspectionState() && selectedSystem.isColonizable())
@@ -465,7 +461,7 @@ public class MainPageDtoPopulator {
 
 		boolean justLeaving = selectedFleet.isJustLeaving().orElse(Boolean.FALSE);
 		Map<ShipTypeView, Integer> ships = maybeShips.orElseThrow();
-		mainPage.starMap.getContent().fleetSelection = new FleetSelectionDto(selectedFleet.getId().getValue(),
+		mainPage.starMap.getContent().fleetSelection = new FleetSelectionDto(selectedFleet.getId(),
 				selectedFleet.getLocation().getX(), selectedFleet.getLocation().getY(), selectedFleet.isDeployable(),
 				selectedFleet.getOrbiting().isPresent(), selectedFleet.getOrbiting().map(SystemId::getValue),
 				justLeaving);
@@ -475,8 +471,8 @@ public class MainPageDtoPopulator {
 		if (state.isFleetInspectionState()) {
 			if (selectedFleet.isDeployable()) {
 				mainPage.inspector.fleetDeployment = new EntityModel<>(
-						new FleetDeploymentDto(selectedFleet.getId().getValue(), gameView.getRound(),
-								selectedFleet.getPlayer(), null, null, false, toDtoShipList(ships, totalShips)));
+						new FleetDeploymentDto(selectedFleet.getId(), gameView.getRound(), selectedFleet.getPlayer(),
+								null, null, false, toDtoShipList(ships, totalShips)));
 			}
 			else {
 				mainPage.inspector.fleetView = new EntityModel<>(new FleetViewDto(selectedFleet.getPlayer(),
@@ -493,9 +489,8 @@ public class MainPageDtoPopulator {
 
 			if (selectedFleet.isDeployable()) {
 				mainPage.inspector.fleetDeployment = new EntityModel<>(
-						new FleetDeploymentDto(selectedFleet.getId().getValue(), gameView.getRound(),
-								selectedFleet.getPlayer(), eta,
-								eta.isPresent() ? Optional.empty()
+						new FleetDeploymentDto(selectedFleet.getId(), gameView.getRound(), selectedFleet.getPlayer(),
+								eta, eta.isPresent() ? Optional.empty()
 										: selectedSystem.getRange(),
 								true, toDtoShipList(ships, totalShips)))
 					.with(selectedFleet.isDeployable() && eta.isPresent(),
@@ -576,15 +571,15 @@ public class MainPageDtoPopulator {
 
 		if (player != null) {
 			destroyedFleetDtos.addAll(fleets.stream()
-				.map(fba -> new FleetDto(fba.getId().getValue(), finalPlayer, Optional.of(fba.getLocation().getX()),
+				.map(fba -> new FleetDto(fba.getId(), finalPlayer, Optional.of(fba.getLocation().getX()),
 						Optional.of(fba.getLocation().getY()), Optional.of(fba.isJustLeaving()),
 						combatSystem.getLocation().getX(), combatSystem.getLocation().getY(), finalOrbiting, false,
 						Optional.of(fba.getSpeed()), Optional.of(fba.getHorizontalDirection()), List.of()))
 				.toList());
 
 			if (sc.getOutcome() == Outcome.ATTACKER_WON && sc.getDefenderFleet().isPresent()) {
-				destroyedFleetDtos.add(new FleetDto(sc.getDefenderFleet().get().getValue(), finalPlayer,
-						Optional.empty(), Optional.empty(), Optional.empty(), combatSystem.getLocation().getX(),
+				destroyedFleetDtos.add(new FleetDto(sc.getDefenderFleet().get(), finalPlayer, Optional.empty(),
+						Optional.empty(), Optional.empty(), combatSystem.getLocation().getX(),
 						combatSystem.getLocation().getY(), true, false, Optional.empty(), Optional.empty(), List.of()));
 			}
 		}

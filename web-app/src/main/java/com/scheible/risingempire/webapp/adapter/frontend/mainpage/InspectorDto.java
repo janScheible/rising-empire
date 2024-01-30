@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.ship.ShipSize;
 import com.scheible.risingempire.game.api.view.system.PlanetSpecial;
 import com.scheible.risingempire.game.api.view.system.PlanetType;
@@ -99,9 +100,9 @@ class InspectorDto {
 
 		final List<ShipsDto> ships;
 
-		FleetDeploymentDto(String fleetId, int round, Player player, Optional<Integer> eta,
+		FleetDeploymentDto(FleetId fleetId, int round, Player player, Optional<Integer> eta,
 				Optional<Integer> outOfRangeBy, boolean deployable, List<ShipsDto> ships) {
-			this.fleetId = fleetId;
+			this.fleetId = fleetId.getValue();
 			this.round = round;
 			this.playerColor = PlayerDto.fromPlayer(player);
 			this.eta = eta;
@@ -346,11 +347,11 @@ class InspectorDto {
 
 		final Race race;
 
-		final Player playerColor;
+		final PlayerDto playerColor;
 
 		ForeignColonyOwner(Race race, Player player) {
 			this.race = race;
-			this.playerColor = player;
+			this.playerColor = PlayerDto.fromPlayer(player);
 		}
 
 	}
@@ -375,7 +376,7 @@ class InspectorDto {
 
 		ColonyDto(Optional<ForeignColonyOwner> foreignColonyOwner, int population, Optional<ProductionDto> production,
 				Optional<Integer> roundsUntilAnnexable, Optional<Player> siegePlayer, Optional<Race> siegeRace) {
-			this.playerColor = foreignColonyOwner.map(co -> PlayerDto.fromPlayer(co.playerColor));
+			this.playerColor = foreignColonyOwner.map(fco -> fco.playerColor);
 			this.race = foreignColonyOwner.map(co -> RaceDto.fromRace(co.race));
 			this.population = population;
 			this.production = production;

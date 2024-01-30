@@ -17,7 +17,7 @@ public class TurnFinishedStatusPlayerDto {
 
 	final boolean finished;
 
-	TurnFinishedStatusPlayerDto(String id, String name, PlayerDto player, boolean finished) {
+	private TurnFinishedStatusPlayerDto(String id, String name, PlayerDto player, boolean finished) {
 		this.id = id;
 		this.name = name;
 		this.playerColor = player;

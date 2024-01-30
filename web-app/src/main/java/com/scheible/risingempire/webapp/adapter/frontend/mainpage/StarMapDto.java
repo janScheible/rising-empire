@@ -6,8 +6,10 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView.HorizontalDirection;
 import com.scheible.risingempire.game.api.view.system.StarType;
+import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.PlayerDto;
 import com.scheible.risingempire.webapp.hypermedia.EntityModel;
@@ -58,8 +60,8 @@ class StarMapDto {
 
 		Optional<ItineraryDto> itinerary;
 
-		StarSelectionDto(String id, int x, int y) {
-			this.id = id;
+		StarSelectionDto(SystemId id, int x, int y) {
+			this.id = id.getValue();
 			this.x = x;
 			this.y = y;
 		}
@@ -84,9 +86,9 @@ class StarMapDto {
 
 		Optional<ItineraryDto> itinerary;
 
-		FleetSelectionDto(String id, int x, int y, boolean deployable, boolean orbiting,
+		FleetSelectionDto(FleetId id, int x, int y, boolean deployable, boolean orbiting,
 				Optional<String> orbitingStarId, boolean justLeaving) {
-			this.id = id;
+			this.id = id.getValue();
 			this.x = x;
 			this.y = y;
 			this.deployable = deployable;
@@ -151,10 +153,10 @@ class StarMapDto {
 
 		final Optional<ItineraryDto> relocation;
 
-		StarDto(String id, Optional<String> name, StarType type, boolean small, Optional<Player> playerColor,
+		StarDto(SystemId id, Optional<String> name, StarType type, boolean small, Optional<Player> playerColor,
 				Optional<Player> siegePlayerColor, Optional<Integer> siegeProgress, int x, int y,
 				Optional<ItineraryDto> relocation) {
-			this.id = id;
+			this.id = id.getValue();
 			this.name = name;
 			this.type = type;
 			this.small = small;
@@ -208,14 +210,11 @@ class StarMapDto {
 
 		final List<EntityModel<FleetDto>> fleetsBeforeArrival;
 
-		// TODO later...
-		// final List<FleetDto> detachments;
-
-		FleetDto(String id, Player playerColor, Optional<Integer> previousX, Optional<Integer> previousY,
+		FleetDto(FleetId id, Player playerColor, Optional<Integer> previousX, Optional<Integer> previousY,
 				Optional<Boolean> previousJustLeaving, int x, int y, boolean orbiting, boolean justLeaving,
 				Optional<Integer> speed, Optional<HorizontalDirection> horizontalDirection,
 				List<EntityModel<FleetDto>> fleetsBeforeArrival) {
-			this.id = id;
+			this.id = id.getValue();
 			this.playerColor = PlayerDto.fromPlayer(playerColor);
 			this.previousX = previousX;
 			this.previousY = previousY;
@@ -241,8 +240,8 @@ class StarMapDto {
 
 		final String text;
 
-		StarNotificationDto(String starId, int x, int y, String text) {
-			this.starId = starId;
+		StarNotificationDto(SystemId starId, int x, int y, String text) {
+			this.starId = starId.getValue();
 
 			this.x = x;
 			this.y = y;
