@@ -4,6 +4,8 @@ import cssUrl from '~/util/cssUrl';
 import Reconciler from '~/util/reconciler';
 import LaunchGameUtil from '~/game-browser/component/launch-game-util';
 import HypermediaUtil from '~/util/hypermedia-util';
+import GridLayout from '~/component/grid-layout';
+import ContainerButtons from '~/component/container-buttons';
 
 export default class GameLauncher extends HTMLElement {
 	static NAME = 're-game-launcher';
@@ -20,12 +22,31 @@ export default class GameLauncher extends HTMLElement {
 		this.attachShadow({ mode: 'open' }).innerHTML = `
 			<style>
 				@import ${cssUrl('~/element.css', import.meta.url)};
+
+				#inputs {
+					max-width: 370px;
+				}
+
+				#header {
+					font-size: 150%;
+					padding-bottom: 8px;
+				}
 			</style>
 
 			<${Container.NAME} border gap="L">
-				<label for="game-id">Game id:</lable><input id="game-id" size="25" value="#INIT#"></input>
-				<label for="player">Player color:</label><select id="player"></select>
-				<button id="start-button" disabled>Start</button>
+				<div id="header">New game</div>
+
+				<${GridLayout.NAME} id="inputs" cols="1fr 2fr" gap="L">
+					<label for="game-id">Game id:</label>
+					<input id="game-id" size="25" value="#INIT#"></input>
+
+					<label for="player">Player color:</label>
+					<select id="player"></select>
+				</${GridLayout.NAME}>
+
+				<${ContainerButtons.NAME}>
+					<button id="start-button" disabled>Start</button>
+				</${ContainerButtons.NAME}>
 			</${Container.NAME}>`;
 
 		this.#startEl = this.shadowRoot.querySelector('#start-button');

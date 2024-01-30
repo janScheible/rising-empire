@@ -54,6 +54,10 @@ class GameBrowser extends HTMLElement {
 					color: gray;
 				}
 
+				#header {
+					font-size: 150%;
+					padding-bottom: 8px;
+				}
 			</style>
 
 			<${Container.NAME} id="running-games" gap="L">
@@ -63,6 +67,7 @@ class GameBrowser extends HTMLElement {
 				<${FlowLayout.NAME} id="build-info" axis-align="end">
 					<span><span id="git-hash">-</span> built at <span id="build-timestamp">-</span></span>
 				</${FlowLayout.NAME}>
+				<div id="header">Running games</div>
 			</${Container.NAME}>`;
 
 		this.#gameLauncherEl = this.shadowRoot.querySelector(GameLauncher.NAME);
