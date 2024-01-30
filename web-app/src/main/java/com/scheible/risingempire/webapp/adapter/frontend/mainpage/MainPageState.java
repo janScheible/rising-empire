@@ -28,7 +28,7 @@ abstract class MainPageState {
 
 	static MainPageState fromParameters(Optional<String> rawSelectedStarId, Optional<String> rawSpotlightedStarId,
 			Optional<String> rawTransferStarId, Optional<String> rawRelocateStarId, Optional<String> rawSelectedFleetId,
-			Map<String, String> rawShipTypeIdsAndCounts, Optional<String> lockedCategory, ShipProvider shipProvider,
+			Map<String, String> rawShipTypeIdsAndCounts, ShipProvider shipProvider,
 			OrbitingSystemProvider orbitingSystemProvider, DeployableFleetProvider deployableFleetProvider,
 			OwnColonyProvider ownColonyProvider) {
 		Optional<SystemId> selectedSystemId = rawSelectedStarId.map(id -> new SystemId(id));
@@ -47,7 +47,7 @@ abstract class MainPageState {
 			return new RelocateShipsState(selectedSystemId.get(), relocateSystemId.get(), ownColonyProvider);
 		}
 		else if (onlyStar(selectedSystemId, selectedFleetId)) {
-			return new StarInspectionState(selectedSystemId.get(), lockedCategory);
+			return new StarInspectionState(selectedSystemId.get());
 		}
 		else if (onlyFleet(selectedSystemId, selectedFleetId)) {
 			return new FleetInspectionState(selectedFleetId.get(),
@@ -139,11 +139,8 @@ abstract class MainPageState {
 
 		private final SystemId selectedSystemId;
 
-		private final Optional<String> lockedCategory;
-
-		private StarInspectionState(SystemId selectedSystemId, Optional<String> lockedCategory) {
+		private StarInspectionState(SystemId selectedSystemId) {
 			this.selectedSystemId = selectedSystemId;
-			this.lockedCategory = lockedCategory;
 		}
 
 		@Override
@@ -159,10 +156,6 @@ abstract class MainPageState {
 		@Override
 		Optional<SystemId> getSelectedSystemId() {
 			return Optional.of(this.selectedSystemId);
-		}
-
-		Optional<String> getLockedCategory() {
-			return this.lockedCategory;
 		}
 
 	}

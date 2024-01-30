@@ -139,7 +139,6 @@ class MainPageController {
 					context.withSelectedStar(body.selectedStarId)
 						.toAction(HttpMethod.GET, "main-page")
 						.with(body.partial, "partial", () -> true)
-						.with(body.locked.isPresent(), "lockedCategory", () -> body.locked.get())
 						.toGetUri())
 			.build();
 	}
@@ -153,7 +152,6 @@ class MainPageController {
 					context.withSelectedStar(body.selectedStarId)
 						.toAction(HttpMethod.GET, "main-page")
 						.with(body.partial, "partial", () -> true)
-						.with(body.locked.isPresent(), "lockedCategory", () -> body.locked.get())
 						.toGetUri())
 			.build();
 	}
@@ -192,8 +190,7 @@ class MainPageController {
 			@ModelAttribute FrontendContext context, @RequestParam Optional<String> selectedStarId,
 			@RequestParam Optional<String> selectedFleetId, Optional<String> spotlightedStarId,
 			@RequestParam Optional<String> transferStarId, @RequestParam Optional<String> relocateStarId,
-			@RequestParam Map<String, String> shipTypeIdsAndCounts, @RequestParam Optional<String> lockedCategory,
-			@RequestParam Optional<String> partial) {
+			@RequestParam Map<String, String> shipTypeIdsAndCounts, @RequestParam Optional<String> partial) {
 		if (context.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.SEE_OTHER)
 				.header(HttpHeaders.LOCATION, context.toAction(HttpMethod.GET, "new-game-page").toGetUri())
@@ -204,7 +201,7 @@ class MainPageController {
 		game.unregisterAi(context.getPlayer());
 
 		MainPageState state = MainPageState.fromParameters(selectedStarId, spotlightedStarId, transferStarId,
-				relocateStarId, selectedFleetId, shipTypeIdsAndCounts, lockedCategory,
+				relocateStarId, selectedFleetId, shipTypeIdsAndCounts,
 				(fleetId, parameters) -> toShipTypesAndCounts(context.getGameView().getFleet(fleetId).getShips(),
 						parameters),
 				(fleetId, orbitingSystemId) -> context.getGameView()
@@ -307,8 +304,6 @@ class MainPageController {
 		SystemId selectedStarId;
 
 		ColonyId colonyId;
-
-		Optional<String> locked = Optional.empty();
 
 		boolean partial;
 

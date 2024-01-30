@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -29,15 +28,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 class TechPageController {
 
 	@GetMapping(path = "/tech-page")
-	EntityModel<TechPageDto> techPage(@ModelAttribute FrontendContext context,
-			@RequestParam Optional<String> lockedCategory) {
-		return new EntityModel<>(new TechPageDto(new EntityModel<>(new AllocationsDto(Map.of( //
+	EntityModel<TechPageDto> techPage(@ModelAttribute FrontendContext context) {
+		return new EntityModel<>(new TechPageDto(new EntityModel<>(new AllocationsDto("tech-allocation", Map.of( //
 				"computers", new AllocationCategoryDto(16, "1111RP"), //
 				"construction", new AllocationCategoryDto(17, "2222RP"), //
 				"force-fields", new AllocationCategoryDto(16, "3333RP"), //
 				"planetology", new AllocationCategoryDto(17, "4444RP"), //
 				"propulsion", new AllocationCategoryDto(17, "5555RP"), //
-				"weapons", new AllocationCategoryDto(17, "6666RP")), lockedCategory))
+				"weapons", new AllocationCategoryDto(17, "6666RP"))))
 			.with(Action.jsonPost("allocate-research", context.toFrontendUri("tech-page", "allocations"))
 				.with(context.getSelectedStarId().isPresent(), "selectedStarId",
 						() -> context.getSelectedStarId().get().getValue()))))
@@ -52,7 +50,6 @@ class TechPageController {
 		return ResponseEntity.status(HttpStatus.SEE_OTHER)
 			.header(HttpHeaders.LOCATION,
 					context.toAction(HttpMethod.GET, "tech-page")
-						.with(body.locked.isPresent(), "lockedCategory", () -> body.locked.get())
 						.with(body.selectedStarId.isPresent(), "selectedStarId",
 								() -> body.selectedStarId.get().getValue())
 						.toGetUri())

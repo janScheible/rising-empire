@@ -297,13 +297,12 @@ public class MainPageDtoPopulator {
 						inspectedSystem.getColonyView()
 							.filter(c -> c.getPlayer() == gameView.getPlayer() && !state.isTransferColonistsState()
 									&& !state.isRelocateShipsState())
-							.map(c -> new EntityModel<>(new AllocationsDto(Map.of( //
+							.map(c -> new EntityModel<>(new AllocationsDto(c.getId().getValue(), Map.of( //
 									"ship", new AllocationCategoryDto(10, "None"), //
 									"defence", new AllocationCategoryDto(15, "None"), //
 									"industry", new AllocationCategoryDto(20, "2.7/y"), //
 									"ecology", new AllocationCategoryDto(25, "Clean"), //
-									"technology", new AllocationCategoryDto(30, "0RP")),
-									state.asStarInspectionState().getLockedCategory()))
+									"technology", new AllocationCategoryDto(30, "0RP"))))
 								.with(Action
 									.jsonPost("allocate-spending",
 											context.toFrontendUri("main-page", "inspector", "spendings"))
@@ -311,14 +310,13 @@ public class MainPageDtoPopulator {
 						selectedSystem.getColonyView()
 							.filter(c -> c.getPlayer() == gameView.getPlayer() && !state.isTransferColonistsState()
 									&& !state.isRelocateShipsState())
-							.map(c -> new EntityModel<>(new BuildQueueDto(c.getSpaceDock().get().getName(),
-									c.getSpaceDock().get().getSize(), gameView.getPlayer(), 1))
+							.map(c -> new EntityModel<>(
+									new BuildQueueDto(c.getSpaceDock().get().getName(),
+											c.getSpaceDock().get().getSize(), gameView.getPlayer(), 1))
 								.with(Action
 									.jsonPost("next-ship-type",
 											context.toFrontendUri("main-page", "inspector", "ship-types"))
 									.with("selectedStarId", selectedSystem.getId().getValue())
-									.with(state.asStarInspectionState().getLockedCategory().isPresent(), "locked",
-											() -> state.asStarInspectionState().getLockedCategory().get())
 									.with("colonyId", c.getId().getValue()))
 								.with(Action.get("relocate-ships", context.toFrontendUri("main-page"))
 									.with("selectedStarId", selectedSystem.getId().getValue())

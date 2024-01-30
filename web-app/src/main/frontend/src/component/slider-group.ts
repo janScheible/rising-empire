@@ -18,6 +18,8 @@ export default class SliderGroup extends HTMLElement {
 	#categories;
 	#locked: boolean;
 
+	#idLockedMapping = {};
+
 	constructor() {
 		super();
 
@@ -61,13 +63,8 @@ export default class SliderGroup extends HTMLElement {
 					nameEl.innerText = name;
 					nameEl.addEventListener('click', (e) => {
 						const lockingCategory = (e.target as HTMLElement).dataset.category;
-						const lockedCategory = this.#lock(lockingCategory, true);
-
-						const values: { locked?: string } = {};
-						if (lockedCategory) {
-							values.locked = lockedCategory;
-						}
-						HypermediaUtil.submitAction(this.#selectAction, values);
+						const groupId = this.getAttribute('data-id');
+						this.#idLockedMapping[groupId] = this.#lock(lockingCategory, true);
 					});
 
 					const valueEl: Slider = this.#containerEl.querySelector(`[data-category="${category}"].value`);
@@ -117,8 +114,14 @@ export default class SliderGroup extends HTMLElement {
 	render(data) {
 		this.#selectAction = HypermediaUtil.getAction(data, this.getAttribute('select-action'));
 
+		Reconciler.reconcileAttribute(this, 'data-id', data.id);
 		this.#renderCategories((this.#categories = data.categories));
-		this.#lock((this.#locked = data.locked));
+
+		const groupId = data.id;
+		if (data.locked && !Object.keys(this.#idLockedMapping).includes(groupId)) {
+			this.#idLockedMapping[groupId] = data.locked;
+		}
+		this.#lock((this.#locked = this.#idLockedMapping[groupId]));
 	}
 
 	#renderCategories(categories) {
