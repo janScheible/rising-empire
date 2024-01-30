@@ -62,7 +62,8 @@ public class GameViewBuilder {
 			BiFunction<Player, SystemId, Optional<SystemSnapshot>> snapshotProvider, Technology technology,
 			Set<SpaceCombat> spaceCombats, FleetManager fleetManager, TechManager techManager,
 			Set<SystemNotificationView> systemNotifications, int annexationSiegeRounds,
-			Map<ColonyId, Map<ColonyId, Integer>> colonistTransfers, Map<ColonyId, ColonyId> shipRelocations) {
+			Map<ColonyId, Map<ColonyId, Integer>> colonistTransfers, Map<ColonyId, ColonyId> shipRelocations,
+			BiFunction<Player, Fleet, Optional<FleetId>> parentFleetProvider) {
 		Set<SystemView> systemViews = new HashSet<>(systems.size());
 		Set<FleetView> fleetViews = new HashSet<>(30);
 
@@ -159,11 +160,13 @@ public class GameViewBuilder {
 
 				fleetViews.add(toOwnFleetView(fleet, orbitingArrivingMapping.getOrDefault(fleet.getId(), Set.of()),
 						playerRaceMapping.get(fleet.getPlayer()), designs.get(player), player,
-						fleetManager.getClosest(fleet.getId()), technology.getFleetScannerRange()));
+						fleetManager.getClosest(fleet.getId()), technology.getFleetScannerRange(),
+						parentFleetProvider));
 			}
 			else if (isForeigenFleetVisible(systems, player, fleet, technology, fleets)) {
 				fleetViews.add(toForeignFleetView(fleet, orbitingArrivingMapping.getOrDefault(fleet.getId(), Set.of()),
-						playerRaceMapping.get(fleet.getPlayer()), fleetManager.getClosest(fleet.getId())));
+						playerRaceMapping.get(fleet.getPlayer()), fleetManager.getClosest(fleet.getId()),
+						parentFleetProvider));
 			}
 		}
 
@@ -237,7 +240,8 @@ public class GameViewBuilder {
 	}
 
 	private static FleetView toOwnFleetView(Fleet fleet, Set<FleetBeforeArrival> fleetsBeforeArrival, Race race,
-			Map<DesignSlot, ShipDesign> designs, Player player, SystemId closest, int scannerRange) {
+			Map<DesignSlot, ShipDesign> designs, Player player, SystemId closest, int scannerRange,
+			BiFunction<Player, Fleet, Optional<FleetId>> parentFleetProvider) {
 		Map<ShipTypeView, Integer> shipTypesAndCounts = fleet.getShips()
 			.entrySet()
 			.stream()
@@ -248,19 +252,19 @@ public class GameViewBuilder {
 		if (fleet.isDeployed()) {
 			DeployedFleet deployedFleet = fleet.asDeployed();
 
-			return FleetView.createDeployed(fleet.getId(), player, race, shipTypesAndCounts,
-					Optional.of(deployedFleet.getSource().getId()), Optional.of(deployedFleet.getDestination().getId()),
-					deployedFleet.getPreviousLocation(), deployedFleet.isPreviousJustLeaving(),
-					deployedFleet.getLocation(), deployedFleet.getSpeed(), closest,
-					deployedFleet.getHorizontalDirection(), deployedFleet.isJustLeaving(), Optional.of(scannerRange),
-					fleetsBeforeArrival, deployedFleet.isJustLeaving());
+			return FleetView.createDeployed(fleet.getId(), parentFleetProvider.apply(fleet.getPlayer(), fleet), player,
+					race, shipTypesAndCounts, Optional.of(deployedFleet.getSource().getId()),
+					Optional.of(deployedFleet.getDestination().getId()), deployedFleet.getPreviousLocation(),
+					deployedFleet.isPreviousJustLeaving(), deployedFleet.getLocation(), deployedFleet.getSpeed(),
+					closest, deployedFleet.getHorizontalDirection(), deployedFleet.isJustLeaving(),
+					Optional.of(scannerRange), fleetsBeforeArrival, deployedFleet.isJustLeaving());
 		}
 		else if (fleet.isOrbiting()) {
 			OrbitingFleet orbitingFleet = fleet.asOrbiting();
 
-			return FleetView.createOrbiting(fleet.getId(), player, race, shipTypesAndCounts,
-					orbitingFleet.getSystem().getId(), orbitingFleet.getSystem().getLocation(), fleetsBeforeArrival,
-					true, Optional.of(scannerRange));
+			return FleetView.createOrbiting(fleet.getId(), parentFleetProvider.apply(fleet.getPlayer(), fleet), player,
+					race, shipTypesAndCounts, orbitingFleet.getSystem().getId(),
+					orbitingFleet.getSystem().getLocation(), fleetsBeforeArrival, true, Optional.of(scannerRange));
 		}
 
 		throw new IllegalStateException("Unknown fleet type!");
@@ -283,20 +287,21 @@ public class GameViewBuilder {
 	}
 
 	private static FleetView toForeignFleetView(Fleet fleet, Set<FleetBeforeArrival> fleetsBeforeArrival, Race race,
-			SystemId closest) {
+			SystemId closest, BiFunction<Player, Fleet, Optional<FleetId>> parentFleetProvider) {
 		if (fleet.isDeployed()) {
-			return FleetView.createDeployed(fleet.getId(), fleet.getPlayer(), race, Map.of(), Optional.empty(),
-					Optional.empty(), fleet.asDeployed().getPreviousLocation(),
-					fleet.asDeployed().isPreviousJustLeaving(), fleet.getLocation(), fleet.asDeployed().getSpeed(),
-					closest, fleet.asDeployed().getHorizontalDirection(), false, Optional.empty(), fleetsBeforeArrival,
+			return FleetView.createDeployed(fleet.getId(), parentFleetProvider.apply(fleet.getPlayer(), fleet),
+					fleet.getPlayer(), race, Map.of(), Optional.empty(), Optional.empty(),
+					fleet.asDeployed().getPreviousLocation(), fleet.asDeployed().isPreviousJustLeaving(),
+					fleet.getLocation(), fleet.asDeployed().getSpeed(), closest,
+					fleet.asDeployed().getHorizontalDirection(), false, Optional.empty(), fleetsBeforeArrival,
 					fleet.asDeployed().isJustLeaving());
 		}
 		else if (fleet.isOrbiting()) {
 			OrbitingFleet orbitingFleet = fleet.asOrbiting();
 
-			return FleetView.createOrbiting(fleet.getId(), fleet.getPlayer(), race, Map.of(),
-					orbitingFleet.getSystem().getId(), orbitingFleet.getSystem().getLocation(), fleetsBeforeArrival,
-					false, Optional.empty());
+			return FleetView.createOrbiting(fleet.getId(), parentFleetProvider.apply(fleet.getPlayer(), fleet),
+					fleet.getPlayer(), race, Map.of(), orbitingFleet.getSystem().getId(),
+					orbitingFleet.getSystem().getLocation(), fleetsBeforeArrival, false, Optional.empty());
 		}
 
 		throw new IllegalStateException("Unknown fleet type!");

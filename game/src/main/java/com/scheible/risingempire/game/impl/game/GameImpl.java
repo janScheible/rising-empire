@@ -81,6 +81,8 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 
 	private final Map<FleetId, Fleet> fleets;
 
+	private final Map<Player, Map<FleetId, FleetId>> fleetChildParentMapping = new HashMap<>();
+
 	private final Optional<FakeTechProvider> fakeTechProvider;
 
 	private final Optional<FakeSystemNotificationProvider> fakeNotificationProvider;
@@ -154,6 +156,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 
 		this.spaceCombats.clear();
 		this.orbitingArrivingMapping.clear();
+		this.fleetChildParentMapping.clear();
 
 		List<Fleet> sortedFleets = new ArrayList<>(this.fleets.values());
 		sortedFleets
@@ -281,10 +284,33 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		SystemOrb source = from.isOrbiting() ? from.asOrbiting().getSystem() : from.asDeployed().getSource();
 		SystemOrb destination = this.systems.get(destinationId);
 
-		this.fleetFormer
-			.deployFleet(player, from, source, destination, DesignSlot.toSlotAndCounts(ships.entrySet()), this.round)
-			.consume(addedFleet -> this.fleets.put(addedFleet.getId(), addedFleet),
-					removedFleet -> this.fleets.remove(removedFleet.getId()));
+		FleetChanges fleetChanges = this.fleetFormer.deployFleet(player, from, source, destination,
+				DesignSlot.toSlotAndCounts(ships.entrySet()), this.round);
+		fleetChanges.getAdded()
+			.forEach(addedFleet -> this.fleetChildParentMapping.computeIfAbsent(player, key -> new HashMap<>())
+				.put(addedFleet.getId(), from.getId()));
+		fleetChanges.consume(addedFleet -> this.fleets.put(addedFleet.getId(), addedFleet),
+				removedFleet -> this.fleets.remove(removedFleet.getId()));
+	}
+
+	private Optional<FleetId> getFleetParent(Player player, Fleet fleet) {
+		FleetId current = fleet.getId();
+
+		while (true) {
+			FleetId parent = this.fleetChildParentMapping.getOrDefault(player, Map.of()).get(current);
+
+			if (parent != null) {
+				current = parent;
+			}
+			else {
+				if (!current.equals(fleet.getId())) {
+					return Optional.of(current);
+				}
+				else {
+					return Optional.empty();
+				}
+			}
+		}
 	}
 
 	@Override
@@ -562,7 +588,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 				(c, sid) -> this.fractions.get(c).getSnapshot(sid), this.fractions.get(player).getTechnology(),
 				this.spaceCombats, this, this, systemNotifications, this.annexationSiegeRounds,
 				this.colonistTransfers.getOrDefault(player, Map.of()),
-				this.shipRelocations.getOrDefault(player, Map.of()));
+				this.shipRelocations.getOrDefault(player, Map.of()), this::getFleetParent);
 	}
 
 	@Override

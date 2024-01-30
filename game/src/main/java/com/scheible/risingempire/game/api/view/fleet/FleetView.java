@@ -37,6 +37,8 @@ public class FleetView {
 
 	private final FleetId id;
 
+	private final Optional<FleetId> parentId;
+
 	private final FleetViewType type;
 
 	private final Player player;
@@ -71,13 +73,14 @@ public class FleetView {
 
 	private final Optional<Boolean> justLeaving;
 
-	private FleetView(FleetId id, FleetViewType type, Player player, Race race, Map<ShipTypeView, Integer> ships,
-			Optional<Location> previousLocation, Optional<Boolean> previousJustLeaving, Location location,
-			boolean deployable, Optional<Integer> scannerRange, Optional<SystemId> source,
-			Optional<SystemId> destination, Optional<Integer> speed, Optional<SystemId> closest,
-			Optional<HorizontalDirection> horizontalDirection, Optional<SystemId> orbiting,
-			Set<FleetBeforeArrival> fleetsBeforeArrival, Optional<Boolean> justLeaving) {
+	private FleetView(FleetId id, Optional<FleetId> parentId, FleetViewType type, Player player, Race race,
+			Map<ShipTypeView, Integer> ships, Optional<Location> previousLocation,
+			Optional<Boolean> previousJustLeaving, Location location, boolean deployable,
+			Optional<Integer> scannerRange, Optional<SystemId> source, Optional<SystemId> destination,
+			Optional<Integer> speed, Optional<SystemId> closest, Optional<HorizontalDirection> horizontalDirection,
+			Optional<SystemId> orbiting, Set<FleetBeforeArrival> fleetsBeforeArrival, Optional<Boolean> justLeaving) {
 		this.id = id;
+		this.parentId = parentId;
 
 		this.type = type;
 		this.player = player;
@@ -100,27 +103,32 @@ public class FleetView {
 		this.justLeaving = justLeaving;
 	}
 
-	public static FleetView createDeployed(FleetId id, Player player, Race race, Map<ShipTypeView, Integer> ships,
-			Optional<SystemId> source, Optional<SystemId> destination, Location previousLocation,
-			boolean previousJustLeaving, Location location, int speed, SystemId closest,
+	public static FleetView createDeployed(FleetId id, Optional<FleetId> parentId, Player player, Race race,
+			Map<ShipTypeView, Integer> ships, Optional<SystemId> source, Optional<SystemId> destination,
+			Location previousLocation, boolean previousJustLeaving, Location location, int speed, SystemId closest,
 			HorizontalDirection orientation, boolean deployable, Optional<Integer> scannerRange,
 			Set<FleetBeforeArrival> fleetsBeforeArrival, boolean justLeaving) {
-		return new FleetView(id, FleetViewType.DEPLOYED, player, race, ships, Optional.of(previousLocation),
+		return new FleetView(id, parentId, FleetViewType.DEPLOYED, player, race, ships, Optional.of(previousLocation),
 				Optional.of(previousJustLeaving), location, deployable, scannerRange, source, destination,
 				Optional.of(speed), Optional.of(closest), Optional.of(orientation), Optional.empty(),
 				fleetsBeforeArrival, Optional.of(justLeaving));
 	}
 
-	public static FleetView createOrbiting(FleetId id, Player player, Race race, Map<ShipTypeView, Integer> ships,
-			SystemId orbiting, Location location, Set<FleetBeforeArrival> fleetsBeforeArrival, boolean deployable,
-			Optional<Integer> scannerRange) {
-		return new FleetView(id, FleetViewType.ORBITING, player, race, ships, Optional.empty(), Optional.empty(),
-				location, deployable, scannerRange, Optional.empty(), Optional.empty(), Optional.empty(),
-				Optional.empty(), Optional.empty(), Optional.of(orbiting), fleetsBeforeArrival, Optional.empty());
+	public static FleetView createOrbiting(FleetId id, Optional<FleetId> parentId, Player player, Race race,
+			Map<ShipTypeView, Integer> ships, SystemId orbiting, Location location,
+			Set<FleetBeforeArrival> fleetsBeforeArrival, boolean deployable, Optional<Integer> scannerRange) {
+		return new FleetView(id, parentId, FleetViewType.ORBITING, player, race, ships, Optional.empty(),
+				Optional.empty(), location, deployable, scannerRange, Optional.empty(), Optional.empty(),
+				Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(orbiting), fleetsBeforeArrival,
+				Optional.empty());
 	}
 
 	public FleetId getId() {
 		return this.id;
+	}
+
+	public Optional<FleetId> getParentId() {
+		return this.parentId;
 	}
 
 	public FleetViewType getType() {
@@ -231,10 +239,13 @@ public class FleetView {
 	public String toString(Function<SystemId, String> starNameResolver) {
 		StringJoiner values = new StringJoiner(", ",
 				(this.type == FleetViewType.DEPLOYED ? "DeployedFleet" : "OrbitingFleet") + "View[", "]")
-			.add("id=" + this.id)
-			.add("type=" + this.type)
-			.add("player=" + this.player)
-			.add("race=" + this.race);
+			.add("id=" + this.id);
+
+		if (this.parentId.isPresent()) {
+			values.add("parentId=" + this.parentId.get());
+		}
+
+		values.add("type=" + this.type).add("player=" + this.player).add("race=" + this.race);
 
 		if (this.previousLocation.isPresent()) {
 			values.add("previousLocation=" + this.previousLocation.get());
