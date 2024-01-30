@@ -33,6 +33,25 @@ export default class HypermediaUtil {
 		return model['_actions'].filter((a) => a.name === name)[0];
 	}
 
+	static createOrUpdateAction(model, action: Action) {
+		let updated = false;
+		for (let i = 0; i < model['_actions'].length; i++) {
+			if (model['_actions'][i].name === action.name) {
+				model['_actions'][i] = action;
+				updated = true;
+				break;
+			}
+		}
+
+		if (!updated) {
+			model['_actions'].push(action);
+		}
+	}
+
+	static removeAction(model, name: string) {
+		model['_actions'] = model['_actions'].filter((a) => a.name !== name);
+	}
+
 	static getActions(model, name?: string): Action[] {
 		return model['_actions'].filter((a) => !name || a.name === name);
 	}

@@ -38,7 +38,7 @@ export default class MainPage extends HTMLElement {
 					
 					left: 0px;
 					right: 0px;
-					top: 4px;
+					top: 3px;
 
 					z-index: 2000;
 
@@ -102,7 +102,7 @@ export default class MainPage extends HTMLElement {
 
 		const starMap = Object.assign({}, data.starMap, {
 			// also display destroyed fleets (they will vanish as soon as the spaceCombats will be removed from the state)
-			fleets: data.starMap.fleets.concat(this.#state.destroyedFleets),
+			fleets: Object.values(data.starMap.fleets).flat().concat(this.#state.destroyedFleets),
 			starNotifications: this.#state.isNotificationState() ? this.#state.starNotifications : [],
 		});
 		await this.#starMapEl.render(starMap);

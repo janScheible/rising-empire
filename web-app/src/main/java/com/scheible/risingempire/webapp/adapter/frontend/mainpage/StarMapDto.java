@@ -2,6 +2,7 @@ package com.scheible.risingempire.webapp.adapter.frontend.mainpage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,7 +25,7 @@ class StarMapDto {
 
 	List<EntityModel<StarDto>> stars;
 
-	List<EntityModel<FleetDto>> fleets;
+	Map<String, List<EntityModel<FleetDto>>> fleets;
 
 	List<StarNotificationDto> starNotifications;
 
@@ -49,13 +50,16 @@ class StarMapDto {
 
 	static class StarSelectionDto {
 
+		final String id;
+
 		final int x;
 
 		final int y;
 
 		Optional<ItineraryDto> itinerary;
 
-		StarSelectionDto(int x, int y) {
+		StarSelectionDto(String id, int x, int y) {
+			this.id = id;
 			this.x = x;
 			this.y = y;
 		}
@@ -64,20 +68,30 @@ class StarMapDto {
 
 	static class FleetSelectionDto {
 
+		final String id;
+
 		final int x;
 
 		final int y;
 
+		final boolean deployable;
+
 		final boolean orbiting;
+
+		final Optional<String> orbitingStarId;
 
 		final boolean justLeaving;
 
 		Optional<ItineraryDto> itinerary;
 
-		FleetSelectionDto(int x, int y, boolean orbiting, boolean justLeaving) {
+		FleetSelectionDto(String id, int x, int y, boolean deployable, boolean orbiting,
+				Optional<String> orbitingStarId, boolean justLeaving) {
+			this.id = id;
 			this.x = x;
 			this.y = y;
+			this.deployable = deployable;
 			this.orbiting = orbiting;
+			this.orbitingStarId = orbitingStarId;
 			this.justLeaving = justLeaving;
 		}
 

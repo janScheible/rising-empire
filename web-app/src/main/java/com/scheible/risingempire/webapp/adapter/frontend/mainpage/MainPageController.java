@@ -70,7 +70,10 @@ class MainPageController {
 
 		return ResponseEntity.status(HttpStatus.SEE_OTHER)
 			.header(HttpHeaders.LOCATION,
-					context.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page").toGetUri())
+					context.withSelectedStar(body.selectedStarId)
+						.toAction(HttpMethod.GET, "main-page")
+						.with(body.partial, "partial", () -> true)
+						.toGetUri())
 			.build();
 	}
 
@@ -83,7 +86,10 @@ class MainPageController {
 
 		return ResponseEntity.status(HttpStatus.SEE_OTHER)
 			.header(HttpHeaders.LOCATION,
-					context.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page").toGetUri())
+					context.withSelectedStar(body.selectedStarId)
+						.toAction(HttpMethod.GET, "main-page")
+						.with(body.partial, "partial", () -> true)
+						.toGetUri())
 			.build();
 	}
 
@@ -95,7 +101,10 @@ class MainPageController {
 
 		return ResponseEntity.status(HttpStatus.SEE_OTHER)
 			.header(HttpHeaders.LOCATION,
-					context.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page").toGetUri())
+					context.withSelectedStar(body.selectedStarId)
+						.toAction(HttpMethod.GET, "main-page")
+						.with(body.partial, "partial", () -> true)
+						.toGetUri())
 			.build();
 	}
 
@@ -116,7 +125,8 @@ class MainPageController {
 			.header(HttpHeaders.LOCATION,
 					context.withSelectedStar(body.getFirst("selectedStarId"))
 						.toAction(HttpMethod.GET, "main-page")
-						.with(body.containsKey("fields"), "fields", () -> body.getFirst("fields"))
+						.with(Boolean.parseBoolean(body.getFirst("partial")), "partial",
+								() -> "updatedParentFleetId=" + fleet.getParentId().orElse(fleet.getId()).getValue())
 						.toGetUri())
 			.build();
 	}
@@ -128,6 +138,7 @@ class MainPageController {
 			.header(HttpHeaders.LOCATION,
 					context.withSelectedStar(body.selectedStarId)
 						.toAction(HttpMethod.GET, "main-page")
+						.with(body.partial, "partial", () -> true)
 						.with(body.locked.isPresent(), "lockedCategory", () -> body.locked.get())
 						.toGetUri())
 			.build();
@@ -141,6 +152,7 @@ class MainPageController {
 			.header(HttpHeaders.LOCATION,
 					context.withSelectedStar(body.selectedStarId)
 						.toAction(HttpMethod.GET, "main-page")
+						.with(body.partial, "partial", () -> true)
 						.with(body.locked.isPresent(), "lockedCategory", () -> body.locked.get())
 						.toGetUri())
 			.build();
@@ -154,7 +166,10 @@ class MainPageController {
 
 		return ResponseEntity.status(HttpStatus.SEE_OTHER)
 			.header(HttpHeaders.LOCATION,
-					context.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page").toGetUri())
+					context.withSelectedStar(body.selectedStarId)
+						.toAction(HttpMethod.GET, "main-page")
+						.with(body.partial, "partial", () -> true)
+						.toGetUri())
 			.build();
 	}
 
@@ -165,7 +180,10 @@ class MainPageController {
 
 		return ResponseEntity.status(HttpStatus.SEE_OTHER)
 			.header(HttpHeaders.LOCATION,
-					context.withSelectedStar(body.selectedStarId).toAction(HttpMethod.GET, "main-page").toGetUri())
+					context.withSelectedStar(body.selectedStarId)
+						.toAction(HttpMethod.GET, "main-page")
+						.with(body.partial, "partial", () -> true)
+						.toGetUri())
 			.build();
 	}
 
@@ -175,7 +193,7 @@ class MainPageController {
 			@RequestParam Optional<String> selectedFleetId, Optional<String> spotlightedStarId,
 			@RequestParam Optional<String> transferStarId, @RequestParam Optional<String> relocateStarId,
 			@RequestParam Map<String, String> shipTypeIdsAndCounts, @RequestParam Optional<String> lockedCategory,
-			@RequestParam Optional<Boolean> partial) {
+			@RequestParam Optional<String> partial) {
 		if (context.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.SEE_OTHER)
 				.header(HttpHeaders.LOCATION, context.toAction(HttpMethod.GET, "new-game-page").toGetUri())
@@ -213,12 +231,12 @@ class MainPageController {
 				.build();
 		}
 
-		return ResponseEntity.ok(MainPageDto
-			.filterFields(state, MainPageDtoPopulator.populate(context, state), partial.orElse(Boolean.FALSE))
-			.with(new Action("_self", request.getRequestURI(), ActionHttpMethod.GET).with(request.getParameterMap()
-				.entrySet()
-				.stream()
-				.flatMap(pv -> Stream.of(pv.getValue()).map(v -> new ActionField(pv.getKey(), v))))));
+		return ResponseEntity
+			.ok(MainPageDto.filterFields(state, MainPageDtoPopulator.populate(context, state), partial.orElse("false"))
+				.with(new Action("_self", request.getRequestURI(), ActionHttpMethod.GET).with(request.getParameterMap()
+					.entrySet()
+					.stream()
+					.flatMap(pv -> Stream.of(pv.getValue()).map(v -> new ActionField(pv.getKey(), v))))));
 	}
 
 	private static Map<ShipTypeView, Integer> toShipTypesAndCounts(Map<ShipTypeView, Integer> fleetShips,
@@ -238,6 +256,8 @@ class MainPageController {
 
 		boolean skip;
 
+		boolean partial;
+
 	}
 
 	static class AnnexSystemBodyDto {
@@ -247,6 +267,8 @@ class MainPageController {
 		FleetId fleetId;
 
 		boolean skip;
+
+		boolean partial;
 
 	}
 
@@ -266,6 +288,8 @@ class MainPageController {
 
 		Optional<Integer> technology = Optional.empty();
 
+		boolean partial;
+
 	}
 
 	static class FinishTurnBodyDto {
@@ -273,6 +297,8 @@ class MainPageController {
 		SystemId selectedStarId;
 
 		int round;
+
+		boolean partial;
 
 	}
 
@@ -284,6 +310,8 @@ class MainPageController {
 
 		Optional<String> locked = Optional.empty();
 
+		boolean partial;
+
 	}
 
 	static class TransferColonistsBodyDto {
@@ -294,6 +322,8 @@ class MainPageController {
 
 		ColonyId transferColonyId;
 
+		boolean partial;
+
 	}
 
 	static class RelocateShipsBodyDto {
@@ -301,6 +331,8 @@ class MainPageController {
 		SystemId selectedStarId;
 
 		ColonyId relocateColonyId;
+
+		boolean partial;
 
 	}
 

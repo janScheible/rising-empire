@@ -47,7 +47,7 @@ export default class ButtonBar extends HTMLElement {
 
 		this.#turnEl = this.shadowRoot.querySelector('#turn');
 		this.#turnEl.addEventListener('click', () => {
-			HypermediaUtil.submitAction(this.#finishTurnAction, {});
+			HypermediaUtil.submitAction(this.#finishTurnAction, { partial: false });
 		});
 
 		this.#techEl = this.shadowRoot.querySelector('#tech');

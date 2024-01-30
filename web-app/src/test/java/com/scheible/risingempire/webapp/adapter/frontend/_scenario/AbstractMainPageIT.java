@@ -164,7 +164,7 @@ abstract class AbstractMainPageIT {
 
 		return Stream
 			.concat(toMainPageFleet.apply("$.spaceCombats[*].destroyedFleets[*]", true),
-					toMainPageFleet.apply("$.starMap.fleets", false))
+					toMainPageFleet.apply("$.starMap.fleets[*].*", false))
 			.collect(Collectors.toSet());
 	}
 
