@@ -6,9 +6,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import com.scheible.risingempire.game.api.universe.Player;
+import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
-import com.scheible.risingempire.game.api.view.universe.Player;
-import com.scheible.risingempire.game.api.view.universe.Race;
 
 import static java.util.Collections.unmodifiableMap;
 
@@ -29,14 +29,14 @@ public class ColonyView {
 
 	private final Optional<Map<ProductionArea, Integer>> ratios;
 
-	private final Optional<AnnexationStatusView> annexationStatus;
+	private final Optional<AnnexationStatus> annexationStatus;
 
 	private final Map<ColonyId, Integer> colonistTransfers;
 
 	private final Optional<ColonyId> relocationTarget;
 
 	public ColonyView(ColonyId id, Player player, Race race, int population, Optional<ShipTypeView> spaceDock,
-			Optional<Map<ProductionArea, Integer>> ratios, Optional<AnnexationStatusView> annexationStatus,
+			Optional<Map<ProductionArea, Integer>> ratios, Optional<AnnexationStatus> annexationStatus,
 			Map<ColonyId, Integer> colonistTransfers, Optional<ColonyId> relocationTarget) {
 		this.id = id;
 
@@ -74,7 +74,7 @@ public class ColonyView {
 		return this.population;
 	}
 
-	public Optional<AnnexationStatusView> getAnnexationStatus() {
+	public Optional<AnnexationStatus> getAnnexationStatus() {
 		return this.annexationStatus;
 	}
 

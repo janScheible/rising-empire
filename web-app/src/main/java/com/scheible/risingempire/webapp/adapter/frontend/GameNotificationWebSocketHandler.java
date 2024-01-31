@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.scheible.risingempire.game.api.view.universe.Player;
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.webapp.notification.NotificationChannel;
 import com.scheible.risingempire.webapp.notification.NotificationService;
 import org.slf4j.Logger;

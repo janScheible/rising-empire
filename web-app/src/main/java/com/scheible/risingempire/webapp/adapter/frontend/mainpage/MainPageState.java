@@ -4,10 +4,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
-import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
+import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
-
-import static java.util.Collections.unmodifiableMap;
 
 /**
  * @author sj
@@ -247,16 +245,16 @@ abstract class MainPageState {
 
 		private final FleetId selectedFleetId;
 
-		private final Map<ShipTypeView, Integer> ships;
+		private final Optional<ShipsView> ships;
 
 		private final DeployableFleetProvider deployableFleetProvider;
 
 		private final OrbitingSystemProvider orbitingSystemProvider;
 
-		private FleetInspectionState(FleetId selectedFleetId, Map<ShipTypeView, Integer> ships,
+		private FleetInspectionState(FleetId selectedFleetId, ShipsView ships,
 				DeployableFleetProvider deployableFleetProvider, OrbitingSystemProvider orbitingSystemProvider) {
 			this.selectedFleetId = selectedFleetId;
-			this.ships = ships.isEmpty() ? null : unmodifiableMap(ships);
+			this.ships = !ships.isEmpty() ? Optional.of(ships) : Optional.empty();
 
 			this.deployableFleetProvider = deployableFleetProvider;
 			this.orbitingSystemProvider = orbitingSystemProvider;
@@ -278,8 +276,8 @@ abstract class MainPageState {
 			return Optional.of(this.selectedFleetId);
 		}
 
-		Optional<Map<ShipTypeView, Integer>> getShips() {
-			return Optional.ofNullable(this.ships);
+		Optional<ShipsView> getShips() {
+			return this.ships;
 		}
 
 	}
@@ -290,15 +288,15 @@ abstract class MainPageState {
 
 		private final FleetId selectedFleetId;
 
-		private final Map<ShipTypeView, Integer> ships;
+		private final Optional<ShipsView> ships;
 
 		private final OrbitingSystemProvider orbitingSystemProvider;
 
-		private FleetDeploymentState(FleetId selectedFleetId, SystemId selectedSystemId,
-				Map<ShipTypeView, Integer> ships, OrbitingSystemProvider orbitingSystemProvider) {
+		private FleetDeploymentState(FleetId selectedFleetId, SystemId selectedSystemId, ShipsView ships,
+				OrbitingSystemProvider orbitingSystemProvider) {
 			this.selectedFleetId = selectedFleetId;
 			this.selectedSystemId = selectedSystemId;
-			this.ships = ships.isEmpty() ? null : unmodifiableMap(ships);
+			this.ships = !ships.isEmpty() ? Optional.of(ships) : Optional.empty();
 
 			this.orbitingSystemProvider = orbitingSystemProvider;
 		}
@@ -324,8 +322,8 @@ abstract class MainPageState {
 			return Optional.of(this.selectedFleetId);
 		}
 
-		Optional<Map<ShipTypeView, Integer>> getShips() {
-			return Optional.ofNullable(this.ships);
+		Optional<ShipsView> getShips() {
+			return this.ships;
 		}
 
 	}
@@ -333,7 +331,7 @@ abstract class MainPageState {
 	@FunctionalInterface
 	interface ShipProvider {
 
-		Map<ShipTypeView, Integer> get(FleetId fleetId, Map<String, String> parameters);
+		ShipsView get(FleetId fleetId, Map<String, String> parameters);
 
 	}
 

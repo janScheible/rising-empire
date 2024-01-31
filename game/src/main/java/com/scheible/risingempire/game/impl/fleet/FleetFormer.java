@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.scheible.risingempire.game.api.view.universe.Player;
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl.ship.DesignSlot;
 import com.scheible.risingempire.game.impl.system.SystemOrb;
 import com.scheible.risingempire.util.ProcessingResult;

@@ -6,11 +6,11 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.system.SystemId;
-import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.impl.ship.DesignSlot;
 
 import static java.util.Collections.unmodifiableMap;

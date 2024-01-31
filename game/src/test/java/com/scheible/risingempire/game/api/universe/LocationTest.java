@@ -1,10 +1,9 @@
-package com.scheible.risingempire.game.api.view;
+package com.scheible.risingempire.game.api.universe;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.scheible.risingempire.game.api.view.universe.Location;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

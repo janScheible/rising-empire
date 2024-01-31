@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.scheible.risingempire.game.api.GalaxySize;
-import com.scheible.risingempire.game.api.view.universe.Location;
+import com.scheible.risingempire.game.api.universe.Location;
 
 import static java.util.Collections.unmodifiableList;
 

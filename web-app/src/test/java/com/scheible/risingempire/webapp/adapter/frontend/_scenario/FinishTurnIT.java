@@ -5,7 +5,7 @@ import java.util.Set;
 import com.scheible.risingempire.game.api.Game;
 import com.scheible.risingempire.game.api.GameFactory;
 import com.scheible.risingempire.game.api.GameOptions;
-import com.scheible.risingempire.game.api.view.universe.Player;
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.webapp._hypermedia.HypermediaClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

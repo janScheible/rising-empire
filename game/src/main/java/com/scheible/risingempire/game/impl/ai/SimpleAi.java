@@ -1,8 +1,8 @@
 package com.scheible.risingempire.game.impl.ai;
 
 import com.scheible.risingempire.game.api.PlayerGame;
+import com.scheible.risingempire.game.api.ai.Ai;
 import com.scheible.risingempire.game.api.view.GameView;
-import com.scheible.risingempire.game.api.view.ai.Ai;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
 
 /**
@@ -11,12 +11,12 @@ import com.scheible.risingempire.game.api.view.tech.TechGroupView;
 public class SimpleAi implements Ai {
 
 	@Override
-	public void finishTurn(PlayerGame gameView) {
-		GameView gameState = gameView.getView();
+	public void finishTurn(PlayerGame game) {
+		GameView gameState = game.getView();
 
 		if (!gameState.getSelectTechs().isEmpty()) {
 			for (TechGroupView techGroup : gameState.getSelectTechs()) {
-				gameView.selectTech(techGroup.iterator().next().getId());
+				game.selectTech(techGroup.iterator().next().getId());
 			}
 		}
 	}

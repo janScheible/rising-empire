@@ -11,10 +11,10 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.system.SystemId;
-import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.impl.fleet.DeployedFleet;
 import com.scheible.risingempire.game.impl.fleet.OrbitingFleet;
 import com.scheible.risingempire.game.impl.fleet.SpaceCombatResolver;

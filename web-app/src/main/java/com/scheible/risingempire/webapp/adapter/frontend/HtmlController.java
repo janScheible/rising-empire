@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import com.scheible.esbuild.bindings.util.ImportMapGenerator;
 import com.scheible.esbuild.bindings.util.ImportMapper;
 import com.scheible.esbuild.spring.AppRevision;
-import com.scheible.risingempire.game.api.view.universe.Player;
+import com.scheible.risingempire.game.api.universe.Player;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;

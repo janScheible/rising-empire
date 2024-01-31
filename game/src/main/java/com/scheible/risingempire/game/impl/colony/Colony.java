@@ -7,8 +7,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
-import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.impl.ship.DesignSlot;
 
 import static com.scheible.risingempire.util.jdk.Objects2.toStringBuilder;

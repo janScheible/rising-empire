@@ -3,8 +3,8 @@ package com.scheible.risingempire.game.api.view.fleet;
 import java.util.Objects;
 import java.util.StringJoiner;
 
+import com.scheible.risingempire.game.api.universe.Location;
 import com.scheible.risingempire.game.api.view.fleet.FleetView.HorizontalDirection;
-import com.scheible.risingempire.game.api.view.universe.Location;
 
 /**
  * @author sj

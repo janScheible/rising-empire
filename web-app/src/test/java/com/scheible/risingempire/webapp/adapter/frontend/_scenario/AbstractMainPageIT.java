@@ -16,8 +16,8 @@ import java.util.stream.Stream;
 
 import com.jayway.jsonpath.JsonPath;
 import com.scheible.risingempire.game.api.Game;
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.system.SystemId;
-import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.webapp._hypermedia.HypermediaClient;
 import com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT.GameHolderConfiguration;
 import com.scheible.risingempire.webapp.game.GameHolder;

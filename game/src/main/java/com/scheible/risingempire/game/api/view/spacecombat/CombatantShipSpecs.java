@@ -12,7 +12,7 @@ import static java.util.Collections.unmodifiableList;
 /**
  * @author sj
  */
-public class CombatantShipSpecsView {
+public class CombatantShipSpecs {
 
 	private final ShipTypeId id;
 
@@ -42,9 +42,9 @@ public class CombatantShipSpecsView {
 
 	private final List<FireExchangeView> fireExchanges;
 
-	public CombatantShipSpecsView(ShipTypeId id, String name, int count, int previousCount, ShipSize size,
-			Integer shield, Integer beamDefence, Integer attackLevel, Integer warp, Integer missleDefence, Integer hits,
-			Integer speed, List<String> equipment, List<FireExchangeView> fireExchanges) {
+	public CombatantShipSpecs(ShipTypeId id, String name, int count, int previousCount, ShipSize size, Integer shield,
+			Integer beamDefence, Integer attackLevel, Integer warp, Integer missleDefence, Integer hits, Integer speed,
+			List<String> equipment, List<FireExchangeView> fireExchanges) {
 		this.id = id;
 		this.name = name;
 
@@ -127,7 +127,7 @@ public class CombatantShipSpecsView {
 			return true;
 		}
 		else if (obj != null && obj.getClass().equals(getClass())) {
-			CombatantShipSpecsView other = (CombatantShipSpecsView) obj;
+			CombatantShipSpecs other = (CombatantShipSpecs) obj;
 			return Objects.equals(this.id, other.id) && Objects.equals(this.name, other.name)
 					&& Objects.equals(this.count, other.count)
 					&& Objects.equals(this.previousCount, other.previousCount) && Objects.equals(this.size, other.size)

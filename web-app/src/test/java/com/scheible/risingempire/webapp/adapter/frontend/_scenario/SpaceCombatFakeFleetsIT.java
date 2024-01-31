@@ -1,17 +1,16 @@
 package com.scheible.risingempire.webapp.adapter.frontend._scenario;
 
-import java.util.Map;
 import java.util.Set;
 
 import com.scheible.risingempire.game.api.Game;
 import com.scheible.risingempire.game.api.GameFactory;
 import com.scheible.risingempire.game.api.GameOptions;
 import com.scheible.risingempire.game.api.PlayerGame;
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.system.SystemView;
-import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.webapp._hypermedia.HypermediaClient;
 import org.junit.jupiter.api.Test;
 
@@ -52,9 +51,9 @@ class SpaceCombatFakeFleetsIT extends AbstractMainPageIT {
 			.orElseThrow();
 
 		blueGame.deployFleet(blueHomeFleet.getId(), WHITE_HOME_SYSTEM_ID,
-				Map.of(blueHomeFleet.getShipType("Colony Ship").getId(), 1));
+				blueHomeFleet.getShips().getPartByName("Colony Ship", 1));
 		blueGame.deployFleet(blueHomeFleet.getId(), YELLOW_HOME_SYSTEM_ID,
-				Map.of(blueHomeFleet.getShipType("Colony Ship").getId(), 1));
+				blueHomeFleet.getShips().getPartByName("Colony Ship", 1));
 
 		HypermediaClient blueClient = createHypermediaClient(Player.BLUE);
 		assertThat(blueClient).is(mainPageState("StarInspectionState"));

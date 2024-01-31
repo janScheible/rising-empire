@@ -9,21 +9,21 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import com.scheible.risingempire.game.api.universe.Location;
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.GameView;
-import com.scheible.risingempire.game.api.view.colony.AnnexationStatusView;
+import com.scheible.risingempire.game.api.view.colony.AnnexationStatus;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
 import com.scheible.risingempire.game.api.view.fleet.FleetView.FleetViewType;
-import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
+import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.system.SystemView;
-import com.scheible.risingempire.game.api.view.universe.Location;
-import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.webapp.adapter.frontend.context.FrontendContext;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.AllocationCategoryDto;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.AllocationsDto;
@@ -108,10 +108,9 @@ public class MainPageDtoPopulator {
 			turnSelectedSystemId = fromSelectedStar(gameView, state, mainPage, context);
 		}
 
-		Optional<Map<ShipTypeView, Integer>> stateShips = state.isFleetDeploymentState()
-				? state.asFleetDeploymentState().getShips() : state.isFleetInspectionState()
-						? state.asFleetInspectionState().getShips() : Optional.of(Map.<ShipTypeView, Integer>of());
-		Optional<Map<ShipTypeView, Integer>> maybeShips = stateShips
+		Optional<ShipsView> stateShips = state.isFleetDeploymentState() ? state.asFleetDeploymentState().getShips()
+				: state.isFleetInspectionState() ? state.asFleetInspectionState().getShips() : Optional.empty();
+		Optional<ShipsView> maybeShips = stateShips
 			.or(() -> state.getSelectedFleetId().map(id -> gameView.getFleet(id).getShips()));
 
 		if (state.getSelectedFleetId().isPresent()) {
@@ -134,12 +133,8 @@ public class MainPageDtoPopulator {
 			.stream()
 			.map(s -> new EntityModel<>(new StarDto(s.getId(), s.getStarName(), s.getStarType(), s.isSmall(),
 					s.getColonyView().map(ColonyView::getPlayer),
-					s.getColonyView()
-						.flatMap(ColonyView::getAnnexationStatus)
-						.flatMap(AnnexationStatusView::siegingPlayer),
-					s.getColonyView()
-						.flatMap(ColonyView::getAnnexationStatus)
-						.flatMap(AnnexationStatusView::getProgress),
+					s.getColonyView().flatMap(ColonyView::getAnnexationStatus).flatMap(AnnexationStatus::siegingPlayer),
+					s.getColonyView().flatMap(ColonyView::getAnnexationStatus).flatMap(AnnexationStatus::getProgress),
 					s.getLocation().getX(), s.getLocation().getY(),
 					s.getColonyView().flatMap(ColonyView::getRelocationTarget).map(rt -> toItinerary(s, rt, gameView))))
 				.with(state.isSystemSelectable(s.getId()), () -> Action
@@ -153,10 +148,10 @@ public class MainPageDtoPopulator {
 							&& gameView.getFleet(state.getSelectedFleetId().orElseThrow()).isDeployable(),
 							"selectedFleetId", () -> state.getSelectedFleetId().map(FleetId::getValue).orElseThrow())
 					.with(maybeShips.isPresent(),
-							() -> maybeShips.map(ships -> toDtoShipList(ships))
-								.orElseThrow()
+							() -> maybeShips.orElseThrow()
+								.getTypesWithCount()
 								.stream()
-								.map(sh -> new ActionField(sh.id, sh.count)))))
+								.map(twc -> new ActionField(twc.getKey().getId().getValue(), twc.getValue())))))
 			.collect(Collectors.toList());
 
 		Predicate<FleetId> isSpaceCombatAttacker = fleetId -> gameView.getSpaceCombats()
@@ -168,8 +163,8 @@ public class MainPageDtoPopulator {
 			.map(fleet -> new EntityModel<>(new FleetDto(fleet.getId(), fleet.getPlayer(),
 					fleet.getPreviousLocation().map(Location::getX), fleet.getPreviousLocation().map(Location::getY),
 					fleet.isPreviousJustLeaving(), fleet.getLocation().getX(), fleet.getLocation().getY(),
-					fleet.getType() == FleetViewType.ORBITING, fleet.isJustLeaving().orElse(Boolean.FALSE),
-					fleet.getSpeed(), fleet.getHorizontalDirection(),
+					fleet.getType() == FleetViewType.ORBITING, fleet.isJustLeaving(), fleet.getSpeed(),
+					fleet.getHorizontalDirection(),
 					fleet.getFleetsBeforeArrival()
 						.stream()
 						.map(fba -> new EntityModel<>(new FleetDto(fba.getId(), fleet.getPlayer(),
@@ -242,7 +237,7 @@ public class MainPageDtoPopulator {
 						&& gameView.getColonizableSystemIds().contains(state.getSelectedSystemId().get()));
 		boolean annexation = (state.isStarInspectionState() && selectedSystem.getColonyView()
 			.flatMap(ColonyView::getAnnexationStatus)
-			.flatMap(AnnexationStatusView::annexable)
+			.flatMap(AnnexationStatus::annexable)
 			.orElse(Boolean.FALSE))
 				|| (state.isStarSpotlightState()
 						&& gameView.getAnnexableSystemIds().contains(state.getSelectedSystemId().get()));
@@ -283,13 +278,13 @@ public class MainPageDtoPopulator {
 									Optional.ofNullable(c.getPlayer() != gameView.getPlayer()
 											? new ForeignColonyOwner(c.getRace(), c.getPlayer()) : null),
 									c.getPopulation(), c.getRatios().map(r -> new ProductionDto(42, 78)),
-									c.getAnnexationStatus().flatMap(AnnexationStatusView::roundsUntilAnnexable),
+									c.getAnnexationStatus().flatMap(AnnexationStatus::roundsUntilAnnexable),
 									c.getAnnexationStatus()
 										.filter(as -> context.getPlayer() == c.getPlayer())
-										.flatMap(AnnexationStatusView::siegingPlayer),
+										.flatMap(AnnexationStatus::siegingPlayer),
 									c.getAnnexationStatus()
 										.filter(as -> context.getPlayer() == c.getPlayer())
-										.flatMap(AnnexationStatusView::siegingRace))),
+										.flatMap(AnnexationStatus::siegingRace))),
 						inspectedSystem.getColonyView()
 							.filter(c -> c.getPlayer() == gameView.getPlayer() && !state.isTransferColonistsState()
 									&& !state.isRelocateShipsState())
@@ -400,7 +395,7 @@ public class MainPageDtoPopulator {
 									.get()
 									.getAnnexationStatus()
 									.get()
-									.annexCommand()
+									.annexationCommand()
 									.orElse(Boolean.FALSE))))
 					.with(Action.jsonPost("annex", context.toFrontendUri("main-page", "inspector", "annexations"))
 						.with("selectedStarId",
@@ -454,61 +449,58 @@ public class MainPageDtoPopulator {
 		return selectedSystem.getId();
 	}
 
-	private static SystemId fromSelectedFleet(GameView gameView, MainPageState state,
-			Optional<Map<ShipTypeView, Integer>> maybeShips, MainPageDto mainPage, FrontendContext context) {
+	private static SystemId fromSelectedFleet(GameView gameView, MainPageState state, Optional<ShipsView> maybeShips,
+			MainPageDto mainPage, FrontendContext context) {
 		FleetView selectedFleet = gameView.getFleet(state.getSelectedFleetId().orElseThrow());
 		SystemId selectedSystemId = selectedFleet.getOrbiting().or(selectedFleet::getClosest).orElseThrow();
 
-		boolean justLeaving = selectedFleet.isJustLeaving().orElse(Boolean.FALSE);
-		Map<ShipTypeView, Integer> ships = maybeShips.orElseThrow();
+		ShipsView ships = maybeShips.orElseThrow();
 		mainPage.starMap.getContent().fleetSelection = new FleetSelectionDto(selectedFleet.getId(),
 				selectedFleet.getLocation().getX(), selectedFleet.getLocation().getY(), selectedFleet.isDeployable(),
 				selectedFleet.getOrbiting().isPresent(), selectedFleet.getOrbiting().map(SystemId::getValue),
-				justLeaving);
+				selectedFleet.isJustLeaving());
 
-		Map<ShipTypeView, Integer> totalShips = gameView.getFleet(selectedFleet.getId()).getShips();
+		ShipsView totalShips = gameView.getFleet(selectedFleet.getId()).getShips();
 
 		if (state.isFleetInspectionState()) {
 			if (selectedFleet.isDeployable()) {
-				mainPage.inspector.fleetDeployment = new EntityModel<>(
-						new FleetDeploymentDto(selectedFleet.getId(), gameView.getRound(), selectedFleet.getPlayer(),
-								null, null, false, toDtoShipList(ships, totalShips)));
+				mainPage.inspector.fleetDeployment = new EntityModel<>(new FleetDeploymentDto(selectedFleet.getId(),
+						gameView.getRound(), selectedFleet.getPlayer(), Optional.empty(), Optional.empty(), false,
+						toDtoShipList(ships, Optional.of(totalShips))));
 			}
 			else {
 				mainPage.inspector.fleetView = new EntityModel<>(new FleetViewDto(selectedFleet.getPlayer(),
-						selectedFleet.getRace(), null, toDtoShipList(ships)));
+						selectedFleet.getRace(), Optional.empty(), toDtoShipList(ships, Optional.of(totalShips))));
 			}
 		}
 		else if (state.isFleetDeploymentState()) {
 			SystemView selectedSystem = gameView.getSystem(state.getSelectedSystemId().orElseThrow());
 			Optional<Integer> eta = context.getPlayerGame()
-				.calcEta(selectedFleet.getId(), selectedSystem.getId(),
-						ships.entrySet()
-							.stream()
-							.collect(Collectors.toMap(e -> e.getKey().getId(), Map.Entry::getValue)));
+				.calcEta(selectedFleet.getId(), selectedSystem.getId(), ships);
 
 			if (selectedFleet.isDeployable()) {
 				mainPage.inspector.fleetDeployment = new EntityModel<>(
 						new FleetDeploymentDto(selectedFleet.getId(), gameView.getRound(), selectedFleet.getPlayer(),
-								eta, eta.isPresent() ? Optional.empty()
-										: selectedSystem.getRange(),
-								true, toDtoShipList(ships, totalShips)))
+								eta, eta.isPresent() ? Optional.empty() : selectedSystem.getRange(), true,
+								toDtoShipList(ships, Optional.of(totalShips))))
 					.with(selectedFleet.isDeployable() && eta.isPresent(),
 							() -> Action
 								.jsonPost("deploy", context.toFrontendUri("main-page", "inspector", "deployments"))
 								.with("selectedFleetId", selectedFleet.getId().getValue())
 								.with("selectedStarId", selectedSystem.getId().getValue())
-								.with(toDtoShipList(ships).stream().map(s -> new ActionField(s.id, s.count))));
+								.with(ships.getTypesWithCount()
+									.stream()
+									.map(twc -> new ActionField(twc.getKey().getId().getValue(), twc.getValue()))));
 			}
 			else {
 				mainPage.inspector.fleetView = new EntityModel<>(new FleetViewDto(selectedFleet.getPlayer(),
-						selectedFleet.getRace(), eta, toDtoShipList(ships)));
+						selectedFleet.getRace(), eta, toDtoShipList(ships, Optional.empty())));
 			}
 
-			mainPage.starMap.getContent().fleetSelection.itinerary = Optional
-				.of(new ItineraryDto(selectedFleet.getLocation().getX(), selectedFleet.getLocation().getY(),
-						selectedSystem.getLocation().getX(), selectedSystem.getLocation().getY(),
-						selectedFleet.getOrbiting().isPresent(), justLeaving, eta.isPresent(), false));
+			mainPage.starMap.getContent().fleetSelection.itinerary = Optional.of(new ItineraryDto(
+					selectedFleet.getLocation().getX(), selectedFleet.getLocation().getY(),
+					selectedSystem.getLocation().getX(), selectedSystem.getLocation().getY(),
+					selectedFleet.getOrbiting().isPresent(), selectedFleet.isJustLeaving(), eta.isPresent(), false));
 		}
 
 		if (mainPage.inspector.fleetDeployment != null) {
@@ -520,24 +512,20 @@ public class MainPageDtoPopulator {
 								.getValue()))
 				.with(context.toNamedAction("assign-ships", HttpMethod.GET, true, true, "main-page")
 					.with(maybeShips.isPresent(),
-							() -> maybeShips.map(s -> toDtoShipList(s))
-								.orElseThrow()
+							() -> maybeShips.orElseThrow()
+								.getTypesWithCount()
 								.stream()
-								.map(sh -> new ActionField(sh.id, sh.count))));
+								.map(twc -> new ActionField(twc.getKey().getId().getValue(), twc.getValue()))));
 		}
 
 		return selectedSystemId;
 	}
 
-	static List<ShipsDto> toDtoShipList(Map<ShipTypeView, Integer> ships) {
-		return toDtoShipList(ships, Map.of());
-	}
-
-	static List<ShipsDto> toDtoShipList(Map<ShipTypeView, Integer> ships, Map<ShipTypeView, Integer> totalShips) {
-		return ships.entrySet()
+	static List<ShipsDto> toDtoShipList(ShipsView ships, Optional<ShipsView> totalShips) {
+		return ships.getTypesWithCount()
 			.stream()
 			.map(e -> new ShipsDto(e.getKey().getId().getValue(), e.getKey().getName(), e.getKey().getSize(),
-					e.getValue(), totalShips.get(e.getKey())))
+					e.getValue(), totalShips.map(ts -> ts.getCountByType(e.getKey()))))
 			.sorted((first, second) -> first.name.compareTo(second.name))
 			.collect(Collectors.toList());
 	}

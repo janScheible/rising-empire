@@ -1,7 +1,7 @@
 package com.scheible.risingempire.game.impl.ai;
 
-import com.scheible.risingempire.game.api.view.ai.Ai;
-import com.scheible.risingempire.game.api.view.ai.AiFactory;
+import com.scheible.risingempire.game.api.ai.Ai;
+import com.scheible.risingempire.game.api.ai.AiFactory;
 
 /**
  * @author sj

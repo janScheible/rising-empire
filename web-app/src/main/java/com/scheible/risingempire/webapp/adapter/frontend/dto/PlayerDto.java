@@ -1,7 +1,7 @@
 package com.scheible.risingempire.webapp.adapter.frontend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.scheible.risingempire.game.api.view.universe.Player;
+import com.scheible.risingempire.game.api.universe.Player;
 
 /**
  * @author sj

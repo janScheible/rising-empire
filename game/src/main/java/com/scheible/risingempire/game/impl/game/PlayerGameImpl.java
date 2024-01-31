@@ -1,17 +1,16 @@
 package com.scheible.risingempire.game.impl.game;
 
-import java.util.Map;
 import java.util.Optional;
 
 import com.scheible.risingempire.game.api.PlayerGame;
 import com.scheible.risingempire.game.api.TurnStatus;
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
-import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
+import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.tech.TechId;
-import com.scheible.risingempire.game.api.view.universe.Player;
 
 /**
  * @author sj
@@ -48,7 +47,7 @@ public class PlayerGameImpl implements PlayerGame {
 	}
 
 	@Override
-	public void deployFleet(FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships) {
+	public void deployFleet(FleetId fleetId, SystemId destinationId, ShipsView ships) {
 		this.game.deployFleet(this.player, fleetId, destinationId, ships);
 	}
 
@@ -58,7 +57,7 @@ public class PlayerGameImpl implements PlayerGame {
 	}
 
 	@Override
-	public Optional<Integer> calcEta(FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships) {
+	public Optional<Integer> calcEta(FleetId fleetId, SystemId destinationId, ShipsView ships) {
 		return this.game.calcEta(this.player, fleetId, destinationId, ships);
 	}
 

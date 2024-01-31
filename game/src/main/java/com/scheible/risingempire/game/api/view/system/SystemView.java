@@ -4,9 +4,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import com.scheible.risingempire.game.api.universe.Location;
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
-import com.scheible.risingempire.game.api.view.universe.Location;
-import com.scheible.risingempire.game.api.view.universe.Player;
 
 /**
  * @author sj

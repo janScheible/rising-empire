@@ -4,10 +4,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.scheible.risingempire.game.api.view.spacecombat.CombatantShipSpecsView;
+import com.scheible.risingempire.game.api.universe.Player;
+import com.scheible.risingempire.game.api.view.spacecombat.CombatantShipSpecs;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
-import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.webapp.adapter.frontend.annotation.FrontendController;
 import com.scheible.risingempire.webapp.adapter.frontend.context.FrontendContext;
 import com.scheible.risingempire.webapp.adapter.frontend.spacecombatpage.SpaceCombatPageDto.CombatOutcomeDto;
@@ -53,7 +53,7 @@ class SpaceCombatPageController {
 	}
 
 	List<CombatantShipSpecsDto> toCombatantShipSpecsDtos(Player player,
-			Collection<CombatantShipSpecsView> combatantShipSpecs) {
+			Collection<CombatantShipSpecs> combatantShipSpecs) {
 		return combatantShipSpecs.stream().map(css -> {
 			return new CombatantShipSpecsDto(css.getId().getValue(), css.getName(), css.getShield(),
 					css.getBeamDefence(), css.getAttackLevel(), css.getMissleDefence(), css.getHits(), css.getSpeed(),

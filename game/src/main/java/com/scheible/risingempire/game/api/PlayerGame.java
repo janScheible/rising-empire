@@ -1,15 +1,14 @@
 package com.scheible.risingempire.game.api;
 
-import java.util.Map;
 import java.util.Optional;
 
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
-import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
+import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.tech.TechId;
-import com.scheible.risingempire.game.api.view.universe.Player;
 
 /**
  * @author sj
@@ -22,7 +21,7 @@ public interface PlayerGame {
 
 	GameView getView();
 
-	Optional<Integer> calcEta(FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships);
+	Optional<Integer> calcEta(FleetId fleetId, SystemId destinationId, ShipsView ships);
 
 	Optional<Integer> calcTranportColonistsEta(SystemId originId, SystemId destinationId);
 
@@ -43,7 +42,7 @@ public interface PlayerGame {
 
 	void annexSystem(ColonyId colonyId, FleetId fleetId, boolean skip);
 
-	void deployFleet(FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships);
+	void deployFleet(FleetId fleetId, SystemId destinationId, ShipsView ships);
 
 	void selectTech(TechId techId);
 

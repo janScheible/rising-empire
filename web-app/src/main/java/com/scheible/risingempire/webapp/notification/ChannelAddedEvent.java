@@ -1,6 +1,6 @@
 package com.scheible.risingempire.webapp.notification;
 
-import com.scheible.risingempire.game.api.view.universe.Player;
+import com.scheible.risingempire.game.api.universe.Player;
 import org.springframework.context.ApplicationEvent;
 
 /**

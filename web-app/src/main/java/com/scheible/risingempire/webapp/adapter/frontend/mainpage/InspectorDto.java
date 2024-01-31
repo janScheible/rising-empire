@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.scheible.risingempire.game.api.universe.Player;
+import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.ship.ShipSize;
 import com.scheible.risingempire.game.api.view.system.PlanetSpecial;
 import com.scheible.risingempire.game.api.view.system.PlanetType;
 import com.scheible.risingempire.game.api.view.system.StarType;
-import com.scheible.risingempire.game.api.view.universe.Player;
-import com.scheible.risingempire.game.api.view.universe.Race;
 import com.scheible.risingempire.util.jdk.Objects2;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.AllocationsDto;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.PlayerDto;
@@ -142,9 +142,9 @@ class InspectorDto {
 
 		final int count;
 
-		final Integer maxCount;
+		final Optional<Integer> maxCount;
 
-		ShipsDto(String id, String name, ShipSize size, int count, Integer maxCount) {
+		ShipsDto(String id, String name, ShipSize size, int count, Optional<Integer> maxCount) {
 			this.id = id;
 			this.name = name;
 			this.size = size;

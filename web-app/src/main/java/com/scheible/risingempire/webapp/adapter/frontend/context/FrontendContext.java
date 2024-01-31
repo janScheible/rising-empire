@@ -5,10 +5,10 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.scheible.risingempire.game.api.PlayerGame;
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.system.SystemId;
-import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.webapp.hypermedia.Action;
 import org.springframework.http.HttpMethod;
 

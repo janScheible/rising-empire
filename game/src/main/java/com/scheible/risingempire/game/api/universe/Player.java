@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.api.view.universe;
+package com.scheible.risingempire.game.api.universe;
 
 /**
  * A player identified by a color.

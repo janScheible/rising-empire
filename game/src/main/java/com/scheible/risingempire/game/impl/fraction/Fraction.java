@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.scheible.risingempire.game.api.universe.Player;
+import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.system.SystemId;
-import com.scheible.risingempire.game.api.view.universe.Player;
-import com.scheible.risingempire.game.api.view.universe.Race;
 import com.scheible.risingempire.game.impl.ship.DesignSlot;
 import com.scheible.risingempire.game.impl.ship.ShipDesign;
 import com.scheible.risingempire.game.impl.system.SystemSnapshot;

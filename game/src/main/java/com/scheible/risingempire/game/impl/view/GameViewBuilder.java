@@ -16,8 +16,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.scheible.risingempire.game.api.GalaxySize;
+import com.scheible.risingempire.game.api.universe.Player;
+import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.GameView;
-import com.scheible.risingempire.game.api.view.colony.AnnexationStatusView;
+import com.scheible.risingempire.game.api.view.colony.AnnexationStatus;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
@@ -26,15 +28,14 @@ import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
 import com.scheible.risingempire.game.api.view.notification.SystemNotificationView;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
-import com.scheible.risingempire.game.api.view.spacecombat.CombatantShipSpecsView;
+import com.scheible.risingempire.game.api.view.ship.ShipsView;
+import com.scheible.risingempire.game.api.view.spacecombat.CombatantShipSpecs;
 import com.scheible.risingempire.game.api.view.spacecombat.FireExchangeView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.system.SystemView;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
 import com.scheible.risingempire.game.api.view.tech.TechView;
-import com.scheible.risingempire.game.api.view.universe.Player;
-import com.scheible.risingempire.game.api.view.universe.Race;
 import com.scheible.risingempire.game.impl.colony.Colony;
 import com.scheible.risingempire.game.impl.fleet.DeployedFleet;
 import com.scheible.risingempire.game.impl.fleet.Fleet;
@@ -118,7 +119,7 @@ public class GameViewBuilder {
 								playerRaceMapping.get(colonyPlayer.get()), snapshot.getColonyPopulation().get(),
 								spaceDock, ratios,
 								Optional.ofNullable(!(siegePlayer.apply(system) == null && !isAnnexable.test(system))
-										? new AnnexationStatusView(Optional.ofNullable(siegeRounds.apply(system)),
+										? new AnnexationStatus(Optional.ofNullable(siegeRounds.apply(system)),
 												Optional.ofNullable(roundsUntilAnnexable.apply(system)),
 												Optional.ofNullable(siegePlayer.apply(system)),
 												Optional.ofNullable(siegePlayer.apply(system))
@@ -197,10 +198,10 @@ public class GameViewBuilder {
 				annexableSystemIds, spaceCombatViews, justExploredSystem, technologies, systemNotifications);
 	}
 
-	private static List<CombatantShipSpecsView> toCombatantShipSpecs(Map<DesignSlot, Integer> previosShipCounts,
+	private static List<CombatantShipSpecs> toCombatantShipSpecs(Map<DesignSlot, Integer> previosShipCounts,
 			Map<DesignSlot, Integer> shipCounts, Map<DesignSlot, List<FireExchange>> fireExchanges,
 			Map<DesignSlot, ShipDesign> designs) {
-		List<CombatantShipSpecsView> result = new ArrayList<>();
+		List<CombatantShipSpecs> result = new ArrayList<>();
 
 		for (Entry<DesignSlot, Integer> shipCount : shipCounts.entrySet()) {
 			ShipDesign shipDesign = designs.get(shipCount.getKey());
@@ -214,7 +215,7 @@ public class GameViewBuilder {
 						shipDesign.getSpecials().stream().map(AbstractSpecial::getName))
 				.collect(Collectors.toList());
 
-			result.add(new CombatantShipSpecsView(shipType.getId(), shipType.getName(), count, previousCount,
+			result.add(new CombatantShipSpecs(shipType.getId(), shipType.getName(), count, previousCount,
 					shipType.getSize(), shipDesign.getHitsAbsorbedByShield(), shipDesign.getBeamDefence(),
 					shipDesign.getAttackLevel(), shipDesign.getWarpSpeed(), shipDesign.getMissileDefence(),
 					shipDesign.getHitPoints(), shipDesign.getCombatSpeed(), equipment,
@@ -253,7 +254,7 @@ public class GameViewBuilder {
 			DeployedFleet deployedFleet = fleet.asDeployed();
 
 			return FleetView.createDeployed(fleet.getId(), parentFleetProvider.apply(fleet.getPlayer(), fleet), player,
-					race, shipTypesAndCounts, Optional.of(deployedFleet.getSource().getId()),
+					race, new ShipsView(shipTypesAndCounts), Optional.of(deployedFleet.getSource().getId()),
 					Optional.of(deployedFleet.getDestination().getId()), deployedFleet.getPreviousLocation(),
 					deployedFleet.isPreviousJustLeaving(), deployedFleet.getLocation(), deployedFleet.getSpeed(),
 					closest, deployedFleet.getHorizontalDirection(), deployedFleet.isJustLeaving(),
@@ -263,7 +264,7 @@ public class GameViewBuilder {
 			OrbitingFleet orbitingFleet = fleet.asOrbiting();
 
 			return FleetView.createOrbiting(fleet.getId(), parentFleetProvider.apply(fleet.getPlayer(), fleet), player,
-					race, shipTypesAndCounts, orbitingFleet.getSystem().getId(),
+					race, new ShipsView(shipTypesAndCounts), orbitingFleet.getSystem().getId(),
 					orbitingFleet.getSystem().getLocation(), fleetsBeforeArrival, true, Optional.of(scannerRange));
 		}
 
@@ -290,7 +291,7 @@ public class GameViewBuilder {
 			SystemId closest, BiFunction<Player, Fleet, Optional<FleetId>> parentFleetProvider) {
 		if (fleet.isDeployed()) {
 			return FleetView.createDeployed(fleet.getId(), parentFleetProvider.apply(fleet.getPlayer(), fleet),
-					fleet.getPlayer(), race, Map.of(), Optional.empty(), Optional.empty(),
+					fleet.getPlayer(), race, new ShipsView(), Optional.empty(), Optional.empty(),
 					fleet.asDeployed().getPreviousLocation(), fleet.asDeployed().isPreviousJustLeaving(),
 					fleet.getLocation(), fleet.asDeployed().getSpeed(), closest,
 					fleet.asDeployed().getHorizontalDirection(), false, Optional.empty(), fleetsBeforeArrival,
@@ -300,7 +301,7 @@ public class GameViewBuilder {
 			OrbitingFleet orbitingFleet = fleet.asOrbiting();
 
 			return FleetView.createOrbiting(fleet.getId(), parentFleetProvider.apply(fleet.getPlayer(), fleet),
-					fleet.getPlayer(), race, Map.of(), orbitingFleet.getSystem().getId(),
+					fleet.getPlayer(), race, new ShipsView(), orbitingFleet.getSystem().getId(),
 					orbitingFleet.getSystem().getLocation(), fleetsBeforeArrival, false, Optional.empty());
 		}
 

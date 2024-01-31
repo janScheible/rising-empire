@@ -1,6 +1,6 @@
 package com.scheible.risingempire.game.impl.ship;
 
-import com.scheible.risingempire.game.api.view.universe.Player;
+import com.scheible.risingempire.game.api.universe.Player;
 
 /**
  * @author sj

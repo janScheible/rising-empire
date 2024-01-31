@@ -11,7 +11,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import javax.imageio.ImageIO;
 
 import com.scheible.risingempire.game.api.GalaxySize;
-import com.scheible.risingempire.game.api.view.universe.Location;
+import com.scheible.risingempire.game.api.universe.Location;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

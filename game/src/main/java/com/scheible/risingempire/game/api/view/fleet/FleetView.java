@@ -1,22 +1,17 @@
 package com.scheible.risingempire.game.api.view.fleet;
 
 import java.util.Collections;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
+import com.scheible.risingempire.game.api.universe.Location;
+import com.scheible.risingempire.game.api.universe.Player;
+import com.scheible.risingempire.game.api.universe.Race;
+import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
-import com.scheible.risingempire.game.api.view.universe.Location;
-import com.scheible.risingempire.game.api.view.universe.Player;
-import com.scheible.risingempire.game.api.view.universe.Race;
-
-import static java.util.Collections.unmodifiableMap;
 
 /**
  * @author sj
@@ -45,7 +40,7 @@ public class FleetView {
 
 	private final Race race;
 
-	private final Map<ShipTypeView, Integer> ships;
+	private final ShipsView ships;
 
 	private final Optional<Location> previousLocation;
 
@@ -74,18 +69,18 @@ public class FleetView {
 	private final Optional<Boolean> justLeaving;
 
 	private FleetView(FleetId id, Optional<FleetId> parentId, FleetViewType type, Player player, Race race,
-			Map<ShipTypeView, Integer> ships, Optional<Location> previousLocation,
-			Optional<Boolean> previousJustLeaving, Location location, boolean deployable,
-			Optional<Integer> scannerRange, Optional<SystemId> source, Optional<SystemId> destination,
-			Optional<Integer> speed, Optional<SystemId> closest, Optional<HorizontalDirection> horizontalDirection,
-			Optional<SystemId> orbiting, Set<FleetBeforeArrival> fleetsBeforeArrival, Optional<Boolean> justLeaving) {
+			ShipsView ships, Optional<Location> previousLocation, Optional<Boolean> previousJustLeaving,
+			Location location, boolean deployable, Optional<Integer> scannerRange, Optional<SystemId> source,
+			Optional<SystemId> destination, Optional<Integer> speed, Optional<SystemId> closest,
+			Optional<HorizontalDirection> horizontalDirection, Optional<SystemId> orbiting,
+			Set<FleetBeforeArrival> fleetsBeforeArrival, Optional<Boolean> justLeaving) {
 		this.id = id;
 		this.parentId = parentId;
 
 		this.type = type;
 		this.player = player;
 		this.race = race;
-		this.ships = unmodifiableMap(ships);
+		this.ships = ships;
 		this.previousLocation = previousLocation;
 		this.previousJustLeaving = previousJustLeaving;
 		this.location = location;
@@ -104,8 +99,8 @@ public class FleetView {
 	}
 
 	public static FleetView createDeployed(FleetId id, Optional<FleetId> parentId, Player player, Race race,
-			Map<ShipTypeView, Integer> ships, Optional<SystemId> source, Optional<SystemId> destination,
-			Location previousLocation, boolean previousJustLeaving, Location location, int speed, SystemId closest,
+			ShipsView ships, Optional<SystemId> source, Optional<SystemId> destination, Location previousLocation,
+			boolean previousJustLeaving, Location location, int speed, SystemId closest,
 			HorizontalDirection orientation, boolean deployable, Optional<Integer> scannerRange,
 			Set<FleetBeforeArrival> fleetsBeforeArrival, boolean justLeaving) {
 		return new FleetView(id, parentId, FleetViewType.DEPLOYED, player, race, ships, Optional.of(previousLocation),
@@ -115,8 +110,8 @@ public class FleetView {
 	}
 
 	public static FleetView createOrbiting(FleetId id, Optional<FleetId> parentId, Player player, Race race,
-			Map<ShipTypeView, Integer> ships, SystemId orbiting, Location location,
-			Set<FleetBeforeArrival> fleetsBeforeArrival, boolean deployable, Optional<Integer> scannerRange) {
+			ShipsView ships, SystemId orbiting, Location location, Set<FleetBeforeArrival> fleetsBeforeArrival,
+			boolean deployable, Optional<Integer> scannerRange) {
 		return new FleetView(id, parentId, FleetViewType.ORBITING, player, race, ships, Optional.empty(),
 				Optional.empty(), location, deployable, scannerRange, Optional.empty(), Optional.empty(),
 				Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(orbiting), fleetsBeforeArrival,
@@ -143,7 +138,7 @@ public class FleetView {
 		return this.race;
 	}
 
-	public Map<ShipTypeView, Integer> getShips() {
+	public ShipsView getShips() {
 		return this.ships;
 	}
 
@@ -161,15 +156,6 @@ public class FleetView {
 
 	public Optional<HorizontalDirection> getHorizontalDirection() {
 		return this.horizontalDirection;
-	}
-
-	public ShipTypeView getShipType(String name) {
-		return this.ships.entrySet()
-			.stream()
-			.map(Entry::getKey)
-			.filter(st -> st.getName().equals(name))
-			.findFirst()
-			.get();
 	}
 
 	public Optional<SystemId> getSource() {
@@ -200,8 +186,8 @@ public class FleetView {
 		return this.scannerRange;
 	}
 
-	public Optional<Boolean> isJustLeaving() {
-		return this.justLeaving;
+	public boolean isJustLeaving() {
+		return this.justLeaving.orElse(Boolean.FALSE);
 	}
 
 	public boolean didJustArrive() {
@@ -282,10 +268,7 @@ public class FleetView {
 			values.add("justLeaving=" + this.justLeaving.get());
 		}
 
-		values.add("ships=" + getShips().entrySet()
-			.stream()
-			.map(typeAndAmmount -> Map.entry(typeAndAmmount.getKey().getName(), typeAndAmmount.getValue()))
-			.collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
+		values.add("ships=" + this.ships);
 
 		return values.toString();
 	}

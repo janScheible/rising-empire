@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import com.blueconic.browscap.Capabilities;
 import com.blueconic.browscap.UserAgentParser;
-import com.scheible.risingempire.game.api.view.universe.Player;
+import com.scheible.risingempire.game.api.universe.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;

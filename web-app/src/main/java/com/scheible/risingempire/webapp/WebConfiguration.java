@@ -2,9 +2,9 @@ package com.scheible.risingempire.webapp;
 
 import java.util.Arrays;
 
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.system.SystemId;
-import com.scheible.risingempire.game.api.view.universe.Player;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;

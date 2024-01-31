@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.Game;
 import com.scheible.risingempire.game.api.TurnStatus;
-import com.scheible.risingempire.game.api.view.universe.Player;
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.TurnFinishedStatusPlayerDto;
 import com.scheible.risingempire.webapp.notification.ChannelAddedEvent;
 import com.scheible.risingempire.webapp.notification.NotificationService;

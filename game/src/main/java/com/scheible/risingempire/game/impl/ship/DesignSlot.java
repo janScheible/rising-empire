@@ -1,12 +1,11 @@
 package com.scheible.risingempire.game.impl.ship;
 
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
+import com.scheible.risingempire.game.api.view.ship.ShipsView;
 
 /**
  * The six available slots for ship designs.
@@ -26,11 +25,12 @@ public enum DesignSlot {
 				design.getSize(), design.getLook());
 	}
 
-	public static Map<DesignSlot, Integer> toSlotAndCounts(Set<Entry<ShipTypeId, Integer>> apiShips) {
-		return apiShips.stream()
+	public static Map<DesignSlot, Integer> toSlotAndCounts(ShipsView ships) {
+		return ships.getTypesWithCount()
+			.stream()
 			.filter(s -> s.getValue() > 0)
-			.collect(
-					Collectors.toMap(typeWithCount -> DesignSlot.valueOf(typeWithCount.getKey()), Map.Entry::getValue));
+			.collect(Collectors.toMap(typeWithCount -> DesignSlot.valueOf(typeWithCount.getKey().getId()),
+					Map.Entry::getValue));
 	}
 
 }

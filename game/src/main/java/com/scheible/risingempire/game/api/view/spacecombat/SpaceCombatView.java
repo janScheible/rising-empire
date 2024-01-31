@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.scheible.risingempire.game.api.universe.Player;
+import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.system.SystemId;
-import com.scheible.risingempire.game.api.view.universe.Player;
-import com.scheible.risingempire.game.api.view.universe.Race;
 
 import static java.util.Collections.unmodifiableList;
 
@@ -35,7 +35,7 @@ public class SpaceCombatView {
 
 	private final Set<FleetBeforeArrival> attackerFleets;
 
-	private final List<CombatantShipSpecsView> attackerShipSpecs;
+	private final List<CombatantShipSpecs> attackerShipSpecs;
 
 	private final Race defender;
 
@@ -45,14 +45,14 @@ public class SpaceCombatView {
 
 	private final Set<FleetBeforeArrival> defenderFleetsBeforeArrival;
 
-	private final List<CombatantShipSpecsView> defenderShipSpecs;
+	private final List<CombatantShipSpecs> defenderShipSpecs;
 
 	private final Outcome outcome;
 
 	public SpaceCombatView(SystemId systemId, int order, int fireExchangeCount, Race attacker, Player attackerPlayer,
-			Set<FleetBeforeArrival> attackerFleets, List<CombatantShipSpecsView> attackerShipSpecs, Race defender,
+			Set<FleetBeforeArrival> attackerFleets, List<CombatantShipSpecs> attackerShipSpecs, Race defender,
 			Player defenderPlayer, Optional<FleetId> defenderFleet, Set<FleetBeforeArrival> defenderFleetsBeforeArrival,
-			List<CombatantShipSpecsView> defenderShipSpecs, Outcome outcome) {
+			List<CombatantShipSpecs> defenderShipSpecs, Outcome outcome) {
 		this.systemId = systemId;
 
 		this.order = order;
@@ -97,7 +97,7 @@ public class SpaceCombatView {
 		return this.attackerFleets;
 	}
 
-	public List<CombatantShipSpecsView> getAttackerShipSpecs() {
+	public List<CombatantShipSpecs> getAttackerShipSpecs() {
 		return this.attackerShipSpecs;
 	}
 
@@ -117,7 +117,7 @@ public class SpaceCombatView {
 		return this.defenderFleetsBeforeArrival;
 	}
 
-	public List<CombatantShipSpecsView> getDefenderShipSpecs() {
+	public List<CombatantShipSpecs> getDefenderShipSpecs() {
 		return this.defenderShipSpecs;
 	}
 

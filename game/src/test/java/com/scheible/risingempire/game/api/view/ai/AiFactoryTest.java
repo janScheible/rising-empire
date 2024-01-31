@@ -1,5 +1,6 @@
 package com.scheible.risingempire.game.api.view.ai;
 
+import com.scheible.risingempire.game.api.ai.AiFactory;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;

@@ -3,7 +3,7 @@ package com.scheible.risingempire.game.impl.fleet;
 import java.util.Collections;
 import java.util.Map;
 
-import com.scheible.risingempire.game.api.view.universe.Player;
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl.ship.DesignSlot;
 import com.scheible.risingempire.game.impl.system.System;
 

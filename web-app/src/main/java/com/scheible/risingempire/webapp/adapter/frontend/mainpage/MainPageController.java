@@ -3,7 +3,6 @@ package com.scheible.risingempire.webapp.adapter.frontend.mainpage;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -15,8 +14,7 @@ import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
-import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
-import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
+import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.system.SystemView;
 import com.scheible.risingempire.webapp.adapter.frontend.annotation.FrontendController;
@@ -113,13 +111,8 @@ class MainPageController {
 			@RequestBody LinkedMultiValueMap<String, String> body) {
 		FleetView fleet = context.getGameView().getFleet(new FleetId(body.getFirst("selectedFleetId")));
 
-		Map<ShipTypeId, Integer> shipTypeIdsAndCounts = toShipTypesAndCounts(fleet.getShips(), body.toSingleValueMap())
-			.entrySet()
-			.stream()
-			.collect(Collectors.toMap(e -> e.getKey().getId(), Entry::getValue));
-
-		context.getPlayerGame()
-			.deployFleet(fleet.getId(), new SystemId(body.getFirst("selectedStarId")), shipTypeIdsAndCounts);
+		ShipsView ships = toShipTypesAndCounts(fleet.getShips(), body.toSingleValueMap());
+		context.getPlayerGame().deployFleet(fleet.getId(), new SystemId(body.getFirst("selectedStarId")), ships);
 
 		return ResponseEntity.status(HttpStatus.SEE_OTHER)
 			.header(HttpHeaders.LOCATION,
@@ -236,13 +229,12 @@ class MainPageController {
 					.flatMap(pv -> Stream.of(pv.getValue()).map(v -> new ActionField(pv.getKey(), v))))));
 	}
 
-	private static Map<ShipTypeView, Integer> toShipTypesAndCounts(Map<ShipTypeView, Integer> fleetShips,
-			Map<String, String> parameters) {
-		return fleetShips.keySet()
+	private static ShipsView toShipTypesAndCounts(ShipsView fleetShips, Map<String, String> parameters) {
+		return new ShipsView(fleetShips.getTypes()
 			.stream()
 			.filter(st -> parameters.containsKey(st.getId().getValue()))
 			.collect(Collectors.toMap(Function.identity(),
-					st -> Integer.valueOf(parameters.get(st.getId().getValue()))));
+					st -> Integer.valueOf(parameters.get(st.getId().getValue())))));
 	}
 
 	static class ColonizeSystemBodyDto {

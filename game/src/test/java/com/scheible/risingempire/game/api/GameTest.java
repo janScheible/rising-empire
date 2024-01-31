@@ -2,24 +2,22 @@ package com.scheible.risingempire.game.api;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import com.scheible.risingempire.game.api.universe.Location;
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
-import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
+import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.system.SystemView;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
-import com.scheible.risingempire.game.api.view.universe.Location;
-import com.scheible.risingempire.game.api.view.universe.Player;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -64,16 +62,15 @@ class GameTest {
 			if (blueGameView.getRound() == 1) {
 				FleetView fleetAtSol = blueGameView.getOrbiting(blueGameView.getSystem("Sol").getId()).orElseThrow();
 				blueGame.deployFleet(fleetAtSol.getId(), blueGameView.getSystem(new SystemId("s220x100")).getId(),
-						Map.of(fleetAtSol.getShipType("Scout").getId(), 1));
+						fleetAtSol.getShips().getPartByName("Scout", 1));
 				blueGame.deployFleet(fleetAtSol.getId(), blueGameView.getSystem(new SystemId("s180x220")).getId(),
-						Map.of(fleetAtSol.getShipType("Scout").getId(), 1));
+						fleetAtSol.getShips().getPartByName("Scout", 1));
 			}
 			else if (blueGameView.getRound() == 4) {
 				GameView gameState2 = blueGameView;
 				blueGameView.getOrbiting(blueGameView.getSystem("Fieras").getId())
 					.ifPresent(fleetAtFieras -> blueGame.deployFleet(fleetAtFieras.getId(),
-							gameState2.getSystem("Sol").getId(),
-							Map.of(fleetAtFieras.getShipType("Scout").getId(), 1)));
+							gameState2.getSystem("Sol").getId(), fleetAtFieras.getShips().getPartByName("Scout", 1)));
 			}
 
 			for (TechGroupView techGroup : blueGameView.getSelectTechs()) {
@@ -103,18 +100,15 @@ class GameTest {
 		PlayerGame whiteGame = game.forPlayer(Player.WHITE);
 		GameView whiteGameView = whiteGame.getView();
 		FleetView fleetAtFieras = whiteGameView.getOrbiting(whiteGameView.getSystem("Fieras").getId()).orElseThrow();
-		Map<ShipTypeView, Integer> previousFierasFleetShips = fleetAtFieras.getShips();
+		ShipsView previousFierasFleetShips = fleetAtFieras.getShips();
 
 		PlayerGame blueGame = game.forPlayer(Player.BLUE);
 		GameView blueGameView = blueGame.getView();
 
 		FleetView fleetAtSol = blueGameView.getOrbiting(blueGameView.getSystem("Sol").getId()).orElseThrow();
-		Map<ShipTypeView, Integer> previousSolFleetShips = fleetAtSol.getShips();
+		ShipsView previousSolFleetShips = fleetAtSol.getShips();
 		blueGame.deployFleet(fleetAtSol.getId(), blueGameView.getSystem(new SystemId("s220x100")).getId(),
-				fleetAtSol.getShips()
-					.entrySet()
-					.stream()
-					.collect(Collectors.toMap(e -> e.getKey().getId(), Entry::getValue)));
+				fleetAtSol.getShips());
 		blueGameView = blueGame.getView();
 		FleetId deployedFleedId = blueGameView.getFleets().iterator().next().getId();
 
@@ -123,17 +117,14 @@ class GameTest {
 		blueGameView = blueGame.getView();
 		whiteGameView = game.forPlayer(Player.WHITE).getView();
 
-		BiFunction<Map<ShipTypeView, Integer>, GameView, Boolean> checkShipsHalfed = (previousShips, playerView) -> {
-			Map<ShipTypeView, Integer> ships = playerView.getFleets(playerView.getPlayer())
-				.stream()
-				.findFirst()
-				.get()
-				.getShips();
-			Map<ShipTypeView, Integer> doubledShips = ships.entrySet()
-				.stream()
-				.collect(Collectors.toMap(Entry::getKey, e -> e.getValue() * 2));
-
-			return previousShips.equals(doubledShips);
+		BiFunction<ShipsView, GameView, Boolean> checkShipsHalfed = (previousShips, playerView) -> {
+			ShipsView ships = playerView.getFleets(playerView.getPlayer()).stream().findFirst().get().getShips();
+			for (String shipName : ships.getTypeNames()) {
+				if (ships.getCountByName(shipName) * 2 != previousShips.getCountByName(shipName)) {
+					return false;
+				}
+			}
+			return true;
 		};
 
 		switch (outcome) {
@@ -207,7 +198,7 @@ class GameTest {
 		GameView blueGameView = blueGame.getView();
 		FleetView fleetAtSol = blueGameView.getOrbiting(blueGameView.getSystem("Sol").getId()).orElseThrow();
 		blueGame.deployFleet(fleetAtSol.getId(), blueGameView.getSystem(new SystemId("s180x220")).getId(),
-				Map.of(fleetAtSol.getShipType("Colony Ship").getId(), 1));
+				fleetAtSol.getShips().getPartByName("Colony Ship", 1));
 		blueGame.finishTurn();
 
 		blueGameView = blueGame.getView();
@@ -239,7 +230,7 @@ class GameTest {
 		GameView blueGameView = blueGame.getView();
 		FleetView fleetAtSol = blueGameView.getOrbiting(blueGameView.getSystem("Sol").getId()).orElseThrow();
 		blueGame.deployFleet(fleetAtSol.getId(), blueGameView.getSystem(new SystemId("s240x440")).getId(),
-				Map.of(fleetAtSol.getShipType("Cruiser").getId(), 1));
+				fleetAtSol.getShips().getPartByName("Cruiser", 1));
 		blueGame.finishTurn();
 
 		blueGameView = blueGame.getView();

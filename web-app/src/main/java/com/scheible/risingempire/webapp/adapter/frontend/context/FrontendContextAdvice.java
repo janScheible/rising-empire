@@ -3,9 +3,9 @@ package com.scheible.risingempire.webapp.adapter.frontend.context;
 import java.util.Optional;
 
 import com.scheible.risingempire.game.api.Game;
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.system.SystemId;
-import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.webapp.adapter.frontend.annotation.FrontendController;
 import com.scheible.risingempire.webapp.game.GameHolder;
 import org.springframework.web.bind.annotation.ControllerAdvice;

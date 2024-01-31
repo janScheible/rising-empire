@@ -2,7 +2,7 @@ package com.scheible.risingempire.webapp.adapter.frontend.dto;
 
 import java.util.Locale;
 
-import com.scheible.risingempire.game.api.view.universe.Player;
+import com.scheible.risingempire.game.api.universe.Player;
 
 /**
  * @author sj

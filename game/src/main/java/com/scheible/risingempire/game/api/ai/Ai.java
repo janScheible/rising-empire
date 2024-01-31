@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.api.view.ai;
+package com.scheible.risingempire.game.api.ai;
 
 import com.scheible.risingempire.game.api.PlayerGame;
 
@@ -7,6 +7,6 @@ import com.scheible.risingempire.game.api.PlayerGame;
  */
 public interface Ai {
 
-	void finishTurn(PlayerGame gameView);
+	void finishTurn(PlayerGame game);
 
 }

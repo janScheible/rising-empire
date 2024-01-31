@@ -6,8 +6,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
-import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.impl.system.SystemOrb;
 
 /**

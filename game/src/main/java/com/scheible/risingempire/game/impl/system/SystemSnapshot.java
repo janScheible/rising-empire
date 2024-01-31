@@ -2,12 +2,12 @@ package com.scheible.risingempire.game.impl.system;
 
 import java.util.Optional;
 
+import com.scheible.risingempire.game.api.universe.Location;
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.system.PlanetSpecial;
 import com.scheible.risingempire.game.api.view.system.PlanetType;
 import com.scheible.risingempire.game.api.view.system.StarType;
 import com.scheible.risingempire.game.api.view.system.SystemId;
-import com.scheible.risingempire.game.api.view.universe.Location;
-import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.game.impl.colony.Colony;
 import com.scheible.risingempire.util.jdk.Objects2;
 

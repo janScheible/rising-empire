@@ -8,7 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.GalaxySize;
-import com.scheible.risingempire.game.api.view.universe.Location;
+import com.scheible.risingempire.game.api.universe.Location;
 
 /**
  * Uniform system distribution created with

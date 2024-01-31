@@ -6,11 +6,11 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView.HorizontalDirection;
 import com.scheible.risingempire.game.api.view.system.StarType;
 import com.scheible.risingempire.game.api.view.system.SystemId;
-import com.scheible.risingempire.game.api.view.universe.Player;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.PlayerDto;
 import com.scheible.risingempire.webapp.hypermedia.EntityModel;
 

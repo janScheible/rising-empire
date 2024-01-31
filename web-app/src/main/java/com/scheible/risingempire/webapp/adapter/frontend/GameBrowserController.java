@@ -10,7 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.Game;
-import com.scheible.risingempire.game.api.view.universe.Player;
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.webapp.adapter.frontend.GameBrowserDto.GameLauncherDto;
 import com.scheible.risingempire.webapp.adapter.frontend.GameBrowserDto.RunningGameDto;
 import com.scheible.risingempire.webapp.adapter.frontend.GameBrowserDto.RunningGameDto.RunningGamePlayerDto;

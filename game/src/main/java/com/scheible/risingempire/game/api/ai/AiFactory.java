@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.api.view.ai;
+package com.scheible.risingempire.game.api.ai;
 
 import java.util.ServiceLoader;
 

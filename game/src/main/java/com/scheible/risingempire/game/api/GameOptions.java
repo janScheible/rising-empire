@@ -3,10 +3,10 @@ package com.scheible.risingempire.game.api;
 import java.util.Optional;
 import java.util.Set;
 
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.notification.SystemNotificationView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
-import com.scheible.risingempire.game.api.view.universe.Player;
 
 /**
  * @author sj

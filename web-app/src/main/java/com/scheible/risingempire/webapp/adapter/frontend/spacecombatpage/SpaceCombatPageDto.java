@@ -5,10 +5,10 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.scheible.risingempire.game.api.universe.Player;
+import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.ship.ShipSize;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
-import com.scheible.risingempire.game.api.view.universe.Player;
-import com.scheible.risingempire.game.api.view.universe.Race;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.PlayerDto;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.RaceDto;
 

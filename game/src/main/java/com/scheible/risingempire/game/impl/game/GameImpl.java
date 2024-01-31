@@ -22,20 +22,20 @@ import com.scheible.risingempire.game.api.GameOptions.FakeSystemNotificationProv
 import com.scheible.risingempire.game.api.GameOptions.FakeTechProvider;
 import com.scheible.risingempire.game.api.PlayerGame;
 import com.scheible.risingempire.game.api.TurnStatus;
+import com.scheible.risingempire.game.api.ai.Ai;
+import com.scheible.risingempire.game.api.ai.AiFactory;
+import com.scheible.risingempire.game.api.universe.Player;
+import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.GameView;
-import com.scheible.risingempire.game.api.view.ai.Ai;
-import com.scheible.risingempire.game.api.view.ai.AiFactory;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.notification.SystemNotificationView;
-import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
+import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.tech.TechId;
-import com.scheible.risingempire.game.api.view.universe.Player;
-import com.scheible.risingempire.game.api.view.universe.Race;
 import com.scheible.risingempire.game.impl.colony.Colony;
 import com.scheible.risingempire.game.impl.colony.ColonyManager;
 import com.scheible.risingempire.game.impl.fleet.Fleet;
@@ -278,14 +278,14 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	}
 
 	@Override
-	public void deployFleet(Player player, FleetId fleetId, SystemId destinationId, Map<ShipTypeId, Integer> ships) {
+	public void deployFleet(Player player, FleetId fleetId, SystemId destinationId, ShipsView ships) {
 		Fleet from = this.fleets.get(fleetId);
 
 		SystemOrb source = from.isOrbiting() ? from.asOrbiting().getSystem() : from.asDeployed().getSource();
 		SystemOrb destination = this.systems.get(destinationId);
 
 		FleetChanges fleetChanges = this.fleetFormer.deployFleet(player, from, source, destination,
-				DesignSlot.toSlotAndCounts(ships.entrySet()), this.round);
+				DesignSlot.toSlotAndCounts(ships), this.round);
 		fleetChanges.getAdded()
 			.forEach(addedFleet -> this.fleetChildParentMapping.computeIfAbsent(player, key -> new HashMap<>())
 				.put(addedFleet.getId(), from.getId()));
@@ -473,11 +473,9 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	}
 
 	@Override
-	public Optional<Integer> calcEta(Player player, FleetId fleetId, SystemId destinationId,
-			Map<ShipTypeId, Integer> ships) {
+	public Optional<Integer> calcEta(Player player, FleetId fleetId, SystemId destinationId, ShipsView ships) {
 		return this.journeyCalculator.calcEta(player, this.fleets.get(fleetId).getLocation(), destinationId,
-				DesignSlot.toSlotAndCounts(ships.entrySet()),
-				this.fractions.get(player).getTechnology().getFleetRange());
+				DesignSlot.toSlotAndCounts(ships), this.fractions.get(player).getTechnology().getFleetRange());
 	}
 
 	@Override
