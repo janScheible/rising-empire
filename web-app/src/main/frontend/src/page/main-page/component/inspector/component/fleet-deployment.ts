@@ -25,9 +25,8 @@ export default class FleetDeployment extends HTMLElement {
 	#cancelAction;
 	#assignShipsAction;
 
+	// is used as an indicator for keeping client-side state
 	#fleetIdAndRound;
-	#ships;
-	#clientSideShipCounts = {};
 
 	constructor() {
 		super();
@@ -86,19 +85,14 @@ export default class FleetDeployment extends HTMLElement {
 					})
 			)).forEach(({ stepperEl, shipsEl }, index) => {
 			stepperEl.addEventListener('change', (e: CustomEvent) => {
+				shipsEl.updateCount(e.detail.value);
+
 				// NOTE In case of no ship type added or removed we can cheat and update the ship count on the client side only
 				if (
 					(e.detail.previousValue === 0 && e.detail.value > 0) ||
 					(e.detail.previousValue > 0 && e.detail.value === 0)
 				) {
-					const actionValues = Object.assign({}, this.#clientSideShipCounts, {
-						[this.#ships[index].id]: e.detail.value,
-					});
-					this.#clientSideShipCounts = {};
-					HypermediaUtil.submitAction(this.#assignShipsAction), actionValues;
-				} else {
-					this.#clientSideShipCounts[this.#ships[index].id] = e.detail.value;
-					shipsEl.updateCount(e.detail.value);
+					HypermediaUtil.submitAction(this.#assignShipsAction, this.#getStepperShipCounts());
 				}
 			});
 		});
@@ -111,7 +105,7 @@ export default class FleetDeployment extends HTMLElement {
 		this.#cancelButtonEl = this.shadowRoot.querySelector('#cancel-button');
 		this.#cancelButtonEl.addEventListener('click', (e) => {
 			if (this.#cancelAction) {
-				this.#clientSideShipCounts = {};
+				this.#discardClientSideShipsCounts();
 				HypermediaUtil.submitAction(this.#cancelAction);
 			}
 		});
@@ -119,11 +113,29 @@ export default class FleetDeployment extends HTMLElement {
 		this.#deployButtonEl = this.shadowRoot.querySelector('#deploy-button');
 		this.shadowRoot.querySelector('#deploy-button').addEventListener('click', (e) => {
 			if (this.#deployAction) {
-				const actionValues = Object.assign({}, this.#clientSideShipCounts);
-				this.#clientSideShipCounts = {};
-				HypermediaUtil.submitAction(this.#deployAction, actionValues);
+				this.#discardClientSideShipsCounts();
+				HypermediaUtil.submitAction(this.#deployAction, this.#getStepperShipCounts());
 			}
 		});
+	}
+
+	#getStepperShipCounts() {
+		return this.#shipsEls
+			.filter(
+				(shipsEls) =>
+					shipsEls.stepperEl.getAttribute('data-ship-id') &&
+					shipsEls.stepperEl.getAttribute('data-ship-id') !== ''
+			)
+			.reduce(
+				(map, shipsEls) => (
+					(map[shipsEls.stepperEl.getAttribute('data-ship-id')] = shipsEls.stepperEl.value), map
+				),
+				{}
+			);
+	}
+
+	#discardClientSideShipsCounts() {
+		this.#fleetIdAndRound = undefined;
 	}
 
 	static #shipSlots(template) {
@@ -136,33 +148,28 @@ export default class FleetDeployment extends HTMLElement {
 	render(data) {
 		if (!Reconciler.isHiddenAfterPropertyReconciliation(this, !data)) {
 			const dataFleetIdAndRound = `${data.fleetId}@${data.round}`;
-			if (this.#fleetIdAndRound !== dataFleetIdAndRound) {
-				this.#clientSideShipCounts = {};
-				this.#fleetIdAndRound = dataFleetIdAndRound;
-			} else {
-				for (const shipIdWithCount of Object.entries(this.#clientSideShipCounts)) {
-					data.ships.find((ship) => ship.id === shipIdWithCount[0]).count = shipIdWithCount[1];
-				}
-			}
-
-			this.#ships = data.ships;
+			const keepClientSideShipsCounts = this.#fleetIdAndRound === dataFleetIdAndRound;
+			this.#fleetIdAndRound = dataFleetIdAndRound;
 
 			this.#deployAction = HypermediaUtil.getAction(data, 'deploy');
 			this.#cancelAction = HypermediaUtil.getAction(data, 'cancel');
 			this.#assignShipsAction = HypermediaUtil.getAction(data, 'assign-ships');
 
-			for (let i = 0; i < 6; i++) {
-				const ships = data.ships[i];
-				const { shipsEl, shipNameEl, stepperEl } = this.#shipsEls[i];
+			if (!keepClientSideShipsCounts) {
+				for (let i = 0; i < 6; i++) {
+					const ships = data.ships[i];
+					const { shipsEl, shipNameEl, stepperEl } = this.#shipsEls[i];
 
-				Reconciler.reconcileStyle(shipsEl, 'visibility', ships ? 'visible' : 'hidden');
-				Reconciler.reconcileProperty(shipNameEl, 'innerText', ships ? ships.name : '');
-				Reconciler.reconcileStyle(stepperEl, 'visibility', ships ? 'visible' : 'hidden');
-				if (ships) {
-					shipsEl.render({ playerColor: data.playerColor, count: ships.count, size: ships.size });
+					Reconciler.reconcileStyle(shipsEl, 'visibility', ships ? 'visible' : 'hidden');
+					Reconciler.reconcileProperty(shipNameEl, 'innerText', ships ? ships.name : '');
+					Reconciler.reconcileStyle(stepperEl, 'visibility', ships ? 'visible' : 'hidden');
+					Reconciler.reconcileAttribute(stepperEl, 'data-ship-id', ships?.id ?? '');
+					if (ships) {
+						shipsEl.render({ playerColor: data.playerColor, count: ships.count, size: ships.size });
 
-					Reconciler.reconcileProperty(stepperEl, 'max', ships.maxCount);
-					Reconciler.reconcileProperty(stepperEl, 'value', ships.count);
+						Reconciler.reconcileProperty(stepperEl, 'max', ships.maxCount);
+						Reconciler.reconcileProperty(stepperEl, 'value', ships.count);
+					}
 				}
 			}
 
