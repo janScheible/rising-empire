@@ -48,9 +48,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /**
- * Base class for main page tests with MockMvc. <code>SwappableGame</code> is used to
- * control the game bean. It can be either swap with a Mockito mock or a real game.
- *
  * @author sj
  */
 @WebMvcTest(properties = { "spring.main.banner-mode=off", "spring.test.mockmvc.print=none" })
@@ -377,13 +374,6 @@ abstract class AbstractMainPageIT {
 			return new TextDescription("being %s at (%d, %d)%s", this.player, this.x, this.y,
 					this.destroyed ? " destroyed" : "");
 		}
-
-	}
-
-	@SuppressWarnings("overloads")
-	interface SwappableGame {
-
-		void swap(Game game);
 
 	}
 
