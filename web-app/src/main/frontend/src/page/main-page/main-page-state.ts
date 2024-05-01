@@ -37,8 +37,8 @@ export default class MainPageState {
 			this.#fleetMovements = true;
 
 			this.#explorations = data.explorations;
-			this.#colonizations = data.colonizations;
-			this.#annexations = data.annexations;
+			this.#colonizations = data.colonizations.filter((colonization) => !colonization.hasCommand);
+			this.#annexations = data.annexations.filter((annexation) => !annexation.hasCommand);
 			this.#spaceCombats = data.spaceCombats;
 			this.#selectTechActions = HypermediaUtil.getActions(data, 'select-tech');
 			this.#starNotifications = data.starMap.starNotifications;

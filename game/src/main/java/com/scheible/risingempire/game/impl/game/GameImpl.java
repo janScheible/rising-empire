@@ -586,7 +586,9 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 				(c, sid) -> this.fractions.get(c).getSnapshot(sid), this.fractions.get(player).getTechnology(),
 				this.spaceCombats, this, this, systemNotifications, this.annexationSiegeRounds,
 				this.colonistTransfers.getOrDefault(player, Map.of()),
-				this.shipRelocations.getOrDefault(player, Map.of()), this::getFleetParent);
+				this.shipRelocations.getOrDefault(player, Map.of()), this::getFleetParent,
+				this.colonizeCommands.stream().map(ColonizeCommand::systemId).collect(Collectors.toSet()),
+				this.annexCommands.stream().map(AnnexCommand::systemId).collect(Collectors.toSet()));
 	}
 
 	@Override

@@ -212,12 +212,14 @@ public class MainPageDtoPopulator {
 
 		mainPage.colonizations = gameView.getColonizableSystemIds()
 			.stream()
-			.map(csi -> new EntityModel<>(new MainPageDto.ColonizationDto(csi)).with(spotlightAction.apply(csi)))
+			.map(csi -> new EntityModel<>(new MainPageDto.ColonizationDto(csi, gameView.hasColonizationCommand(csi)))
+				.with(spotlightAction.apply(csi)))
 			.toList();
 
 		mainPage.annexations = gameView.getAnnexableSystemIds()
 			.stream()
-			.map(asi -> new EntityModel<>(new MainPageDto.AnnexationDto(asi)).with(spotlightAction.apply(asi)))
+			.map(asi -> new EntityModel<>(new MainPageDto.AnnexationDto(asi, gameView.hasAnnexationCommand(asi)))
+				.with(spotlightAction.apply(asi)))
 			.toList();
 
 		return new EntityModel<>(mainPage).with(!context.getGameView().getSelectTechs().isEmpty(),

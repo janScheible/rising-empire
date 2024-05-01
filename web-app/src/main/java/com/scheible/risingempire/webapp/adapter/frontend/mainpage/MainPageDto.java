@@ -141,8 +141,11 @@ class MainPageDto {
 
 		final String starId;
 
-		ColonizationDto(SystemId starId) {
+		final boolean hasCommand;
+
+		ColonizationDto(SystemId starId, boolean hasCommand) {
 			this.starId = starId.getValue();
+			this.hasCommand = hasCommand;
 		}
 
 	}
@@ -161,8 +164,11 @@ class MainPageDto {
 
 		final String starId;
 
-		AnnexationDto(SystemId starId) {
+		final boolean hasCommand;
+
+		AnnexationDto(SystemId starId, boolean hasCommand) {
 			this.starId = starId.getValue();
+			this.hasCommand = hasCommand;
 		}
 
 	}

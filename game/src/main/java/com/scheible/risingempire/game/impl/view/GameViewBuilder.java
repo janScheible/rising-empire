@@ -64,7 +64,8 @@ public class GameViewBuilder {
 			Set<SpaceCombat> spaceCombats, FleetManager fleetManager, TechManager techManager,
 			Set<SystemNotificationView> systemNotifications, int annexationSiegeRounds,
 			Map<ColonyId, Map<ColonyId, Integer>> colonistTransfers, Map<ColonyId, ColonyId> shipRelocations,
-			BiFunction<Player, Fleet, Optional<FleetId>> parentFleetProvider) {
+			BiFunction<Player, Fleet, Optional<FleetId>> parentFleetProvider, Set<SystemId> colonizationCommandSystems,
+			Set<SystemId> annexationCommandSystems) {
 		Set<SystemView> systemViews = new HashSet<>(systems.size());
 		Set<FleetView> fleetViews = new HashSet<>(30);
 
@@ -195,7 +196,8 @@ public class GameViewBuilder {
 
 		return new GameView(galaxySize.getWidth(), galaxySize.getHeight(), player, playerRaceMapping.get(player),
 				playerRaceMapping.keySet(), round, turnFinishedStatus, systemViews, fleetViews, colonizableSystemIds,
-				annexableSystemIds, spaceCombatViews, justExploredSystem, technologies, systemNotifications);
+				annexableSystemIds, spaceCombatViews, justExploredSystem, technologies, systemNotifications,
+				colonizationCommandSystems, annexationCommandSystems);
 	}
 
 	private static List<CombatantShipSpecs> toCombatantShipSpecs(Map<DesignSlot, Integer> previosShipCounts,

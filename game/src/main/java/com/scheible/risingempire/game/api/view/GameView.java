@@ -61,11 +61,16 @@ public class GameView {
 
 	private final Set<SystemNotificationView> systemNotifications;
 
+	private final Set<SystemId> colonizationCommandSystemsIds;
+
+	private final Set<SystemId> annexationCommandSystemsIds;
+
 	public GameView(int galaxyWidth, int galaxyHeight, Player player, Race race, Set<Player> players, int round,
 			Map<Player, Boolean> turnFinishedStatus, Set<SystemView> systems, Set<FleetView> fleets,
 			Set<SystemId> colonizableSystemIds, Set<SystemId> annexableSystemIds, Set<SpaceCombatView> spaceCombats,
 			Set<SystemId> justExploredSystem, Set<TechGroupView> selectTechGroups,
-			Set<SystemNotificationView> systemNotifications) {
+			Set<SystemNotificationView> systemNotifications, Set<SystemId> colonizationCommandSystemsIds,
+			Set<SystemId> annexationCommandSystemsIds) {
 		this.galaxyWidth = galaxyWidth;
 		this.galaxyHeight = galaxyHeight;
 		this.player = player;
@@ -84,6 +89,8 @@ public class GameView {
 		this.justExploredSystem = unmodifiableSet(justExploredSystem);
 		this.selectTechGroups = unmodifiableSet(selectTechGroups);
 		this.systemNotifications = unmodifiableSet(systemNotifications);
+		this.colonizationCommandSystemsIds = unmodifiableSet(colonizationCommandSystemsIds);
+		this.annexationCommandSystemsIds = unmodifiableSet(annexationCommandSystemsIds);
 	}
 
 	public int getGalaxyWidth() {
@@ -142,8 +149,16 @@ public class GameView {
 		return this.colonizableSystemIds;
 	}
 
+	public boolean hasColonizationCommand(SystemId systemId) {
+		return this.colonizationCommandSystemsIds.contains(systemId);
+	}
+
 	public Set<SystemId> getAnnexableSystemIds() {
 		return this.annexableSystemIds;
+	}
+
+	public boolean hasAnnexationCommand(SystemId systemId) {
+		return this.annexationCommandSystemsIds.contains(systemId);
 	}
 
 	/**
