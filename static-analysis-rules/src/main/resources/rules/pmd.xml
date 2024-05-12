@@ -39,7 +39,7 @@
 	<rule ref="category/java/bestpractices.xml/UseTryWithResources" />
 	<rule ref="category/java/codestyle.xml/UseUnderscoresInNumericLiterals" />
 	<rule ref="category/java/bestpractices.xml/UseVarargs" />
-
+	<rule ref="category/java/codestyle.xml/LambdaCanBeMethodReference" />
 
 	<rule ref="category/java/errorprone.xml/AvoidDecimalLiteralsInBigDecimalConstructor" />
 	<rule ref="category/java/performance.xml/BigIntegerInstantiation" />
