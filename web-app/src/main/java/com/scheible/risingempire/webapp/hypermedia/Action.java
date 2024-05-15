@@ -91,7 +91,7 @@ public class Action {
 	}
 
 	public Action with(Stream<ActionField> fieldStream) {
-		fieldStream.forEach(f -> with(f));
+		fieldStream.forEach(this::with);
 		return this;
 	}
 

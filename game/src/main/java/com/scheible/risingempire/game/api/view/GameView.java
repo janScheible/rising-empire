@@ -211,7 +211,7 @@ public class GameView {
 
 		this.fleetsSet.stream()
 			.sorted(Comparator.comparing(FleetView::getPlayer).thenComparing(Comparator.comparing(FleetView::getType)))
-			.map(fv -> fv.toString(sid -> this.systems.get(sid).getStarName().orElseGet(() -> sid.toString())))
+			.map(fv -> fv.toString(sid -> this.systems.get(sid).getStarName().orElseGet(sid::toString)))
 			.forEachOrdered(f -> result.append(f).append('\n'));
 
 		return result.toString();

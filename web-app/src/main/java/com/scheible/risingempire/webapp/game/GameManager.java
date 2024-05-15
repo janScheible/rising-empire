@@ -33,10 +33,7 @@ public class GameManager {
 	}
 
 	public void startGame(String gameId, Player startingPlayer, Game game) {
-		game.getPlayers()
-			.stream()
-			.filter(player -> player != startingPlayer)
-			.forEach(otherPlayer -> game.registerAi(otherPlayer));
+		game.getPlayers().stream().filter(player -> player != startingPlayer).forEach(game::registerAi);
 
 		this.gameHolder.set(gameId, game);
 

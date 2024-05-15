@@ -60,7 +60,7 @@ public class Fraction {
 	public void updateSnapshot(SystemId systemId, SystemSnapshot snapshot) {
 		int firstSeenTurn = Optional.ofNullable(this.systemSnapshots.get(systemId))
 			.flatMap(SystemSnapshot::getFirstSeenTurn)
-			.orElseGet(() -> snapshot.getLastSeenTurn());
+			.orElseGet(snapshot::getLastSeenTurn);
 		this.systemSnapshots.put(systemId, snapshot.getFirstSeenTurn().filter(fst -> fst == firstSeenTurn).isPresent()
 				? snapshot : SystemSnapshot.withFirstSeenTurn(snapshot, firstSeenTurn));
 	}

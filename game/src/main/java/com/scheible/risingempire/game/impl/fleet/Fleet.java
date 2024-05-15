@@ -61,7 +61,7 @@ public abstract class Fleet implements FleetOrb {
 			}
 		});
 
-		emptySlots.forEach(s -> this.ships.remove(s));
+		emptySlots.forEach(this.ships::remove);
 	}
 
 	public void retain(Map<DesignSlot, Integer> shipCounts) {

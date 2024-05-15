@@ -273,7 +273,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	private Map<Player, Boolean> getTurnFinishedStatus() {
 		return this.fractions.keySet()
 			.stream()
-			.collect(Collectors.toMap(Function.identity(), c -> this.finishedTurn.contains(c), (l, r) -> l,
+			.collect(Collectors.toMap(Function.identity(), this.finishedTurn::contains, (l, r) -> l,
 					() -> new EnumMap<>(Player.class)));
 	}
 
@@ -579,7 +579,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 			.collect(Collectors.toMap(Function.identity(), p -> this.fractions.get(player).getShipDesigns()));
 		Set<SystemNotificationView> systemNotifications = this.fakeNotificationProvider
 			.map(fnp -> fnp.get(player, this.round))
-			.orElseGet(() -> Set.of());
+			.orElseGet(Set::of);
 
 		return GameViewBuilder.buildView(this.galaxySize, this.round, getTurnFinishedStatus(), player,
 				playerRaceMapping, this.systems.values(), this.fleets.values(), designs, this.orbitingArrivingMapping,

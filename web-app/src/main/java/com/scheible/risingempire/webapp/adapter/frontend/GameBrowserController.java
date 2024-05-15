@@ -67,7 +67,7 @@ class GameBrowserController {
 			.ints(0, SPACE_WORDS.size())
 			.distinct()
 			.limit(3)
-			.mapToObj(i -> SPACE_WORDS.get(i))
+			.mapToObj(SPACE_WORDS::get)
 			.collect(Collectors.joining());
 
 		return ResponseEntity.ok(new GameBrowserDto(new EntityModel<>(

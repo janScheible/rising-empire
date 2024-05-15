@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.spacecombat.CombatantShipSpecs;
+import com.scheible.risingempire.game.api.view.spacecombat.FireExchangeView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.webapp.adapter.frontend.annotation.FrontendController;
@@ -60,7 +61,7 @@ class SpaceCombatPageController {
 					css.getEquipment(), new ShipsDto(css.getCount(), css.getPreviousCount(), css.getSize(), player),
 					css.getFireExchanges()
 						.stream()
-						.collect(Collectors.toMap(fe -> fe.getRound(),
+						.collect(Collectors.toMap(FireExchangeView::getRound,
 								fe -> new FireExchangeDto(fe.getLostHitPoints(), fe.getDamage(), fe.getCount()))));
 		}).collect(Collectors.toList());
 	}
