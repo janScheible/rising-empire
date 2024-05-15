@@ -101,27 +101,18 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<image>
-						<publish>true</publish>
-						<name>${registry-domain}/${project.artifactId}</name>
+						<name>${project.artifactId}</name>
 						<buildpacks>
 							<buildpack>paketo-buildpacks/java</buildpack>
 							<buildpack>gcr.io/paketo-buildpacks/opentelemetry</buildpack>
 						</buildpacks>
 						<env>
-							<BP_OPENTELEMETRY_ENABLED>true</BP_OPENTELEMETRY_ENABLED>
-							<BPE_OTEL_JAVAAGENT_ENABLED>true</BPE_OTEL_JAVAAGENT_ENABLED>
-							<BPE_OTEL_EXPORTER_OTLP_ENDPOINT>http://signoz-helm-chart-otel-collector.platform.svc.cluster.local:4317</BPE_OTEL_EXPORTER_OTLP_ENDPOINT>
+							<BP_OPENTELEMETRY_ENABLED>false</BP_OPENTELEMETRY_ENABLED>
+							<BPE_OTEL_JAVAAGENT_ENABLED>false</BPE_OTEL_JAVAAGENT_ENABLED>
+							<BPE_OTEL_EXPORTER_OTLP_ENDPOINT>http://currently-not-used</BPE_OTEL_EXPORTER_OTLP_ENDPOINT>
 							<BPE_OTEL_SERVICE_NAME>${project.artifactId}</BPE_OTEL_SERVICE_NAME>
 						</env>
 					</image>
-					<docker>
-						<host>tcp://localhost:2375</host>
-						<publishRegistry>
-							<url>https://${registry-domain}</url>
-							<username>${registry-username}</username>
-							<password>${registry-password}</password>
-						</publishRegistry>
-					</docker>
 				</configuration>
 				<executions>
 					<execution>
