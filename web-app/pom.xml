@@ -99,21 +99,6 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<image>
-						<name>${project.artifactId}</name>
-						<buildpacks>
-							<buildpack>paketo-buildpacks/java</buildpack>
-							<buildpack>gcr.io/paketo-buildpacks/opentelemetry</buildpack>
-						</buildpacks>
-						<env>
-							<BP_OPENTELEMETRY_ENABLED>false</BP_OPENTELEMETRY_ENABLED>
-							<BPE_OTEL_JAVAAGENT_ENABLED>false</BPE_OTEL_JAVAAGENT_ENABLED>
-							<BPE_OTEL_EXPORTER_OTLP_ENDPOINT>http://currently-not-used</BPE_OTEL_EXPORTER_OTLP_ENDPOINT>
-							<BPE_OTEL_SERVICE_NAME>${project.artifactId}</BPE_OTEL_SERVICE_NAME>
-						</env>
-					</image>
-				</configuration>
 				<executions>
 					<execution>
 						<goals>
