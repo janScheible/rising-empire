@@ -52,7 +52,7 @@
 		<jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
 		<sortpom-maven-plugin.version>3.4.1</sortpom-maven-plugin.version>
 		<spring-javaformat-maven-plugin.version>0.0.41</spring-javaformat-maven-plugin.version>
-		<impsort-maven-plugin.version>1.9.0</impsort-maven-plugin.version>
+		<impsort-maven-plugin.version>1.10.0</impsort-maven-plugin.version>
 		<maven-pmd-plugin.version>3.22.0</maven-pmd-plugin.version>
 		<maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
 		<maven-forbiddenapis-plugin.version>3.7</maven-forbiddenapis-plugin.version>
@@ -381,8 +381,7 @@
 					<lineEnding>LF</lineEnding>
 					<groups>jakarta.,java.,javax.,*</groups>
 					<staticAfter>true</staticAfter>
-					<!-- Unfortunately the used javaparser does not yet support Java 21. -->
-					<compliance>17</compliance>
+					<ignoreParseErrorsBelowImports>true</ignoreParseErrorsBelowImports>
 				</configuration>
 				<executions>
 					<execution>
