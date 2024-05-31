@@ -6,11 +6,16 @@ import GridLayout from '~/component/grid-layout';
 import ModalDialog from '~/component/modal-dialog';
 import cssUrl from '~/util/cssUrl';
 import HypermediaUtil from '~/util/hypermedia-util';
+import Reconciler from '~/util/reconciler';
 
 export default class NewGamePage extends HTMLElement {
 	static NAME = 're-new-game-page';
 
 	#galaxySizeEl: HTMLSelectElement;
+
+	#scenarioLabelEl: HTMLLabelElement;
+	#scenarioSelectEl: HTMLSelectElement;
+
 	#createAction;
 
 	constructor() {
@@ -45,6 +50,10 @@ export default class NewGamePage extends HTMLElement {
 							<option value="4">4</option>
 							<option value="5">5</option>
 						</select>
+
+						<label id="scenario-label" hidden for="scenario">Scenario</label>
+						<select hidden name="scenario">
+						</select>
 					</${GridLayout.NAME}>
 
 					<${ContainerButtons.NAME}><button id="create-button">Create</button></${ContainerButtons.NAME}>
@@ -53,20 +62,42 @@ export default class NewGamePage extends HTMLElement {
 
 		this.#galaxySizeEl = this.shadowRoot.querySelector('select[name="galaxy-size"]');
 
-		this.shadowRoot.querySelector('#create-button').addEventListener('click', () =>
-			HypermediaUtil.submitAction(this.#createAction, {
-				galaxySize: this.#galaxySizeEl.selectedOptions[0].value,
-			})
-		);
+		this.#scenarioLabelEl = this.shadowRoot.querySelector('label[for="scenario"]');
+		this.#scenarioSelectEl = this.shadowRoot.querySelector('select[name="scenario"]');
+
+		this.shadowRoot.querySelector('#create-button').addEventListener('click', () => {
+			const selectedScenarioId = this.#scenarioSelectEl.selectedOptions[0]?.value;
+			const values = Object.assign(
+				{
+					galaxySize: this.#galaxySizeEl.selectedOptions[0].value,
+				},
+				selectedScenarioId ? { scenarioId: selectedScenarioId } : null
+			);
+
+			HypermediaUtil.submitAction(this.#createAction, values);
+		});
 	}
 
 	render(data) {
-		this.#createAction = HypermediaUtil.getAction(data, 'create');
-
-		const autoCreate = HypermediaUtil.getField(data, 'create', 'auto-create')?.value;
-		if (autoCreate) {
-			HypermediaUtil.submitAction(this.#createAction, {});
+		if (
+			!Reconciler.isHiddenAfterPropertyReconciliation(this.#scenarioLabelEl, !data.gameScenarios) &&
+			!Reconciler.isHiddenAfterPropertyReconciliation(this.#scenarioSelectEl, !data.gameScenarios)
+		) {
+			Reconciler.reconcileChildren(
+				this.#scenarioSelectEl,
+				this.#scenarioSelectEl.querySelectorAll(':scope > option'),
+				data.gameScenarios,
+				'option',
+				{
+					renderCallbackFn: (el: HTMLInputElement, data) => {
+						el.value = data.id;
+						el.innerText = data.name;
+					},
+					idAttributName: 'value',
+				}
+			);
 		}
+		this.#createAction = HypermediaUtil.getAction(data, 'create');
 	}
 }
 

@@ -9,6 +9,7 @@ import HypermediaUtil from '~/util/hypermedia-util';
 import Sockette from '~/sockette-2.0.6';
 import RisingEmppireLogo from '~/component/rising-empire-logo';
 import FlowLayout from '~/component/flow-layout';
+import LaunchGameUtil from '~/game-browser/component/launch-game-util';
 
 class GameBrowser extends HTMLElement {
 	static NAME = 're-game-browser';
@@ -101,6 +102,12 @@ class GameBrowser extends HTMLElement {
 customElements.define(GameBrowser.NAME, GameBrowser);
 
 ErrorUtil.registerGlobalErrorListener(document.body.dataset.errorsUri);
+
+document.addEventListener('keydown', async (event) => {
+	if (event.ctrlKey && event.altKey && event.key === 't') {
+		LaunchGameUtil.launchUrlTemplate('/games/{gameId}/{player}', 'test-game', 'blue', true);
+	}
+});
 
 const gameBrowserEl = new GameBrowser();
 document.body.appendChild(gameBrowserEl);

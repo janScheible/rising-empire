@@ -93,6 +93,10 @@ export default class GameLauncher extends HTMLElement {
 		const gameId = this.#gameIdEl.value;
 		return !gameId || gameId.trim().length === 0;
 	}
+
+	launchTestGame() {
+		LaunchGameUtil.launchUrlTemplate(this.#startAction.href, 'test-game', 'blue', true);
+	}
 }
 
 customElements.define(GameLauncher.NAME, GameLauncher);

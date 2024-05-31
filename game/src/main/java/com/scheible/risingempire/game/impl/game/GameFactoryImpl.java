@@ -136,7 +136,7 @@ public class GameFactoryImpl implements GameFactory {
 		System rigelSystem = null;
 		System spicaSystem = null;
 		Set<System> systems;
-		if (gameOptions.isTestGameScenario()) {
+		if (gameOptions.isTestGame()) {
 			systems = Arrays2.asSet(//
 					solSystem = System.createHomeSystem("Sol", new Location(60, 60), StarType.YELLOW, PlanetType.JUNGLE,
 							PlanetSpecial.NONE, 100, Player.BLUE, firstUsedSlot.apply(humanDesigns)), //
@@ -207,21 +207,21 @@ public class GameFactoryImpl implements GameFactory {
 		assertHomeSystems(solSystem, fierasSystem, centauriSystem);
 
 		StartFleet humanHomeFleet = new StartFleet(Player.BLUE, solSystem,
-				Map.of(DesignSlot.FIRST, 2, DesignSlot.SECOND, getColonyShipCount(gameOptions.isTestGameScenario()),
+				Map.of(DesignSlot.FIRST, 2, DesignSlot.SECOND, getColonyShipCount(gameOptions.isTestGame()),
 						DesignSlot.THIRD, 30, DesignSlot.FOURTH, 10, DesignSlot.FIFTH, 4));
 		StartFleet mrrshanHomeFleet = new StartFleet(Player.WHITE, fierasSystem,
-				Map.of(DesignSlot.FIRST, 2, DesignSlot.SECOND, getColonyShipCount(gameOptions.isTestGameScenario()),
+				Map.of(DesignSlot.FIRST, 2, DesignSlot.SECOND, getColonyShipCount(gameOptions.isTestGame()),
 						DesignSlot.THIRD, 30, DesignSlot.FOURTH, 10, DesignSlot.FIFTH, 4));
 		StartFleet psilonHomeFleet = new StartFleet(Player.YELLOW, centauriSystem,
-				Map.of(DesignSlot.FIRST, 2, DesignSlot.SECOND, getColonyShipCount(gameOptions.isTestGameScenario()),
+				Map.of(DesignSlot.FIRST, 2, DesignSlot.SECOND, getColonyShipCount(gameOptions.isTestGame()),
 						DesignSlot.THIRD, 30, DesignSlot.FOURTH, 10, DesignSlot.FIFTH, 4));
 
 		return new GameImpl(systems, Arrays2.asSet(humanFraction, mrrshanFraction, psilonFraction),
 				Arrays2.asSet(humanHomeFleet, mrrshanHomeFleet, psilonHomeFleet), gameOptions);
 	}
 
-	private int getColonyShipCount(boolean testGameScenario) {
-		return testGameScenario ? 4 : 40;
+	private int getColonyShipCount(boolean testGame) {
+		return testGame ? 4 : 40;
 	}
 
 	private void assertHomeSystems(System solSystem, System fierasSystem, System centauriSystem) {

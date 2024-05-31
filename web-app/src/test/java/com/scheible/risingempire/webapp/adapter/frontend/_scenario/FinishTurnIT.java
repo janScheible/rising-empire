@@ -23,7 +23,7 @@ class FinishTurnIT extends AbstractMainPageIT {
 	@BeforeEach
 	void beforeEach() {
 		startGameForBlue(GameFactory.get()
-			.create(GameOptions.forTestGameScenario()
+			.create(GameOptions.forTestGame()
 				// disable notifications
 				.fakeSystemNotificationProvider((player, round) -> Set.of())));
 	}

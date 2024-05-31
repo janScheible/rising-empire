@@ -26,7 +26,7 @@ class SpaceCombatFakeFleetsIT extends AbstractMainPageIT {
 	@Test
 	void testFakeFleetForLostOne() throws Exception {
 		startGameForBlue(GameFactory.get()
-			.create(GameOptions.forTestGameScenario()
+			.create(GameOptions.forTestGame()
 				// make the whole map reachable in a single turn for a simpler test setup
 				.fleetRangeFactor(2000.0)
 				.fleetSpeedFactor(2000.0)

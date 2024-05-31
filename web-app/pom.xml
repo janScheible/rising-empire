@@ -22,6 +22,25 @@
 		</dependency>
 		<dependency>
 			<groupId>com.scheible.risingempire</groupId>
+			<artifactId>rising-empire-game</artifactId>
+			<version>${project.version}</version>
+			<classifier>tests</classifier>
+			<type>test-jar</type>
+		</dependency>
+		<!-- It is far from ideal to java AssertJ on the main classpath but it is needed to execute the test scenarios from jUnit. -->
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>net.bytebuddy</groupId>
+					<artifactId>byte-buddy</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.scheible.risingempire</groupId>
 			<artifactId>rising-empire-util</artifactId>
 			<version>${project.version}</version>
 		</dependency>

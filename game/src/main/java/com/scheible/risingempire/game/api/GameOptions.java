@@ -17,7 +17,7 @@ public class GameOptions {
 
 	private final int playerCount;
 
-	private final boolean testGameScenario;
+	private final boolean testGame;
 
 	private Optional<FakeTechProvider> fakeTechProvider = Optional.empty();
 
@@ -35,13 +35,13 @@ public class GameOptions {
 		this(galaxySize, playerCount, false);
 	}
 
-	private GameOptions(GalaxySize galaxySize, int playerCount, boolean testGameScenario) {
+	private GameOptions(GalaxySize galaxySize, int playerCount, boolean testGame) {
 		this.galaxySize = galaxySize;
 		this.playerCount = playerCount;
-		this.testGameScenario = testGameScenario;
+		this.testGame = testGame;
 	}
 
-	public static GameOptions forTestGameScenario() {
+	public static GameOptions forTestGame() {
 		return new GameOptions(GalaxySize.HUGE, 3, true);
 	}
 
@@ -107,8 +107,8 @@ public class GameOptions {
 		return this.spaceCombatOutcome;
 	}
 
-	public boolean isTestGameScenario() {
-		return this.testGameScenario;
+	public boolean isTestGame() {
+		return this.testGame;
 	}
 
 	public int getAnnexationSiegeRounds() {

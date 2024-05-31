@@ -2,10 +2,12 @@ package com.scheible.risingempire.webapp.game;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.Game;
 import com.scheible.risingempire.game.api.TurnStatus;
+import com.scheible.risingempire.game.api._testgame.TestScenario;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.TurnFinishedStatusPlayerDto;
 import com.scheible.risingempire.webapp.notification.ChannelAddedEvent;
@@ -32,10 +34,13 @@ public class GameManager {
 		this.notificationService = notificationService;
 	}
 
-	public void startGame(String gameId, Player startingPlayer, Game game) {
+	public void startGame(String gameId, Player startingPlayer, Game game, Optional<TestScenario> testScenario) {
 		game.getPlayers().stream().filter(player -> player != startingPlayer).forEach(game::registerAi);
 
-		this.gameHolder.set(gameId, game);
+		// if scenario present run turn logic of the first round
+		testScenario.ifPresent(ts -> ts.applyTurnLogic(game));
+
+		this.gameHolder.set(gameId, game, testScenario);
 
 		this.notificationService.broadcast("game-change");
 	}
@@ -49,6 +54,10 @@ public class GameManager {
 				.forEach(p -> this.notificationService.send(gameId, p, "round-finished"));
 
 			this.notificationService.broadcast("game-change");
+
+			// if scenario present run turn logic of the current round
+			Game game = this.gameHolder.get(gameId).get();
+			this.gameHolder.getTestScenario(gameId).ifPresent(ts -> ts.applyTurnLogic(game));
 		}
 		else {
 			for (Entry<Player, Boolean> playerTurnStatus : turnStatus.playerStatus().entrySet()) {
