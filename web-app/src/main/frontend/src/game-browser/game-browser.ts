@@ -9,7 +9,6 @@ import HypermediaUtil from '~/util/hypermedia-util';
 import Sockette from '~/sockette-2.0.6';
 import RisingEmppireLogo from '~/component/rising-empire-logo';
 import FlowLayout from '~/component/flow-layout';
-import LaunchGameUtil from '~/game-browser/component/launch-game-util';
 
 class GameBrowser extends HTMLElement {
 	static NAME = 're-game-browser';
@@ -29,7 +28,7 @@ class GameBrowser extends HTMLElement {
 
 				:host {
 					display: flex;
-					flex-direction: column;					
+					flex-direction: column;
 
 					width: 100%;
 				}
@@ -97,20 +96,24 @@ class GameBrowser extends HTMLElement {
 			{ idValueFn: (data) => data.gameId }
 		);
 	}
+
+	launchTestGame() {
+		this.#gameLauncherEl.launchTestGame();
+	}
 }
 
 customElements.define(GameBrowser.NAME, GameBrowser);
 
 ErrorUtil.registerGlobalErrorListener(document.body.dataset.errorsUri);
 
-document.addEventListener('keydown', async (event) => {
-	if (event.ctrlKey && event.altKey && event.key === 't') {
-		LaunchGameUtil.launchUrlTemplate('/games/{gameId}/{player}', 'test-game', 'blue', true);
-	}
-});
-
 const gameBrowserEl = new GameBrowser();
 document.body.appendChild(gameBrowserEl);
+
+document.addEventListener('keydown', async (event) => {
+	if (event.ctrlKey && event.altKey && event.key === 't') {
+		gameBrowserEl.launchTestGame();
+	}
+});
 
 // noop cause all updates are triggered via web socketes
 HypermediaUtil.setActionResponseCallbackFn((data) => {});
