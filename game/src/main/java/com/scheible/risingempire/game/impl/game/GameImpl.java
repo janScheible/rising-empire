@@ -22,6 +22,7 @@ import com.scheible.risingempire.game.api.GameOptions.FakeSystemNotificationProv
 import com.scheible.risingempire.game.api.GameOptions.FakeTechProvider;
 import com.scheible.risingempire.game.api.PlayerGame;
 import com.scheible.risingempire.game.api.TurnStatus;
+import com.scheible.risingempire.game.api.TurnStatusBuilder;
 import com.scheible.risingempire.game.api.ai.Ai;
 import com.scheible.risingempire.game.api.ai.AiFactory;
 import com.scheible.risingempire.game.api.universe.Player;
@@ -117,7 +118,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 
 	public GameImpl(Set<System> systems, Set<Fraction> fractions, Set<StartFleet> startFleets,
 			GameOptions gameOptions) {
-		this.galaxySize = gameOptions.getGalaxySize();
+		this.galaxySize = gameOptions.galaxySize();
 
 		this.systems = Collections
 			.unmodifiableMap(systems.stream().collect(Collectors.toMap(System::getId, Function.identity())));
@@ -130,12 +131,12 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 					sf.getSystem(), this.round))
 			.collect(Collectors.toMap(Fleet::getId, Function.identity())));
 
-		this.fakeTechProvider = gameOptions.getFakeTechProvider();
-		this.fakeNotificationProvider = gameOptions.getFakeNotificationProvider();
+		this.fakeTechProvider = gameOptions.fakeTechProvider();
+		this.fakeNotificationProvider = gameOptions.fakeSystemNotificationProvider();
 
 		this.shipDesignProvider = (player, slot) -> this.fractions.get(player).getShipDesigns().get(slot);
 		this.journeyCalculator = new JourneyCalculator(this.systems, this.shipDesignProvider,
-				gameOptions.getFleetSpeedFactor());
+				gameOptions.fleetSpeedFactor());
 
 		FleetFinder fleetFinder = new FleetFinder(this.fleets, this.journeyCalculator);
 		SeededRandom random = new SeededRandom();
@@ -143,12 +144,12 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		this.fleetTurn = new FleetTurn(() -> this.round, this.systems,
 				(player, systemId, snapshot) -> this.fractions.get(player).updateSnapshot(systemId, snapshot),
 				this.fleetFormer, fleetFinder,
-				gameOptions.getSpaceCombatOutcome()
+				gameOptions.spaceCombatOutcome()
 					.<SpaceCombatResolver>map(KnownInAdvanceWinnerSpaceCombatResolver::new)
 					.orElseGet(() -> new SimulatingSpaceCombatResolver(random)),
 				this.shipDesignProvider);
 
-		this.annexationSiegeRounds = gameOptions.getAnnexationSiegeRounds();
+		this.annexationSiegeRounds = gameOptions.annexationSiegeRounds();
 	}
 
 	private void nextTurn() {
@@ -248,20 +249,17 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 			if (this.fakeTechProvider.isPresent()) {
 				this.selectTechGroups.clear();
 
-				this.finishedTurn.forEach(p -> this.selectTechGroups.put(p,
-						this.fakeTechProvider.get()
-							.get(p, this.round)
-							.stream()
-							.map(tgv -> tgv.stream()
-								.map(tv -> Map.entry(tv.getId(), tv.getName()))
-								.collect(Collectors.toList()))
-							.collect(Collectors.toList())));
+				this.finishedTurn.forEach(p -> this.selectTechGroups.put(p, this.fakeTechProvider.get()
+					.get(p, this.round)
+					.stream()
+					.map(tgv -> tgv.stream().map(tv -> Map.entry(tv.id(), tv.name())).collect(Collectors.toList()))
+					.collect(Collectors.toList())));
 			}
 
 			this.finishedTurn.clear();
 		}
 
-		return new TurnStatus(getTurnFinishedStatus(), turnFinished);
+		return TurnStatusBuilder.builder().playerStatus(getTurnFinishedStatus()).roundFinished(turnFinished).build();
 	}
 
 	private void validateTurnFinished(Player player) {
@@ -540,7 +538,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		Double distance = null;
 
 		for (System system : this.systems.values()) {
-			double currentDistance = system.getLocation().getDistance(fleet.getLocation());
+			double currentDistance = system.getLocation().distance(fleet.getLocation());
 			if (closest == null || currentDistance < distance) {
 				closest = system;
 				distance = currentDistance;
@@ -604,7 +602,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	}
 
 	@Override
-	public boolean isAiControlled(Player player) {
+	public boolean aiControlled(Player player) {
 		return this.ais.containsKey(player);
 	}
 

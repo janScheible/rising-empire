@@ -61,7 +61,7 @@ class StarMapDto {
 		Optional<ItineraryDto> itinerary;
 
 		StarSelectionDto(SystemId id, int x, int y) {
-			this.id = id.getValue();
+			this.id = id.value();
 			this.x = x;
 			this.y = y;
 		}
@@ -88,7 +88,7 @@ class StarMapDto {
 
 		FleetSelectionDto(FleetId id, int x, int y, boolean deployable, boolean orbiting,
 				Optional<String> orbitingStarId, boolean justLeaving) {
-			this.id = id.getValue();
+			this.id = id.value();
 			this.x = x;
 			this.y = y;
 			this.deployable = deployable;
@@ -156,7 +156,7 @@ class StarMapDto {
 		StarDto(SystemId id, Optional<String> name, StarType type, boolean small, Optional<Player> playerColor,
 				Optional<Player> siegePlayerColor, Optional<Integer> siegeProgress, int x, int y,
 				Optional<ItineraryDto> relocation) {
-			this.id = id.getValue();
+			this.id = id.value();
 			this.name = name;
 			this.type = type;
 			this.small = small;
@@ -214,7 +214,7 @@ class StarMapDto {
 				Optional<Boolean> previousJustLeaving, int x, int y, boolean orbiting, boolean justLeaving,
 				Optional<Integer> speed, Optional<HorizontalDirection> horizontalDirection,
 				List<EntityModel<FleetDto>> fleetsBeforeArrival) {
-			this.id = id.getValue();
+			this.id = id.value();
 			this.playerColor = PlayerDto.fromPlayer(playerColor);
 			this.previousX = previousX;
 			this.previousY = previousY;
@@ -241,7 +241,7 @@ class StarMapDto {
 		final String text;
 
 		StarNotificationDto(SystemId starId, int x, int y, String text) {
-			this.starId = starId.getValue();
+			this.starId = starId.value();
 
 			this.x = x;
 			this.y = y;

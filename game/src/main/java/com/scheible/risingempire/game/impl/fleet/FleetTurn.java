@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
+import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalBuilder;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.system.SystemId;
@@ -74,9 +75,13 @@ public class FleetTurn {
 				}
 				emptyFleets.add(deployedFleet);
 				orbitingArrivingMapping.computeIfAbsent(orbitingFleet.get().getId(), key -> new HashSet<>())
-					.add(new FleetBeforeArrival(deployedFleet.getId(), deployedFleet.getHorizontalDirection(),
-							deployedFleet.getSpeed(), deployedFleet.getPreviousLocation(),
-							deployedFleet.isPreviousJustLeaving()));
+					.add(FleetBeforeArrivalBuilder.builder()
+						.id(deployedFleet.getId())
+						.horizontalDirection(deployedFleet.getHorizontalDirection())
+						.speed(deployedFleet.getSpeed())
+						.location(deployedFleet.getPreviousLocation())
+						.justLeaving(deployedFleet.isPreviousJustLeaving())
+						.build());
 
 				System destinationSystem = this.systems.get(destination.getId());
 				if (!destinationSystem.getColony(fleet.getPlayer()).isPresent()) {

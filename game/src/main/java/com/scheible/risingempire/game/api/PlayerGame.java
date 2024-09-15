@@ -19,13 +19,13 @@ public interface PlayerGame {
 	// Queries to get information about the game from the player's point of view.
 	//
 
-	GameView getView();
+	GameView view();
 
 	Optional<Integer> calcEta(FleetId fleetId, SystemId destinationId, ShipsView ships);
 
 	Optional<Integer> calcTranportColonistsEta(SystemId originId, SystemId destinationId);
 
-	Player getPlayer();
+	Player player();
 
 	//
 	// Commands of the player that change the state of the game (some have immediate

@@ -102,7 +102,7 @@ class InspectorDto {
 
 		FleetDeploymentDto(FleetId fleetId, int round, Player player, Optional<Integer> eta,
 				Optional<Integer> outOfRangeBy, boolean deployable, List<ShipsDto> ships) {
-			this.fleetId = fleetId.getValue();
+			this.fleetId = fleetId.value();
 			this.round = round;
 			this.playerColor = PlayerDto.fromPlayer(player);
 			this.eta = eta;

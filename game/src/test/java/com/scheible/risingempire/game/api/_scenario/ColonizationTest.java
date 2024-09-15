@@ -21,15 +21,15 @@ public class ColonizationTest extends AbstractGameTest {
 				.fleetRangeFactor(30.0)
 				.fleetSpeedFactor(30.0);
 		}).turn((game, view) -> {
-			FleetView fleetAtSol = view.getOrbiting(SOL_BLUE_HOME).orElseThrow();
-			game.deployFleet(fleetAtSol.getId(), AJAX, fleetAtSol.getShips().getPartByName("Colony Ship", 1));
+			FleetView fleetAtSol = view.orbiting(SOL_BLUE_HOME).orElseThrow();
+			game.deployFleet(fleetAtSol.id(), AJAX, fleetAtSol.ships().partByName("Colony Ship", 1));
 		}).turn((game, view) -> {
-			FleetView colonyFleet = view.getOrbiting(AJAX).get();
-			game.colonizeSystem(AJAX, colonyFleet.getId(), false);
+			FleetView colonyFleet = view.orbiting(AJAX).get();
+			game.colonizeSystem(AJAX, colonyFleet.id(), false);
 
-			assertThat(view.getSystem(AJAX).getColonyView()).isEmpty();
+			assertThat(view.system(AJAX).colony()).isEmpty();
 		}).turn((game, view) -> {
-			assertThat(view.getSystem(AJAX).getColonyView().get().getPlayer()).isEqualTo(Player.BLUE);
+			assertThat(view.system(AJAX).colony().get().player()).isEqualTo(Player.BLUE);
 		});
 	}
 

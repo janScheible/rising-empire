@@ -14,17 +14,18 @@ import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.Game;
 import com.scheible.risingempire.game.api.GameFactory;
 import com.scheible.risingempire.game.api.GameOptions;
+import com.scheible.risingempire.game.api.GameOptionsBuilder;
 import com.scheible.risingempire.game.api._scenario.AnnexationTest;
 import com.scheible.risingempire.game.api._scenario.ColonizationTest;
 import com.scheible.risingempire.game.api._scenario.ExplorationTest;
 import com.scheible.risingempire.game.api._scenario.SpaceCombatTest;
 import com.scheible.risingempire.game.api._testgame.TestScenario;
 import com.scheible.risingempire.game.api.universe.Player;
-import com.scheible.risingempire.game.api.view.notification.SystemNotificationView;
+import com.scheible.risingempire.game.api.view.notification.SystemNotificationViewBuilder;
 import com.scheible.risingempire.game.api.view.system.SystemId;
-import com.scheible.risingempire.game.api.view.tech.TechGroupView;
+import com.scheible.risingempire.game.api.view.tech.TechGroupViewBuilder;
 import com.scheible.risingempire.game.api.view.tech.TechId;
-import com.scheible.risingempire.game.api.view.tech.TechView;
+import com.scheible.risingempire.game.api.view.tech.TechViewBuilder;
 import com.scheible.risingempire.util.jdk.Arrays2;
 import com.scheible.risingempire.webapp.adapter.frontend.annotation.FrontendController;
 import com.scheible.risingempire.webapp.adapter.frontend.context.FrontendContext;
@@ -105,31 +106,57 @@ class NewGameController {
 				}
 				else {
 					game = GameFactory.get()
-						.create(GameOptions.forTestGame() //
+						.create(GameOptions.testGameBuilder() //
 							.fakeTechProvider((player,
-									round) -> (round % 5 == 0) ? Set.of(new TechGroupView(Arrays2.asSet( //
-											new TechView(new TechId("hl"), "Hand Lasers", "Bla..."),
-											new TechView(new TechId("gl"), "Gatling Laser", "Bla..."),
-											new TechView(new TechId("hvr"), "Hyper-V Rockets", "Bla...")))) : Set.of())
+									round) -> (round % 5 == 0) ? Set.of(TechGroupViewBuilder.builder()
+										.group(Arrays2.asSet( //
+												TechViewBuilder.builder()
+													.id(new TechId("hl"))
+													.name("Hand Lasers")
+													.description("Bla...")
+													.build(),
+												TechViewBuilder.builder()
+													.id(new TechId("gl"))
+													.name("Gatling Laser")
+													.description("Bla...")
+													.build(),
+												TechViewBuilder.builder()
+													.id(new TechId("hvr"))
+													.name("Hyper-V Rockets")
+													.description("Bla...")
+													.build()))
+										.build()) : Set.of())
 							.fakeSystemNotificationProvider((player, round) -> {
 								if (round % 3 == 0) {
-									return (round % 6 == 0) ? Set
-										.of(new SystemNotificationView(new SystemId("s60x60"), Set
-											.of("This is a notification for s60x60. Please do what ever it tells you...")))
-											: new HashSet<>(Arrays.asList(new SystemNotificationView(
-													new SystemId("s984x728"),
-													Set.of("This is a notification for s984x728. Please do what ever it tells you...")),
-													new SystemNotificationView(new SystemId("s60x60"), Set
-														.of("This is a notification for s60x60. Please do what ever it tells you..."))));
+									return (round % 6 == 0) ? Set.of(SystemNotificationViewBuilder.builder()
+										.systemId(new SystemId("s60x60"))
+										.messages(Set
+											.of("This is a notification for s60x60. Please do what ever it tells you..."))
+										.build())
+											: new HashSet<>(Arrays.asList(SystemNotificationViewBuilder.builder()
+												.systemId(new SystemId("s984x728"))
+												.messages(Set
+													.of("This is a notification for s984x728. Please do what ever it tells you..."))
+												.build(),
+													SystemNotificationViewBuilder.builder()
+														.systemId(new SystemId("s60x60"))
+														.messages(Set
+															.of("This is a notification for s60x60. Please do what ever it tells you..."))
+														.build()));
 								}
 								else {
 									return Set.of();
 								}
-							}));
+							})
+							.build());
 				}
 			}
 			else {
-				game = GameFactory.get().create(new GameOptions(body.galaxySize, body.playerCount));
+				game = GameFactory.get()
+					.create(GameOptionsBuilder.builder()
+						.galaxySize(body.galaxySize)
+						.playerCount(body.playerCount)
+						.build());
 			}
 
 			this.gameManager.startGame(context.getGameId(), context.getPlayer(), game,

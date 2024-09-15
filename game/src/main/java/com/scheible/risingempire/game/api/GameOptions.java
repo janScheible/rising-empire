@@ -3,116 +3,55 @@ package com.scheible.risingempire.game.api;
 import java.util.Optional;
 import java.util.Set;
 
+import com.scheible.risingempire.game.api.annotation.Initialized;
+import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.notification.SystemNotificationView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
+import io.soabase.recordbuilder.core.RecordBuilder;
 
 /**
  * @author sj
  */
-public class GameOptions {
+@StagedRecordBuilder
+public record GameOptions(GalaxySize galaxySize, int playerCount,
+		@Initialized @RecordBuilder.Initializer("DEFAULT_TEST_GAME") boolean testGame,
+		@Initialized @RecordBuilder.Initializer("DEFAULT_FAKE_TECH_PROVIDER") Optional<FakeTechProvider> fakeTechProvider,
+		@Initialized @RecordBuilder.Initializer("DEFAULT_FAKE_SYSTEM_NOTIFICATION_PROVIDER") Optional<FakeSystemNotificationProvider> fakeSystemNotificationProvider,
+		@Initialized @RecordBuilder.Initializer("DEFAULT_FLEET_RANGE_FACTOR") double fleetRangeFactor,
+		@Initialized @RecordBuilder.Initializer("DEFAULT_FLEET_SPEED_FACTOR") double fleetSpeedFactor,
+		@Initialized @RecordBuilder.Initializer("DEFAULT_SAPCE_COMBAT_OUTCOME") Optional<Outcome> spaceCombatOutcome,
+		@Initialized @RecordBuilder.Initializer("DEFAULT_ANNEXATION_SIEGE_ROUNGS") int annexationSiegeRounds) {
 
-	private final GalaxySize galaxySize;
+	public static final boolean DEFAULT_TEST_GAME = false;
 
-	private final int playerCount;
+	public static final Optional<FakeTechProvider> DEFAULT_FAKE_TECH_PROVIDER = Optional.empty();
 
-	private final boolean testGame;
+	public static final Optional<FakeSystemNotificationProvider> DEFAULT_FAKE_SYSTEM_NOTIFICATION_PROVIDER = Optional
+		.empty();
 
-	private Optional<FakeTechProvider> fakeTechProvider = Optional.empty();
+	public static final double DEFAULT_FLEET_RANGE_FACTOR = 1.0;
 
-	private Optional<FakeSystemNotificationProvider> fakeSystemNotificationProvider = Optional.empty();
+	public static final double DEFAULT_FLEET_SPEED_FACTOR = 1.0;
 
-	private double fleetRangeFactor = 1.0;
+	public static final Optional<Outcome> DEFAULT_SAPCE_COMBAT_OUTCOME = Optional.empty();
 
-	private double fleetSpeedFactor = 1.0;
+	public static final int DEFAULT_ANNEXATION_SIEGE_ROUNGS = 5;
 
-	private Optional<Outcome> spaceCombatOutcome = Optional.empty();
-
-	private int annexationSiegeRounds = 5;
-
-	public GameOptions(GalaxySize galaxySize, int playerCount) {
-		this(galaxySize, playerCount, false);
+	public GameOptions {
 	}
 
-	private GameOptions(GalaxySize galaxySize, int playerCount, boolean testGame) {
-		this.galaxySize = galaxySize;
-		this.playerCount = playerCount;
-		this.testGame = testGame;
-	}
-
-	public static GameOptions forTestGame() {
-		return new GameOptions(GalaxySize.HUGE, 3, true);
-	}
-
-	public GameOptions fakeTechProvider(FakeTechProvider fakeTechProvider) {
-		this.fakeTechProvider = Optional.of(fakeTechProvider);
-		return this;
-	}
-
-	public GameOptions fakeSystemNotificationProvider(FakeSystemNotificationProvider fakeSystemNotificationProvider) {
-		this.fakeSystemNotificationProvider = Optional.of(fakeSystemNotificationProvider);
-		return this;
-	}
-
-	public GameOptions fleetRangeFactor(double shipRangeFactor) {
-		this.fleetRangeFactor = shipRangeFactor;
-		return this;
-	}
-
-	public GameOptions fleetSpeedFactor(double shipSpeedFactor) {
-		this.fleetSpeedFactor = shipSpeedFactor;
-		return this;
+	public static GameOptionsBuilder testGameBuilder() {
+		return GameOptionsBuilder.builder().galaxySize(GalaxySize.HUGE).playerCount(3).testGame(true);
 	}
 
 	/**
 	 * Predetermines the outcome of all space combats. If a fleet survives all ship counts
 	 * are halved.
 	 */
-	public GameOptions spaceCombatWinner(Outcome outcome) {
-		this.spaceCombatOutcome = Optional.of(outcome);
-		return this;
-	}
-
-	public GameOptions annexationSiegeRounds(int annexationSiegeRounds) {
-		this.annexationSiegeRounds = annexationSiegeRounds;
-		return this;
-	}
-
-	public GalaxySize getGalaxySize() {
-		return this.galaxySize;
-	}
-
-	public int getPlayerCount() {
-		return this.playerCount;
-	}
-
-	public Optional<FakeTechProvider> getFakeTechProvider() {
-		return this.fakeTechProvider;
-	}
-
-	public Optional<FakeSystemNotificationProvider> getFakeNotificationProvider() {
-		return this.fakeSystemNotificationProvider;
-	}
-
-	public double getFleetRangeFactor() {
-		return this.fleetRangeFactor;
-	}
-
-	public double getFleetSpeedFactor() {
-		return this.fleetSpeedFactor;
-	}
-
-	public Optional<Outcome> getSpaceCombatOutcome() {
+	public Optional<Outcome> spaceCombatOutcome() {
 		return this.spaceCombatOutcome;
-	}
-
-	public boolean isTestGame() {
-		return this.testGame;
-	}
-
-	public int getAnnexationSiegeRounds() {
-		return this.annexationSiegeRounds;
 	}
 
 	@FunctionalInterface

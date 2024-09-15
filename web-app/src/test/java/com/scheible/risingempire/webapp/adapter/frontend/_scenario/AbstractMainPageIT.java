@@ -110,13 +110,13 @@ abstract class AbstractMainPageIT {
 		return HypermediaClient.create(
 				post("/game/games/" + TEST_GAME_ID + "/BLUE/main-page/button-bar/finished-turns")
 					.contentType(MediaType.APPLICATION_JSON)
-					.content(JSONObject.toJSONString(
-							Map.of("selectedStarId", Arrays.asList(selectedStar.getValue()), "round", round))),
+					.content(JSONObject
+						.toJSONString(Map.of("selectedStarId", Arrays.asList(selectedStar.value()), "round", round))),
 				this.mockMvc);
 	}
 
 	protected MvcResult selectStar(HypermediaClient client, SystemId systemId) throws Exception {
-		return selectStar(client, systemId.getValue());
+		return selectStar(client, systemId.value());
 	}
 
 	protected MvcResult selectStar(HypermediaClient client, String starId) throws Exception {

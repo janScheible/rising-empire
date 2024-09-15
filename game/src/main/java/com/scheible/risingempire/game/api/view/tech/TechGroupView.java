@@ -4,17 +4,18 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
+
 import static java.util.Collections.unmodifiableSet;
 
 /**
  * @author sj
  */
-public class TechGroupView implements Iterable<TechView> {
+@StagedRecordBuilder
+public record TechGroupView(Set<TechView> group) implements Iterable<TechView> {
 
-	private final Set<TechView> group;
-
-	public TechGroupView(Set<TechView> group) {
-		this.group = unmodifiableSet(group);
+	public TechGroupView {
+		group = unmodifiableSet(group);
 	}
 
 	@Override

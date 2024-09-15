@@ -69,38 +69,41 @@ public class MainPageDtoPopulator {
 	static EntityModel<MainPageDto> populate(FrontendContext context, MainPageState state) {
 		GameView gameView = context.getGameView();
 
-		MainPageDto mainPage = new MainPageDto(gameView.getRound(), gameView.getPlayer(),
-				new TurnStatusDto(gameView.getTurnFinishedStatus().get(gameView.getPlayer()),
-						gameView.getTurnFinishedStatus()
+		MainPageDto mainPage = new MainPageDto(gameView.round(), gameView.player(),
+				new TurnStatusDto(gameView.turnFinishedStatus().get(gameView.player()),
+						gameView.turnFinishedStatus()
 							.entrySet()
 							.stream()
 							.map(tfs -> TurnFinishedStatusPlayerDto.fromPlayer(tfs.getKey(), tfs.getValue()))
 							.collect(Collectors.toList())),
-				new StarMapDto(gameView.getGalaxyWidth(), gameView.getGalaxyHeight()),
+				new StarMapDto(gameView.galaxyWidth(), gameView.galaxyHeight()),
 				new MainPageDto.StateDescriptionDto(state.getClass().getSimpleName()));
 
-		mainPage.starMap.getContent().ranges = new RangesDto(gameView.getGalaxyWidth(), gameView.getGalaxyHeight(),
-				gameView.getPlayer());
+		mainPage.starMap.getContent().ranges = new RangesDto(gameView.galaxyWidth(), gameView.galaxyHeight(),
+				gameView.player());
 
-		mainPage.starMap.getContent().ranges.fleetRanges.addAll(gameView.getSystems()
+		mainPage.starMap.getContent().ranges.fleetRanges.addAll(gameView.systems()
+			.values()
 			.stream()
-			.filter(s -> s.getFleetRange().isPresent() && s.getExtendedFleetRange().isPresent())
-			.map(s -> new FleetRangeDto("fleetRange@" + s.getId().getValue(), s.getLocation().getX(),
-					s.getLocation().getY(), s.getFleetRange().orElseThrow(), s.getExtendedFleetRange().orElseThrow()))
+			.filter(s -> s.fleetRange().isPresent() && s.extendedFleetRange().isPresent())
+			.map(s -> new FleetRangeDto("fleetRange@" + s.id().value(), s.location().x(), s.location().y(),
+					s.fleetRange().orElseThrow(), s.extendedFleetRange().orElseThrow()))
 			.collect(Collectors.toList()));
 
-		mainPage.starMap.getContent().ranges.colonyScannerRanges.addAll(gameView.getSystems()
+		mainPage.starMap.getContent().ranges.colonyScannerRanges.addAll(gameView.systems()
+			.values()
 			.stream()
-			.filter(s -> s.getScannerRange().isPresent())
-			.map(s -> new ScannerRangeDto("scannerRange@" + s.getId().getValue(), s.getLocation().getX(),
-					s.getLocation().getY(), s.getScannerRange().get()))
+			.filter(s -> s.scannerRange().isPresent())
+			.map(s -> new ScannerRangeDto("scannerRange@" + s.id().value(), s.location().x(), s.location().y(),
+					s.scannerRange().get()))
 			.collect(Collectors.toList()));
 
-		mainPage.starMap.getContent().ranges.fleetScannerRanges.addAll(gameView.getFleets()
+		mainPage.starMap.getContent().ranges.fleetScannerRanges.addAll(gameView.fleets()
+			.values()
 			.stream()
-			.filter(f -> f.getScannerRange().isPresent())
-			.map(f -> new ScannerRangeDto("scannerRange@" + f.getId().getValue(), f.getLocation().getX(),
-					f.getLocation().getY(), f.getScannerRange().orElseThrow()))
+			.filter(f -> f.scannerRange().isPresent())
+			.map(f -> new ScannerRangeDto("scannerRange@" + f.id().value(), f.location().x(), f.location().y(),
+					f.scannerRange().orElseThrow()))
 			.collect(Collectors.toList()));
 
 		SystemId turnSelectedSystemId = null;
@@ -111,7 +114,7 @@ public class MainPageDtoPopulator {
 		Optional<ShipsView> stateShips = state.isFleetDeploymentState() ? state.asFleetDeploymentState().getShips()
 				: state.isFleetInspectionState() ? state.asFleetInspectionState().getShips() : Optional.empty();
 		Optional<ShipsView> maybeShips = stateShips
-			.or(() -> state.getSelectedFleetId().map(id -> gameView.getFleet(id).getShips()));
+			.or(() -> state.getSelectedFleetId().map(id -> gameView.fleet(id).ships()));
 
 		if (state.getSelectedFleetId().isPresent()) {
 			// we always need a selected system --> derive it for example from the
@@ -123,133 +126,133 @@ public class MainPageDtoPopulator {
 		{
 			mainPage.buttonBar = new EntityModel<>(new ButtonBarDto())
 				.with(Action.jsonPost("finish-turn", context.toFrontendUri("main-page", "button-bar", "finished-turns"))
-					.with("selectedStarId", selectedSystemId.getValue())
-					.with("round", gameView.getRound()))
+					.with("selectedStarId", selectedSystemId.value())
+					.with("round", gameView.round()))
 				.with(Action.get("show-tech-page", context.toFrontendUri("tech-page"))
-					.with("selectedStarId", selectedSystemId.getValue()));
+					.with("selectedStarId", selectedSystemId.value()));
 		}
 
-		mainPage.starMap.getContent().stars = gameView.getSystems()
+		mainPage.starMap.getContent().stars = gameView.systems()
+			.values()
 			.stream()
-			.map(s -> new EntityModel<>(new StarDto(s.getId(), s.getStarName(), s.getStarType(), s.isSmall(),
-					s.getColonyView().map(ColonyView::getPlayer),
-					s.getColonyView().flatMap(ColonyView::getAnnexationStatus).flatMap(AnnexationStatus::siegingPlayer),
-					s.getColonyView().flatMap(ColonyView::getAnnexationStatus).flatMap(AnnexationStatus::getProgress),
-					s.getLocation().getX(), s.getLocation().getY(),
-					s.getColonyView().flatMap(ColonyView::getRelocationTarget).map(rt -> toItinerary(s, rt, gameView))))
-				.with(state.isSystemSelectable(s.getId()), () -> Action
-					.get("select", context.toFrontendUri("main-page"))
+			.map(s -> new EntityModel<>(
+					new StarDto(s.id(), s.starName(), s.starType(), s.small(), s.colony().map(ColonyView::player),
+							s.colony().flatMap(ColonyView::annexationStatus).flatMap(AnnexationStatus::siegingPlayer),
+							s.colony().flatMap(ColonyView::annexationStatus).flatMap(AnnexationStatus::progress),
+							s.location().x(), s.location().y(),
+							s.colony().flatMap(ColonyView::relocationTarget).map(rt -> toItinerary(s, rt, gameView))))
+				.with(state.isSystemSelectable(s.id()), () -> Action.get("select", context.toFrontendUri("main-page"))
 					.with("selectedStarId",
 							state.isTransferColonistsState() || state.isRelocateShipsState()
-									? state.getSelectedSystemId().get().getValue() : s.getId().getValue())
-					.with(state.isTransferColonistsState(), "transferStarId", () -> s.getId().getValue())
-					.with(state.isRelocateShipsState(), "relocateStarId", () -> s.getId().getValue())
+									? state.getSelectedSystemId().get().value() : s.id().value())
+					.with(state.isTransferColonistsState(), "transferStarId", () -> s.id().value())
+					.with(state.isRelocateShipsState(), "relocateStarId", () -> s.id().value())
 					.with(state.getSelectedFleetId().isPresent()
-							&& gameView.getFleet(state.getSelectedFleetId().orElseThrow()).isDeployable(),
-							"selectedFleetId", () -> state.getSelectedFleetId().map(FleetId::getValue).orElseThrow())
+							&& gameView.fleet(state.getSelectedFleetId().orElseThrow()).deployable(), "selectedFleetId",
+							() -> state.getSelectedFleetId().map(FleetId::value).orElseThrow())
 					.with(maybeShips.isPresent(),
 							() -> maybeShips.orElseThrow()
-								.getTypesWithCount()
+								.typesWithCount()
 								.stream()
-								.map(twc -> new ActionField(twc.getKey().getId().getValue(), twc.getValue())))))
+								.map(twc -> new ActionField(twc.getKey().id().value(), twc.getValue())))))
 			.collect(Collectors.toList());
 
-		Predicate<FleetId> isSpaceCombatAttacker = fleetId -> gameView.getSpaceCombats()
+		Predicate<FleetId> isSpaceCombatAttacker = fleetId -> gameView.spaceCombats()
 			.stream()
-			.anyMatch(sc -> sc.getAttackerFleets().stream().anyMatch(af -> af.getId().equals(fleetId)));
+			.anyMatch(sc -> sc.attackerFleets().stream().anyMatch(af -> af.id().equals(fleetId)));
 
-		mainPage.starMap.getContent().fleets = gameView.getFleets()
-			.stream()
-			.map(fleet -> new EntityModel<>(new FleetDto(fleet.getId(), fleet.getPlayer(),
-					fleet.getPreviousLocation().map(Location::getX), fleet.getPreviousLocation().map(Location::getY),
-					fleet.isPreviousJustLeaving(), fleet.getLocation().getX(), fleet.getLocation().getY(),
-					fleet.getType() == FleetViewType.ORBITING, fleet.isJustLeaving(), fleet.getSpeed(),
-					fleet.getHorizontalDirection(),
-					fleet.getFleetsBeforeArrival()
-						.stream()
-						.map(fba -> new EntityModel<>(new FleetDto(fba.getId(), fleet.getPlayer(),
-								Optional.of(fba.getLocation().getX()), Optional.of(fba.getLocation().getY()),
-								Optional.of(fba.isJustLeaving()), fleet.getLocation().getX(),
-								fleet.getLocation().getY(), !isSpaceCombatAttacker.test(fba.getId()),
-								fba.isJustLeaving(), Optional.of(fba.getSpeed()),
-								Optional.of(fba.getHorizontalDirection()), List.of())))
-						.toList()))
-				.with(state.isFleetSelectable(fleet.getId()),
-						() -> Action.get("select", context.toFrontendUri("main-page"))
-							.with(state.isFleetSelectable(fleet.getId()), "selectedFleetId",
-									() -> fleet.getId().getValue())
-							.with(fleet.getDestination().isPresent(), "selectedStarId",
-									() -> fleet.getDestination().get().getValue())))
-			.collect(Collectors.groupingBy(fleetDto -> {
-				FleetView fleet = context.getGameView().getFleet(new FleetId(fleetDto.getContent().id));
-				return fleet.getParentId().orElse(fleet.getId()).getValue();
-			}));
+		mainPage.starMap
+			.getContent().fleets = gameView.fleets()
+				.values()
+				.stream()
+				.map(fleet -> new EntityModel<>(new FleetDto(fleet.id(), fleet.player(),
+						fleet.previousLocation().map(Location::x), fleet.previousLocation().map(Location::y),
+						fleet.previousJustLeaving(), fleet.location().x(), fleet.location().y(),
+						fleet.type() == FleetViewType.ORBITING, fleet.justLeaving().orElse(Boolean.FALSE),
+						fleet.speed(), fleet.horizontalDirection(),
+						fleet.fleetsBeforeArrival()
+							.stream()
+							.map(fba -> new EntityModel<>(new FleetDto(fba.id(), fleet.player(),
+									Optional.of(fba.location().x()), Optional.of(fba.location().y()),
+									Optional.of(fba.justLeaving()), fleet.location().x(), fleet.location().y(),
+									!isSpaceCombatAttacker.test(fba.id()), fba.justLeaving(), Optional.of(fba.speed()),
+									Optional.of(fba.horizontalDirection()), List.of())))
+							.toList()))
+					.with(state.isFleetSelectable(fleet.id()),
+							() -> Action.get("select", context.toFrontendUri("main-page"))
+								.with(state.isFleetSelectable(fleet.id()), "selectedFleetId", () -> fleet.id().value())
+								.with(fleet.destination().isPresent(), "selectedStarId",
+										() -> fleet.destination().get().value())))
+				.collect(Collectors.groupingBy(fleetDto -> {
+					FleetView fleet = context.getGameView().fleet(new FleetId(fleetDto.getContent().id));
+					return fleet.parentId().orElse(fleet.id()).value();
+				}));
 
-		mainPage.starMap.getContent().starNotifications = gameView.getSystemNotifications()
+		mainPage.starMap.getContent().starNotifications = gameView.systemNotifications()
 			.stream()
-			.flatMap(sn -> sn.getMessages().stream().map(message -> {
-				SystemView notificationSystem = gameView.getSystem(sn.getSystemId());
-				return new StarNotificationDto(notificationSystem.getId(), notificationSystem.getLocation().getX(),
-						notificationSystem.getLocation().getY(), message);
+			.flatMap(sn -> sn.messages().stream().map(message -> {
+				SystemView notificationSystem = gameView.system(sn.systemId());
+				return new StarNotificationDto(notificationSystem.id(), notificationSystem.location().x(),
+						notificationSystem.location().y(), message);
 			}))
 			.toList();
 
 		Function<SystemId, Action> spotlightAction = (systemId) -> Action
 			.get("spotlight", context.toFrontendUri("main-page"))
-			.with("selectedStarId", selectedSystemId.getValue())
-			.with("spotlightedStarId", systemId.getValue());
+			.with("selectedStarId", selectedSystemId.value())
+			.with("spotlightedStarId", systemId.value());
 
-		mainPage.spaceCombats = gameView.getSpaceCombats()
+		mainPage.spaceCombats = gameView.spaceCombats()
 			.stream()
-			.map(sc -> new EntityModel<>(toSpaceCombat(sc, gameView.getSystem(sc.getSystemId())))
-				.with(spotlightAction.apply(sc.getSystemId())))
+			.map(sc -> new EntityModel<>(toSpaceCombat(sc, gameView.system(sc.systemId())))
+				.with(spotlightAction.apply(sc.systemId())))
 			.toList();
 
-		mainPage.explorations = gameView.getJustExploredSystemIds()
+		mainPage.explorations = gameView.justExploredSystemIds()
 			.stream()
 			.map(jesi -> new EntityModel<>(new MainPageDto.ExplorationDto(jesi)).with(spotlightAction.apply(jesi)))
 			.toList();
 
-		mainPage.colonizations = gameView.getColonizableSystemIds()
+		mainPage.colonizations = gameView.colonizableSystemIds()
 			.stream()
-			.map(csi -> new EntityModel<>(new MainPageDto.ColonizationDto(csi, gameView.hasColonizationCommand(csi)))
+			.map(csi -> new EntityModel<>(new MainPageDto.ColonizationDto(csi, gameView.colonizationCommand(csi)))
 				.with(spotlightAction.apply(csi)))
 			.toList();
 
-		mainPage.annexations = gameView.getAnnexableSystemIds()
+		mainPage.annexations = gameView.annexableSystemIds()
 			.stream()
-			.map(asi -> new EntityModel<>(new MainPageDto.AnnexationDto(asi, gameView.hasAnnexationCommand(asi)))
+			.map(asi -> new EntityModel<>(new MainPageDto.AnnexationDto(asi, gameView.annexationCommand(asi)))
 				.with(spotlightAction.apply(asi)))
 			.toList();
 
-		return new EntityModel<>(mainPage).with(!context.getGameView().getSelectTechs().isEmpty(),
+		return new EntityModel<>(mainPage).with(!context.getGameView().selectTechGroups().isEmpty(),
 				() -> Action.get("select-tech", context.toFrontendUri("select-tech-page"))
-					.with("selectedStarId", selectedSystemId.getValue()));
+					.with("selectedStarId", selectedSystemId.value()));
 	}
 
 	private static SystemId fromSelectedStar(GameView gameView, MainPageState state, MainPageDto mainPage,
 			FrontendContext context) {
-		SystemView selectedSystem = gameView.getSystem(state.getSelectedSystemId().orElseThrow());
+		SystemView selectedSystem = gameView.system(state.getSelectedSystemId().orElseThrow());
 
-		mainPage.starMap.getContent().starSelection = new StarSelectionDto(selectedSystem.getId(),
-				selectedSystem.getLocation().getX(), selectedSystem.getLocation().getY());
+		mainPage.starMap.getContent().starSelection = new StarSelectionDto(selectedSystem.id(),
+				selectedSystem.location().x(), selectedSystem.location().y());
 
-		boolean colonization = (state.isStarInspectionState() && selectedSystem.isColonizable())
+		boolean colonization = (state.isStarInspectionState() && selectedSystem.colonizable().orElse(Boolean.FALSE))
 				|| (state.isStarSpotlightState()
-						&& gameView.getColonizableSystemIds().contains(state.getSelectedSystemId().get()));
-		boolean annexation = (state.isStarInspectionState() && selectedSystem.getColonyView()
-			.flatMap(ColonyView::getAnnexationStatus)
+						&& gameView.colonizableSystemIds().contains(state.getSelectedSystemId().get()));
+		boolean annexation = (state.isStarInspectionState() && selectedSystem.colony()
+			.flatMap(ColonyView::annexationStatus)
 			.flatMap(AnnexationStatus::annexable)
 			.orElse(Boolean.FALSE))
 				|| (state.isStarSpotlightState()
-						&& gameView.getAnnexableSystemIds().contains(state.getSelectedSystemId().get()));
+						&& gameView.annexableSystemIds().contains(state.getSelectedSystemId().get()));
 
 		Function<SystemView, HabitabilityDto> habitabilityDtoSupplier = (system) -> new HabitabilityDto(
-				system.getPlanetType().get(), system.getPlanetSpecial().get(), system.getPlanetMaxPopulation().get());
+				system.planetType().get(), system.planetSpecial().get(), system.planetMaxPopulation().get());
 
 		if ((state.isStarInspectionState() || state.isTransferColonistsState() || state.isRelocateShipsState())
 				&& !(colonization || annexation)) {
-			if (selectedSystem.getStarName().isPresent()) {
+			if (selectedSystem.starName().isPresent()) {
 				Optional<Integer> destinationEta = Optional.empty();
 				SystemView inspectedSystem = selectedSystem;
 				if ((state.isTransferColonistsState() && !state.getSelectedSystemId()
@@ -258,285 +261,278 @@ public class MainPageDtoPopulator {
 						|| (state.isRelocateShipsState() && !state.getSelectedSystemId()
 							.get()
 							.equals(state.asRelocateShipsState().getRelocateSystemId()))) {
-					SystemView destinationSystem = gameView.getSystem(
+					SystemView destinationSystem = gameView.system(
 							state.isTransferColonistsState() ? state.asTransferColonistsState().getTransferSystemId()
 									: state.asRelocateShipsState().getRelocateSystemId());
 					inspectedSystem = destinationSystem;
 
 					destinationEta = context.getPlayerGame()
-						.calcTranportColonistsEta(selectedSystem.getId(), destinationSystem.getId())
-						.filter(eta -> destinationSystem.getColonyView(gameView.getPlayer()).isPresent());
+						.calcTranportColonistsEta(selectedSystem.id(), destinationSystem.id())
+						.filter(eta -> destinationSystem.colony(gameView.player()).isPresent());
 
 					mainPage.starMap.getContent().starSelection.itinerary = Optional
-						.of(new ItineraryDto(destinationSystem.getLocation().getX(),
-								destinationSystem.getLocation().getY(), selectedSystem.getLocation().getX(),
-								selectedSystem.getLocation().getY(), false, false, destinationEta.isPresent(), false));
+						.of(new ItineraryDto(destinationSystem.location().x(), destinationSystem.location().y(),
+								selectedSystem.location().x(), selectedSystem.location().y(), false, false,
+								destinationEta.isPresent(), false));
 				}
 
-				mainPage.inspector.systemDetails = new SystemDetailsDto(inspectedSystem.getStarName().get(),
+				mainPage.inspector.systemDetails = new SystemDetailsDto(inspectedSystem.starName().get(),
 						habitabilityDtoSupplier.apply(inspectedSystem),
-						inspectedSystem.getColonyView()
+						inspectedSystem.colony()
 							.map(c -> new ColonyDto(
-									Optional.ofNullable(c.getPlayer() != gameView.getPlayer()
-											? new ForeignColonyOwner(c.getRace(), c.getPlayer()) : null),
-									c.getPopulation(), c.getRatios().map(r -> new ProductionDto(42, 78)),
-									c.getAnnexationStatus().flatMap(AnnexationStatus::roundsUntilAnnexable),
-									c.getAnnexationStatus()
-										.filter(as -> context.getPlayer() == c.getPlayer())
+									Optional.ofNullable(c.player() != gameView.player()
+											? new ForeignColonyOwner(c.race(), c.player()) : null),
+									c.population(), c.ratios().map(r -> new ProductionDto(42, 78)),
+									c.annexationStatus().flatMap(AnnexationStatus::roundsUntilAnnexable),
+									c.annexationStatus()
+										.filter(as -> context.getPlayer() == c.player())
 										.flatMap(AnnexationStatus::siegingPlayer),
-									c.getAnnexationStatus()
-										.filter(as -> context.getPlayer() == c.getPlayer())
+									c.annexationStatus()
+										.filter(as -> context.getPlayer() == c.player())
 										.flatMap(AnnexationStatus::siegingRace))),
-						inspectedSystem.getColonyView()
-							.filter(c -> c.getPlayer() == gameView.getPlayer() && !state.isTransferColonistsState()
+						inspectedSystem.colony()
+							.filter(c -> c.player() == gameView.player() && !state.isTransferColonistsState()
 									&& !state.isRelocateShipsState())
-							.map(c -> new EntityModel<>(new AllocationsDto(c.getId().getValue(), Map.of( //
+							.map(c -> new EntityModel<>(new AllocationsDto(c.id().value(), Map.of( //
 									"ship", new AllocationCategoryDto(10, "None"), //
 									"defence", new AllocationCategoryDto(15, "None"), //
 									"industry", new AllocationCategoryDto(20, "2.7/y"), //
 									"ecology", new AllocationCategoryDto(25, "Clean"), //
 									"technology", new AllocationCategoryDto(30, "0RP"))))
 								.with(Action
-									.jsonPost("allocate-spending",
+									.jsonPost(
+											"allocate-spending",
 											context.toFrontendUri("main-page", "inspector", "spendings"))
-									.with("selectedStarId", selectedSystem.getId().getValue()))),
-						selectedSystem.getColonyView()
-							.filter(c -> c.getPlayer() == gameView.getPlayer() && !state.isTransferColonistsState()
+									.with("selectedStarId", selectedSystem.id().value()))),
+						selectedSystem.colony()
+							.filter(c -> c.player() == gameView.player() && !state.isTransferColonistsState()
 									&& !state.isRelocateShipsState())
 							.map(c -> new EntityModel<>(
-									new BuildQueueDto(c.getSpaceDock().get().getName(),
-											c.getSpaceDock().get().getSize(), gameView.getPlayer(), 1))
+									new BuildQueueDto(c.spaceDock().get().name(), c.spaceDock().get().size(),
+											gameView.player(), 1))
 								.with(Action
 									.jsonPost("next-ship-type",
 											context.toFrontendUri("main-page", "inspector", "ship-types"))
-									.with("selectedStarId", selectedSystem.getId().getValue())
-									.with("colonyId", c.getId().getValue()))
+									.with("selectedStarId", selectedSystem.id().value())
+									.with("colonyId", c.id().value()))
 								.with(Action.get("relocate-ships", context.toFrontendUri("main-page"))
-									.with("selectedStarId", selectedSystem.getId().getValue())
-									.with("relocateStarId", selectedSystem.getId().getValue()))
+									.with("selectedStarId", selectedSystem.id().value())
+									.with("relocateStarId", selectedSystem.id().value()))
 								.with(Action.get("transfer-colonists", context.toFrontendUri("main-page"))
-									.with("selectedStarId", selectedSystem.getId().getValue())
-									.with("transferStarId", selectedSystem.getId().getValue()))),
+									.with("selectedStarId", selectedSystem.id().value())
+									.with("transferStarId", selectedSystem.id().value()))),
 						state.isTransferColonistsState() ? Optional
-							.of(new EntityModel<>(new TransferColonistsDto(selectedSystem.getColonyView()
+							.of(new EntityModel<>(new TransferColonistsDto(selectedSystem.colony()
 								.get()
-								.getColonistTransfers()
+								.colonistTransfers()
 								.getOrDefault(state.asTransferColonistsState().getTransferSystemId().toColonyId(), 0),
-									selectedSystem.getColonyView()
-										.map(ColonyView::getPopulation)
-										.map(p -> p / 2)
-										.orElseThrow(),
+									selectedSystem.colony().map(ColonyView::population).map(p -> p / 2).orElseThrow(),
 									destinationEta))
 								.with(Action.get("cancel", context.toFrontendUri("main-page"))
-									.with("selectedStarId", selectedSystem.getId().getValue()))
+									.with("selectedStarId", selectedSystem.id().value()))
 								.with(destinationEta.isPresent(),
 										() -> Action
 											.jsonPost("transfer",
 													context.toFrontendUri("main-page", "inspector",
 															"colonist-transfers"))
-											.with("selectedStarId", selectedSystem.getId().getValue())
+											.with("selectedStarId", selectedSystem.id().value())
 											.with("colonists", 0)
 											.with("transferColonyId",
 													state.asTransferColonistsState()
 														.getTransferSystemId()
 														.toColonyId()
-														.getValue())))
+														.value())))
 								: Optional.empty(),
 						state.isRelocateShipsState()
 								? Optional.of(
 										new EntityModel<>(new RelocateShipsDto(destinationEta))
 											.with(Action.get("cancel", context.toFrontendUri("main-page"))
-												.with("selectedStarId", selectedSystem.getId().getValue()))
+												.with("selectedStarId", selectedSystem.id().value()))
 											.with(Action
 												.jsonPost("relocate",
 														context.toFrontendUri("main-page", "inspector",
 																"ship-relocations"))
-												.with("selectedStarId", selectedSystem.getId().getValue())
+												.with("selectedStarId", selectedSystem.id().value())
 												.with("relocateColonyId",
 														state.asRelocateShipsState()
 															.getRelocateSystemId()
 															.toColonyId()
-															.getValue())))
+															.value())))
 								: Optional.empty(),
-						selectedSystem.getRange());
+						selectedSystem.range());
 
 			}
 			else {
-				mainPage.inspector.unexplored = new UnexploredDto(selectedSystem.getStarType(),
-						selectedSystem.getRange().orElseThrow());
+				mainPage.inspector.unexplored = new UnexploredDto(selectedSystem.starType(),
+						selectedSystem.range().orElseThrow());
 			}
 		}
 		else if (colonization || annexation) {
-			FleetId orbiting = gameView.getOrbiting(selectedSystem.getId()).get().getId();
+			FleetId orbiting = gameView.orbiting(selectedSystem.id()).get().id();
 
 			if (colonization) {
-				mainPage.inspector.colonization = new EntityModel<>(new ColonizationDto(
-						selectedSystem.getStarName().get(), habitabilityDtoSupplier.apply(selectedSystem),
-						Optional.ofNullable(state.isStarSpotlightState() ? null
-								: selectedSystem.hasColonizeCommand().orElse(Boolean.FALSE))))
+				mainPage.inspector.colonization = new EntityModel<>(new ColonizationDto(selectedSystem.starName().get(),
+						habitabilityDtoSupplier.apply(selectedSystem),
+						Optional.ofNullable(
+								state.isStarSpotlightState() ? null : selectedSystem.colonizeCommand().orElse(false))))
 					.with(Action.jsonPost("colonize", context.toFrontendUri("main-page", "inspector", "colonizations"))
 						.with("selectedStarId",
 								state.isStarSpotlightState()
-										? state.asStarSpotlightState().getActualSelectedSystemId().getValue()
-										: selectedSystem.getId().getValue())
-						.with("fleetId", orbiting.getValue())
+										? state.asStarSpotlightState().getActualSelectedSystemId().value()
+										: selectedSystem.id().value())
+						.with("fleetId", orbiting.value())
 						.with("skip", Boolean.FALSE))
 					.with(Action.jsonPost("cancel", context.toFrontendUri("main-page", "inspector", "colonizations"))
 						.with("selectedStarId",
 								state.isStarSpotlightState()
-										? state.asStarSpotlightState().getActualSelectedSystemId().getValue()
-										: selectedSystem.getId().getValue())
-						.with("fleetId", orbiting.getValue())
+										? state.asStarSpotlightState().getActualSelectedSystemId().value()
+										: selectedSystem.id().value())
+						.with("fleetId", orbiting.value())
 						.with("skip", Boolean.TRUE));
 			}
 			else if (annexation) {
-				mainPage.inspector.annexation = new EntityModel<>(new AnnexationDto(selectedSystem.getStarName().get(),
+				mainPage.inspector.annexation = new EntityModel<>(new AnnexationDto(selectedSystem.starName().get(),
 						habitabilityDtoSupplier.apply(selectedSystem),
 						Optional.ofNullable(state.isStarSpotlightState() ? null
-								: selectedSystem.getColonyView()
+								: selectedSystem.colony()
 									.get()
-									.getAnnexationStatus()
+									.annexationStatus()
 									.get()
 									.annexationCommand()
 									.orElse(Boolean.FALSE))))
 					.with(Action.jsonPost("annex", context.toFrontendUri("main-page", "inspector", "annexations"))
 						.with("selectedStarId",
 								state.isStarSpotlightState()
-										? state.asStarSpotlightState().getActualSelectedSystemId().getValue()
-										: selectedSystem.getId().getValue())
-						.with("fleetId", orbiting.getValue())
+										? state.asStarSpotlightState().getActualSelectedSystemId().value()
+										: selectedSystem.id().value())
+						.with("fleetId", orbiting.value())
 						.with("skip", Boolean.FALSE))
 					.with(Action.jsonPost("cancel", context.toFrontendUri("main-page", "inspector", "annexations"))
 						.with("selectedStarId",
 								state.isStarSpotlightState()
-										? state.asStarSpotlightState().getActualSelectedSystemId().getValue()
-										: selectedSystem.getId().getValue())
-						.with("fleetId", orbiting.getValue())
+										? state.asStarSpotlightState().getActualSelectedSystemId().value()
+										: selectedSystem.id().value())
+						.with("fleetId", orbiting.value())
 						.with("skip", Boolean.TRUE));
 			}
 		}
 		else if (state.isStarSpotlightState()) {
-			if (gameView.getSpaceCombats()
+			if (gameView.spaceCombats()
 				.stream()
-				.map(SpaceCombatView::getSystemId)
+				.map(SpaceCombatView::systemId)
 				.anyMatch(s -> s.equals(state.getSelectedSystemId().get()))) {
-				SpaceCombatView spaceCombat = gameView.getSpaceCombats()
+				SpaceCombatView spaceCombat = gameView.spaceCombats()
 					.stream()
-					.filter(sc -> sc.getSystemId().equals(selectedSystem.getId()))
+					.filter(sc -> sc.systemId().equals(selectedSystem.id()))
 					.findAny()
 					.orElseThrow();
 
-				mainPage.inspector.spaceCombat = new EntityModel<>(new SpaceCombatDto(selectedSystem.getStarName()
-					.map(name -> new SpaceCombatSystem(name, new HabitabilityDto(selectedSystem.getPlanetType().get(),
-							selectedSystem.getPlanetSpecial().get(), selectedSystem.getPlanetMaxPopulation().get()))),
-						spaceCombat.getAttacker(), spaceCombat.getAttackerPlayer(), spaceCombat.getDefender(),
-						spaceCombat.getDefenderPlayer()))
+				mainPage.inspector.spaceCombat = new EntityModel<>(new SpaceCombatDto(selectedSystem.starName()
+					.map(name -> new SpaceCombatSystem(name,
+							new HabitabilityDto(selectedSystem.planetType().get(), selectedSystem.planetSpecial().get(),
+									selectedSystem.planetMaxPopulation().get()))),
+						spaceCombat.attacker(), spaceCombat.attackerPlayer(), spaceCombat.defender(),
+						spaceCombat.defenderPlayer()))
 					.with(Action
 						.get("continue",
-								context.toFrontendUri("space-combat-page",
-										state.getSelectedSystemId().get().getValue()))
-						.with("selectedStarId", state.asStarSpotlightState().getActualSelectedSystemId().getValue()));
+								context.toFrontendUri("space-combat-page", state.getSelectedSystemId().get().value()))
+						.with("selectedStarId", state.asStarSpotlightState().getActualSelectedSystemId().value()));
 			}
-			else if (gameView.getJustExploredSystemIds().contains(state.getSelectedSystemId().get())) {
-				mainPage.inspector.exploration = new EntityModel<>(
-						new ExplorationDto(selectedSystem.getStarName().orElseThrow(),
-								new HabitabilityDto(selectedSystem.getPlanetType().get(),
-										selectedSystem.getPlanetSpecial().get(),
-										selectedSystem.getPlanetMaxPopulation().get())))
+			else if (gameView.justExploredSystemIds().contains(state.getSelectedSystemId().get())) {
+				mainPage.inspector.exploration = new EntityModel<>(new ExplorationDto(
+						selectedSystem.starName().orElseThrow(),
+						new HabitabilityDto(selectedSystem.planetType().get(), selectedSystem.planetSpecial().get(),
+								selectedSystem.planetMaxPopulation().get())))
 					.with(Action.get("continue", context.toFrontendUri("main-page"))
-						.with("selectedStarId", state.asStarSpotlightState().getActualSelectedSystemId().getValue()));
+						.with("selectedStarId", state.asStarSpotlightState().getActualSelectedSystemId().value()));
 			}
 		}
 
-		return selectedSystem.getId();
+		return selectedSystem.id();
 	}
 
 	private static SystemId fromSelectedFleet(GameView gameView, MainPageState state, Optional<ShipsView> maybeShips,
 			MainPageDto mainPage, FrontendContext context) {
-		FleetView selectedFleet = gameView.getFleet(state.getSelectedFleetId().orElseThrow());
-		SystemId selectedSystemId = selectedFleet.getOrbiting().or(selectedFleet::getClosest).orElseThrow();
+		FleetView selectedFleet = gameView.fleet(state.getSelectedFleetId().orElseThrow());
+		SystemId selectedSystemId = selectedFleet.orbiting().or(selectedFleet::closest).orElseThrow();
 
 		ShipsView ships = maybeShips.orElseThrow();
-		mainPage.starMap.getContent().fleetSelection = new FleetSelectionDto(selectedFleet.getId(),
-				selectedFleet.getLocation().getX(), selectedFleet.getLocation().getY(), selectedFleet.isDeployable(),
-				selectedFleet.getOrbiting().isPresent(), selectedFleet.getOrbiting().map(SystemId::getValue),
-				selectedFleet.isJustLeaving());
+		mainPage.starMap.getContent().fleetSelection = new FleetSelectionDto(selectedFleet.id(),
+				selectedFleet.location().x(), selectedFleet.location().y(), selectedFleet.deployable(),
+				selectedFleet.orbiting().isPresent(), selectedFleet.orbiting().map(SystemId::value),
+				selectedFleet.justLeaving().orElse(Boolean.FALSE));
 
-		ShipsView totalShips = gameView.getFleet(selectedFleet.getId()).getShips();
+		ShipsView totalShips = gameView.fleet(selectedFleet.id()).ships();
 
 		if (state.isFleetInspectionState()) {
-			if (selectedFleet.isDeployable()) {
-				mainPage.inspector.fleetDeployment = new EntityModel<>(new FleetDeploymentDto(selectedFleet.getId(),
-						gameView.getRound(), selectedFleet.getPlayer(), Optional.empty(), Optional.empty(), false,
+			if (selectedFleet.deployable()) {
+				mainPage.inspector.fleetDeployment = new EntityModel<>(new FleetDeploymentDto(selectedFleet.id(),
+						gameView.round(), selectedFleet.player(), Optional.empty(), Optional.empty(), false,
 						toDtoShipList(ships, Optional.of(totalShips))));
 			}
 			else {
-				mainPage.inspector.fleetView = new EntityModel<>(new FleetViewDto(selectedFleet.getPlayer(),
-						selectedFleet.getRace(), Optional.empty(), toDtoShipList(ships, Optional.of(totalShips))));
+				mainPage.inspector.fleetView = new EntityModel<>(new FleetViewDto(selectedFleet.player(),
+						selectedFleet.race(), Optional.empty(), toDtoShipList(ships, Optional.of(totalShips))));
 			}
 		}
 		else if (state.isFleetDeploymentState()) {
-			SystemView selectedSystem = gameView.getSystem(state.getSelectedSystemId().orElseThrow());
-			Optional<Integer> eta = context.getPlayerGame()
-				.calcEta(selectedFleet.getId(), selectedSystem.getId(), ships);
+			SystemView selectedSystem = gameView.system(state.getSelectedSystemId().orElseThrow());
+			Optional<Integer> eta = context.getPlayerGame().calcEta(selectedFleet.id(), selectedSystem.id(), ships);
 
-			if (selectedFleet.isDeployable()) {
+			if (selectedFleet.deployable()) {
 				mainPage.inspector.fleetDeployment = new EntityModel<>(
-						new FleetDeploymentDto(selectedFleet.getId(), gameView.getRound(), selectedFleet.getPlayer(),
-								eta, eta.isPresent() ? Optional.empty() : selectedSystem.getRange(), true,
+						new FleetDeploymentDto(selectedFleet.id(), gameView.round(), selectedFleet.player(), eta,
+								eta.isPresent() ? Optional.empty() : selectedSystem.range(), true,
 								toDtoShipList(ships, Optional.of(totalShips))))
-					.with(selectedFleet.isDeployable() && eta.isPresent(),
+					.with(selectedFleet.deployable() && eta.isPresent(),
 							() -> Action
 								.jsonPost("deploy", context.toFrontendUri("main-page", "inspector", "deployments"))
-								.with("selectedFleetId", selectedFleet.getId().getValue())
-								.with("selectedStarId", selectedSystem.getId().getValue())
-								.with(ships.getTypesWithCount()
+								.with("selectedFleetId", selectedFleet.id().value())
+								.with("selectedStarId", selectedSystem.id().value())
+								.with(ships.typesWithCount()
 									.stream()
-									.map(twc -> new ActionField(twc.getKey().getId().getValue(), twc.getValue()))));
+									.map(twc -> new ActionField(twc.getKey().id().value(), twc.getValue()))));
 			}
 			else {
-				mainPage.inspector.fleetView = new EntityModel<>(new FleetViewDto(selectedFleet.getPlayer(),
-						selectedFleet.getRace(), eta, toDtoShipList(ships, Optional.empty())));
+				mainPage.inspector.fleetView = new EntityModel<>(new FleetViewDto(selectedFleet.player(),
+						selectedFleet.race(), eta, toDtoShipList(ships, Optional.empty())));
 			}
 
 			mainPage.starMap.getContent().fleetSelection.itinerary = Optional.of(new ItineraryDto(
-					selectedFleet.getLocation().getX(), selectedFleet.getLocation().getY(),
-					selectedSystem.getLocation().getX(), selectedSystem.getLocation().getY(),
-					selectedFleet.getOrbiting().isPresent(), selectedFleet.isJustLeaving(), eta.isPresent(), false));
+					selectedFleet.location().x(), selectedFleet.location().y(), selectedSystem.location().x(),
+					selectedSystem.location().y(), selectedFleet.orbiting().isPresent(),
+					selectedFleet.justLeaving().orElse(Boolean.FALSE), eta.isPresent(), false));
 		}
 
 		if (mainPage.inspector.fleetDeployment != null) {
 			mainPage.inspector.fleetDeployment
 				.with(Action.get("cancel", context.toFrontendUri("main-page"))
 					.with("selectedStarId",
-							selectedFleet.getOrbiting()
-								.orElseGet(() -> selectedFleet.getSource().orElseThrow())
-								.getValue()))
+							selectedFleet.orbiting().orElseGet(() -> selectedFleet.source().orElseThrow()).value()))
 				.with(context.toNamedAction("assign-ships", HttpMethod.GET, true, true, "main-page")
 					.with(maybeShips.isPresent(),
 							() -> maybeShips.orElseThrow()
-								.getTypesWithCount()
+								.typesWithCount()
 								.stream()
-								.map(twc -> new ActionField(twc.getKey().getId().getValue(), twc.getValue()))));
+								.map(twc -> new ActionField(twc.getKey().id().value(), twc.getValue()))));
 		}
 
 		return selectedSystemId;
 	}
 
 	static List<ShipsDto> toDtoShipList(ShipsView ships, Optional<ShipsView> totalShips) {
-		return ships.getTypesWithCount()
+		return ships.typesWithCount()
 			.stream()
-			.map(e -> new ShipsDto(e.getKey().getId().getValue(), e.getKey().getName(), e.getKey().getSize(),
-					e.getValue(), totalShips.map(ts -> ts.getCountByType(e.getKey()))))
+			.map(e -> new ShipsDto(e.getKey().id().value(), e.getKey().name(), e.getKey().size(), e.getValue(),
+					totalShips.map(ts -> ts.countByType(e.getKey()))))
 			.sorted((first, second) -> first.name.compareTo(second.name))
 			.collect(Collectors.toList());
 	}
 
 	static ItineraryDto toItinerary(SystemView originSystem, ColonyId destinationColony, GameView gameView) {
-		SystemView destinationSystem = gameView.getSystem(SystemId.fromColonyId(destinationColony));
-		return new ItineraryDto(originSystem.getLocation().getX(), originSystem.getLocation().getY(),
-				destinationSystem.getLocation().getX(), destinationSystem.getLocation().getY(), false, false, true,
-				true);
+		SystemView destinationSystem = gameView.system(SystemId.fromColonyId(destinationColony));
+		return new ItineraryDto(originSystem.location().x(), originSystem.location().y(),
+				destinationSystem.location().x(), destinationSystem.location().y(), false, false, true, true);
 	}
 
 	static MainPageDto.SpaceCombatDto toSpaceCombat(SpaceCombatView sc, SystemView combatSystem) {
@@ -544,14 +540,14 @@ public class MainPageDtoPopulator {
 		Set<FleetBeforeArrival> fleets = Set.of();
 		boolean orbiting = false;
 
-		if (sc.getOutcome() == Outcome.ATTACKER_WON) {
-			player = sc.getDefenderPlayer();
-			fleets = sc.getDefenderFleetsBeforeArrival();
+		if (sc.outcome() == Outcome.ATTACKER_WON) {
+			player = sc.defenderPlayer();
+			fleets = sc.defenderFleetsBeforeArrival();
 			orbiting = true;
 		}
-		else if (sc.getOutcome() == Outcome.DEFENDER_WON) {
-			player = sc.getAttackerPlayer();
-			fleets = sc.getAttackerFleets();
+		else if (sc.outcome() == Outcome.DEFENDER_WON) {
+			player = sc.attackerPlayer();
+			fleets = sc.attackerFleets();
 			orbiting = false;
 		}
 
@@ -561,16 +557,16 @@ public class MainPageDtoPopulator {
 
 		if (player != null) {
 			destroyedFleetDtos.addAll(fleets.stream()
-				.map(fba -> new FleetDto(fba.getId(), finalPlayer, Optional.of(fba.getLocation().getX()),
-						Optional.of(fba.getLocation().getY()), Optional.of(fba.isJustLeaving()),
-						combatSystem.getLocation().getX(), combatSystem.getLocation().getY(), finalOrbiting, false,
-						Optional.of(fba.getSpeed()), Optional.of(fba.getHorizontalDirection()), List.of()))
+				.map(fba -> new FleetDto(fba.id(), finalPlayer, Optional.of(fba.location().x()),
+						Optional.of(fba.location().y()), Optional.of(fba.justLeaving()), combatSystem.location().x(),
+						combatSystem.location().y(), finalOrbiting, false, Optional.of(fba.speed()),
+						Optional.of(fba.horizontalDirection()), List.of()))
 				.toList());
 
-			if (sc.getOutcome() == Outcome.ATTACKER_WON && sc.getDefenderFleet().isPresent()) {
-				destroyedFleetDtos.add(new FleetDto(sc.getDefenderFleet().get(), finalPlayer, Optional.empty(),
-						Optional.empty(), Optional.empty(), combatSystem.getLocation().getX(),
-						combatSystem.getLocation().getY(), true, false, Optional.empty(), Optional.empty(), List.of()));
+			if (sc.outcome() == Outcome.ATTACKER_WON && sc.defenderFleet().isPresent()) {
+				destroyedFleetDtos.add(new FleetDto(sc.defenderFleet().get(), finalPlayer, Optional.empty(),
+						Optional.empty(), Optional.empty(), combatSystem.location().x(), combatSystem.location().y(),
+						true, false, Optional.empty(), Optional.empty(), List.of()));
 			}
 		}
 

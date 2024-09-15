@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.universe.Player;
-import com.scheible.risingempire.game.api.view.spacecombat.CombatantShipSpecs;
+import com.scheible.risingempire.game.api.view.spacecombat.CombatantShipSpecsView;
 import com.scheible.risingempire.game.api.view.spacecombat.FireExchangeView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
@@ -34,35 +34,35 @@ class SpaceCombatPageController {
 	EntityModel<SpaceCombatPageDto> spaceCombatPage(@ModelAttribute FrontendContext context,
 			@PathVariable String currentSpaceCombatSystemId, @RequestParam String selectedStarId) {
 		SpaceCombatView spaceCombatView = context.getGameView()
-			.getSpaceCombats()
+			.spaceCombats()
 			.stream()
-			.filter(sc -> sc.getSystemId().getValue().equals(currentSpaceCombatSystemId))
+			.filter(sc -> sc.systemId().value().equals(currentSpaceCombatSystemId))
 			.findAny()
 			.orElseThrow();
 
 		return new EntityModel<>(new SpaceCombatPageDto(
-				context.getGameView().getSystem(new SystemId(currentSpaceCombatSystemId)).getStarName().orElseThrow(),
-				spaceCombatView.getAttacker(),
-				toCombatantShipSpecsDtos(spaceCombatView.getAttackerPlayer(), spaceCombatView.getAttackerShipSpecs()),
-				spaceCombatView.getDefender(),
-				toCombatantShipSpecsDtos(spaceCombatView.getDefenderPlayer(), spaceCombatView.getDefenderShipSpecs()),
-				spaceCombatView.getFireExchangeCount(),
-				new CombatOutcomeDto(OutcomeDto.toOutcomeDto(context.getPlayer(), spaceCombatView.getAttackerPlayer(),
-						spaceCombatView.getDefenderPlayer(), spaceCombatView.getOutcome()))))
+				context.getGameView().system(new SystemId(currentSpaceCombatSystemId)).starName().orElseThrow(),
+				spaceCombatView.attacker(),
+				toCombatantShipSpecsDtos(spaceCombatView.attackerPlayer(), spaceCombatView.attackerShipSpecs()),
+				spaceCombatView.defender(),
+				toCombatantShipSpecsDtos(spaceCombatView.defenderPlayer(), spaceCombatView.defenderShipSpecs()),
+				spaceCombatView.fireExchangeCount(),
+				new CombatOutcomeDto(OutcomeDto.toOutcomeDto(context.getPlayer(), spaceCombatView.attackerPlayer(),
+						spaceCombatView.defenderPlayer(), spaceCombatView.outcome()))))
 			.with(Action.get("continue", context.toFrontendUri("main-page"))
 				.with(new ActionField("selectedStarId", selectedStarId)));
 	}
 
 	List<CombatantShipSpecsDto> toCombatantShipSpecsDtos(Player player,
-			Collection<CombatantShipSpecs> combatantShipSpecs) {
+			Collection<CombatantShipSpecsView> combatantShipSpecs) {
 		return combatantShipSpecs.stream().map(css -> {
-			return new CombatantShipSpecsDto(css.getId().getValue(), css.getName(), css.getShield(),
-					css.getBeamDefence(), css.getAttackLevel(), css.getMissleDefence(), css.getHits(), css.getSpeed(),
-					css.getEquipment(), new ShipsDto(css.getCount(), css.getPreviousCount(), css.getSize(), player),
-					css.getFireExchanges()
+			return new CombatantShipSpecsDto(css.id().value(), css.name(), css.shield(), css.beamDefence(),
+					css.attackLevel(), css.missleDefence(), css.hits(), css.speed(), css.equipment(),
+					new ShipsDto(css.count(), css.previousCount(), css.size(), player),
+					css.fireExchanges()
 						.stream()
-						.collect(Collectors.toMap(FireExchangeView::getRound,
-								fe -> new FireExchangeDto(fe.getLostHitPoints(), fe.getDamage(), fe.getCount()))));
+						.collect(Collectors.toMap(FireExchangeView::round,
+								fe -> new FireExchangeDto(fe.lostHitPoints(), fe.damage(), fe.count()))));
 		}).collect(Collectors.toList());
 	}
 

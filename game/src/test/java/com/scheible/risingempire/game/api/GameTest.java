@@ -16,15 +16,15 @@ class GameTest {
 
 	@Test
 	void testSwitchToNextShipType() {
-		Game game = GameFactory.get().create(GameOptions.forTestGame());
+		Game game = GameFactory.get().create(GameOptions.testGameBuilder().build());
 		PlayerGame blueGame = game.forPlayer(Player.BLUE);
 
 		List<String> shipNames = new ArrayList<>();
 		for (int i = 0; i < 3; i++) {
-			GameView blueGameState = blueGame.getView();
+			GameView blueGameState = blueGame.view();
 
-			shipNames.add(blueGameState.getSystem("Sol").getColonyView().get().getSpaceDock().get().getName());
-			blueGame.nextShipType(blueGameState.getSystem("Sol").getColonyView().get().getId());
+			shipNames.add(blueGameState.system("Sol").colony().get().spaceDock().get().name());
+			blueGame.nextShipType(blueGameState.system("Sol").colony().get().id());
 		}
 
 		assertThat(shipNames).containsExactly("Scout", "Colony Ship", "Fighter");

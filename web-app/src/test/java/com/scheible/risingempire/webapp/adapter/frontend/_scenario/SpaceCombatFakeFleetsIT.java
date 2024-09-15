@@ -26,14 +26,15 @@ class SpaceCombatFakeFleetsIT extends AbstractMainPageIT {
 	@Test
 	void testFakeFleetForLostOne() throws Exception {
 		startGameForBlue(GameFactory.get()
-			.create(GameOptions.forTestGame()
+			.create(GameOptions.testGameBuilder()
 				// make the whole map reachable in a single turn for a simpler test setup
 				.fleetRangeFactor(2000.0)
 				.fleetSpeedFactor(2000.0)
 				// make always blue win space combat
-				.spaceCombatWinner(Outcome.ATTACKER_WON)
+				.spaceCombatOutcome(Outcome.ATTACKER_WON)
 				// disable notifications
-				.fakeSystemNotificationProvider((player, round) -> Set.of())));
+				.fakeSystemNotificationProvider((player, round) -> Set.of())
+				.build()));
 
 		Game game = getGame();
 
@@ -41,19 +42,20 @@ class SpaceCombatFakeFleetsIT extends AbstractMainPageIT {
 		game.registerAi(Player.YELLOW);
 
 		PlayerGame blueGame = game.forPlayer(Player.BLUE);
-		GameView blueGameView = blueGame.getView();
+		GameView blueGameView = blueGame.view();
 
-		SystemView blueHomeSystem = blueGameView.getHomeSystem();
-		FleetView blueHomeFleet = blueGameView.getFleets()
+		SystemView blueHomeSystem = blueGameView.homeSystem();
+		FleetView blueHomeFleet = blueGameView.fleets()
+			.values()
 			.stream()
-			.filter(f -> blueHomeSystem.getId().equals(f.getOrbiting().orElse(null)))
+			.filter(f -> blueHomeSystem.id().equals(f.orbiting().orElse(null)))
 			.findFirst()
 			.orElseThrow();
 
-		blueGame.deployFleet(blueHomeFleet.getId(), WHITE_HOME_SYSTEM_ID,
-				blueHomeFleet.getShips().getPartByName("Colony Ship", 1));
-		blueGame.deployFleet(blueHomeFleet.getId(), YELLOW_HOME_SYSTEM_ID,
-				blueHomeFleet.getShips().getPartByName("Colony Ship", 1));
+		blueGame.deployFleet(blueHomeFleet.id(), WHITE_HOME_SYSTEM_ID,
+				blueHomeFleet.ships().partByName("Colony Ship", 1));
+		blueGame.deployFleet(blueHomeFleet.id(), YELLOW_HOME_SYSTEM_ID,
+				blueHomeFleet.ships().partByName("Colony Ship", 1));
 
 		HypermediaClient blueClient = createHypermediaClient(Player.BLUE);
 		assertThat(blueClient).is(mainPageState("StarInspectionState"));

@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import com.scheible.risingempire.game.api.Game;
 import com.scheible.risingempire.game.api.GameFactory;
 import com.scheible.risingempire.game.api.GameOptions;
+import com.scheible.risingempire.game.api.GameOptionsBuilder;
 import com.scheible.risingempire.game.api.PlayerGame;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.GameView;
@@ -40,12 +41,12 @@ class TestScenarioImpl implements TestScenario {
 	}
 
 	@Override
-	public GameTurn customize(Consumer<GameOptions> optionsCustomizer) {
-		GameOptions gameOptions = GameOptions.forTestGame();
+	public GameTurn customize(Consumer<GameOptionsBuilder> optionsCustomizer) {
+		GameOptionsBuilder gameOptionsBuilder = GameOptions.testGameBuilder();
 
-		optionsCustomizer.accept(gameOptions);
+		optionsCustomizer.accept(gameOptionsBuilder);
 
-		this.game = GameFactory.get().create(gameOptions);
+		this.game = GameFactory.get().create(gameOptionsBuilder.build());
 		this.game.registerAi(Player.WHITE);
 		this.game.registerAi(Player.YELLOW);
 
@@ -71,7 +72,7 @@ class TestScenarioImpl implements TestScenario {
 		if (!this.turnLogics.get().isEmpty()) {
 			BiConsumer<PlayerGame, GameView> turnLogic = this.turnLogics.get().remove(0);
 			PlayerGame blueGame = game.forPlayer(Player.BLUE);
-			GameView blueView = blueGame.getView();
+			GameView blueView = blueGame.view();
 
 			turnLogic.accept(blueGame, blueView);
 		}
@@ -104,7 +105,7 @@ class TestScenarioImpl implements TestScenario {
 		@Override
 		public GameTurn turn(BiConsumer<PlayerGame, GameView> turnLogic) {
 			PlayerGame playerGame = this.game.forPlayer(Player.BLUE);
-			GameView gameView = playerGame.getView();
+			GameView gameView = playerGame.view();
 
 			turnLogic.accept(playerGame, gameView);
 

@@ -41,7 +41,7 @@ public class System implements SystemOrb {
 
 	private System(String starName, Location location, StarType starType, Player homeSystem, PlanetType planetType,
 			PlanetSpecial planetSpecial, int planetMaxPopulation) {
-		this.id = new SystemId("s" + location.getX() + "x" + location.getY());
+		this.id = new SystemId("s" + location.x() + "x" + location.y());
 
 		this.starName = starName;
 		this.location = location;
@@ -87,7 +87,7 @@ public class System implements SystemOrb {
 
 		for (System other : systems) {
 			if (other.getColony(player).isPresent()) {
-				range = Math.min(range, (int) other.getLocation().getDistance(this.location));
+				range = Math.min(range, (int) other.getLocation().distance(this.location));
 			}
 		}
 

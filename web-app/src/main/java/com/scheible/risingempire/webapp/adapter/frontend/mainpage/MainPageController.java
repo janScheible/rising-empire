@@ -15,6 +15,7 @@ import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
+import com.scheible.risingempire.game.api.view.ship.ShipsViewBuilder;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.system.SystemView;
 import com.scheible.risingempire.webapp.adapter.frontend.annotation.FrontendController;
@@ -59,7 +60,7 @@ class MainPageController {
 
 	@PostMapping(path = "/main-page/button-bar/finished-turns", consumes = APPLICATION_JSON_VALUE)
 	ResponseEntity<Void> finishTurn(@ModelAttribute FrontendContext context, @RequestBody FinishTurnBodyDto body) {
-		if (context.getGameView().getRound() != body.round) {
+		if (context.getGameView().round() != body.round) {
 			return ResponseEntity.status(HttpStatus.GONE).build();
 		}
 
@@ -78,9 +79,9 @@ class MainPageController {
 	@PostMapping(path = "/main-page/inspector/colonizations", consumes = APPLICATION_JSON_VALUE)
 	ResponseEntity<Void> colonizeSystem(@ModelAttribute FrontendContext context,
 			@RequestBody ColonizeSystemBodyDto body) {
-		FleetView fleet = context.getGameView().getFleet(body.fleetId);
-		SystemView systemToColonize = context.getGameView().getSystem(fleet.getOrbiting().get());
-		context.getPlayerGame().colonizeSystem(systemToColonize.getId(), fleet.getId(), body.skip);
+		FleetView fleet = context.getGameView().fleet(body.fleetId);
+		SystemView systemToColonize = context.getGameView().system(fleet.orbiting().get());
+		context.getPlayerGame().colonizeSystem(systemToColonize.id(), fleet.id(), body.skip);
 
 		return ResponseEntity.status(HttpStatus.SEE_OTHER)
 			.header(HttpHeaders.LOCATION,
@@ -93,9 +94,9 @@ class MainPageController {
 
 	@PostMapping(path = "/main-page/inspector/annexations", consumes = APPLICATION_JSON_VALUE)
 	ResponseEntity<Void> annexSystem(@ModelAttribute FrontendContext context, @RequestBody AnnexSystemBodyDto body) {
-		FleetView fleet = context.getGameView().getFleet(body.fleetId);
-		ColonyView colonyToAnnex = context.getGameView().getSystem(fleet.getOrbiting().get()).getColonyView().get();
-		context.getPlayerGame().annexSystem(colonyToAnnex.getId(), fleet.getId(), body.skip);
+		FleetView fleet = context.getGameView().fleet(body.fleetId);
+		ColonyView colonyToAnnex = context.getGameView().system(fleet.orbiting().get()).colony().get();
+		context.getPlayerGame().annexSystem(colonyToAnnex.id(), fleet.id(), body.skip);
 
 		return ResponseEntity.status(HttpStatus.SEE_OTHER)
 			.header(HttpHeaders.LOCATION,
@@ -109,17 +110,17 @@ class MainPageController {
 	@PostMapping(path = "/main-page/inspector/deployments", consumes = APPLICATION_JSON_VALUE)
 	ResponseEntity<Void> deployFleet(@ModelAttribute FrontendContext context,
 			@RequestBody LinkedMultiValueMap<String, String> body) {
-		FleetView fleet = context.getGameView().getFleet(new FleetId(body.getFirst("selectedFleetId")));
+		FleetView fleet = context.getGameView().fleet(new FleetId(body.getFirst("selectedFleetId")));
 
-		ShipsView ships = toShipTypesAndCounts(fleet.getShips(), body.toSingleValueMap());
-		context.getPlayerGame().deployFleet(fleet.getId(), new SystemId(body.getFirst("selectedStarId")), ships);
+		ShipsView ships = toShipTypesAndCounts(fleet.ships(), body.toSingleValueMap());
+		context.getPlayerGame().deployFleet(fleet.id(), new SystemId(body.getFirst("selectedStarId")), ships);
 
 		return ResponseEntity.status(HttpStatus.SEE_OTHER)
 			.header(HttpHeaders.LOCATION,
 					context.withSelectedStar(body.getFirst("selectedStarId"))
 						.toAction(HttpMethod.GET, "main-page")
 						.with(Boolean.parseBoolean(body.getFirst("partial")), "partial",
-								() -> "updatedParentFleetId=" + fleet.getParentId().orElse(fleet.getId()).getValue())
+								() -> "updatedParentFleetId=" + fleet.parentId().orElse(fleet.id()).value())
 						.toGetUri())
 			.build();
 	}
@@ -195,18 +196,14 @@ class MainPageController {
 
 		MainPageState state = MainPageState.fromParameters(selectedStarId, spotlightedStarId, transferStarId,
 				relocateStarId, selectedFleetId, shipTypeIdsAndCounts,
-				(fleetId, parameters) -> toShipTypesAndCounts(context.getGameView().getFleet(fleetId).getShips(),
-						parameters),
+				(fleetId, parameters) -> toShipTypesAndCounts(context.getGameView().fleet(fleetId).ships(), parameters),
 				(fleetId, orbitingSystemId) -> context.getGameView()
-					.getFleet(fleetId)
-					.getOrbiting()
+					.fleet(fleetId)
+					.orbiting()
 					.map(d -> d.equals(orbitingSystemId))
 					.orElse(Boolean.FALSE),
-				fleetId -> context.getGameView().getFleet(fleetId).isDeployable(),
-				systemId -> context.getGameView()
-					.getSystem(systemId)
-					.getColonyView(context.getGameView().getPlayer())
-					.isPresent());
+				fleetId -> context.getGameView().fleet(fleetId).deployable(),
+				systemId -> context.getGameView().system(systemId).colony(context.getGameView().player()).isPresent());
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("player: {}, state: {}", context.getPlayer(), state.getClass().getSimpleName());
@@ -215,7 +212,7 @@ class MainPageController {
 		if (state.isInitState()) {
 			return ResponseEntity.status(HttpStatus.SEE_OTHER)
 				.header(HttpHeaders.LOCATION,
-						context.withSelectedStar(context.getGameView().getHomeSystem().getId())
+						context.withSelectedStar(context.getGameView().homeSystem().id())
 							.toAction(HttpMethod.GET, "main-page")
 							.toGetUri())
 				.build();
@@ -230,11 +227,12 @@ class MainPageController {
 	}
 
 	private static ShipsView toShipTypesAndCounts(ShipsView fleetShips, Map<String, String> parameters) {
-		return new ShipsView(fleetShips.getTypes()
-			.stream()
-			.filter(st -> parameters.containsKey(st.getId().getValue()))
-			.collect(Collectors.toMap(Function.identity(),
-					st -> Integer.valueOf(parameters.get(st.getId().getValue())))));
+		return ShipsViewBuilder.builder()
+			.ships(fleetShips.types()
+				.stream()
+				.filter(st -> parameters.containsKey(st.id().value()))
+				.collect(Collectors.toMap(Function.identity(), st -> Integer.valueOf(parameters.get(st.id().value())))))
+			.build();
 	}
 
 	static class ColonizeSystemBodyDto {

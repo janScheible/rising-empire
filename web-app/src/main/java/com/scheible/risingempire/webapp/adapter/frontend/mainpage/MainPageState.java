@@ -254,7 +254,7 @@ abstract class MainPageState {
 		private FleetInspectionState(FleetId selectedFleetId, ShipsView ships,
 				DeployableFleetProvider deployableFleetProvider, OrbitingSystemProvider orbitingSystemProvider) {
 			this.selectedFleetId = selectedFleetId;
-			this.ships = !ships.isEmpty() ? Optional.of(ships) : Optional.empty();
+			this.ships = !ships.empty() ? Optional.of(ships) : Optional.empty();
 
 			this.deployableFleetProvider = deployableFleetProvider;
 			this.orbitingSystemProvider = orbitingSystemProvider;
@@ -296,7 +296,7 @@ abstract class MainPageState {
 				OrbitingSystemProvider orbitingSystemProvider) {
 			this.selectedFleetId = selectedFleetId;
 			this.selectedSystemId = selectedSystemId;
-			this.ships = !ships.isEmpty() ? Optional.of(ships) : Optional.empty();
+			this.ships = !ships.empty() ? Optional.of(ships) : Optional.empty();
 
 			this.orbitingSystemProvider = orbitingSystemProvider;
 		}

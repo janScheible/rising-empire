@@ -22,7 +22,7 @@ public class FleetIdGenerator {
 		do {
 			id = FleetId.createRandom();
 		}
-		while (Character.isDigit(id.getValue().charAt(0)) || this.used.contains(id));
+		while (Character.isDigit(id.value().charAt(0)) || this.used.contains(id));
 
 		return id;
 	}

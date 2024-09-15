@@ -27,16 +27,16 @@ public class SpaceCombatTest extends AbstractGameTest {
 				// make the whole map reachable in a single turn for a simpler test setup
 				.fleetRangeFactor(30.0)
 				.fleetSpeedFactor(30.0)
-				.spaceCombatWinner(Outcome.ATTACKER_WON);
+				.spaceCombatOutcome(Outcome.ATTACKER_WON);
 		}).turn((game, view) -> {
-			FleetView fleetAtSol = view.getOrbiting(SOL_BLUE_HOME).orElseThrow();
-			originalBlueShips.set(fleetAtSol.getShips());
-			game.deployFleet(fleetAtSol.getId(), FIERAS_WHITE_HOME, fleetAtSol.getShips());
+			FleetView fleetAtSol = view.orbiting(SOL_BLUE_HOME).orElseThrow();
+			originalBlueShips.set(fleetAtSol.ships());
+			game.deployFleet(fleetAtSol.id(), FIERAS_WHITE_HOME, fleetAtSol.ships());
 		}).turn((game, view) -> {
-			FleetView blueFleetAtFieras = view.getOrbiting(FIERAS_WHITE_HOME).orElseThrow();
-			assertHalfShipCounts(originalBlueShips.get(), blueFleetAtFieras.getShips());
+			FleetView blueFleetAtFieras = view.orbiting(FIERAS_WHITE_HOME).orElseThrow();
+			assertHalfShipCounts(originalBlueShips.get(), blueFleetAtFieras.ships());
 
-			assertThat(testScenario.getWhiteView().getOrbiting(FIERAS_WHITE_HOME)).isEmpty();
+			assertThat(testScenario.getWhiteView().orbiting(FIERAS_WHITE_HOME)).isEmpty();
 		});
 	}
 
@@ -49,17 +49,17 @@ public class SpaceCombatTest extends AbstractGameTest {
 				// make the whole map reachable in a single turn for a simpler test setup
 				.fleetRangeFactor(30.0)
 				.fleetSpeedFactor(30.0)
-				.spaceCombatWinner(Outcome.DEFENDER_WON);
+				.spaceCombatOutcome(Outcome.DEFENDER_WON);
 		}).turn((game, view) -> {
-			FleetView fleetAtSol = view.getOrbiting(SOL_BLUE_HOME).orElseThrow();
-			game.deployFleet(fleetAtSol.getId(), FIERAS_WHITE_HOME, fleetAtSol.getShips());
+			FleetView fleetAtSol = view.orbiting(SOL_BLUE_HOME).orElseThrow();
+			game.deployFleet(fleetAtSol.id(), FIERAS_WHITE_HOME, fleetAtSol.ships());
 
-			originalWhiteShips.set(testScenario.getWhiteView().getOrbiting(FIERAS_WHITE_HOME).orElseThrow().getShips());
+			originalWhiteShips.set(testScenario.getWhiteView().orbiting(FIERAS_WHITE_HOME).orElseThrow().ships());
 		}).turn((game, view) -> {
-			assertThat(view.getFleets().stream().filter(f -> f.getPlayer() == Player.BLUE)).isEmpty();
+			assertThat(view.fleets().values().stream().filter(f -> f.player() == Player.BLUE)).isEmpty();
 
-			FleetView whiteFleetAtFieras = testScenario.getWhiteView().getOrbiting(FIERAS_WHITE_HOME).orElseThrow();
-			assertHalfShipCounts(originalWhiteShips.get(), whiteFleetAtFieras.getShips());
+			FleetView whiteFleetAtFieras = testScenario.getWhiteView().orbiting(FIERAS_WHITE_HOME).orElseThrow();
+			assertHalfShipCounts(originalWhiteShips.get(), whiteFleetAtFieras.ships());
 		});
 	}
 
@@ -73,33 +73,33 @@ public class SpaceCombatTest extends AbstractGameTest {
 				// make the whole map reachable in a single turn for a simpler test setup
 				.fleetRangeFactor(30.0)
 				.fleetSpeedFactor(30.0)
-				.spaceCombatWinner(Outcome.ATTACKER_RETREATED);
+				.spaceCombatOutcome(Outcome.ATTACKER_RETREATED);
 		}).turn((game, view) -> {
-			FleetView fleetAtSol = view.getOrbiting(SOL_BLUE_HOME).orElseThrow();
-			originalBlueShips.set(fleetAtSol.getShips());
-			game.deployFleet(fleetAtSol.getId(), FIERAS_WHITE_HOME, fleetAtSol.getShips());
+			FleetView fleetAtSol = view.orbiting(SOL_BLUE_HOME).orElseThrow();
+			originalBlueShips.set(fleetAtSol.ships());
+			game.deployFleet(fleetAtSol.id(), FIERAS_WHITE_HOME, fleetAtSol.ships());
 
-			originalWhiteShips.set(testScenario.getWhiteView().getOrbiting(FIERAS_WHITE_HOME).orElseThrow().getShips());
+			originalWhiteShips.set(testScenario.getWhiteView().orbiting(FIERAS_WHITE_HOME).orElseThrow().ships());
 		}).turn((game, view) -> {
-			assertThat(view.getFleets()).hasSize(2);
-			assertThat(view.getFleets().stream().filter(f -> f.getPlayer() == Player.BLUE).toList().getFirst())
+			assertThat(view.fleets()).hasSize(2);
+			assertThat(view.fleets().values().stream().filter(f -> f.player() == Player.BLUE).toList().getFirst())
 				.satisfies(f -> {
-					assertThat(f.getSource()).contains(FIERAS_WHITE_HOME);
-					assertThat(f.getDestination()).contains(SOL_BLUE_HOME);
-					assertHalfShipCounts(originalBlueShips.get(), f.getShips());
+					assertThat(f.source()).contains(FIERAS_WHITE_HOME);
+					assertThat(f.destination()).contains(SOL_BLUE_HOME);
+					assertHalfShipCounts(originalBlueShips.get(), f.ships());
 				});
-			assertThat(view.getFleets().stream().filter(f -> f.getPlayer() == Player.WHITE).toList().getFirst())
-				.satisfies(f -> assertThat(f.getOrbiting()).contains(FIERAS_WHITE_HOME));
+			assertThat(view.fleets().values().stream().filter(f -> f.player() == Player.WHITE).toList().getFirst())
+				.satisfies(f -> assertThat(f.orbiting()).contains(FIERAS_WHITE_HOME));
 
-			FleetView whiteFleetAtFieras = testScenario.getWhiteView().getOrbiting(FIERAS_WHITE_HOME).orElseThrow();
-			assertHalfShipCounts(originalWhiteShips.get(), whiteFleetAtFieras.getShips());
+			FleetView whiteFleetAtFieras = testScenario.getWhiteView().orbiting(FIERAS_WHITE_HOME).orElseThrow();
+			assertHalfShipCounts(originalWhiteShips.get(), whiteFleetAtFieras.ships());
 		});
 	}
 
 	private static void assertHalfShipCounts(ShipsView previousShips, ShipsView currentShips) {
-		assertThat(previousShips.getTypes()).isEqualTo(currentShips.getTypes());
-		for (ShipTypeView type : previousShips.getTypes()) {
-			assertThat(currentShips.getCountByType(type) * 2).isEqualTo(previousShips.getCountByType(type));
+		assertThat(previousShips.types()).isEqualTo(currentShips.types());
+		for (ShipTypeView type : previousShips.types()) {
+			assertThat(currentShips.countByType(type) * 2).isEqualTo(previousShips.countByType(type));
 		}
 	}
 

@@ -67,13 +67,13 @@ public class DeployedFleet extends Fleet {
 	}
 
 	public HorizontalDirection getHorizontalDirection() {
-		return getSource().getLocation().getX() < getDestination().getLocation().getX() ? HorizontalDirection.RIGHT
+		return getSource().getLocation().x() < getDestination().getLocation().x() ? HorizontalDirection.RIGHT
 				: HorizontalDirection.LEFT;
 	}
 
 	@Override
 	public double getDestinationDistance() {
-		return this.destination.getLocation().getDistance(this.location);
+		return this.destination.getLocation().distance(this.location);
 	}
 
 	public SystemOrb getSource() {

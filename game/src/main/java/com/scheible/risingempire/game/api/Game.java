@@ -15,7 +15,7 @@ public interface Game {
 
 	void registerAi(Player player);
 
-	boolean isAiControlled(Player player);
+	boolean aiControlled(Player player);
 
 	void unregisterAi(Player player);
 

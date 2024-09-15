@@ -24,12 +24,12 @@ public class ExplorationTest extends AbstractGameTest {
 				.fleetRangeFactor(30.0)
 				.fleetSpeedFactor(30.0);
 		}).turn((game, view) -> {
-			FleetView fleetAtSol = view.getOrbiting(SOL_BLUE_HOME).orElseThrow();
-			game.deployFleet(fleetAtSol.getId(), AJAX, fleetAtSol.getShips());
-			assertThat(view.getSystem(AJAX).getStarName()).isEmpty();
+			FleetView fleetAtSol = view.orbiting(SOL_BLUE_HOME).orElseThrow();
+			game.deployFleet(fleetAtSol.id(), AJAX, fleetAtSol.ships());
+			assertThat(view.system(AJAX).starName()).isEmpty();
 		}).turn((game, view) -> {
-			assertThat(view.getSystem(AJAX).getStarName()).contains("Ajax");
-			assertThat(view.getSystem(AJAX).getColonyView()).isEmpty();
+			assertThat(view.system(AJAX).starName()).contains("Ajax");
+			assertThat(view.system(AJAX).colony()).isEmpty();
 		});
 	}
 
@@ -41,11 +41,11 @@ public class ExplorationTest extends AbstractGameTest {
 				.fleetRangeFactor(30.0)
 				.fleetSpeedFactor(30.0);
 		}).turn((game, view) -> {
-			FleetView fleetAtSol = view.getOrbiting(SOL_BLUE_HOME).orElseThrow();
-			game.deployFleet(fleetAtSol.getId(), SPICIA_WHITE, fleetAtSol.getShips());
+			FleetView fleetAtSol = view.orbiting(SOL_BLUE_HOME).orElseThrow();
+			game.deployFleet(fleetAtSol.id(), SPICIA_WHITE, fleetAtSol.ships());
 		}).turn((game, view) -> {
-			assertThat(view.getSystem(SPICIA_WHITE).getStarName()).contains("Spicia");
-			assertThat(view.getSystem(SPICIA_WHITE).getColonyView().map(ColonyView::getPlayer)).contains(Player.WHITE);
+			assertThat(view.system(SPICIA_WHITE).starName()).contains("Spicia");
+			assertThat(view.system(SPICIA_WHITE).colony().map(ColonyView::player)).contains(Player.WHITE);
 		});
 	}
 

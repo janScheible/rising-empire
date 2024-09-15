@@ -62,7 +62,7 @@ public class JourneyCalculator {
 		int destinationRange = this.systems.get(destinationId).calcRange(player, this.systems.values());
 
 		if (destinationRange <= range) {
-			double distance = origin.getDistance(this.systems.get(destinationId).getLocation());
+			double distance = origin.distance(this.systems.get(destinationId).getLocation());
 			int fleetSpeed = warpToMapSpeed(warpSpeed, this.fleetSpeedFactor);
 			return Optional.of((int) Math.ceil(distance / fleetSpeed));
 		}

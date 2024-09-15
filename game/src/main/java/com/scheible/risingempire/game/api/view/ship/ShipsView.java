@@ -1,42 +1,40 @@
 package com.scheible.risingempire.game.api.view.ship;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
+
+import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 
 /**
  * @author sj
  */
-public class ShipsView {
+@StagedRecordBuilder
+public record ShipsView(Map<ShipTypeView, Integer> ships) {
 
-	private final HashMap<ShipTypeView, Integer> map = new HashMap<>();
+	public ShipsView {
+		ships = unmodifiableMap(ships);
 
-	public ShipsView() {
-	}
-
-	public ShipsView(Map<ShipTypeView, Integer> ships) {
-		ships.entrySet().stream().forEach(typeAndCount -> {
+		for (Entry<ShipTypeView, Integer> typeAndCount : ships.entrySet()) {
 			if (typeAndCount.getValue() < 0) {
 				throw new IllegalArgumentException(
-						"Count of '" + typeAndCount.getKey().getName() + "' can't be negative!");
+						"Count of '" + typeAndCount.getKey().name() + "' can't be negative!");
 			}
-
-			this.map.put(typeAndCount.getKey(), typeAndCount.getValue());
-		});
+		}
 	}
 
-	public boolean isEmpty() {
-		return this.map.isEmpty();
+	public boolean empty() {
+		return this.ships.isEmpty();
 	}
 
-	public ShipsView getPartByName(String name, int count) {
-		Entry<ShipTypeView, Integer> typeAndCount = this.map.entrySet()
+	public ShipsView partByName(String name, int count) {
+		Entry<ShipTypeView, Integer> typeAndCount = this.ships.entrySet()
 			.stream()
-			.filter(typeWithCount -> typeWithCount.getKey().getName().equals(name))
+			.filter(typeWithCount -> typeWithCount.getKey().name().equals(name))
 			.findFirst()
 			.orElseThrow();
 		if (count > typeAndCount.getValue()) {
@@ -44,13 +42,11 @@ public class ShipsView {
 					"Can't get " + count + " of " + typeAndCount.getValue() + "'" + name + "'!");
 		}
 
-		ShipsView ships = new ShipsView();
-		ships.map.put(typeAndCount.getKey(), count);
-		return ships;
+		return ShipsViewBuilder.builder().ships(Map.of(typeAndCount.getKey(), count)).build();
 	}
 
-	public int getCountByType(ShipTypeView type) {
-		return this.map.entrySet()
+	public int countByType(ShipTypeView type) {
+		return this.ships.entrySet()
 			.stream()
 			.filter(typeAndCount -> typeAndCount.getKey().equals(type))
 			.findFirst()
@@ -58,32 +54,32 @@ public class ShipsView {
 			.getValue();
 	}
 
-	public int getCountByName(String name) {
-		return this.map.entrySet()
+	public int countByName(String name) {
+		return this.ships.entrySet()
 			.stream()
-			.filter(typeAndCount -> typeAndCount.getKey().getName().equals(name))
+			.filter(typeAndCount -> typeAndCount.getKey().name().equals(name))
 			.findFirst()
 			.orElseThrow()
 			.getValue();
 	}
 
-	public Set<Entry<ShipTypeView, Integer>> getTypesWithCount() {
-		return unmodifiableSet(this.map.entrySet());
+	public Set<Entry<ShipTypeView, Integer>> typesWithCount() {
+		return unmodifiableSet(this.ships.entrySet());
 	}
 
-	public Set<ShipTypeView> getTypes() {
-		return unmodifiableSet(this.map.keySet());
+	public Set<ShipTypeView> types() {
+		return unmodifiableSet(this.ships.keySet());
 	}
 
-	public Set<String> getTypeNames() {
-		return this.map.keySet().stream().map(ShipTypeView::getName).collect(Collectors.toSet());
+	public Set<String> typeNames() {
+		return this.ships.keySet().stream().map(ShipTypeView::name).collect(Collectors.toSet());
 	}
 
 	@Override
 	public String toString() {
-		return this.map.entrySet()
+		return this.ships.entrySet()
 			.stream()
-			.map(typeWithCount -> Map.entry(typeWithCount.getKey().getName(), typeWithCount.getValue()))
+			.map(typeWithCount -> Map.entry(typeWithCount.getKey().name(), typeWithCount.getValue()))
 			.collect(Collectors.toMap(Entry::getKey, Entry::getValue))
 			.toString();
 	}

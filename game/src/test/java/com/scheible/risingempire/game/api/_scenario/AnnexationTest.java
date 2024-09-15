@@ -26,17 +26,17 @@ public class AnnexationTest extends AbstractGameTest {
 				// decrease the number of turns of siege required to annex a system to 1
 				.annexationSiegeRounds(1);
 		}).turn((game, view) -> {
-			FleetView fleetAtSol = view.getOrbiting(SOL_BLUE_HOME).orElseThrow();
-			game.deployFleet(fleetAtSol.getId(), SPICIA_WHITE, fleetAtSol.getShips());
+			FleetView fleetAtSol = view.orbiting(SOL_BLUE_HOME).orElseThrow();
+			game.deployFleet(fleetAtSol.id(), SPICIA_WHITE, fleetAtSol.ships());
 		}).turn((game, view) -> {
-			assertThat(view.getAnnexableSystemIds()).doesNotContain(SPICIA_WHITE);
-			assertThat(view.getSystem(SPICIA_WHITE).getColonyView().map(ColonyView::getPlayer)).contains(Player.WHITE);
+			assertThat(view.annexableSystemIds()).doesNotContain(SPICIA_WHITE);
+			assertThat(view.system(SPICIA_WHITE).colony().map(ColonyView::player)).contains(Player.WHITE);
 		}).turn((game, view) -> {
-			assertThat(view.getAnnexableSystemIds()).contains(SPICIA_WHITE);
-			game.annexSystem(SPICIA_WHITE.toColonyId(), view.getOrbiting(SPICIA_WHITE).orElseThrow().getId(), false);
-			assertThat(view.getSystem(SPICIA_WHITE).getColonyView().map(ColonyView::getPlayer)).contains(Player.WHITE);
+			assertThat(view.annexableSystemIds()).contains(SPICIA_WHITE);
+			game.annexSystem(SPICIA_WHITE.toColonyId(), view.orbiting(SPICIA_WHITE).orElseThrow().id(), false);
+			assertThat(view.system(SPICIA_WHITE).colony().map(ColonyView::player)).contains(Player.WHITE);
 		}).turn((game, view) -> {
-			assertThat(view.getSystem(SPICIA_WHITE).getColonyView().map(ColonyView::getPlayer)).contains(Player.BLUE);
+			assertThat(view.system(SPICIA_WHITE).colony().map(ColonyView::player)).contains(Player.BLUE);
 		});
 	}
 

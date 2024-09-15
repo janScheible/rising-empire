@@ -15,7 +15,7 @@ class LocationTest {
 
 	@Test
 	void testDistance() {
-		assertThat(new Location(50, 50).getDistance(new Location(100, 100)) - 70.7).isLessThan(0.1);
+		assertThat(new Location(50, 50).distance(new Location(100, 100)) - 70.7).isLessThan(0.1);
 	}
 
 	@Test

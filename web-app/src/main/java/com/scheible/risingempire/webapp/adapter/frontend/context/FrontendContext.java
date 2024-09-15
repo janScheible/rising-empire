@@ -95,9 +95,9 @@ public class FrontendContext {
 		return (httpMethod == HttpMethod.GET ? Action.get(name, toFrontendUri(pathSegments))
 				: Action.jsonPost(name, toFrontendUri(pathSegments)))
 			.with(includeStarId && this.selectedStarId.isPresent(), "selectedStarId",
-					() -> this.selectedStarId.get().getValue())
+					() -> this.selectedStarId.get().value())
 			.with(includeFleetId && this.selectedFleetId.isPresent(), "selectedFleetId",
-					() -> this.selectedFleetId.get().getValue());
+					() -> this.selectedFleetId.get().value());
 	}
 
 	public Action toAction(HttpMethod httpMethod, String... pathSegments) {

@@ -110,19 +110,19 @@ public class GameFactoryImpl implements GameFactory {
 				colonyShipDesginFactory.get(), DesignSlot.THIRD, fighterShipDesginFactory.get(), DesignSlot.FOURTH,
 				destroyerShipDesginFactory.get(), DesignSlot.FIFTH, cruiserShipDesginFactory.get());
 		Fraction humanFraction = new Fraction(Player.BLUE, Race.HUMAN, humanDesigns,
-				new Technology(gameOptions.getFleetRangeFactor()));
+				new Technology(gameOptions.fleetRangeFactor()));
 
 		Map<DesignSlot, ShipDesign> mrrshanDesigns = Map.of(DesignSlot.FIRST, scoutDesginFactory.get(),
 				DesignSlot.SECOND, colonyShipDesginFactory.get(), DesignSlot.THIRD, fighterShipDesginFactory.get(),
 				DesignSlot.FOURTH, destroyerShipDesginFactory.get(), DesignSlot.FIFTH, cruiserShipDesginFactory.get());
 		Fraction mrrshanFraction = new Fraction(Player.WHITE, Race.MRRSHAN, mrrshanDesigns,
-				new Technology(gameOptions.getFleetRangeFactor()));
+				new Technology(gameOptions.fleetRangeFactor()));
 
 		Map<DesignSlot, ShipDesign> psilonDesigns = Map.of(DesignSlot.FIRST, scoutDesginFactory.get(),
 				DesignSlot.SECOND, colonyShipDesginFactory.get(), DesignSlot.THIRD, fighterShipDesginFactory.get(),
 				DesignSlot.FOURTH, destroyerShipDesginFactory.get(), DesignSlot.FIFTH, cruiserShipDesginFactory.get());
 		Fraction psilonFraction = new Fraction(Player.YELLOW, Race.PSILON, psilonDesigns,
-				new Technology(gameOptions.getFleetRangeFactor()));
+				new Technology(gameOptions.fleetRangeFactor()));
 
 		Function<Map<DesignSlot, ShipDesign>, DesignSlot> firstUsedSlot = designs -> {
 			ArrayList<DesignSlot> usedSlots = new ArrayList<>(designs.keySet());
@@ -136,7 +136,7 @@ public class GameFactoryImpl implements GameFactory {
 		System rigelSystem = null;
 		System spicaSystem = null;
 		Set<System> systems;
-		if (gameOptions.isTestGame()) {
+		if (gameOptions.testGame()) {
 			systems = Arrays2.asSet(//
 					solSystem = System.createHomeSystem("Sol", new Location(60, 60), StarType.YELLOW, PlanetType.JUNGLE,
 							PlanetSpecial.NONE, 100, Player.BLUE, firstUsedSlot.apply(humanDesigns)), //
@@ -162,32 +162,32 @@ public class GameFactoryImpl implements GameFactory {
 		else {
 			systems = new HashSet<>();
 
-			Location blueStartRegionCenter = new Location(gameOptions.getGalaxySize().getWidth() / 4,
-					gameOptions.getGalaxySize().getHeight() / 4);
-			Location whiteStartRegionCenter = new Location((gameOptions.getGalaxySize().getWidth() / 4) * 3,
-					gameOptions.getGalaxySize().getHeight() / 4);
-			Location yellowStartRegionCenter = new Location(gameOptions.getGalaxySize().getWidth() / 2,
-					(gameOptions.getGalaxySize().getHeight() / 4) * 3);
+			Location blueStartRegionCenter = new Location(gameOptions.galaxySize().width() / 4,
+					gameOptions.galaxySize().height() / 4);
+			Location whiteStartRegionCenter = new Location((gameOptions.galaxySize().width() / 4) * 3,
+					gameOptions.galaxySize().height() / 4);
+			Location yellowStartRegionCenter = new Location(gameOptions.galaxySize().width() / 2,
+					(gameOptions.galaxySize().height() / 4) * 3);
 
-			int maxStartRegionDistanceRadius = Math.min(gameOptions.getGalaxySize().getWidth() / 5,
-					gameOptions.getGalaxySize().getHeight() / 5);
+			int maxStartRegionDistanceRadius = Math.min(gameOptions.galaxySize().width() / 5,
+					gameOptions.galaxySize().height() / 5);
 
-			Set<Location> locations = BigBang.get().getSystemLocations(gameOptions.getGalaxySize(), 160);
+			Set<Location> locations = BigBang.get().getSystemLocations(gameOptions.galaxySize(), 160);
 			int i = 0;
 			for (Location location : locations) {
-				if (solSystem == null && location.getDistance(blueStartRegionCenter) < maxStartRegionDistanceRadius) {
+				if (solSystem == null && location.distance(blueStartRegionCenter) < maxStartRegionDistanceRadius) {
 					solSystem = System.createHomeSystem("Sol", location, StarType.YELLOW, PlanetType.JUNGLE,
 							PlanetSpecial.NONE, 100, Player.BLUE, firstUsedSlot.apply(humanDesigns));
 					systems.add(solSystem);
 				}
 				else if (fierasSystem == null
-						&& location.getDistance(whiteStartRegionCenter) < maxStartRegionDistanceRadius) {
+						&& location.distance(whiteStartRegionCenter) < maxStartRegionDistanceRadius) {
 					fierasSystem = System.createHomeSystem("Fieras", location, StarType.RED, PlanetType.TERRAN,
 							PlanetSpecial.NONE, 100, Player.WHITE, firstUsedSlot.apply(mrrshanDesigns));
 					systems.add(fierasSystem);
 				}
 				else if (centauriSystem == null
-						&& location.getDistance(yellowStartRegionCenter) < maxStartRegionDistanceRadius) {
+						&& location.distance(yellowStartRegionCenter) < maxStartRegionDistanceRadius) {
 					centauriSystem = System.createHomeSystem("Centauri", location, StarType.PURPLE, PlanetType.OCEAN,
 							PlanetSpecial.NONE, 110, Player.YELLOW, firstUsedSlot.apply(psilonDesigns));
 					systems.add(centauriSystem);
@@ -207,13 +207,13 @@ public class GameFactoryImpl implements GameFactory {
 		assertHomeSystems(solSystem, fierasSystem, centauriSystem);
 
 		StartFleet humanHomeFleet = new StartFleet(Player.BLUE, solSystem,
-				Map.of(DesignSlot.FIRST, 2, DesignSlot.SECOND, getColonyShipCount(gameOptions.isTestGame()),
+				Map.of(DesignSlot.FIRST, 2, DesignSlot.SECOND, getColonyShipCount(gameOptions.testGame()),
 						DesignSlot.THIRD, 30, DesignSlot.FOURTH, 10, DesignSlot.FIFTH, 4));
 		StartFleet mrrshanHomeFleet = new StartFleet(Player.WHITE, fierasSystem,
-				Map.of(DesignSlot.FIRST, 2, DesignSlot.SECOND, getColonyShipCount(gameOptions.isTestGame()),
+				Map.of(DesignSlot.FIRST, 2, DesignSlot.SECOND, getColonyShipCount(gameOptions.testGame()),
 						DesignSlot.THIRD, 30, DesignSlot.FOURTH, 10, DesignSlot.FIFTH, 4));
 		StartFleet psilonHomeFleet = new StartFleet(Player.YELLOW, centauriSystem,
-				Map.of(DesignSlot.FIRST, 2, DesignSlot.SECOND, getColonyShipCount(gameOptions.isTestGame()),
+				Map.of(DesignSlot.FIRST, 2, DesignSlot.SECOND, getColonyShipCount(gameOptions.testGame()),
 						DesignSlot.THIRD, 30, DesignSlot.FOURTH, 10, DesignSlot.FIFTH, 4));
 
 		return new GameImpl(systems, Arrays2.asSet(humanFraction, mrrshanFraction, psilonFraction),

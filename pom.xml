@@ -39,6 +39,7 @@
 		<de-funfried-netbeans-plugins-externalcodeformatter.spring-linefeed>\n</de-funfried-netbeans-plugins-externalcodeformatter.spring-linefeed>
 
 		<either.java.version>2.9.0</either.java.version>
+		<record-builder-processor.version>42</record-builder-processor.version>
 
 		<pocketsaw.version>1.7.1</pocketsaw.version>
 		<classgraph.version>4.8.164</classgraph.version>
@@ -88,6 +89,12 @@
 				<groupId>com.spencerwi</groupId>
 				<artifactId>Either.java</artifactId>
 				<version>${either.java.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>io.soabase.record-builder</groupId>
+				<artifactId>record-builder-processor</artifactId>
+				<version>${record-builder-processor.version}</version>
 			</dependency>
 
 			<dependency>
@@ -275,6 +282,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.13.0</version>
 				<configuration>
 					<compilerArgs>
 						<arg>-Xlint:all</arg>

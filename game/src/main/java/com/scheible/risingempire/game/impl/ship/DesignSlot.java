@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
+import com.scheible.risingempire.game.api.view.ship.ShipTypeViewBuilder;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
 
 /**
@@ -17,19 +18,24 @@ public enum DesignSlot {
 	FIRST, SECOND, THIRD, FOURTH, FIFTH, SIXTH;
 
 	public static DesignSlot valueOf(ShipTypeId shipTypeId) {
-		return DesignSlot.values()[Integer.parseInt(shipTypeId.getValue().split("@")[1])];
+		return DesignSlot.values()[Integer.parseInt(shipTypeId.value().split("@")[1])];
 	}
 
 	public ShipTypeView toShipType(ShipDesign design) {
-		return new ShipTypeView(new ShipTypeId(design.getName() + "@" + ordinal()), ordinal(), design.getName(),
-				design.getSize(), design.getLook());
+		return ShipTypeViewBuilder.builder()
+			.id(new ShipTypeId(design.getName() + "@" + ordinal()))
+			.index(ordinal())
+			.name(design.getName())
+			.size(design.getSize())
+			.look(design.getLook())
+			.build();
 	}
 
 	public static Map<DesignSlot, Integer> toSlotAndCounts(ShipsView ships) {
-		return ships.getTypesWithCount()
+		return ships.typesWithCount()
 			.stream()
 			.filter(s -> s.getValue() > 0)
-			.collect(Collectors.toMap(typeWithCount -> DesignSlot.valueOf(typeWithCount.getKey().getId()),
+			.collect(Collectors.toMap(typeWithCount -> DesignSlot.valueOf(typeWithCount.getKey().id()),
 					Map.Entry::getValue));
 	}
 

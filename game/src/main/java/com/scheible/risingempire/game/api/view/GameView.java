@@ -1,15 +1,12 @@
 package com.scheible.risingempire.game.api.view;
 
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
+import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.universe.Race;
-import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
 import com.scheible.risingempire.game.api.view.fleet.FleetView.FleetViewType;
@@ -25,200 +22,69 @@ import static java.util.Collections.unmodifiableSet;
 /**
  * @author sj
  */
-public class GameView {
+@StagedRecordBuilder
+public record GameView(int galaxyWidth, int galaxyHeight, Player player, Race race, Set<Player> players, int round,
+		Map<Player, Boolean> turnFinishedStatus, Map<SystemId, SystemView> systems, Map<FleetId, FleetView> fleets,
+		Set<SystemId> colonizableSystemIds, Set<SystemId> annexableSystemIds, Set<SpaceCombatView> spaceCombats,
+		Set<SystemId> justExploredSystem, Set<TechGroupView> selectTechGroups,
+		Set<SystemNotificationView> systemNotifications, Set<SystemId> colonizationCommandSystemsIds,
+		Set<SystemId> annexationCommandSystemsIds) {
 
-	private final int galaxyWidth;
-
-	private final int galaxyHeight;
-
-	private final Player player;
-
-	private final Set<Player> players;
-
-	private final Race race;
-
-	private final int round;
-
-	private final Map<Player, Boolean> turnFinishedStatus;
-
-	private final Map<SystemId, SystemView> systems;
-
-	private final Set<SystemView> systemsSet;
-
-	private final Map<FleetId, FleetView> fleets;
-
-	private final Set<FleetView> fleetsSet;
-
-	private final Set<SystemId> colonizableSystemIds;
-
-	private final Set<SystemId> annexableSystemIds;
-
-	private final Set<SpaceCombatView> spaceCombats;
-
-	private final Set<SystemId> justExploredSystem;
-
-	private final Set<TechGroupView> selectTechGroups;
-
-	private final Set<SystemNotificationView> systemNotifications;
-
-	private final Set<SystemId> colonizationCommandSystemsIds;
-
-	private final Set<SystemId> annexationCommandSystemsIds;
-
-	public GameView(int galaxyWidth, int galaxyHeight, Player player, Race race, Set<Player> players, int round,
-			Map<Player, Boolean> turnFinishedStatus, Set<SystemView> systems, Set<FleetView> fleets,
-			Set<SystemId> colonizableSystemIds, Set<SystemId> annexableSystemIds, Set<SpaceCombatView> spaceCombats,
-			Set<SystemId> justExploredSystem, Set<TechGroupView> selectTechGroups,
-			Set<SystemNotificationView> systemNotifications, Set<SystemId> colonizationCommandSystemsIds,
-			Set<SystemId> annexationCommandSystemsIds) {
-		this.galaxyWidth = galaxyWidth;
-		this.galaxyHeight = galaxyHeight;
-		this.player = player;
-		this.race = race;
-		this.players = unmodifiableSet(players);
-		this.round = round;
-		this.turnFinishedStatus = unmodifiableMap(turnFinishedStatus);
-		this.systems = unmodifiableMap(
-				systems.stream().collect(Collectors.toMap(SystemView::getId, Function.identity())));
-		this.systemsSet = unmodifiableSet(systems);
-		this.fleets = unmodifiableMap(fleets.stream().collect(Collectors.toMap(FleetView::getId, Function.identity())));
-		this.fleetsSet = unmodifiableSet(fleets);
-		this.colonizableSystemIds = unmodifiableSet(colonizableSystemIds);
-		this.annexableSystemIds = unmodifiableSet(annexableSystemIds);
-		this.spaceCombats = unmodifiableSet(spaceCombats);
-		this.justExploredSystem = unmodifiableSet(justExploredSystem);
-		this.selectTechGroups = unmodifiableSet(selectTechGroups);
-		this.systemNotifications = unmodifiableSet(systemNotifications);
-		this.colonizationCommandSystemsIds = unmodifiableSet(colonizationCommandSystemsIds);
-		this.annexationCommandSystemsIds = unmodifiableSet(annexationCommandSystemsIds);
-	}
-
-	public int getGalaxyWidth() {
-		return this.galaxyWidth;
-	}
-
-	public int getGalaxyHeight() {
-		return this.galaxyHeight;
-	}
-
-	public Set<TechGroupView> getSelectTechs() {
-		return this.selectTechGroups;
-	}
-
-	public Set<SpaceCombatView> getSpaceCombats() {
-		return this.spaceCombats;
-	}
-
-	public Player getPlayer() {
-		return this.player;
-	}
-
-	public Set<Player> getPlayers() {
-		return this.players;
-	}
-
-	public Race getRace() {
-		return this.race;
-	}
-
-	public int getRound() {
-		return this.round;
-	}
-
-	public boolean isOwnTurnFinished() {
-		return this.turnFinishedStatus.get(this.player);
-	}
-
-	public Map<Player, Boolean> getTurnFinishedStatus() {
-		return this.turnFinishedStatus;
-	}
-
-	public Set<SystemView> getSystems() {
-		return this.systemsSet;
-	}
-
-	public Set<FleetView> getFleets() {
-		return this.fleetsSet;
-	}
-
-	public Set<FleetView> getFleets(Player player) {
-		return this.fleetsSet.stream().filter(fleet -> fleet.getPlayer() == player).collect(Collectors.toSet());
-	}
-
-	public Set<SystemId> getColonizableSystemIds() {
-		return this.colonizableSystemIds;
-	}
-
-	public boolean hasColonizationCommand(SystemId systemId) {
-		return this.colonizationCommandSystemsIds.contains(systemId);
-	}
-
-	public Set<SystemId> getAnnexableSystemIds() {
-		return this.annexableSystemIds;
-	}
-
-	public boolean hasAnnexationCommand(SystemId systemId) {
-		return this.annexationCommandSystemsIds.contains(systemId);
+	public GameView {
+		turnFinishedStatus = unmodifiableMap(turnFinishedStatus);
+		systems = unmodifiableMap(systems);
+		fleets = unmodifiableMap(fleets);
+		colonizableSystemIds = unmodifiableSet(colonizableSystemIds);
+		annexableSystemIds = unmodifiableSet(annexableSystemIds);
+		spaceCombats = unmodifiableSet(spaceCombats);
+		justExploredSystem = unmodifiableSet(justExploredSystem);
+		selectTechGroups = unmodifiableSet(selectTechGroups);
+		systemNotifications = unmodifiableSet(systemNotifications);
+		colonizationCommandSystemsIds = unmodifiableSet(colonizationCommandSystemsIds);
+		annexationCommandSystemsIds = unmodifiableSet(annexationCommandSystemsIds);
 	}
 
 	/**
 	 * Return all just explored system ids (does not contain the colonizable ones and ones
 	 * with space battle).
 	 */
-	public Set<SystemId> getJustExploredSystemIds() {
+	public Set<SystemId> justExploredSystemIds() {
 		return this.justExploredSystem;
 	}
 
-	public Set<SystemNotificationView> getSystemNotifications() {
-		return this.systemNotifications;
-	}
-
-	public Optional<FleetView> getOrbiting(SystemId systemId) {
-		return this.fleetsSet.stream()
-			.filter(f -> f.getPlayer() == this.player && f.getType() == FleetViewType.ORBITING
-					&& f.getOrbiting().get().equals(systemId))
+	public Optional<FleetView> orbiting(SystemId systemId) {
+		return this.fleets.values()
+			.stream()
+			.filter(f -> f.player() == this.player && f.type() == FleetViewType.ORBITING
+					&& f.orbiting().get().equals(systemId))
 			.findFirst();
 	}
 
-	public FleetView getFleet(FleetId fleetId) {
+	public FleetView fleet(FleetId fleetId) {
 		return this.fleets.get(fleetId);
 	}
 
-	public SystemView getSystem(String starName) {
-		return this.systemsSet.stream()
-			.filter(s -> s.getStarName().isPresent() && s.getStarName().get().equals(starName))
+	public SystemView system(String starName) {
+		return this.systems.values()
+			.stream()
+			.filter(s -> s.starName().isPresent() && s.starName().get().equals(starName))
 			.findFirst()
 			.get();
 	}
 
-	public SystemView getSystem(SystemId id) {
+	public SystemView system(SystemId id) {
 		return this.systems.get(id);
 	}
 
-	public SystemView getHomeSystem() {
-		return this.systemsSet.stream().filter(SystemView::isHomeSystem).findFirst().get();
+	public SystemView homeSystem() {
+		return this.systems.values().stream().filter(SystemView::homeSystem).findFirst().get();
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder result = new StringBuilder();
-		result.append("current turn: ").append(this.round).append('\n');
-
-		this.systemsSet.stream()
-			.sorted(Comparator.comparing(GameView::getSystemSortPlayer))
-			.map(Object::toString)
-			.forEachOrdered(s -> result.append(s).append('\n'));
-
-		this.fleetsSet.stream()
-			.sorted(Comparator.comparing(FleetView::getPlayer).thenComparing(Comparator.comparing(FleetView::getType)))
-			.map(fv -> fv.toString(sid -> this.systems.get(sid).getStarName().orElseGet(sid::toString)))
-			.forEachOrdered(f -> result.append(f).append('\n'));
-
-		return result.toString();
+	public boolean colonizationCommand(SystemId systemId) {
+		return this.colonizationCommandSystemsIds.contains(systemId);
 	}
 
-	private static String getSystemSortPlayer(SystemView system) {
-		return system.getColonyView().map(ColonyView::getPlayer).map(Object::toString).orElse("");
+	public boolean annexationCommand(SystemId systemId) {
+		return this.annexationCommandSystemsIds.contains(systemId);
 	}
-
 }

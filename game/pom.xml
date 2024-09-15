@@ -22,6 +22,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>io.soabase.record-builder</groupId>
+			<artifactId>record-builder-processor</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
@@ -51,6 +57,17 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<proc>full</proc>
+					<annotationProcessors>
+						<annotationProcessor>
+							io.soabase.recordbuilder.processor.RecordBuilderProcessor
+						</annotationProcessor>
+					</annotationProcessors>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

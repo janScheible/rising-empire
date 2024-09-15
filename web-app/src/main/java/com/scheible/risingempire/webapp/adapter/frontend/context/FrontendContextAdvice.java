@@ -31,7 +31,7 @@ class FrontendContextAdvice {
 		Optional<Game> game = this.gameHolder.get(gameId);
 
 		return game
-			.map(g -> FrontendContext.createForGame(gameId, player, g.forPlayer(player), g.forPlayer(player).getView(),
+			.map(g -> FrontendContext.createForGame(gameId, player, g.forPlayer(player), g.forPlayer(player).view(),
 					selectedStarId, selectedFleetId))
 			.orElseGet(() -> FrontendContext.createEmpty(gameId, player));
 

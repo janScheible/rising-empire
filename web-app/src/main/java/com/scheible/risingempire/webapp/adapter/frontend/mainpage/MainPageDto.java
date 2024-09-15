@@ -74,7 +74,7 @@ class MainPageDto {
 					.isPresent())
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 			model.getContent().starMap.getContent().stars = model.getContent().starMap.getContent().stars.stream()
-				.filter(s -> s.getContent().id.equals(state.getSelectedSystemId().map(SystemId::getValue).orElse(null)))
+				.filter(s -> s.getContent().id.equals(state.getSelectedSystemId().map(SystemId::value).orElse(null)))
 				.toList();
 			model.getContent().buttonBar = null;
 			model.getContent().colonizations = null;
@@ -88,7 +88,7 @@ class MainPageDto {
 			model
 				.getContent().parts = Stream
 					.concat(state.getSelectedSystemId()
-						.map(ssid -> "$.starMap.stars[?(@.id=='" + ssid.getValue() + "')]")
+						.map(ssid -> "$.starMap.stars[?(@.id=='" + ssid.value() + "')]")
 						.stream(),
 							Stream
 								.concat(updatedParentFleetId.map(f -> "$.starMap.fleets." + f).stream(),
@@ -144,7 +144,7 @@ class MainPageDto {
 		final boolean hasCommand;
 
 		ColonizationDto(SystemId starId, boolean hasCommand) {
-			this.starId = starId.getValue();
+			this.starId = starId.value();
 			this.hasCommand = hasCommand;
 		}
 
@@ -155,7 +155,7 @@ class MainPageDto {
 		final String starId;
 
 		ExplorationDto(SystemId starId) {
-			this.starId = starId.getValue();
+			this.starId = starId.value();
 		}
 
 	}
@@ -167,7 +167,7 @@ class MainPageDto {
 		final boolean hasCommand;
 
 		AnnexationDto(SystemId starId, boolean hasCommand) {
-			this.starId = starId.getValue();
+			this.starId = starId.value();
 			this.hasCommand = hasCommand;
 		}
 

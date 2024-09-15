@@ -31,17 +31,17 @@ class SelectTechPageController {
 
 	@GetMapping(path = "/select-tech-page")
 	SelectTechPageDto selectTechPage(@ModelAttribute FrontendContext context) {
-		Set<TechGroupView> selectTechs = context.getGameView().getSelectTechs();
+		Set<TechGroupView> selectTechs = context.getGameView().selectTechGroups();
 
 		List<EntityModel<TechDto>> selectTechsEntities = List.of();
 		if (!selectTechs.isEmpty()) {
 			selectTechsEntities = selectTechs.iterator()
 				.next()
 				.stream()
-				.map(tech -> new EntityModel<>(new TechDto(tech.getId().getValue(), tech.getName()))
+				.map(tech -> new EntityModel<>(new TechDto(tech.id().value(), tech.name()))
 					.with(Action.jsonPost("select", context.toFrontendUri("select-tech-page", "selects"))
-						.with("technologyId", tech.getId().getValue()) //
-						.with("selectedStarId", context.getSelectedStarId().get().getValue())))
+						.with("technologyId", tech.id().value()) //
+						.with("selectedStarId", context.getSelectedStarId().get().value())))
 				.collect(Collectors.toList());
 		}
 

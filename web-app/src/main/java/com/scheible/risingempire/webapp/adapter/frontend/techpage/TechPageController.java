@@ -38,10 +38,10 @@ class TechPageController {
 				"weapons", new AllocationCategoryDto(17, "6666RP"))))
 			.with(Action.jsonPost("allocate-research", context.toFrontendUri("tech-page", "allocations"))
 				.with(context.getSelectedStarId().isPresent(), "selectedStarId",
-						() -> context.getSelectedStarId().get().getValue()))))
+						() -> context.getSelectedStarId().get().value()))))
 			.with(Action.get("close", context.toFrontendUri("main-page")) //
 				.with(context.getSelectedStarId().isPresent(), "selectedStarId",
-						() -> context.getSelectedStarId().get().getValue()));
+						() -> context.getSelectedStarId().get().value()));
 	}
 
 	@PostMapping(path = "/tech-page/allocations", consumes = APPLICATION_JSON_VALUE)
@@ -51,7 +51,7 @@ class TechPageController {
 			.header(HttpHeaders.LOCATION,
 					context.toAction(HttpMethod.GET, "tech-page")
 						.with(body.selectedStarId.isPresent(), "selectedStarId",
-								() -> body.selectedStarId.get().getValue())
+								() -> body.selectedStarId.get().value())
 						.toGetUri())
 			.build();
 	}

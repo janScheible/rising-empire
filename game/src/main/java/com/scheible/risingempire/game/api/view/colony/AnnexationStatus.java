@@ -2,12 +2,14 @@ package com.scheible.risingempire.game.api.view.colony;
 
 import java.util.Optional;
 
+import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.universe.Race;
 
 /**
  * @author sj
  */
+@StagedRecordBuilder
 public record AnnexationStatus(Optional<Integer> siegeRounds, Optional<Integer> roundsUntilAnnexable,
 		Optional<Player> siegingPlayer, Optional<Race> siegingRace, Optional<Boolean> annexable,
 		Optional<Boolean> annexationCommand) {
@@ -23,7 +25,7 @@ public record AnnexationStatus(Optional<Integer> siegeRounds, Optional<Integer> 
 		}
 	}
 
-	public Optional<Integer> getProgress() {
+	public Optional<Integer> progress() {
 		if (this.siegeRounds.isPresent() && this.roundsUntilAnnexable.isPresent()) {
 			return Optional.of(Math.round(this.siegeRounds().get()
 					/ (this.siegeRounds().get() + this.roundsUntilAnnexable().get()) * 100.0f));

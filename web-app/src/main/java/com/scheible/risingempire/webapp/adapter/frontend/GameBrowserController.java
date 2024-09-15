@@ -91,14 +91,14 @@ class GameBrowserController {
 
 		for (Player player : game.getPlayers()) {
 			boolean canReceiveNotifications = this.notificationService.hasChannel(gameId, player);
-			result.add(new EntityModel<>(
-					new RunningGamePlayerDto(PlayerDto.fromPlayer(player), !game.isAiControlled(player),
+			result.add(
+					new EntityModel<>(new RunningGamePlayerDto(PlayerDto.fromPlayer(player), !game.aiControlled(player),
 							this.notificationService.getPlayerSession(gameId, player), canReceiveNotifications))
-				.with(!game.isAiControlled(player) && !canReceiveNotifications,
-						() -> Action.delete("kick", "game-browser", "games", gameId,
-								player.name().toLowerCase(Locale.ROOT)))
-				.with(game.isAiControlled(player),
-						() -> Action.get("join", "games", gameId, player.name().toLowerCase(Locale.ROOT))));
+						.with(!game.aiControlled(player) && !canReceiveNotifications,
+								() -> Action.delete("kick", "game-browser", "games", gameId,
+										player.name().toLowerCase(Locale.ROOT)))
+						.with(game.aiControlled(player),
+								() -> Action.get("join", "games", gameId, player.name().toLowerCase(Locale.ROOT))));
 		}
 
 		return result;

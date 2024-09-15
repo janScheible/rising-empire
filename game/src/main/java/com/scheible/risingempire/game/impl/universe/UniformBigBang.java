@@ -21,8 +21,8 @@ class UniformBigBang implements BigBang {
 
 	@Override
 	public Set<Location> getSystemLocations(GalaxySize galaxySize, int maxSystemDistance) {
-		PoissonDiscSamplingAlogirthm algorithm = PoissonDiscSamplingAlogirthm.create(galaxySize.getWidth(),
-				galaxySize.getHeight(), maxSystemDistance * 0.85);
+		PoissonDiscSamplingAlogirthm algorithm = PoissonDiscSamplingAlogirthm.create(galaxySize.width(),
+				galaxySize.height(), maxSystemDistance * 0.85);
 		Set<Vector> samplePoints = algorithm.sample();
 
 		return samplePoints.stream().map(v -> new Location((int) v.x, (int) v.y)).collect(Collectors.toSet());

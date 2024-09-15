@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.scheible.risingempire.game.api.universe.Player;
-import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
+import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalBuilder;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.impl.fleet.DeployedFleet;
@@ -68,8 +68,13 @@ public class SimulatingSpaceCombatResolver implements SpaceCombatResolver {
 					.collect(Collectors.toMap(e -> toDesginSlot.apply(e.getKey(), player), Entry::getValue));
 
 		return new SpaceCombat(systemId, summary.fireExchangeCount, attacking.getPlayer(),
-				new FleetBeforeArrival(attacking.getId(), attacking.getHorizontalDirection(), attacking.getSpeed(),
-						attacking.getPreviousLocation(), attacking.isPreviousJustLeaving()),
+				FleetBeforeArrivalBuilder.builder()
+					.id(attacking.getId())
+					.horizontalDirection(attacking.getHorizontalDirection())
+					.speed(attacking.getSpeed())
+					.location(attacking.getPreviousLocation())
+					.justLeaving(attacking.isPreviousJustLeaving())
+					.build(),
 				new HashMap<>(attacking.getShips()),
 				toDesignSlotsCombatantFireExchanges.apply(summary.attackerFireExchanges, attacking.getPlayer()),
 				defending.getPlayer(), defending.getId(), new HashMap<>(defending.getShips()),

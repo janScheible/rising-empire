@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
+import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalBuilder;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.impl.fleet.DeployedFleet;
@@ -35,8 +35,13 @@ public class KnownInAdvanceWinnerSpaceCombatResolver implements SpaceCombatResol
 	public SpaceCombat resolve(SystemId systemId, OrbitingFleet defending, DeployedFleet attacking,
 			ShipDesignProvider shipDesignProvider) {
 		return new SpaceCombat(systemId, 1, attacking.getPlayer(),
-				new FleetBeforeArrival(attacking.getId(), attacking.getHorizontalDirection(), attacking.getSpeed(),
-						attacking.getPreviousLocation(), attacking.isPreviousJustLeaving()),
+				FleetBeforeArrivalBuilder.builder()
+					.id(attacking.getId())
+					.horizontalDirection(attacking.getHorizontalDirection())
+					.speed(attacking.getSpeed())
+					.location(attacking.getPreviousLocation())
+					.justLeaving(attacking.isPreviousJustLeaving())
+					.build(),
 				attacking.getShips(),
 				this.outcome == Outcome.DEFENDER_WON ? changeShipCount(attacking.getShips(), count -> 0)
 						: changeShipCount(attacking.getShips(), count -> count / 2),

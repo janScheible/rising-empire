@@ -29,16 +29,15 @@ class UniformBigBangTest {
 		GalaxySize galaxySize = GalaxySize.HUGE;
 		Set<Location> locations = new UniformBigBang().getSystemLocations(galaxySize, 200);
 
-		BufferedImage image = new BufferedImage(galaxySize.getWidth(), galaxySize.getHeight(),
-				BufferedImage.TYPE_INT_ARGB);
+		BufferedImage image = new BufferedImage(galaxySize.width(), galaxySize.height(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics2D = image.createGraphics();
 
 		graphics2D.setPaint(Color.BLACK);
-		graphics2D.fillRect(0, 0, galaxySize.getWidth(), galaxySize.getHeight());
+		graphics2D.fillRect(0, 0, galaxySize.width(), galaxySize.height());
 
 		for (Location location : locations) {
 			graphics2D.setPaint(STAR_COLORS[ThreadLocalRandom.current().nextInt(STAR_COLORS.length)]);
-			graphics2D.fillOval(location.getX(), location.getY(), 40, 40);
+			graphics2D.fillOval(location.x(), location.y(), 40, 40);
 		}
 
 		ImageIO.write(image, "png", new File("./target/huge-poisson-disc-sampling-big-bang.png"));

@@ -12,11 +12,11 @@ public class SimpleAi implements Ai {
 
 	@Override
 	public void finishTurn(PlayerGame game) {
-		GameView gameState = game.getView();
+		GameView view = game.view();
 
-		if (!gameState.getSelectTechs().isEmpty()) {
-			for (TechGroupView techGroup : gameState.getSelectTechs()) {
-				game.selectTech(techGroup.iterator().next().getId());
+		if (!view.selectTechGroups().isEmpty()) {
+			for (TechGroupView techGroup : view.selectTechGroups()) {
+				game.selectTech(techGroup.iterator().next().id());
 			}
 		}
 	}

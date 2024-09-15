@@ -22,6 +22,9 @@
 					<linkXRef>false</linkXRef>
 					<printFailingErrors>true</printFailingErrors>
 					<analysisCache>true</analysisCache>
+					<excludeRoots>
+						<excludeRoot>target/generated-sources</excludeRoot>
+					</excludeRoots>
 					<rulesets>
 						<ruleset>rules/pmd.xml</ruleset>
 					</rulesets>
@@ -69,6 +72,7 @@
 				<configuration>
 					<skip>false</skip>
 					<includeTestSourceDirectory>true</includeTestSourceDirectory>
+					<excludeGeneratedSources>true</excludeGeneratedSources>
 					<configLocation>rules/checkstyle.xml</configLocation>
 					<suppressionsLocation>rules/checkstyle-suppressions.xml</suppressionsLocation>
 				</configuration>
@@ -152,6 +156,9 @@
 							<path>rules/forbidden-apis.txt</path>
 						</signaturesArtifact>
 					</signaturesArtifacts>
+					<suppressAnnotations>
+						<suppressAnnotation>io.soabase.recordbuilder.core.RecordBuilderGenerated</suppressAnnotation>
+					</suppressAnnotations>
 				</configuration>
 				<executions>
 					<execution>

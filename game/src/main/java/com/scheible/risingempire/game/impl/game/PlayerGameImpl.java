@@ -77,12 +77,12 @@ public class PlayerGameImpl implements PlayerGame {
 	}
 
 	@Override
-	public GameView getView() {
+	public GameView view() {
 		return this.game.getGameState(this.player);
 	}
 
 	@Override
-	public Player getPlayer() {
+	public Player player() {
 		return this.player;
 	}
 

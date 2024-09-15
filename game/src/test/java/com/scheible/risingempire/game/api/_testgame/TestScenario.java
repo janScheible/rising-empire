@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import com.scheible.risingempire.game.api.Game;
-import com.scheible.risingempire.game.api.GameOptions;
+import com.scheible.risingempire.game.api.GameOptionsBuilder;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.GameView;
 
@@ -19,12 +19,12 @@ public interface TestScenario {
 		return testScenario;
 	}
 
-	GameTurn customize(Consumer<GameOptions> optionsCustomizer);
+	GameTurn customize(Consumer<GameOptionsBuilder> optionsCustomizer);
 
 	Game getGame();
 
 	default GameView getWhiteView() {
-		return getGame().forPlayer(Player.WHITE).getView();
+		return getGame().forPlayer(Player.WHITE).view();
 	}
 
 	void applyTurnLogic(Game game);
