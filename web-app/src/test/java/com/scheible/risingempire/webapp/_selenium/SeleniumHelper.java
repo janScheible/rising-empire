@@ -9,13 +9,10 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.core.io.ClassPathResource;
-
-import static org.openqa.selenium.firefox.FirefoxBinary.Channel.AURORA;
 
 /**
  * @author sj
@@ -23,10 +20,11 @@ import static org.openqa.selenium.firefox.FirefoxBinary.Channel.AURORA;
 public class SeleniumHelper {
 
 	public static RemoteWebDriver createFirefoxDriver(int windowWidth, int windowHeight) {
+		boolean windows = System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows");
+
 		try {
-			String suffix = System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows") ? "-win64.exe"
-					: "-linux64";
-			File geckodriverFile = new ClassPathResource("geckodriver-v0.33.0" + suffix, SeleniumHelper.class)
+			String suffix = windows ? "-win64.exe" : "-linux64";
+			File geckodriverFile = new ClassPathResource("geckodriver-v0.35.0" + suffix, SeleniumHelper.class)
 				.getFile();
 			System.setProperty("webdriver.gecko.driver", geckodriverFile.getCanonicalPath());
 		}
@@ -35,7 +33,8 @@ public class SeleniumHelper {
 					ex);
 		}
 
-		RemoteWebDriver driver = new FirefoxDriver(new FirefoxOptions().setBinary(new FirefoxBinary(AURORA)));
+		RemoteWebDriver driver = new FirefoxDriver(new FirefoxOptions()
+			.setBinary(windows ? "C:\\Program Files\\Firefox Developer Edition\\firefox.exe" : "firefox"));
 		driver.manage().window().setPosition(new Point(0, 0));
 		driver.manage().window().setSize(new Dimension(windowWidth, windowHeight));
 		return driver;
