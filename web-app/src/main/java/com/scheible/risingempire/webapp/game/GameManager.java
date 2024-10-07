@@ -35,7 +35,7 @@ public class GameManager {
 	}
 
 	public void startGame(String gameId, Player startingPlayer, Game game, Optional<TestScenario> testScenario) {
-		game.getPlayers().stream().filter(player -> player != startingPlayer).forEach(game::registerAi);
+		game.players().stream().filter(player -> player != startingPlayer).forEach(game::registerAi);
 
 		// if scenario present run turn logic of the first round
 		testScenario.ifPresent(ts -> ts.applyTurnLogic(game));
@@ -100,7 +100,7 @@ public class GameManager {
 	public void stopGame(String gameId) {
 		this.gameHolder.get(gameId)
 			.get()
-			.getPlayers()
+			.players()
 			.stream()
 			.filter(player -> this.notificationService.hasChannel(gameId, player))
 			.forEach(player -> kickPlayer(gameId, player, "game-stopped"));

@@ -76,7 +76,7 @@ class GameBrowserController {
 				this.gameHolder.getGameIds()
 					.stream()
 					.map(gameId -> new EntityModel<>(new RunningGameDto(gameId, toRunningGamePlayers(gameId),
-							this.gameHolder.get(gameId).get().getRound()))
+							this.gameHolder.get(gameId).get().round()))
 						.with(Action.delete("stop", "game-browser", "games", gameId)))
 					.toList(),
 				this.gitProperties.map(GitProperties::getShortCommitId),
@@ -89,7 +89,7 @@ class GameBrowserController {
 
 		Game game = this.gameHolder.get(gameId).get();
 
-		for (Player player : game.getPlayers()) {
+		for (Player player : game.players()) {
 			boolean canReceiveNotifications = this.notificationService.hasChannel(gameId, player);
 			result.add(
 					new EntityModel<>(new RunningGamePlayerDto(PlayerDto.fromPlayer(player), !game.aiControlled(player),

@@ -612,13 +612,13 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	}
 
 	@Override
-	public Set<Player> getPlayers() {
+	public Set<Player> players() {
 		return Collections
 			.unmodifiableSet(this.fractions.values().stream().map(Fraction::getPlayer).collect(Collectors.toSet()));
 	}
 
 	@Override
-	public int getRound() {
+	public int round() {
 		return this.round;
 	}
 

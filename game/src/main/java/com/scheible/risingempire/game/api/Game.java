@@ -11,7 +11,7 @@ public interface Game {
 
 	PlayerGame forPlayer(Player player);
 
-	Set<Player> getPlayers();
+	Set<Player> players();
 
 	void registerAi(Player player);
 
@@ -23,6 +23,6 @@ public interface Game {
 	 * The round of the game. It is incremented every time all players finished theirs
 	 * turns.
 	 */
-	int getRound();
+	int round();
 
 }
