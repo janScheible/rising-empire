@@ -137,7 +137,7 @@
 				<groupId>com.scheible.esbuild</groupId>
 				<artifactId>esbuild-maven-plugin</artifactId>
 				<configuration>
-					<esBuildVersion>0.21.0</esBuildVersion>
+					<esBuildVersion>0.24.0</esBuildVersion>
 				</configuration>
 				<executions>
 					<execution>
