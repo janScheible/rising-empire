@@ -43,8 +43,8 @@ public record FleetView(FleetId id, Optional<FleetId> parentId, FleetViewType ty
 				deployed.race(), deployed.ships(), Optional.of(deployed.previousLocation()),
 				Optional.of(deployed.previousJustLeaving()), deployed.location(), deployed.deployable(),
 				deployed.scannerRange(), deployed.source(), deployed.destination(), Optional.of(deployed.speed()),
-				Optional.of(deployed.closest()), Optional.of(deployed.orientation()), Optional.empty(),
-				deployed.fleetsBeforeArrival(), Optional.of(deployed.justLeaving()));
+				Optional.of(deployed.closest()), Optional.of(deployed.orientation()), Optional.empty(), Set.of(),
+				Optional.of(deployed.justLeaving()));
 	}
 
 	public static FleetView create(FleetView.Orbiting orbiting) {
@@ -59,8 +59,7 @@ public record FleetView(FleetId id, Optional<FleetId> parentId, FleetViewType ty
 	public record Deployed(FleetId id, Optional<FleetId> parentId, Player player, Race race, ShipsView ships,
 			Optional<SystemId> source, Optional<SystemId> destination, Location previousLocation,
 			boolean previousJustLeaving, Location location, int speed, SystemId closest,
-			HorizontalDirection orientation, boolean deployable, Optional<Integer> scannerRange,
-			Set<FleetBeforeArrival> fleetsBeforeArrival, boolean justLeaving) {
+			HorizontalDirection orientation, boolean deployable, Optional<Integer> scannerRange, boolean justLeaving) {
 
 	}
 

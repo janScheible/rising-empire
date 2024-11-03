@@ -337,7 +337,6 @@ public class GameViewBuilder {
 				.orientation(deployedFleet.getHorizontalDirection())
 				.deployable(deployedFleet.isJustLeaving())
 				.scannerRange(Optional.of(scannerRange))
-				.fleetsBeforeArrival(fleetsBeforeArrival)
 				.justLeaving(deployedFleet.isJustLeaving())
 				.build());
 		}
@@ -396,7 +395,6 @@ public class GameViewBuilder {
 				.orientation(fleet.asDeployed().getHorizontalDirection())
 				.deployable(false)
 				.scannerRange(Optional.empty())
-				.fleetsBeforeArrival(fleetsBeforeArrival)
 				.justLeaving(fleet.asDeployed().isJustLeaving())
 				.build());
 		}
