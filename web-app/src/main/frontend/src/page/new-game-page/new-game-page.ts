@@ -12,6 +12,7 @@ export default class NewGamePage extends HTMLElement {
 	static NAME = 're-new-game-page';
 
 	#galaxySizeEl: HTMLSelectElement;
+	#game2El: HTMLInputElement;
 
 	#scenarioLabelEl: HTMLLabelElement;
 	#scenarioSelectEl: HTMLSelectElement;
@@ -51,6 +52,9 @@ export default class NewGamePage extends HTMLElement {
 							<option value="5">5</option>
 						</select>
 
+						<label id="game2-label" for="game2">Game 2</label>
+						<input name="game2" type="checkbox" data-row-align="left">
+
 						<label id="scenario-label" hidden for="scenario">Scenario</label>
 						<select hidden name="scenario">
 						</select>
@@ -61,6 +65,7 @@ export default class NewGamePage extends HTMLElement {
 			</${ModalDialog.NAME}>`;
 
 		this.#galaxySizeEl = this.shadowRoot.querySelector('select[name="galaxy-size"]');
+		this.#game2El = this.shadowRoot.querySelector('input[name="game2"]');
 
 		this.#scenarioLabelEl = this.shadowRoot.querySelector('label[for="scenario"]');
 		this.#scenarioSelectEl = this.shadowRoot.querySelector('select[name="scenario"]');
@@ -70,6 +75,7 @@ export default class NewGamePage extends HTMLElement {
 			const values = Object.assign(
 				{
 					galaxySize: this.#galaxySizeEl.selectedOptions[0].value,
+					game2: this.#game2El.checked,
 				},
 				selectedScenarioId ? { scenarioId: selectedScenarioId } : null
 			);

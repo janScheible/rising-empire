@@ -22,7 +22,27 @@ public interface GameFactory {
 	 */
 	class LazyInstanceHolder {
 
-		private static final GameFactory INSTANCE = ServiceLoader.load(GameFactory.class).findFirst().get();
+		private static final GameFactory INSTANCE = new GameFactory() {
+
+			private static final ServiceLoader<GameFactory> GAME_FACTORIES = ServiceLoader.load(GameFactory.class);
+
+			@Override
+			public Game create(GameOptions gameOptions) {
+				return GAME_FACTORIES.stream()
+					.filter(service -> service.type().getPackageName().contains(".impl2.") == gameOptions.game2())
+					.findFirst()
+					.orElseThrow()
+					.get()
+					.create(gameOptions);
+			}
+
+			@Override
+			public Game load(Object whatEver) {
+				// the passed input has to be inspected if game2 or not
+				throw new UnsupportedOperationException("Not supported yet.");
+			}
+
+		};
 
 	}
 

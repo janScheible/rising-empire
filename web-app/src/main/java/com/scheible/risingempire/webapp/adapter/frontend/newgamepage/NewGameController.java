@@ -156,6 +156,7 @@ class NewGameController {
 					.create(GameOptionsBuilder.builder()
 						.galaxySize(body.galaxySize)
 						.playerCount(body.playerCount)
+						.game2(body.game2)
 						.build());
 			}
 
@@ -178,6 +179,8 @@ class NewGameController {
 		GalaxySize galaxySize = GalaxySize.HUGE;
 
 		int playerCount = 3;
+
+		boolean game2 = false;
 
 		Optional<String> scenarioId = Optional.empty();
 

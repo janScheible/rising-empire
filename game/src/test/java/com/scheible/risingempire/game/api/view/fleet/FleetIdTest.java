@@ -22,4 +22,13 @@ class FleetIdTest {
 		assertThat(new FleetId(random.value())).isEqualTo(random);
 	}
 
+	@Test
+	void testGame2Ids() {
+		FleetId deployedFleetId = new FleetId("f1.234x5.678->1.222x3.444@42w/9.134");
+		assertThat(deployedFleetId).isNotNull();
+
+		FleetId orbitingFleetId = new FleetId("f1.234x5.678");
+		assertThat(orbitingFleetId).isNotNull();
+	}
+
 }

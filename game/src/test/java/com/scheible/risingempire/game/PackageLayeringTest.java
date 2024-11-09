@@ -21,7 +21,7 @@ public class PackageLayeringTest {
 	@ArchTest
 	static final ArchRule packageLayeringRule = noClasses().that()
 		.resideInAnyPackage("com.scheible.risingempire.game.impl.ship",
-				"com.scheible.risingempire.game.impl.spacecombat")
+				"com.scheible.risingempire.game.impl.spacecombat", "com.scheible.risingempire.game.impl2..")
 		.should(new DependOnDescendantPackagesCondition())
 		.because("lower layers/packages shouldn't build on higher layers/packages");
 
