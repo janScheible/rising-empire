@@ -10,7 +10,7 @@
 		"noImplicitOverride": true,
 		"paths": {
 			"~/idb-keyval-6.2.1": ["./lib/idb-keyval-6.2.1"],
-			"~/fflate-0.8.1": ["./lib/fflate-0.8.1"],
+			"~/fflate-0.8.2": ["./lib/fflate-0.8.2"],
 			"~/sockette-2.0.6": ["./lib/sockette-2.0.6"],
 			"~/smooth-scroll-1.2": ["./lib/smooth-scroll-1.2"],
 			"~/*": ["./src/*"]
