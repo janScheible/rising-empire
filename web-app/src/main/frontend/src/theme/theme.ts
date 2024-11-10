@@ -155,7 +155,10 @@ export default class Theme {
 			const fileName = fileEntry[0];
 			const qualifier = fileName.substring(0, fileName.lastIndexOf('.'));
 
-			if (Theme.#QUALIFIERS.indexOf(qualifier) >= 0) {
+			if (fileName.toLowerCase().endsWith('.txt')) {
+				const text = new TextDecoder().decode(fileEntry[1] as Uint8Array);
+				console.log(text); // TODO store the values somewhere
+			} else if (Theme.#QUALIFIERS.indexOf(qualifier) >= 0) {
 				const blob = new Blob([fileEntry[1] as Uint8Array], { type: 'image/png' });
 				Theme.#elements[qualifier] = URL.createObjectURL(blob);
 

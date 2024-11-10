@@ -8,8 +8,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -17,11 +19,13 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.imageio.ImageIO;
 
+import com.scheible.risingempire.mootheme.binary.TextBinaryReader;
 import com.scheible.risingempire.mootheme.canvas.Paintable;
 import com.scheible.risingempire.mootheme.lbx.LbxEntry;
 import com.scheible.risingempire.mootheme.lbx.LbxReader;
@@ -231,6 +235,10 @@ public class MooThemeGeneratorCli {
 							process(getImage.apply(planets, 33), Scale.TRIPLE, -16_777_216),
 							process(getImage.apply(planets, 34), Scale.TRIPLE, -16_777_216)));
 
+			Set<String> races = new TextBinaryReader(10, 12,
+					new char[] { 'H', 'M', 'S', 'S', 'P', 'A', 'K', 'B', 'M', 'D' })
+				.read(Files.newInputStream(Path.of(orionDir.getAbsolutePath(), "ORION.EXE")));
+
 			File targetDir = Optional.of(new File(".").getCanonicalFile())
 				.map(wd -> "target".equalsIgnoreCase(wd.getName()) ? wd : new File(wd, "target"))
 				.get();
@@ -239,7 +247,7 @@ public class MooThemeGeneratorCli {
 			writeZipFile(themeZip, sheetEntry("fleets.png", fleetsSheet), sheetEntry("stars.png", starsSheet),
 					sheetEntry("stars-small.png", starsSmallSheet), sheetEntry("ships-blue.png", shipsBlueSheet),
 					sheetEntry("ships-white.png", shipsWhiteSheet), sheetEntry("ships-yellow.png", shipsYellowSheet),
-					sheetEntry("planets.png", planetsSheet));
+					sheetEntry("planets.png", planetsSheet), sheetEntry("races.txt", races));
 			logger.info("Wrote ZIP file to ''{0}''.", themeZip);
 		}
 		catch (UncheckedIOException ex) {
@@ -290,11 +298,11 @@ public class MooThemeGeneratorCli {
 	}
 
 	@SafeVarargs
-	private static void writeZipFile(Path targetDir, Entry<String, BufferedImage>... entries) throws IOException {
+	private static void writeZipFile(Path targetDir, Entry<String, ? extends Object>... entries) throws IOException {
 		try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(targetDir))) {
 			Set<String> processed = new HashSet<>();
 
-			for (Entry<String, BufferedImage> entry : entries) {
+			for (Entry<String, ? extends Object> entry : entries) {
 				String path = entry.getKey();
 
 				String currentPath = "";
@@ -305,10 +313,23 @@ public class MooThemeGeneratorCli {
 						ZipEntry zipEntry = new ZipEntry(currentPath);
 						zos.putNextEntry(zipEntry);
 
-						BufferedImage image = entry.getValue();
-						ByteArrayOutputStream baos = new ByteArrayOutputStream(image.getWidth() * image.getHeight());
-						ImageIO.write(image, "png", baos);
-						zos.write(baos.toByteArray());
+						if (entry.getValue() instanceof BufferedImage image) {
+							ByteArrayOutputStream baos = new ByteArrayOutputStream(
+									image.getWidth() * image.getHeight());
+							ImageIO.write(image, "png", baos);
+							zos.write(baos.toByteArray());
+						}
+						else if (entry.getValue() instanceof Set<?> set) {
+							List<String> list = new ArrayList<>();
+							for (Object listEntry : set) {
+								list.add(listEntry.toString());
+							}
+							zos.write(list.stream().collect(Collectors.joining("\n")).getBytes(StandardCharsets.UTF_8));
+						}
+						else {
+							throw new IllegalArgumentException("ZIp file writing does not support values of type '"
+									+ entry.getValue().getClass().getName() + "'!");
+						}
 						zos.closeEntry();
 					}
 					else if (processed.add(currentPath)) {
@@ -320,8 +341,8 @@ public class MooThemeGeneratorCli {
 		}
 	}
 
-	private static Entry<String, BufferedImage> sheetEntry(String path, BufferedImage image) {
-		return Map.entry(path, image);
+	private static Entry<String, ? extends Object> sheetEntry(String path, Object object) {
+		return Map.entry(path, object);
 	}
 
 	private static Paintable process(BufferedImage image, Scale scale, Integer transparentColor) {
