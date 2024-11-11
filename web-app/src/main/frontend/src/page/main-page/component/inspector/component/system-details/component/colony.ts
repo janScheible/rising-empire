@@ -1,5 +1,6 @@
 import FlowLayout from '~/component/flow-layout';
 import GridLayout from '~/component/grid-layout';
+import Theme from '~/theme/theme';
 import cssUrl from '~/util/cssUrl';
 import Reconciler from '~/util/reconciler';
 
@@ -104,7 +105,11 @@ export default class Colony extends HTMLElement {
 
 		if (!Reconciler.isHiddenAfterPropertyReconciliation(this.#colonyEl, data && !data.race)) {
 			Reconciler.reconcileClass(this.#colonyRaceEl, 'bold', data && data.race);
-			Reconciler.reconcileProperty(this.#colonyRaceEl, 'innerText', data && data.race ? data.race : 'No');
+			Reconciler.reconcileProperty(
+				this.#colonyRaceEl,
+				'innerText',
+				data && data.race ? Theme.getRace(data.race) : 'No'
+			);
 			Reconciler.reconcileStyle(
 				this.#colonyRaceEl,
 				'color',
@@ -142,7 +147,7 @@ export default class Colony extends HTMLElement {
 			const foreigenSiegePresent = data.siegePlayerColor && data.siegeRace;
 			Reconciler.reconcileProperty(this.#foreigenColonySiegedEl, 'hidden', foreigenSiegePresent);
 			if (!Reconciler.isHiddenAfterPropertyReconciliation(this.#ownColonySiegedEl, !foreigenSiegePresent)) {
-				Reconciler.reconcileProperty(this.#siegeRaceEl, 'innerText', data.siegeRace);
+				Reconciler.reconcileProperty(this.#siegeRaceEl, 'innerText', Theme.getRace(data.siegeRace));
 				Reconciler.reconcileStyle(this.#siegeRaceEl, 'color', `var(--${data.siegePlayerColor}-player-color)`);
 			}
 		}

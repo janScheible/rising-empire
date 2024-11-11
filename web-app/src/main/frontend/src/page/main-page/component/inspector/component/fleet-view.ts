@@ -2,6 +2,7 @@ import Container from '~/component/container';
 import FlowLayout from '~/component/flow-layout';
 import GridLayout from '~/component/grid-layout';
 import Ships from '~/component/ships';
+import Theme from '~/theme/theme';
 import cssUrl from '~/util/cssUrl';
 import Reconciler from '~/util/reconciler';
 
@@ -88,7 +89,7 @@ export default class FleetView extends HTMLElement {
 
 	render(data) {
 		if (!Reconciler.isHiddenAfterPropertyReconciliation(this, !data)) {
-			Reconciler.reconcileProperty(this.#raceEl, 'innerText', data.race);
+			Reconciler.reconcileProperty(this.#raceEl, 'innerText', Theme.getRace(data.race));
 			Reconciler.reconcileStyle(this.#raceEl, 'color', `var(--${data.playerColor}-player-color)`);
 
 			for (let i = 0; i < 6; i++) {

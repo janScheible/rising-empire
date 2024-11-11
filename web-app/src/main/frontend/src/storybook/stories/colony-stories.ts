@@ -16,7 +16,7 @@ export default class ColonyStories {
 			{
 				"population": 50,
 				"bases": 0,
-				"race": "Borg",
+				"race": "LUMERISKS",
 				"playerColor": "red"
 			},
 			null,
@@ -29,7 +29,7 @@ export default class ColonyStories {
 				},
 				"roundsUntilAnnexable": 2,
 				"siegePlayerColor": "blue",
-				"siegeRace": "Borg"
+				"siegeRace": "LUMERISKS"
 			},
 			{
 				"population": 50,
@@ -40,12 +40,12 @@ export default class ColonyStories {
 				},
 				"roundsUntilAnnexable": 0,
 				"siegePlayerColor": "blue",
-				"siegeRace": "Borg"
+				"siegeRace": "LUMERISKS"
 			},
 			{
 				"population": 50,
 				"bases": 0,
-				"race": "Borg",
+				"race": "LUMERISKS",
 				"playerColor": "red",
 				"roundsUntilAnnexable": 3
 			}

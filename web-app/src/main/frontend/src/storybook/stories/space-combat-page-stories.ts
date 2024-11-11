@@ -5,7 +5,7 @@ import Story from '~/storybook/stories/story';
 export default class SpaceCombatPageStories {
 	static #RENDER_DATA = `{
 			"systemName": "Sol",
-			"attacker": "Borg",
+			"attacker": "MYXALOR",
 			"fireExchangeCount": 4,
 			"attackerShipSpecs": [
 				{
@@ -33,7 +33,7 @@ export default class SpaceCombatPageStories {
 					}
 				}
 			],
-			"defender": "Human",
+			"defender": "LUMERISKS",
 			"defenderShipSpecs": [
 				{
 					"id": "Scout@1",

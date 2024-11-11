@@ -14,7 +14,7 @@ public class Colonization {
 
 	public Optional<Colony> colony(Position system) {
 		if (new Position(10.0, 10.0).equals(system)) {
-			return Optional.of(new Colony(new Empire(Player.BLUE, Race.HUMAN)));
+			return Optional.of(new Colony(new Empire(Player.BLUE, Race.LUMERISKS)));
 		}
 		else {
 			return Optional.empty();

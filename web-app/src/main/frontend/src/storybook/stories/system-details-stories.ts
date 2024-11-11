@@ -81,7 +81,7 @@ export default class SystemDetailsStories {
 			"colony": {
 				"population": 50,
 				"bases": 0,
-				"race": "Borg",
+				"race": "MYXALOR",
 				"playerColor": "red"
 			},
 			"range": 7

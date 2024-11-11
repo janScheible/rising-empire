@@ -118,6 +118,19 @@ export default class Theme {
 		},
 	};
 
+	static #RACES = {
+		BLYZARIANS: 'Blyzarians',
+		DRACONILITHS: 'Draconiliths',
+		KRYLOQUIANS: 'Kryloquians',
+		LUMERISKS: 'Lumerisks',
+		MYXALOR: 'Myxalor',
+		OLTHARIEN: 'Oltharien',
+		QALTRUVIAN: 'Qaltruvian',
+		VORTELUXIAN: 'Vorteluxian',
+		XELIPHARI: 'Xeliphari',
+		ZYNTHORAX: 'Zynthorax',
+	};
+
 	static #logger: Logger = LoggerFactory.get(`${import.meta.url}`);
 
 	static #elements: { [id: string]: string } = {};
@@ -157,7 +170,14 @@ export default class Theme {
 
 			if (fileName.toLowerCase().endsWith('.txt')) {
 				const text = new TextDecoder().decode(fileEntry[1] as Uint8Array);
-				console.log(text); // TODO store the values somewhere
+				if (qualifier === 'races') {
+					const races = text.split('\n').sort();
+					let i = 0;
+					for (const race of Object.keys(Theme.#RACES)) {
+						Theme.#RACES[race] = races[i];
+						i++;
+					}
+				}
 			} else if (Theme.#QUALIFIERS.indexOf(qualifier) >= 0) {
 				const blob = new Blob([fileEntry[1] as Uint8Array], { type: 'image/png' });
 				Theme.#elements[qualifier] = URL.createObjectURL(blob);
@@ -199,6 +219,10 @@ export default class Theme {
 
 	static getDataUrl(qualifier: string): string {
 		return Theme.#enabled ? Theme.#elements[qualifier] : undefined;
+	}
+
+	static getRace(qualifier: string): string {
+		return Theme.#RACES[qualifier];
 	}
 
 	static set enabled(enabled: boolean) {

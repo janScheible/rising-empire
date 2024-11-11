@@ -11,6 +11,7 @@ import LoggerFactory from '~/util/logger/logger-factory';
 import Logger from '~/util/logger/logger';
 import Outcome from '~/page/space-combat-page/component/outcome';
 import cssUrl from '~/util/cssUrl';
+import Theme from '~/theme/theme';
 
 export default class SpaceCombatPage extends HTMLElement {
 	static NAME = 're-space-combat-page';
@@ -112,9 +113,11 @@ export default class SpaceCombatPage extends HTMLElement {
 
 		Reconciler.reconcileProperty(this.#systemNameEl, 'innerText', data.systemName);
 
-		this.#attackerEls.forEach((attackerEl) => Reconciler.reconcileProperty(attackerEl, 'innerText', data.attacker));
+		this.#attackerEls.forEach((attackerEl) =>
+			Reconciler.reconcileProperty(attackerEl, 'innerText', Theme.getRace(data.attacker))
+		);
 		this.#defenderEls.forEach((_defenderEl) =>
-			Reconciler.reconcileProperty(_defenderEl, 'innerText', data.defender)
+			Reconciler.reconcileProperty(_defenderEl, 'innerText', Theme.getRace(data.defender))
 		);
 
 		Reconciler.reconcileStyle(this.#outcomeEl, 'visibility', 'hidden');

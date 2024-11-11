@@ -106,22 +106,22 @@ public class GameFactoryImpl implements GameFactory {
 					5, new Missile("Nuclear Missile", new Damage(4), Missile.RackSize.TWO))
 			.specials();
 
-		Map<DesignSlot, ShipDesign> humanDesigns = Map.of(DesignSlot.FIRST, scoutDesginFactory.get(), DesignSlot.SECOND,
-				colonyShipDesginFactory.get(), DesignSlot.THIRD, fighterShipDesginFactory.get(), DesignSlot.FOURTH,
-				destroyerShipDesginFactory.get(), DesignSlot.FIFTH, cruiserShipDesginFactory.get());
-		Fraction humanFraction = new Fraction(Player.BLUE, Race.HUMAN, humanDesigns,
-				new Technology(gameOptions.fleetRangeFactor()));
-
-		Map<DesignSlot, ShipDesign> mrrshanDesigns = Map.of(DesignSlot.FIRST, scoutDesginFactory.get(),
+		Map<DesignSlot, ShipDesign> lumerisksDesigns = Map.of(DesignSlot.FIRST, scoutDesginFactory.get(),
 				DesignSlot.SECOND, colonyShipDesginFactory.get(), DesignSlot.THIRD, fighterShipDesginFactory.get(),
 				DesignSlot.FOURTH, destroyerShipDesginFactory.get(), DesignSlot.FIFTH, cruiserShipDesginFactory.get());
-		Fraction mrrshanFraction = new Fraction(Player.WHITE, Race.MRRSHAN, mrrshanDesigns,
+		Fraction lumerisksFraction = new Fraction(Player.BLUE, Race.LUMERISKS, lumerisksDesigns,
 				new Technology(gameOptions.fleetRangeFactor()));
 
-		Map<DesignSlot, ShipDesign> psilonDesigns = Map.of(DesignSlot.FIRST, scoutDesginFactory.get(),
+		Map<DesignSlot, ShipDesign> myxalorDesigns = Map.of(DesignSlot.FIRST, scoutDesginFactory.get(),
 				DesignSlot.SECOND, colonyShipDesginFactory.get(), DesignSlot.THIRD, fighterShipDesginFactory.get(),
 				DesignSlot.FOURTH, destroyerShipDesginFactory.get(), DesignSlot.FIFTH, cruiserShipDesginFactory.get());
-		Fraction psilonFraction = new Fraction(Player.YELLOW, Race.PSILON, psilonDesigns,
+		Fraction myxalorFraction = new Fraction(Player.WHITE, Race.MYXALOR, myxalorDesigns,
+				new Technology(gameOptions.fleetRangeFactor()));
+
+		Map<DesignSlot, ShipDesign> xeliphariDesigns = Map.of(DesignSlot.FIRST, scoutDesginFactory.get(),
+				DesignSlot.SECOND, colonyShipDesginFactory.get(), DesignSlot.THIRD, fighterShipDesginFactory.get(),
+				DesignSlot.FOURTH, destroyerShipDesginFactory.get(), DesignSlot.FIFTH, cruiserShipDesginFactory.get());
+		Fraction xeliphariFraction = new Fraction(Player.YELLOW, Race.XELIPHARI, xeliphariDesigns,
 				new Technology(gameOptions.fleetRangeFactor()));
 
 		Function<Map<DesignSlot, ShipDesign>, DesignSlot> firstUsedSlot = designs -> {
@@ -139,17 +139,17 @@ public class GameFactoryImpl implements GameFactory {
 		if (gameOptions.testGame()) {
 			systems = Arrays2.asSet(//
 					solSystem = System.createHomeSystem("Sol", new Location(60, 60), StarType.YELLOW, PlanetType.JUNGLE,
-							PlanetSpecial.NONE, 100, Player.BLUE, firstUsedSlot.apply(humanDesigns)), //
+							PlanetSpecial.NONE, 100, Player.BLUE, firstUsedSlot.apply(lumerisksDesigns)), //
 					fierasSystem = System.createHomeSystem("Fieras", new Location(220, 100), StarType.RED,
 							PlanetType.TERRAN, PlanetSpecial.NONE, 100, Player.WHITE,
-							firstUsedSlot.apply(mrrshanDesigns)), //
+							firstUsedSlot.apply(myxalorDesigns)), //
 					new System("Bunda", new Location(80, 260), StarType.GREEN, PlanetType.ARID, PlanetSpecial.NONE, 30),
 					new System("Ajax", new Location(180, 220), StarType.BLUE, PlanetType.TOXIC, PlanetSpecial.RICH, 25),
 					new System("Drakka", new Location(340, 140), StarType.WHITE, PlanetType.MINIMAL, PlanetSpecial.NONE,
 							50),
 					centauriSystem = System.createHomeSystem("Centauri", new Location(140, 340), StarType.PURPLE,
 							PlanetType.OCEAN, PlanetSpecial.NONE, 110, Player.YELLOW,
-							firstUsedSlot.apply(psilonDesigns)),
+							firstUsedSlot.apply(xeliphariDesigns)),
 					new System("Spica", new Location(984, 728), StarType.GREEN, PlanetType.TUNDRA, PlanetSpecial.NONE,
 							50),
 					rigelSystem = new System("Rigel", new Location(240, 440), StarType.GREEN, PlanetType.TUNDRA,
@@ -177,19 +177,19 @@ public class GameFactoryImpl implements GameFactory {
 			for (Location location : locations) {
 				if (solSystem == null && location.distance(blueStartRegionCenter) < maxStartRegionDistanceRadius) {
 					solSystem = System.createHomeSystem("Sol", location, StarType.YELLOW, PlanetType.JUNGLE,
-							PlanetSpecial.NONE, 100, Player.BLUE, firstUsedSlot.apply(humanDesigns));
+							PlanetSpecial.NONE, 100, Player.BLUE, firstUsedSlot.apply(lumerisksDesigns));
 					systems.add(solSystem);
 				}
 				else if (fierasSystem == null
 						&& location.distance(whiteStartRegionCenter) < maxStartRegionDistanceRadius) {
 					fierasSystem = System.createHomeSystem("Fieras", location, StarType.RED, PlanetType.TERRAN,
-							PlanetSpecial.NONE, 100, Player.WHITE, firstUsedSlot.apply(mrrshanDesigns));
+							PlanetSpecial.NONE, 100, Player.WHITE, firstUsedSlot.apply(myxalorDesigns));
 					systems.add(fierasSystem);
 				}
 				else if (centauriSystem == null
 						&& location.distance(yellowStartRegionCenter) < maxStartRegionDistanceRadius) {
 					centauriSystem = System.createHomeSystem("Centauri", location, StarType.PURPLE, PlanetType.OCEAN,
-							PlanetSpecial.NONE, 110, Player.YELLOW, firstUsedSlot.apply(psilonDesigns));
+							PlanetSpecial.NONE, 110, Player.YELLOW, firstUsedSlot.apply(xeliphariDesigns));
 					systems.add(centauriSystem);
 				}
 				else {
@@ -206,18 +206,18 @@ public class GameFactoryImpl implements GameFactory {
 
 		assertHomeSystems(solSystem, fierasSystem, centauriSystem);
 
-		StartFleet humanHomeFleet = new StartFleet(Player.BLUE, solSystem,
+		StartFleet lumerisksHomeFleet = new StartFleet(Player.BLUE, solSystem,
 				Map.of(DesignSlot.FIRST, 2, DesignSlot.SECOND, getColonyShipCount(gameOptions.testGame()),
 						DesignSlot.THIRD, 30, DesignSlot.FOURTH, 10, DesignSlot.FIFTH, 4));
-		StartFleet mrrshanHomeFleet = new StartFleet(Player.WHITE, fierasSystem,
+		StartFleet myxalorHomeFleet = new StartFleet(Player.WHITE, fierasSystem,
 				Map.of(DesignSlot.FIRST, 2, DesignSlot.SECOND, getColonyShipCount(gameOptions.testGame()),
 						DesignSlot.THIRD, 30, DesignSlot.FOURTH, 10, DesignSlot.FIFTH, 4));
-		StartFleet psilonHomeFleet = new StartFleet(Player.YELLOW, centauriSystem,
+		StartFleet xeliphariHomeFleet = new StartFleet(Player.YELLOW, centauriSystem,
 				Map.of(DesignSlot.FIRST, 2, DesignSlot.SECOND, getColonyShipCount(gameOptions.testGame()),
 						DesignSlot.THIRD, 30, DesignSlot.FOURTH, 10, DesignSlot.FIFTH, 4));
 
-		return new GameImpl(systems, Arrays2.asSet(humanFraction, mrrshanFraction, psilonFraction),
-				Arrays2.asSet(humanHomeFleet, mrrshanHomeFleet, psilonHomeFleet), gameOptions);
+		return new GameImpl(systems, Arrays2.asSet(lumerisksFraction, myxalorFraction, xeliphariFraction),
+				Arrays2.asSet(lumerisksHomeFleet, myxalorHomeFleet, xeliphariHomeFleet), gameOptions);
 	}
 
 	private int getColonyShipCount(boolean testGame) {

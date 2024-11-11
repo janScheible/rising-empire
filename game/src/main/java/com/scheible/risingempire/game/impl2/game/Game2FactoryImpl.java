@@ -24,7 +24,7 @@ public class Game2FactoryImpl implements GameFactory {
 
 	@Override
 	public Game create(GameOptions gameOptions) {
-		return new Game2Impl(gameOptions.galaxySize(), List.of(new Empire(Player.BLUE, Race.HUMAN)),
+		return new Game2Impl(gameOptions.galaxySize(), List.of(new Empire(Player.BLUE, Race.LUMERISKS)),
 				List.of(new Star("Sol", new Position(10.0, 10.0), StarType.YELLOW),
 						new Star("Alpha Centauri", new Position(20.0, 10.0), StarType.RED),
 						new Star("Barnard's Star", new Position(10.0, 20.0), StarType.GREEN),

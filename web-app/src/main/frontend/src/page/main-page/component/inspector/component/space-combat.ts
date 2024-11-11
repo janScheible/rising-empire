@@ -6,6 +6,7 @@ import Habitability from '~/page/main-page/component/inspector/component/habitab
 import SystemName from '~/page/main-page/component/inspector/component/system-name';
 import FlowLayout from '~/component/flow-layout';
 import cssUrl from '~/util/cssUrl';
+import Theme from '~/theme/theme';
 
 export default class SpaceCombat extends HTMLElement {
 	static NAME = 're-space-combat';
@@ -69,10 +70,10 @@ export default class SpaceCombat extends HTMLElement {
 
 			this.#habitabilityEl.render(data.habitability);
 
-			Reconciler.reconcileProperty(this.#attackerEl, 'innerText', data.attackerRace);
+			Reconciler.reconcileProperty(this.#attackerEl, 'innerText', Theme.getRace(data.attackerRace));
 			Reconciler.reconcileStyle(this.#attackerEl, 'color', `var(--${data.attackerColor}-player-color)`);
 
-			Reconciler.reconcileProperty(this.#defenderEl, 'innerText', data.defenderRace);
+			Reconciler.reconcileProperty(this.#defenderEl, 'innerText', Theme.getRace(data.defenderRace));
 			Reconciler.reconcileStyle(this.#defenderEl, 'color', `var(--${data.defenderColor}-player-color)`);
 		}
 	}

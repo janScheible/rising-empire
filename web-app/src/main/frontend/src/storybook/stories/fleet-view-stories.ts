@@ -4,7 +4,7 @@ import Story from '~/storybook/stories/story';
 export default class FleetViewStories {
 	static showFleetView(story: Story) {
 		story.setRenderData(`{
-			"race": "Human",
+			"race": "LUMERISKS",
 			"playerColor": "green",
 			"eta": 4,
 			"ships": [

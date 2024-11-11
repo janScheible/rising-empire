@@ -5,6 +5,6 @@ package com.scheible.risingempire.game.api.universe;
  */
 public enum Race {
 
-	HUMAN, MRRSHAN, PSILON;
+	BLYZARIANS, DRACONILITHS, KRYLOQUIANS, LUMERISKS, MYXALOR, OLTHARIEN, QALTRUVIAN, VORTELUXIAN, XELIPHARI, ZYNTHORAX;
 
 }

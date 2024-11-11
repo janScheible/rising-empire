@@ -4,9 +4,9 @@ import Story from '~/storybook/stories/story';
 export default class SpaceCombatStories {
 	static showSpaceCombatPageInUnexploredSystem(story: Story) {
 		story.setRenderData(`{
-			"attackerRace": "Borg",
+			"attackerRace": "MYXALOR",
 			"attackerColor": "red",
-			"defenderRace": "Human",
+			"defenderRace": "LUMERISKS",
 			"defenderColor": "blue",
 			"_actions": [
 				{ "fields": [], "name": "continue" }
@@ -26,9 +26,9 @@ export default class SpaceCombatStories {
 					"special": "ARTIFACTS",
 					"maxPopulation": 250
 				},
-				"attackerRace": "Borg",
+				"attackerRace": "MYXALOR",
 				"attackerColor": "red",
-				"defenderRace": "Human",
+				"defenderRace": "LUMERISKS",
 				"defenderColor": "blue",
 				"_actions": [
 					{ "fields": [], "name": "continue" }
