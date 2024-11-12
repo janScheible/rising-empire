@@ -11,7 +11,7 @@ public record Speed(Parsec distance) implements Comparable<Speed> {
 	}
 
 	public static Speed fromPlainString(String plain) {
-		return new Speed(new Parsec(plain.replace(',', '.')));
+		return new Speed(Parsec.fromPlainString(plain));
 	}
 
 	public String toPlainString() {

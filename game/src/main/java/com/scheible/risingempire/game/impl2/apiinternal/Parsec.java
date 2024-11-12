@@ -25,12 +25,12 @@ public record Parsec(BigDecimal quantity) implements Comparable<Parsec> {
 		this(new BigDecimal(quantity));
 	}
 
-	public static Parsec fromMilliparsec(int quantity) {
+	public static Parsec fromMilliparsec(long quantity) {
 		return new Parsec(BigDecimal.valueOf(quantity, 3));
 	}
 
 	public static Parsec fromPlainString(String plain) {
-		return new Parsec(plain.replace(',', '.'));
+		return fromMilliparsec(Long.parseLong(plain));
 	}
 
 	public Parsec add(Parsec other) {
@@ -59,7 +59,7 @@ public record Parsec(BigDecimal quantity) implements Comparable<Parsec> {
 	}
 
 	public String toPlainString() {
-		return this.quantity.toString().replace('.', ',');
+		return Long.toString(this.quantity.movePointRight(3).longValue());
 	}
 
 	@Override

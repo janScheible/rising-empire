@@ -23,7 +23,7 @@ class ParsecTest {
 
 	@Test
 	void testToPlainString() {
-		assertThat(new Parsec("1.234").toPlainString()).isEqualTo("1,234");
+		assertThat(new Parsec("1.234").toPlainString()).isEqualTo("1234");
 	}
 
 }

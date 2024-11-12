@@ -32,12 +32,12 @@ class PositionTest {
 
 	@Test
 	void testToPlainString() {
-		assertThat(new Position(new Parsec("1.234"), new Parsec("5.678")).toPlainString()).isEqualTo("1,234x5,678");
+		assertThat(new Position(new Parsec("1.234"), new Parsec("5.678")).toPlainString()).isEqualTo("1234x5678");
 	}
 
 	@Test
 	void testFromPlainString() {
-		assertThat(Position.fromPlainString("1.234x5.678"))
+		assertThat(Position.fromPlainString("1234x5678"))
 			.isEqualTo(new Position(new Parsec("1.234"), new Parsec("5.678")));
 	}
 
