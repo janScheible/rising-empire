@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
 import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
@@ -37,14 +36,12 @@ class NavyTest extends AbstractNavyTest {
 
 		Fleet arrivedFleet = new Fleet(this.player,
 				new Orbit(this.destination,
-						Set.of(new Itinerary(this.origin, this.destination,
-								Optional.of(new Position(new Parsec("1.998"), new Parsec("0.000"))),
-								new Position(new Parsec("2.997"), new Parsec("0.000")), new Round(3),
+						Set.of(new Itinerary(this.origin, this.destination, Optional.of(new Position("1.998", "0.000")),
+								new Position("2.997", "0.000"), new Round(3),
 								this.shipSpecsProvider.speed(this.player, this.enterprise)),
 								new Itinerary(this.otherDestination, this.destination,
-										Optional.of(new Position(new Parsec("2.000"), new Parsec("2.000"))),
-										new Position(new Parsec("0.670"), new Parsec("-1.341")), new Round(1),
-										this.shipSpecsProvider.speed(this.player, this.scout)))),
+										Optional.of(new Position("2.000", "2.000")), new Position("0.670", "-1.341"),
+										new Round(1), this.shipSpecsProvider.speed(this.player, this.scout)))),
 				ships(this.enterprise, 1, this.scout, 1));
 		assertThat(arrivedFleets.fleets()).containsOnly(arrivedFleet);
 		assertThat(navy.fleets()).containsOnly(arrivedFleet);

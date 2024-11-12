@@ -12,9 +12,9 @@ import com.scheible.risingempire.game.impl2.ship.ShipClassId;
 public class Technology implements ShipSpecsProvider, ShipScanSpecsProvider {
 
 	private static final Map<ShipClassId, Speed> SPEEDS = Map.of( //
-			new ShipClassId("enterprise"), new Speed(new Parsec(1.0)), //
-			new ShipClassId("scout"), new Speed(new Parsec(1.5)), //
-			ShipClassId.COLONISTS_TRANSPORTER, new Speed(new Parsec(1.0)));
+			new ShipClassId("enterprise"), new Speed(1.0), //
+			new ShipClassId("scout"), new Speed(1.5), //
+			ShipClassId.COLONISTS_TRANSPORTER, new Speed(1.0));
 
 	private static final Map<ShipClassId, Parsec> RANGES = Map.of(//
 			new ShipClassId("enterprise"), new Parsec(3.0), //
@@ -43,7 +43,7 @@ public class Technology implements ShipSpecsProvider, ShipScanSpecsProvider {
 
 	@Override
 	public Parsec scanRange(Player player, ShipClassId shipClassId) {
-		return new Parsec(2.0);
+		return new Parsec(0.5);
 	}
 
 }

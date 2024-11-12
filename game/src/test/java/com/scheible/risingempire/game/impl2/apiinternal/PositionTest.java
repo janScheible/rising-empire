@@ -12,7 +12,7 @@ class PositionTest {
 	@Test
 	void testInterpolate() {
 		Position from = new Position(0, 0);
-		Position to = new Position(new Parsec(3), new Parsec(4));
+		Position to = new Position(3, 4);
 
 		List<Position> positions = new ArrayList<>();
 		Position current = from;
@@ -22,23 +22,19 @@ class PositionTest {
 		}
 		positions.add(current);
 
-		assertThat(positions).containsExactly(new Position(new Parsec("0.000"), new Parsec("0.000")),
-				new Position(new Parsec("0.600"), new Parsec("0.800")),
-				new Position(new Parsec("1.200"), new Parsec("1.600")),
-				new Position(new Parsec("1.800"), new Parsec("2.400")),
-				new Position(new Parsec("2.400"), new Parsec("3.200")),
-				new Position(new Parsec("3.000"), new Parsec("4.000")));
+		assertThat(positions).containsExactly(new Position("0.000", "0.000"), new Position("0.600", "0.800"),
+				new Position("1.200", "1.600"), new Position("1.800", "2.400"), new Position("2.400", "3.200"),
+				new Position("3.000", "4.000"));
 	}
 
 	@Test
 	void testToPlainString() {
-		assertThat(new Position(new Parsec("1.234"), new Parsec("5.678")).toPlainString()).isEqualTo("1234x5678");
+		assertThat(new Position("1.234", "5.678").toPlainString()).isEqualTo("1234x5678");
 	}
 
 	@Test
 	void testFromPlainString() {
-		assertThat(Position.fromPlainString("1234x5678"))
-			.isEqualTo(new Position(new Parsec("1.234"), new Parsec("5.678")));
+		assertThat(Position.fromPlainString("1234x5678")).isEqualTo(new Position("1.234", "5.678"));
 	}
 
 }

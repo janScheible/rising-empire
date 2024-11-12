@@ -1,7 +1,5 @@
 package com.scheible.risingempire.game.impl2.game;
 
-import java.math.BigDecimal;
-
 import com.scheible.risingempire.game.api.universe.Location;
 import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
@@ -11,8 +9,10 @@ import com.scheible.risingempire.game.impl2.apiinternal.Position;
  */
 class LocationMapper {
 
+	private static final Parsec FACTOR = new Parsec("50.000");
+
 	static int toLocationValue(Parsec parse) {
-		return parse.quantity().multiply(BigDecimal.TEN).intValue();
+		return parse.multiply(FACTOR).quantity().intValue();
 	}
 
 	static Location toLocation(Position position) {

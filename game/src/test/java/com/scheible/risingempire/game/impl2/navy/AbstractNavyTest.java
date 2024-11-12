@@ -23,9 +23,9 @@ abstract class AbstractNavyTest {
 	protected final ShipSpecsProvider shipSpecsProvider = new ShipSpecsProvider() {
 
 		private final Map<ShipClassId, Speed> shipSpeeds = Map.of(//
-				AbstractNavyTest.this.scout, new Speed(new Parsec(1.5)), //
-				AbstractNavyTest.this.enterprise, new Speed(new Parsec(1.0)), //
-				ShipClassId.COLONISTS_TRANSPORTER, new Speed(new Parsec(1.0)));
+				AbstractNavyTest.this.scout, new Speed(1.5), //
+				AbstractNavyTest.this.enterprise, new Speed(1.0), //
+				ShipClassId.COLONISTS_TRANSPORTER, new Speed(1.0));
 
 		@Override
 		public Speed speed(Player player, ShipClassId shipClassId) {
@@ -48,11 +48,11 @@ abstract class AbstractNavyTest {
 		}
 	};
 
-	protected Position origin = new Position(new Parsec(0.0), new Parsec(0.0));
+	protected Position origin = new Position(0.0, 0.0);
 
-	protected Position destination = new Position(new Parsec(3.0), new Parsec(0.0));
+	protected Position destination = new Position(3.0, 0.0);
 
-	protected Position otherDestination = new Position(new Parsec(2.0), new Parsec(2.0));
+	protected Position otherDestination = new Position(2.0, 2.0);
 
 	protected Fleet orbitingFleet(Position system, Ships ships) {
 		return new Fleet(this.player, new Orbit(system), ships);
