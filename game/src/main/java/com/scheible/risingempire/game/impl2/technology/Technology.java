@@ -17,8 +17,8 @@ public class Technology implements ShipSpecsProvider, ShipScanSpecsProvider {
 			ShipClassId.COLONISTS_TRANSPORTER, new Speed(1.0));
 
 	private static final Map<ShipClassId, Parsec> RANGES = Map.of(//
-			new ShipClassId("enterprise"), new Parsec(3.0), //
-			new ShipClassId("scout"), new Parsec(4.0), //
+			new ShipClassId("enterprise"), new Parsec(2.0), //
+			new ShipClassId("scout"), new Parsec(2.5), //
 			ShipClassId.COLONISTS_TRANSPORTER, new Parsec(3.0));
 
 	@Override

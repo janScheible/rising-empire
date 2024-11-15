@@ -9,7 +9,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.Position;
  */
 class LocationMapper {
 
-	private static final Parsec FACTOR = new Parsec("50.000");
+	private static final Parsec FACTOR = new Parsec("75.0");
 
 	static int toLocationValue(Parsec parse) {
 		return parse.multiply(FACTOR).quantity().intValue();

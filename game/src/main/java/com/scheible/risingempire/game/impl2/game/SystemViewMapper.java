@@ -28,7 +28,7 @@ class SystemViewMapper {
 			.justExplored(false)
 			.location(LocationMapper.toLocation(star.position()))
 			.starType(star.type())
-			.small(star.name().contains("a"))
+			.small(star.small())
 			.homeSystem(colony.isPresent())
 			.range(Optional.ofNullable(colony.isPresent()
 					? LocationMapper.toLocationValue(colonyScanSpecsProvider.scanRange(player)) : null))

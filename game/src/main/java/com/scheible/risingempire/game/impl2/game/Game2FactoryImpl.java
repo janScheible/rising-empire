@@ -25,11 +25,15 @@ public class Game2FactoryImpl implements GameFactory {
 	@Override
 	public Game create(GameOptions gameOptions) {
 		return new Game2Impl(gameOptions.galaxySize(), List.of(new Empire(Player.BLUE, Race.LUMERISKS)),
-				List.of(new Star("Sol", new Position(10.0, 10.0), StarType.YELLOW),
-						new Star("Alpha Centauri", new Position(20.0, 10.0), StarType.RED),
-						new Star("Barnard's Star", new Position(10.0, 20.0), StarType.GREEN),
-						new Star("Luhman 16", new Position(20.0, 20.0), StarType.PURPLE)),
-				List.of(new Fleet(Player.BLUE, new Orbit(new Position(10.0, 10.0)),
+				List.of(new Star("Sol", new Position("6.173", "5.026"), StarType.YELLOW, false),
+						new Star("Alpha Centauri", new Position(7.680, 3.986), StarType.BLUE, true),
+						new Star("Barnard's Star", new Position(5.173, 6.626), StarType.YELLOW, false),
+						new Star("Deneb", new Position(7.680, 7.226), StarType.GREEN, false),
+						new Star("Rigel", new Position(8.680, 2.133), StarType.GREEN, false),
+						new Star("Vega", new Position(9.973, 5.626), StarType.WHITE, false),
+						new Star("Lalande", new Position(3.386, 2.133), StarType.YELLOW, true),
+						new Star("Sirius", new Position(4.080, 8.226), StarType.RED, true)),
+				List.of(new Fleet(Player.BLUE, new Orbit(new Position("6.173", "5.026")),
 						new Ships(Map.of(new ShipClassId("scout"), 2, new ShipClassId("enterprise"), 2)))));
 	}
 

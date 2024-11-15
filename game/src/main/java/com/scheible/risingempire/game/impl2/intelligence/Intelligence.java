@@ -11,12 +11,12 @@ public class Intelligence implements ColonyScanSpecsProvider, ShipScanSpecsProvi
 
 	@Override
 	public Parsec scanRange(Player player) {
-		return new Parsec(4.0);
+		return new Parsec(0.2);
 	}
 
 	@Override
 	public Parsec scanRange(Player player, ShipClassId shipClassId) {
-		return new Parsec(4.0);
+		return new Parsec(0.2);
 	}
 
 }
