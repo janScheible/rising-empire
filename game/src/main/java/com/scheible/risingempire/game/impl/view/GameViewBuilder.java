@@ -77,9 +77,10 @@ public class GameViewBuilder {
 		Set<FleetView> fleetViews = new HashSet<>(30);
 
 		Map<SystemId, OrbitingFleet> orbitingFleets = fleets.stream()
+			.filter(f -> f.getPlayer() == player)
 			.filter(Fleet::isOrbiting)
 			.map(Fleet::asOrbiting)
-			.collect(Collectors.toMap(f -> f.getSystem().getId(), Function.identity(), (a, b) -> a));
+			.collect(Collectors.toMap(f -> f.getSystem().getId(), Function.identity()));
 
 		Predicate<System> isColonizable = system -> {
 			OrbitingFleet orbiting = orbitingFleets.get(system.getId());
