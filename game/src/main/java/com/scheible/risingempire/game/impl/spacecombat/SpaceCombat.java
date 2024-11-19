@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.universe.Player;
-import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
+import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.system.SystemId;
@@ -26,7 +26,7 @@ public class SpaceCombat {
 
 	private final Player attacker;
 
-	private final FleetBeforeArrival attackerFleet;
+	private final FleetBeforeArrivalView attackerFleet;
 
 	private final Map<DesignSlot, Integer> previousAttackerShipCounts;
 
@@ -44,7 +44,7 @@ public class SpaceCombat {
 
 	private final Integer order;
 
-	private SpaceCombat(SystemId systemId, int fireExchangeCount, Player attacker, FleetBeforeArrival attackerFleet,
+	private SpaceCombat(SystemId systemId, int fireExchangeCount, Player attacker, FleetBeforeArrivalView attackerFleet,
 			Map<DesignSlot, Integer> previousAttackerShipCounts,
 			Map<DesignSlot, List<FireExchange>> attackerFireExchanges, Player defender, FleetId defenderFleet,
 			Map<DesignSlot, Integer> previousDefenderShipCounts,
@@ -68,7 +68,7 @@ public class SpaceCombat {
 		this.order = order;
 	}
 
-	public SpaceCombat(SystemId systemId, int fireExchangeCount, Player attacker, FleetBeforeArrival attackerFleet,
+	public SpaceCombat(SystemId systemId, int fireExchangeCount, Player attacker, FleetBeforeArrivalView attackerFleet,
 			Map<DesignSlot, Integer> attackerShipCounts, Map<DesignSlot, List<FireExchange>> attackerFireExchanges,
 			Player defender, FleetId defenderFleet, Map<DesignSlot, Integer> defenderShipCounts,
 			Map<DesignSlot, List<FireExchange>> defenderFireExchanges, Outcome outcome) {
@@ -110,7 +110,7 @@ public class SpaceCombat {
 		return this.attacker;
 	}
 
-	public FleetBeforeArrival getAttackerFleet() {
+	public FleetBeforeArrivalView getAttackerFleet() {
 		return this.attackerFleet;
 	}
 

@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
 import com.scheible.risingempire.game.api.universe.Location;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.GameView;
-import com.scheible.risingempire.game.api.view.colony.AnnexationStatus;
+import com.scheible.risingempire.game.api.view.colony.AnnexationStatusView;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
-import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
+import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
 import com.scheible.risingempire.game.api.view.fleet.FleetView.FleetViewType;
@@ -135,12 +135,12 @@ public class MainPageDtoPopulator {
 		mainPage.starMap.getContent().stars = gameView.systems()
 			.values()
 			.stream()
-			.map(s -> new EntityModel<>(
-					new StarDto(s.id(), s.starName(), s.starType(), s.small(), s.colony().map(ColonyView::player),
-							s.colony().flatMap(ColonyView::annexationStatus).flatMap(AnnexationStatus::siegingPlayer),
-							s.colony().flatMap(ColonyView::annexationStatus).flatMap(AnnexationStatus::progress),
-							s.location().x(), s.location().y(),
-							s.colony().flatMap(ColonyView::relocationTarget).map(rt -> toItinerary(s, rt, gameView))))
+			.map(s -> new EntityModel<>(new StarDto(s.id(), s.starName(), s.starType(), s.small(),
+					s.colony().map(ColonyView::player),
+					s.colony().flatMap(ColonyView::annexationStatus).flatMap(AnnexationStatusView::siegingPlayer),
+					s.colony().flatMap(ColonyView::annexationStatus).flatMap(AnnexationStatusView::progress),
+					s.location().x(), s.location().y(),
+					s.colony().flatMap(ColonyView::relocationTarget).map(rt -> toItinerary(s, rt, gameView))))
 				.with(state.isSystemSelectable(s.id()), () -> Action.get("select", context.toFrontendUri("main-page"))
 					.with("selectedStarId",
 							state.isTransferColonistsState() || state.isRelocateShipsState()
@@ -242,7 +242,7 @@ public class MainPageDtoPopulator {
 						&& gameView.colonizableSystemIds().contains(state.getSelectedSystemId().get()));
 		boolean annexation = (state.isStarInspectionState() && selectedSystem.colony()
 			.flatMap(ColonyView::annexationStatus)
-			.flatMap(AnnexationStatus::annexable)
+			.flatMap(AnnexationStatusView::annexable)
 			.orElse(Boolean.FALSE))
 				|| (state.isStarSpotlightState()
 						&& gameView.annexableSystemIds().contains(state.getSelectedSystemId().get()));
@@ -283,13 +283,13 @@ public class MainPageDtoPopulator {
 									Optional.ofNullable(c.player() != gameView.player()
 											? new ForeignColonyOwner(c.race(), c.player()) : null),
 									c.population(), c.ratios().map(r -> new ProductionDto(42, 78)),
-									c.annexationStatus().flatMap(AnnexationStatus::roundsUntilAnnexable),
+									c.annexationStatus().flatMap(AnnexationStatusView::roundsUntilAnnexable),
 									c.annexationStatus()
 										.filter(as -> context.getPlayer() == c.player())
-										.flatMap(AnnexationStatus::siegingPlayer),
+										.flatMap(AnnexationStatusView::siegingPlayer),
 									c.annexationStatus()
 										.filter(as -> context.getPlayer() == c.player())
-										.flatMap(AnnexationStatus::siegingRace))),
+										.flatMap(AnnexationStatusView::siegingRace))),
 						inspectedSystem.colony()
 							.filter(c -> c.player() == gameView.player() && !state.isTransferColonistsState()
 									&& !state.isRelocateShipsState())
@@ -537,7 +537,7 @@ public class MainPageDtoPopulator {
 
 	static MainPageDto.SpaceCombatDto toSpaceCombat(SpaceCombatView sc, SystemView combatSystem) {
 		Player player = null;
-		Set<FleetBeforeArrival> fleets = Set.of();
+		Set<FleetBeforeArrivalView> fleets = Set.of();
 		boolean orbiting = false;
 
 		if (sc.outcome() == Outcome.ATTACKER_WON) {

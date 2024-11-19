@@ -8,9 +8,9 @@ import com.scheible.risingempire.game.api.view.fleet.FleetView.HorizontalDirecti
  * @author sj
  */
 @StagedRecordBuilder
-public record FleetBeforeArrival(FleetId id, HorizontalDirection horizontalDirection, int speed, Location location,
+public record FleetBeforeArrivalView(FleetId id, HorizontalDirection horizontalDirection, int speed, Location location,
 		boolean justLeaving) {
 
-	public FleetBeforeArrival {
+	public FleetBeforeArrivalView {
 	}
 }

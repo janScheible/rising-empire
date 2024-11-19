@@ -20,7 +20,7 @@ public record FleetView(FleetId id, Optional<FleetId> parentId, FleetViewType ty
 		ShipsView ships, Optional<Location> previousLocation, Optional<Boolean> previousJustLeaving, Location location,
 		boolean deployable, Optional<Integer> scannerRange, Optional<SystemId> source, Optional<SystemId> destination,
 		Optional<Integer> speed, Optional<SystemId> closest, Optional<HorizontalDirection> horizontalDirection,
-		Optional<SystemId> orbiting, Set<FleetBeforeArrival> fleetsBeforeArrival, Optional<Boolean> justLeaving) {
+		Optional<SystemId> orbiting, Set<FleetBeforeArrivalView> fleetsBeforeArrival, Optional<Boolean> justLeaving) {
 
 	public enum FleetViewType {
 
@@ -65,7 +65,7 @@ public record FleetView(FleetId id, Optional<FleetId> parentId, FleetViewType ty
 
 	@StagedRecordBuilder
 	public record Orbiting(FleetId id, Optional<FleetId> parentId, Player player, Race race, ShipsView ships,
-			SystemId orbiting, Location location, Set<FleetBeforeArrival> fleetsBeforeArrival, boolean deployable,
+			SystemId orbiting, Location location, Set<FleetBeforeArrivalView> fleetsBeforeArrival, boolean deployable,
 			Optional<Integer> scannerRange) {
 
 	}

@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.universe.Race;
-import com.scheible.risingempire.game.api.view.colony.AnnexationStatus;
+import com.scheible.risingempire.game.api.view.colony.AnnexationStatusView;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
@@ -81,7 +81,7 @@ public record GameView(int galaxyWidth, int galaxyHeight, Player player, Race ra
 			.stream()
 			.filter(s -> s.colony()
 				.flatMap(ColonyView::annexationStatus)
-				.flatMap(AnnexationStatus::annexable)
+				.flatMap(AnnexationStatusView::annexable)
 				.orElse(Boolean.FALSE))
 			.map(SystemView::id)
 			.collect(Collectors.toSet());
@@ -112,7 +112,7 @@ public record GameView(int galaxyWidth, int galaxyHeight, Player player, Race ra
 			.stream()
 			.filter(s -> s.colony()
 				.flatMap(ColonyView::annexationStatus)
-				.flatMap(AnnexationStatus::annexationCommand)
+				.flatMap(AnnexationStatusView::annexationCommand)
 				.orElse(Boolean.FALSE))
 			.map(SystemView::id)
 			.collect(Collectors.toSet());
@@ -126,7 +126,7 @@ public record GameView(int galaxyWidth, int galaxyHeight, Player player, Race ra
 		return this.systems.get(systemId)
 			.colony()
 			.flatMap(ColonyView::annexationStatus)
-			.flatMap(AnnexationStatus::annexationCommand)
+			.flatMap(AnnexationStatusView::annexationCommand)
 			.orElse(Boolean.FALSE);
 	}
 }

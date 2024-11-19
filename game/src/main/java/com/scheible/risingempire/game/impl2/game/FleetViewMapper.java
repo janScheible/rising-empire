@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.universe.Player;
-import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
+import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
 import com.scheible.risingempire.game.api.view.fleet.FleetView.HorizontalDirection;
@@ -56,7 +56,7 @@ class FleetViewMapper {
 					.orbiting(SystemIdMapper.toSystemId(system))
 					.location(LocationMapper.toLocation(system))
 					.fleetsBeforeArrival(partsBeforArrival.stream()
-						.map(pba -> new FleetBeforeArrival(FleetIdMapper.toFleetId(pba), horizontalDirection(pba),
+						.map(pba -> new FleetBeforeArrivalView(FleetIdMapper.toFleetId(pba), horizontalDirection(pba),
 								LocationMapper.toLocationValue(pba.speed().distance()),
 								LocationMapper.toLocation(pba.current()), pba.justLeaving()))
 						.collect(Collectors.toSet()))

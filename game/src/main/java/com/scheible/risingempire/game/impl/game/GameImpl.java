@@ -30,7 +30,7 @@ import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
-import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
+import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.notification.SystemNotificationView;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
@@ -92,7 +92,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 
 	private final Set<SpaceCombat> spaceCombats = new HashSet<>();
 
-	private final Map<FleetId, Set<FleetBeforeArrival>> orbitingArrivingMapping = new HashMap<>();
+	private final Map<FleetId, Set<FleetBeforeArrivalView>> orbitingArrivingMapping = new HashMap<>();
 
 	private final Set<ColonizeCommand> colonizeCommands = new HashSet<>();
 

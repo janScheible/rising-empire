@@ -17,7 +17,7 @@ import static java.util.Collections.unmodifiableMap;
  */
 @StagedRecordBuilder
 public record ColonyView(ColonyId id, Player player, Race race, int population, Optional<ShipTypeView> spaceDock,
-		Optional<Map<ProductionArea, Integer>> ratios, Optional<AnnexationStatus> annexationStatus,
+		Optional<Map<ProductionArea, Integer>> ratios, Optional<AnnexationStatusView> annexationStatus,
 		Map<ColonyId, Integer> colonistTransfers, Optional<ColonyId> relocationTarget) {
 
 	public ColonyView {

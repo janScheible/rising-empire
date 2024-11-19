@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
-import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalBuilder;
+import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalView;
+import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalViewBuilder;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.system.SystemId;
@@ -59,7 +59,7 @@ public class FleetTurn {
 
 		// keep track of the original fleet ids that arrived and will be merged to a
 		// orbiting fleet
-		Map<FleetId, Set<FleetBeforeArrival>> orbitingArrivingMapping = new HashMap<>();
+		Map<FleetId, Set<FleetBeforeArrivalView>> orbitingArrivingMapping = new HashMap<>();
 
 		if (fleet.isDeployed()) {
 			DeployedFleet deployedFleet = fleet.asDeployed();
@@ -75,7 +75,7 @@ public class FleetTurn {
 				}
 				emptyFleets.add(deployedFleet);
 				orbitingArrivingMapping.computeIfAbsent(orbitingFleet.get().getId(), key -> new HashSet<>())
-					.add(FleetBeforeArrivalBuilder.builder()
+					.add(FleetBeforeArrivalViewBuilder.builder()
 						.id(deployedFleet.getId())
 						.horizontalDirection(deployedFleet.getHorizontalDirection())
 						.speed(deployedFleet.getSpeed())

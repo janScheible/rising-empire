@@ -19,12 +19,12 @@ import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.GameView;
-import com.scheible.risingempire.game.api.view.colony.AnnexationStatusBuilder;
+import com.scheible.risingempire.game.api.view.colony.AnnexationStatusViewBuilder;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.colony.ColonyViewBuilder;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
-import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
+import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
 import com.scheible.risingempire.game.api.view.fleet.FleetViewDeployedBuilder;
@@ -66,7 +66,7 @@ public class GameViewBuilder {
 	public static GameView buildView(GalaxySize galaxySize, int round, Map<Player, Boolean> turnFinishedStatus,
 			Player player, Map<Player, Race> playerRaceMapping, Collection<System> systems, Collection<Fleet> fleets,
 			Map<Player, Map<DesignSlot, ShipDesign>> designs,
-			Map<FleetId, Set<FleetBeforeArrival>> orbitingArrivingMapping,
+			Map<FleetId, Set<FleetBeforeArrivalView>> orbitingArrivingMapping,
 			BiFunction<Player, SystemId, Optional<SystemSnapshot>> snapshotProvider, Technology technology,
 			Set<SpaceCombat> spaceCombats, FleetManager fleetManager, TechManager techManager,
 			Set<SystemNotificationView> systemNotifications, int annexationSiegeRounds,
@@ -131,7 +131,7 @@ public class GameViewBuilder {
 						.ratios(ratios)
 						.annexationStatus(Optional
 							.ofNullable(!(siegePlayer.apply(system) == null && !isAnnexable.test(system))
-									? AnnexationStatusBuilder.builder()
+									? AnnexationStatusViewBuilder.builder()
 										.siegeRounds(Optional.ofNullable(siegeRounds.apply(system)))
 										.roundsUntilAnnexable(Optional.ofNullable(roundsUntilAnnexable.apply(system)))
 										.siegingPlayer(Optional.ofNullable(siegePlayer.apply(system)))
@@ -281,7 +281,7 @@ public class GameViewBuilder {
 		return result;
 	}
 
-	private static FleetView toOwnFleetView(Fleet fleet, Set<FleetBeforeArrival> fleetsBeforeArrival, Race race,
+	private static FleetView toOwnFleetView(Fleet fleet, Set<FleetBeforeArrivalView> fleetsBeforeArrival, Race race,
 			Map<DesignSlot, ShipDesign> designs, Player player, SystemId closest, int scannerRange,
 			BiFunction<Player, Fleet, Optional<FleetId>> parentFleetProvider) {
 		Map<ShipTypeView, Integer> shipTypesAndCounts = fleet.getShips()
@@ -348,7 +348,7 @@ public class GameViewBuilder {
 		return scannedByColony || scannedByFleet;
 	}
 
-	private static FleetView toForeignFleetView(Fleet fleet, Set<FleetBeforeArrival> fleetsBeforeArrival, Race race,
+	private static FleetView toForeignFleetView(Fleet fleet, Set<FleetBeforeArrivalView> fleetsBeforeArrival, Race race,
 			SystemId closest, BiFunction<Player, Fleet, Optional<FleetId>> parentFleetProvider) {
 		if (fleet.isDeployed()) {
 			return FleetView.create(FleetViewDeployedBuilder.builder()

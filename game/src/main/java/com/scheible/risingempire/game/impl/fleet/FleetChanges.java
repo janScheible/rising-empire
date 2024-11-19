@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrival;
+import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.impl.spacecombat.SpaceCombat;
 
@@ -24,7 +24,7 @@ public class FleetChanges {
 
 	private final List<SpaceCombat> combats;
 
-	private final Map<FleetId, Set<FleetBeforeArrival>> orbitingArrivingMapping;
+	private final Map<FleetId, Set<FleetBeforeArrivalView>> orbitingArrivingMapping;
 
 	public FleetChanges(Set<Fleet> added, Set<Fleet> removed) {
 		this.added = unmodifiableSet(added);
@@ -34,7 +34,7 @@ public class FleetChanges {
 	}
 
 	public FleetChanges(Set<Fleet> added, Set<Fleet> removed, List<SpaceCombat> combats,
-			Map<FleetId, Set<FleetBeforeArrival>> orbitingArrivingMapping) {
+			Map<FleetId, Set<FleetBeforeArrivalView>> orbitingArrivingMapping) {
 		this.added = unmodifiableSet(added);
 		this.removed = unmodifiableSet(removed);
 		this.combats = unmodifiableList(combats);
@@ -58,7 +58,7 @@ public class FleetChanges {
 		return this.combats;
 	}
 
-	public Map<FleetId, Set<FleetBeforeArrival>> getOrbitingArrivingMapping() {
+	public Map<FleetId, Set<FleetBeforeArrivalView>> getOrbitingArrivingMapping() {
 		return this.orbitingArrivingMapping;
 	}
 

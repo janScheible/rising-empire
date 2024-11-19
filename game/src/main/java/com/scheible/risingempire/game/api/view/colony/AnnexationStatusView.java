@@ -10,11 +10,11 @@ import com.scheible.risingempire.game.api.universe.Race;
  * @author sj
  */
 @StagedRecordBuilder
-public record AnnexationStatus(Optional<Integer> siegeRounds, Optional<Integer> roundsUntilAnnexable,
+public record AnnexationStatusView(Optional<Integer> siegeRounds, Optional<Integer> roundsUntilAnnexable,
 		Optional<Player> siegingPlayer, Optional<Race> siegingRace, Optional<Boolean> annexable,
 		Optional<Boolean> annexationCommand) {
 
-	public AnnexationStatus {
+	public AnnexationStatusView {
 		boolean siegeState = siegeRounds.isPresent() && roundsUntilAnnexable.isPresent() && siegingPlayer.isPresent()
 				&& annexable.isEmpty() && annexationCommand.isEmpty();
 		boolean annexableState = siegeRounds.isPresent() && roundsUntilAnnexable.isPresent()
