@@ -71,7 +71,7 @@ public record GameView(int galaxyWidth, int galaxyHeight, Player player, Race ra
 	public Set<SystemId> colonizableSystemIds() {
 		return this.systems.values()
 			.stream()
-			.filter(s -> s.colonizable().orElse(Boolean.FALSE))
+			.filter(SystemView::colonizable)
 			.map(SystemView::id)
 			.collect(Collectors.toSet());
 	}
@@ -81,7 +81,7 @@ public record GameView(int galaxyWidth, int galaxyHeight, Player player, Race ra
 			.stream()
 			.filter(s -> s.colony()
 				.flatMap(ColonyView::annexationStatus)
-				.flatMap(AnnexationStatusView::annexable)
+				.map(AnnexationStatusView::annexable)
 				.orElse(Boolean.FALSE))
 			.map(SystemView::id)
 			.collect(Collectors.toSet());
@@ -94,7 +94,7 @@ public record GameView(int galaxyWidth, int galaxyHeight, Player player, Race ra
 	public Set<SystemId> justExploredSystemIds() {
 		return this.systems.values()
 			.stream()
-			.filter(s -> s.justExplored() && !s.colonizable().orElse(Boolean.FALSE))
+			.filter(s -> s.justExplored() && !s.colonizable())
 			.map(SystemView::id)
 			.collect(Collectors.toSet());
 	}
@@ -102,7 +102,7 @@ public record GameView(int galaxyWidth, int galaxyHeight, Player player, Race ra
 	public Set<SystemId> colonizationCommandSystemsIds() {
 		return this.systems.values()
 			.stream()
-			.filter(s -> s.colonizeCommand().orElse(Boolean.FALSE))
+			.filter(SystemView::colonizeCommand)
 			.map(SystemView::id)
 			.collect(Collectors.toSet());
 	}
@@ -112,21 +112,21 @@ public record GameView(int galaxyWidth, int galaxyHeight, Player player, Race ra
 			.stream()
 			.filter(s -> s.colony()
 				.flatMap(ColonyView::annexationStatus)
-				.flatMap(AnnexationStatusView::annexationCommand)
+				.map(AnnexationStatusView::annexationCommand)
 				.orElse(Boolean.FALSE))
 			.map(SystemView::id)
 			.collect(Collectors.toSet());
 	}
 
 	public boolean colonizationCommand(SystemId systemId) {
-		return this.systems.get(systemId).colonizeCommand().orElse(Boolean.FALSE);
+		return this.systems.get(systemId).colonizeCommand();
 	}
 
 	public boolean annexationCommand(SystemId systemId) {
 		return this.systems.get(systemId)
 			.colony()
 			.flatMap(ColonyView::annexationStatus)
-			.flatMap(AnnexationStatusView::annexationCommand)
+			.map(AnnexationStatusView::annexationCommand)
 			.orElse(Boolean.FALSE);
 	}
 }

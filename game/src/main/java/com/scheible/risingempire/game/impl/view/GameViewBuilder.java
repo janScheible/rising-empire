@@ -137,8 +137,8 @@ public class GameViewBuilder {
 										.siegingPlayer(Optional.ofNullable(siegePlayer.apply(system)))
 										.siegingRace(Optional.ofNullable(siegePlayer.apply(system))
 											.map(playerRaceMapping::get))
-										.annexable(Optional.of(isAnnexable.test(system)))
-										.annexationCommand(Optional.of(hasAnnexCommand.test(system)))
+										.annexable(isAnnexable.test(system))
+										.annexationCommand(hasAnnexCommand.test(system))
 										.build()
 									: null))
 						.colonistTransfers(colonistTransfers.getOrDefault(snapshot.getId().toColonyId(), Map.of()))
@@ -167,8 +167,8 @@ public class GameViewBuilder {
 						.fleetRange(system.getColony(player).map(c -> technology.getFleetRange()))
 						.extendedFleetRange(system.getColony(player).map(c -> technology.getExtendedFleetRange()))
 						.scannerRange(system.getColony(player).map(c -> technology.getColonyScannerRange()))
-						.colonizable(Optional.of(isColonizable.test(system)))
-						.colonizeCommand(Optional.of(hasColonizeCommand.test(system)))
+						.colonizable(isColonizable.test(system))
+						.colonizeCommand(hasColonizeCommand.test(system))
 						.build();
 				})
 				.orElseThrow());

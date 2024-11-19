@@ -47,8 +47,8 @@ class SystemViewMapper {
 					? LocationMapper.toLocationValue(shipSpecsProvider.extendedRange(player)) : null))
 			.scannerRange(Optional.ofNullable(colony.isPresent()
 					? LocationMapper.toLocationValue(colonyScanSpecsProvider.scanRange(player)) : null))
-			.colonizable(Optional.of(false))
-			.colonizeCommand(Optional.of(false))
+			.colonizable(false)
+			.colonizeCommand(false)
 			.build();
 	}
 

@@ -15,14 +15,8 @@ public record SystemView(SystemId id, boolean justExplored, Location location, S
 		boolean homeSystem, Optional<Integer> range, Optional<PlanetType> planetType,
 		Optional<PlanetSpecial> planetSpecial, Optional<Integer> seenInTurn, Optional<String> starName,
 		Optional<Integer> planetMaxPopulation, Optional<ColonyView> colony, Optional<Integer> fleetRange,
-		Optional<Integer> extendedFleetRange, Optional<Integer> scannerRange, Optional<Boolean> colonizable,
-		Optional<Boolean> colonizeCommand) {
-
-	public SystemView {
-		if (Boolean.TRUE.equals(colonizable.orElse(Boolean.FALSE)) && colonizeCommand.isEmpty()) {
-			throw new IllegalArgumentException("colonizationCommand can't be absent when canColonize = true!");
-		}
-	}
+		Optional<Integer> extendedFleetRange, Optional<Integer> scannerRange, boolean colonizable,
+		boolean colonizeCommand) {
 
 	public Optional<ColonyView> colony(Player player) {
 		return this.colony.filter(c -> c.player().equals(player));

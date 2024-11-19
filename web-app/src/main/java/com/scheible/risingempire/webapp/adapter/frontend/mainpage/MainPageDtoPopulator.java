@@ -168,15 +168,15 @@ public class MainPageDtoPopulator {
 				.map(fleet -> new EntityModel<>(new FleetDto(fleet.id(), fleet.player(),
 						fleet.previousLocation().map(Location::x), fleet.previousLocation().map(Location::y),
 						fleet.previousJustLeaving(), fleet.location().x(), fleet.location().y(),
-						fleet.type() == FleetViewType.ORBITING, fleet.justLeaving().orElse(Boolean.FALSE),
-						fleet.speed(), fleet.horizontalDirection(),
+						fleet.type() == FleetViewType.ORBITING, fleet.justLeaving(), fleet.speed(),
+						fleet.horizontalDirection(),
 						fleet.fleetsBeforeArrival()
 							.stream()
 							.map(fba -> new EntityModel<>(new FleetDto(fba.id(), fleet.player(),
-									Optional.of(fba.location().x()), Optional.of(fba.location().y()),
-									Optional.of(fba.justLeaving()), fleet.location().x(), fleet.location().y(),
-									!isSpaceCombatAttacker.test(fba.id()), fba.justLeaving(), Optional.of(fba.speed()),
-									Optional.of(fba.horizontalDirection()), List.of())))
+									Optional.of(fba.location().x()), Optional.of(fba.location().y()), fba.justLeaving(),
+									fleet.location().x(), fleet.location().y(), !isSpaceCombatAttacker.test(fba.id()),
+									fba.justLeaving(), Optional.of(fba.speed()), Optional.of(fba.horizontalDirection()),
+									List.of())))
 							.toList()))
 					.with(state.isFleetSelectable(fleet.id()),
 							() -> Action.get("select", context.toFrontendUri("main-page"))
@@ -237,12 +237,12 @@ public class MainPageDtoPopulator {
 		mainPage.starMap.getContent().starSelection = new StarSelectionDto(selectedSystem.id(),
 				selectedSystem.location().x(), selectedSystem.location().y());
 
-		boolean colonization = (state.isStarInspectionState() && selectedSystem.colonizable().orElse(Boolean.FALSE))
+		boolean colonization = (state.isStarInspectionState() && selectedSystem.colonizable())
 				|| (state.isStarSpotlightState()
 						&& gameView.colonizableSystemIds().contains(state.getSelectedSystemId().get()));
 		boolean annexation = (state.isStarInspectionState() && selectedSystem.colony()
 			.flatMap(ColonyView::annexationStatus)
-			.flatMap(AnnexationStatusView::annexable)
+			.map(AnnexationStatusView::annexable)
 			.orElse(Boolean.FALSE))
 				|| (state.isStarSpotlightState()
 						&& gameView.annexableSystemIds().contains(state.getSelectedSystemId().get()));
@@ -373,8 +373,7 @@ public class MainPageDtoPopulator {
 			if (colonization) {
 				mainPage.inspector.colonization = new EntityModel<>(new ColonizationDto(selectedSystem.starName().get(),
 						habitabilityDtoSupplier.apply(selectedSystem),
-						Optional.ofNullable(
-								state.isStarSpotlightState() ? null : selectedSystem.colonizeCommand().orElse(false))))
+						Optional.ofNullable(state.isStarSpotlightState() ? null : selectedSystem.colonizeCommand())))
 					.with(Action.jsonPost("colonize", context.toFrontendUri("main-page", "inspector", "colonizations"))
 						.with("selectedStarId",
 								state.isStarSpotlightState()
@@ -395,10 +394,8 @@ public class MainPageDtoPopulator {
 						habitabilityDtoSupplier.apply(selectedSystem),
 						Optional.ofNullable(state.isStarSpotlightState() ? null
 								: selectedSystem.colony()
-									.get()
-									.annexationStatus()
-									.get()
-									.annexationCommand()
+									.flatMap(ColonyView::annexationStatus)
+									.map(AnnexationStatusView::annexationCommand)
 									.orElse(Boolean.FALSE))))
 					.with(Action.jsonPost("annex", context.toFrontendUri("main-page", "inspector", "annexations"))
 						.with("selectedStarId",
@@ -460,7 +457,7 @@ public class MainPageDtoPopulator {
 		mainPage.starMap.getContent().fleetSelection = new FleetSelectionDto(selectedFleet.id(),
 				selectedFleet.location().x(), selectedFleet.location().y(), selectedFleet.deployable(),
 				selectedFleet.orbiting().isPresent(), selectedFleet.orbiting().map(SystemId::value),
-				selectedFleet.justLeaving().orElse(Boolean.FALSE));
+				selectedFleet.justLeaving());
 
 		ShipsView totalShips = gameView.fleet(selectedFleet.id()).ships();
 
@@ -498,10 +495,10 @@ public class MainPageDtoPopulator {
 						selectedFleet.race(), eta, toDtoShipList(ships, Optional.empty())));
 			}
 
-			mainPage.starMap.getContent().fleetSelection.itinerary = Optional.of(new ItineraryDto(
-					selectedFleet.location().x(), selectedFleet.location().y(), selectedSystem.location().x(),
-					selectedSystem.location().y(), selectedFleet.orbiting().isPresent(),
-					selectedFleet.justLeaving().orElse(Boolean.FALSE), eta.isPresent(), false));
+			mainPage.starMap.getContent().fleetSelection.itinerary = Optional
+				.of(new ItineraryDto(selectedFleet.location().x(), selectedFleet.location().y(),
+						selectedSystem.location().x(), selectedSystem.location().y(),
+						selectedFleet.orbiting().isPresent(), selectedFleet.justLeaving(), eta.isPresent(), false));
 		}
 
 		if (mainPage.inspector.fleetDeployment != null) {
@@ -558,15 +555,15 @@ public class MainPageDtoPopulator {
 		if (player != null) {
 			destroyedFleetDtos.addAll(fleets.stream()
 				.map(fba -> new FleetDto(fba.id(), finalPlayer, Optional.of(fba.location().x()),
-						Optional.of(fba.location().y()), Optional.of(fba.justLeaving()), combatSystem.location().x(),
+						Optional.of(fba.location().y()), fba.justLeaving(), combatSystem.location().x(),
 						combatSystem.location().y(), finalOrbiting, false, Optional.of(fba.speed()),
 						Optional.of(fba.horizontalDirection()), List.of()))
 				.toList());
 
 			if (sc.outcome() == Outcome.ATTACKER_WON && sc.defenderFleet().isPresent()) {
 				destroyedFleetDtos.add(new FleetDto(sc.defenderFleet().get(), finalPlayer, Optional.empty(),
-						Optional.empty(), Optional.empty(), combatSystem.location().x(), combatSystem.location().y(),
-						true, false, Optional.empty(), Optional.empty(), List.of()));
+						Optional.empty(), false, combatSystem.location().x(), combatSystem.location().y(), true, false,
+						Optional.empty(), Optional.empty(), List.of()));
 			}
 		}
 

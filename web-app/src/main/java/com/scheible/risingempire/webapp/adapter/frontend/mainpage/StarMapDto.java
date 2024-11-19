@@ -194,7 +194,7 @@ class StarMapDto {
 
 		final Optional<Integer> previousY;
 
-		final Optional<Boolean> previousJustLeaving;
+		final boolean previousJustLeaving;
 
 		final int x;
 
@@ -211,7 +211,7 @@ class StarMapDto {
 		final List<EntityModel<FleetDto>> fleetsBeforeArrival;
 
 		FleetDto(FleetId id, Player playerColor, Optional<Integer> previousX, Optional<Integer> previousY,
-				Optional<Boolean> previousJustLeaving, int x, int y, boolean orbiting, boolean justLeaving,
+				boolean previousJustLeaving, int x, int y, boolean orbiting, boolean justLeaving,
 				Optional<Integer> speed, Optional<HorizontalDirection> horizontalDirection,
 				List<EntityModel<FleetDto>> fleetsBeforeArrival) {
 			this.id = id.value();

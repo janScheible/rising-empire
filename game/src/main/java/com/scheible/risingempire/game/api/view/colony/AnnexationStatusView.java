@@ -11,14 +11,13 @@ import com.scheible.risingempire.game.api.universe.Race;
  */
 @StagedRecordBuilder
 public record AnnexationStatusView(Optional<Integer> siegeRounds, Optional<Integer> roundsUntilAnnexable,
-		Optional<Player> siegingPlayer, Optional<Race> siegingRace, Optional<Boolean> annexable,
-		Optional<Boolean> annexationCommand) {
+		Optional<Player> siegingPlayer, Optional<Race> siegingRace, boolean annexable, boolean annexationCommand) {
 
 	public AnnexationStatusView {
 		boolean siegeState = siegeRounds.isPresent() && roundsUntilAnnexable.isPresent() && siegingPlayer.isPresent()
-				&& annexable.isEmpty() && annexationCommand.isEmpty();
+				&& !annexable && !annexationCommand;
 		boolean annexableState = siegeRounds.isPresent() && roundsUntilAnnexable.isPresent()
-				&& siegingPlayer.isPresent() && annexable.isPresent() && annexationCommand.isPresent();
+				&& siegingPlayer.isPresent() && annexable;
 
 		if (!siegeState && !annexableState) {
 			throw new IllegalArgumentException("Must be either siege or annexable state!");
@@ -34,4 +33,5 @@ public record AnnexationStatusView(Optional<Integer> siegeRounds, Optional<Integ
 			return Optional.empty();
 		}
 	}
+
 }

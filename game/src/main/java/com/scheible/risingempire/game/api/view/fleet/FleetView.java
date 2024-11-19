@@ -17,10 +17,10 @@ import static java.util.Collections.unmodifiableSet;
  * @author sj
  */
 public record FleetView(FleetId id, Optional<FleetId> parentId, FleetViewType type, Player player, Race race,
-		ShipsView ships, Optional<Location> previousLocation, Optional<Boolean> previousJustLeaving, Location location,
+		ShipsView ships, Optional<Location> previousLocation, boolean previousJustLeaving, Location location,
 		boolean deployable, Optional<Integer> scannerRange, Optional<SystemId> source, Optional<SystemId> destination,
 		Optional<Integer> speed, Optional<SystemId> closest, Optional<HorizontalDirection> horizontalDirection,
-		Optional<SystemId> orbiting, Set<FleetBeforeArrivalView> fleetsBeforeArrival, Optional<Boolean> justLeaving) {
+		Optional<SystemId> orbiting, Set<FleetBeforeArrivalView> fleetsBeforeArrival, boolean justLeaving) {
 
 	public enum FleetViewType {
 
@@ -41,18 +41,17 @@ public record FleetView(FleetId id, Optional<FleetId> parentId, FleetViewType ty
 	public static FleetView create(FleetView.Deployed deployed) {
 		return new FleetView(deployed.id(), deployed.parentId(), FleetViewType.DEPLOYED, deployed.player(),
 				deployed.race(), deployed.ships(), Optional.of(deployed.previousLocation()),
-				Optional.of(deployed.previousJustLeaving()), deployed.location(), deployed.deployable(),
-				deployed.scannerRange(), deployed.source(), deployed.destination(), Optional.of(deployed.speed()),
+				deployed.previousJustLeaving(), deployed.location(), deployed.deployable(), deployed.scannerRange(),
+				deployed.source(), deployed.destination(), Optional.of(deployed.speed()),
 				Optional.of(deployed.closest()), Optional.of(deployed.orientation()), Optional.empty(), Set.of(),
-				Optional.of(deployed.justLeaving()));
+				deployed.justLeaving());
 	}
 
 	public static FleetView create(FleetView.Orbiting orbiting) {
 		return new FleetView(orbiting.id(), orbiting.parentId(), FleetViewType.ORBITING, orbiting.player(),
-				orbiting.race(), orbiting.ships(), Optional.empty(), Optional.empty(), orbiting.location(),
-				orbiting.deployable(), orbiting.scannerRange(), Optional.empty(), Optional.empty(), Optional.empty(),
-				Optional.empty(), Optional.empty(), Optional.of(orbiting.orbiting()), orbiting.fleetsBeforeArrival(),
-				Optional.empty());
+				orbiting.race(), orbiting.ships(), Optional.empty(), false, orbiting.location(), orbiting.deployable(),
+				orbiting.scannerRange(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
+				Optional.empty(), Optional.of(orbiting.orbiting()), orbiting.fleetsBeforeArrival(), false);
 	}
 
 	@StagedRecordBuilder
