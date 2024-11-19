@@ -169,21 +169,10 @@ public class Game2Impl implements Game {
 									fleet, Game2Impl.this.universe.closest(fleet.location().current()),
 									Game2Impl.this.technology, Game2Impl.this.shipyard)))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue)))
-				.colonizableSystemIds(Set.of()) // Shouldn't that be a property of a
-												// system?
-				.annexableSystemIds(Set.of()) // Shouldn't that be a property of a system
-												// (or even colony)?
 				.spaceCombats(Set.of())
-				.justExploredSystem(Set.of()) // Shouldn't that be a property of a system?
 				.selectTechGroups(Set.of())
 				.systemNotifications(Set.of()) // Shouldn't that be a property of a
 												// system?
-				.colonizationCommandSystemsIds(Set.of()) // Shouldn't that be a property
-															// of a
-															// system?
-				.annexationCommandSystemsIds(Set.of()) // Shouldn't that be a property of
-														// a
-														// system?
 				.build();
 		}
 

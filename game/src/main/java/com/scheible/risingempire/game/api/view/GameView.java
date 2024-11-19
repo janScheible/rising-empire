@@ -3,10 +3,13 @@ package com.scheible.risingempire.game.api.view;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.universe.Race;
+import com.scheible.risingempire.game.api.view.colony.AnnexationStatus;
+import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
 import com.scheible.risingempire.game.api.view.fleet.FleetView.FleetViewType;
@@ -25,31 +28,16 @@ import static java.util.Collections.unmodifiableSet;
 @StagedRecordBuilder
 public record GameView(int galaxyWidth, int galaxyHeight, Player player, Race race, Set<Player> players, int round,
 		Map<Player, Boolean> turnFinishedStatus, Map<SystemId, SystemView> systems, Map<FleetId, FleetView> fleets,
-		Set<SystemId> colonizableSystemIds, Set<SystemId> annexableSystemIds, Set<SpaceCombatView> spaceCombats,
-		Set<SystemId> justExploredSystem, Set<TechGroupView> selectTechGroups,
-		Set<SystemNotificationView> systemNotifications, Set<SystemId> colonizationCommandSystemsIds,
-		Set<SystemId> annexationCommandSystemsIds) {
+		Set<SpaceCombatView> spaceCombats, Set<TechGroupView> selectTechGroups,
+		Set<SystemNotificationView> systemNotifications) {
 
 	public GameView {
 		turnFinishedStatus = unmodifiableMap(turnFinishedStatus);
 		systems = unmodifiableMap(systems);
 		fleets = unmodifiableMap(fleets);
-		colonizableSystemIds = unmodifiableSet(colonizableSystemIds);
-		annexableSystemIds = unmodifiableSet(annexableSystemIds);
 		spaceCombats = unmodifiableSet(spaceCombats);
-		justExploredSystem = unmodifiableSet(justExploredSystem);
 		selectTechGroups = unmodifiableSet(selectTechGroups);
 		systemNotifications = unmodifiableSet(systemNotifications);
-		colonizationCommandSystemsIds = unmodifiableSet(colonizationCommandSystemsIds);
-		annexationCommandSystemsIds = unmodifiableSet(annexationCommandSystemsIds);
-	}
-
-	/**
-	 * Return all just explored system ids (does not contain the colonizable ones and ones
-	 * with space battle).
-	 */
-	public Set<SystemId> justExploredSystemIds() {
-		return this.justExploredSystem;
 	}
 
 	public Optional<FleetView> orbiting(SystemId systemId) {
@@ -80,11 +68,65 @@ public record GameView(int galaxyWidth, int galaxyHeight, Player player, Race ra
 		return this.systems.values().stream().filter(SystemView::homeSystem).findFirst().get();
 	}
 
+	public Set<SystemId> colonizableSystemIds() {
+		return this.systems.values()
+			.stream()
+			.filter(s -> s.colonizable().orElse(Boolean.FALSE))
+			.map(SystemView::id)
+			.collect(Collectors.toSet());
+	}
+
+	public Set<SystemId> annexableSystemIds() {
+		return this.systems.values()
+			.stream()
+			.filter(s -> s.colony()
+				.flatMap(ColonyView::annexationStatus)
+				.flatMap(AnnexationStatus::annexable)
+				.orElse(Boolean.FALSE))
+			.map(SystemView::id)
+			.collect(Collectors.toSet());
+	}
+
+	/**
+	 * Return all just explored system ids (does not contain the colonizable ones and ones
+	 * with space battle).
+	 */
+	public Set<SystemId> justExploredSystemIds() {
+		return this.systems.values()
+			.stream()
+			.filter(s -> s.justExplored() && !s.colonizable().orElse(Boolean.FALSE))
+			.map(SystemView::id)
+			.collect(Collectors.toSet());
+	}
+
+	public Set<SystemId> colonizationCommandSystemsIds() {
+		return this.systems.values()
+			.stream()
+			.filter(s -> s.colonizeCommand().orElse(Boolean.FALSE))
+			.map(SystemView::id)
+			.collect(Collectors.toSet());
+	}
+
+	public Set<SystemId> annexationCommandSystemsIds() {
+		return this.systems.values()
+			.stream()
+			.filter(s -> s.colony()
+				.flatMap(ColonyView::annexationStatus)
+				.flatMap(AnnexationStatus::annexationCommand)
+				.orElse(Boolean.FALSE))
+			.map(SystemView::id)
+			.collect(Collectors.toSet());
+	}
+
 	public boolean colonizationCommand(SystemId systemId) {
-		return this.colonizationCommandSystemsIds.contains(systemId);
+		return this.systems.get(systemId).colonizeCommand().orElse(Boolean.FALSE);
 	}
 
 	public boolean annexationCommand(SystemId systemId) {
-		return this.annexationCommandSystemsIds.contains(systemId);
+		return this.systems.get(systemId)
+			.colony()
+			.flatMap(ColonyView::annexationStatus)
+			.flatMap(AnnexationStatus::annexationCommand)
+			.orElse(Boolean.FALSE);
 	}
 }

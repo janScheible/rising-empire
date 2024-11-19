@@ -71,8 +71,7 @@ public class GameViewBuilder {
 			Set<SpaceCombat> spaceCombats, FleetManager fleetManager, TechManager techManager,
 			Set<SystemNotificationView> systemNotifications, int annexationSiegeRounds,
 			Map<ColonyId, Map<ColonyId, Integer>> colonistTransfers, Map<ColonyId, ColonyId> shipRelocations,
-			BiFunction<Player, Fleet, Optional<FleetId>> parentFleetProvider, Set<SystemId> colonizationCommandSystems,
-			Set<SystemId> annexationCommandSystems) {
+			BiFunction<Player, Fleet, Optional<FleetId>> parentFleetProvider) {
 		Set<SystemView> systemViews = new HashSet<>(systems.size());
 		Set<FleetView> fleetViews = new HashSet<>(30);
 
@@ -175,18 +174,8 @@ public class GameViewBuilder {
 				.orElseThrow());
 		}
 
-		Set<SystemId> annexableSystemIds = new HashSet<>(30);
-		Set<SystemId> colonizableSystemIds = new HashSet<>(30);
-
 		for (Fleet fleet : fleets) {
 			if (fleet.getPlayer() == player) {
-				if (fleetManager.canColonize(fleet.getId())) {
-					colonizableSystemIds.add(fleet.asOrbiting().getSystem().getId());
-				}
-				else if (fleetManager.canAnnex(fleet.getId())) {
-					annexableSystemIds.add(fleet.asOrbiting().getSystem().getId());
-				}
-
 				fleetViews.add(toOwnFleetView(fleet, orbitingArrivingMapping.getOrDefault(fleet.getId(), Set.of()),
 						playerRaceMapping.get(fleet.getPlayer()), designs.get(player), player,
 						fleetManager.getClosest(fleet.getId()), technology.getFleetScannerRange(),
@@ -220,9 +209,6 @@ public class GameViewBuilder {
 				.build())
 			.collect(Collectors.toSet());
 
-		Set<SystemId> justExploredSystem = getJustExploredSystem(player, systemViews, colonizableSystemIds,
-				spaceCombatViews.stream().map(SpaceCombatView::systemId).collect(Collectors.toSet()));
-
 		Set<TechGroupView> technologies = techManager.getSelectTechs(player)
 			.stream()
 			.map(g -> TechGroupViewBuilder.builder()
@@ -242,14 +228,9 @@ public class GameViewBuilder {
 			.turnFinishedStatus(turnFinishedStatus)
 			.systems(systemViews.stream().collect(Collectors.toMap(SystemView::id, Function.identity())))
 			.fleets(fleetViews.stream().collect(Collectors.toMap(FleetView::id, Function.identity())))
-			.colonizableSystemIds(colonizableSystemIds)
-			.annexableSystemIds(annexableSystemIds)
 			.spaceCombats(spaceCombatViews)
-			.justExploredSystem(justExploredSystem)
 			.selectTechGroups(technologies)
 			.systemNotifications(systemNotifications)
-			.colonizationCommandSystemsIds(colonizationCommandSystems)
-			.annexationCommandSystemsIds(annexationCommandSystems)
 			.build();
 	}
 
@@ -298,16 +279,6 @@ public class GameViewBuilder {
 		}
 
 		return result;
-	}
-
-	private static Set<SystemId> getJustExploredSystem(Player player, Set<SystemView> systemViews,
-			Set<SystemId> colonizableSystemIds, Set<SystemId> spaceCombatSystemIds) {
-		return systemViews.stream()
-			.filter(s -> s.colony().filter(c -> c.player() == player).isEmpty())
-			.filter(SystemView::justExplored)
-			.map(SystemView::id)
-			.filter(esId -> !colonizableSystemIds.contains(esId) && !spaceCombatSystemIds.contains(esId))
-			.collect(Collectors.toSet());
 	}
 
 	private static FleetView toOwnFleetView(Fleet fleet, Set<FleetBeforeArrival> fleetsBeforeArrival, Race race,
