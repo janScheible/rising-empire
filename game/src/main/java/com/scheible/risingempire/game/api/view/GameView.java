@@ -14,7 +14,6 @@ import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
 import com.scheible.risingempire.game.api.view.fleet.FleetView.FleetViewType;
-import com.scheible.risingempire.game.api.view.notification.SystemNotificationView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.system.SystemView;
@@ -29,8 +28,7 @@ import static java.util.Collections.unmodifiableSet;
 @StagedRecordBuilder
 public record GameView(int galaxyWidth, int galaxyHeight, Player player, Race race, Set<Player> players, int round,
 		Map<Player, Boolean> turnFinishedStatus, Map<SystemId, SystemView> systems, Map<FleetId, FleetView> fleets,
-		Set<SpaceCombatView> spaceCombats, Set<TechGroupView> selectTechGroups,
-		Set<SystemNotificationView> systemNotifications) {
+		Set<SpaceCombatView> spaceCombats, Set<TechGroupView> selectTechGroups) {
 
 	public GameView {
 		turnFinishedStatus = unmodifiableMap(turnFinishedStatus);
@@ -38,7 +36,6 @@ public record GameView(int galaxyWidth, int galaxyHeight, Player player, Race ra
 		fleets = unmodifiableMap(fleets);
 		spaceCombats = unmodifiableSet(spaceCombats);
 		selectTechGroups = unmodifiableSet(selectTechGroups);
-		systemNotifications = unmodifiableSet(systemNotifications);
 	}
 
 	public static GalaxyWidthStage builder() {

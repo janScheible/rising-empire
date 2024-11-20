@@ -1,6 +1,7 @@
 package com.scheible.risingempire.webapp.adapter.frontend.mainpage;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -188,8 +189,11 @@ public class MainPageDtoPopulator {
 					return fleet.parentId().orElse(fleet.id()).value();
 				}));
 
-		mainPage.starMap.getContent().starNotifications = gameView.systemNotifications()
+		mainPage.starMap.getContent().starNotifications = gameView.systems()
+			.values()
 			.stream()
+			.map(SystemView::notifications)
+			.flatMap(Collection::stream)
 			.flatMap(sn -> sn.messages().stream().map(message -> {
 				SystemView notificationSystem = gameView.system(sn.systemId());
 				return new StarNotificationDto(notificationSystem.id(), notificationSystem.location().x(),

@@ -1,6 +1,7 @@
 package com.scheible.risingempire.game.api.view.system;
 
 import java.util.Optional;
+import java.util.Set;
 
 import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
 import com.scheible.risingempire.game.api.universe.Location;
@@ -17,7 +18,7 @@ public record SystemView(SystemId id, boolean justExplored, Location location, S
 		Optional<PlanetSpecial> planetSpecial, Optional<Integer> seenInTurn, Optional<String> starName,
 		Optional<Integer> planetMaxPopulation, Optional<ColonyView> colony, Optional<Integer> fleetRange,
 		Optional<Integer> extendedFleetRange, Optional<Integer> scannerRange, boolean colonizable,
-		boolean colonizeCommand) {
+		boolean colonizeCommand, Set<SystemNotificationView> notifications) {
 
 	public static IdStage builder() {
 		return SystemViewBuilder.builder();

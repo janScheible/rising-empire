@@ -7,8 +7,8 @@ import com.scheible.risingempire.game.api.GameOptionsBuilder.GalaxySizeStage;
 import com.scheible.risingempire.game.api.annotation.Initialized;
 import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
 import com.scheible.risingempire.game.api.universe.Player;
-import com.scheible.risingempire.game.api.view.notification.SystemNotificationView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
+import com.scheible.risingempire.game.api.view.system.SystemNotificationView;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
 import io.soabase.recordbuilder.core.RecordBuilder;
 

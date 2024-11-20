@@ -2,6 +2,7 @@ package com.scheible.risingempire.game.impl2.game;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
@@ -48,6 +49,7 @@ class SystemViewMapper {
 					? LocationMapper.toLocationValue(colonyScanSpecsProvider.scanRange(player)) : null))
 			.colonizable(false)
 			.colonizeCommand(false)
+			.notifications(Set.of())
 			.build();
 	}
 

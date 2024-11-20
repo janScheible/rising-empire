@@ -1,10 +1,9 @@
-package com.scheible.risingempire.game.api.view.notification;
+package com.scheible.risingempire.game.api.view.system;
 
 import java.util.Set;
 
 import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
-import com.scheible.risingempire.game.api.view.notification.SystemNotificationViewBuilder.SystemIdStage;
-import com.scheible.risingempire.game.api.view.system.SystemId;
+import com.scheible.risingempire.game.api.view.system.SystemNotificationViewBuilder.SystemIdStage;
 
 import static java.util.Collections.unmodifiableSet;
 

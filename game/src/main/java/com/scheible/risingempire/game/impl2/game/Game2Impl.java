@@ -170,8 +170,6 @@ public class Game2Impl implements Game {
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue)))
 				.spaceCombats(Set.of())
 				.selectTechGroups(Set.of())
-				.systemNotifications(Set.of()) // Shouldn't that be a property of a
-												// system?
 				.build();
 		}
 

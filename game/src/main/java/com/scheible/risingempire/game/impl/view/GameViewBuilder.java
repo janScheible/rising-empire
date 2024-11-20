@@ -26,13 +26,13 @@ import com.scheible.risingempire.game.api.view.colony.ProductionArea;
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
-import com.scheible.risingempire.game.api.view.notification.SystemNotificationView;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.api.view.spacecombat.CombatantShipSpecsView;
 import com.scheible.risingempire.game.api.view.spacecombat.FireExchangeView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
+import com.scheible.risingempire.game.api.view.system.SystemNotificationView;
 import com.scheible.risingempire.game.api.view.system.SystemView;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
 import com.scheible.risingempire.game.api.view.tech.TechView;
@@ -73,6 +73,9 @@ public class GameViewBuilder {
 			.filter(Fleet::isOrbiting)
 			.map(Fleet::asOrbiting)
 			.collect(Collectors.toMap(f -> f.getSystem().getId(), Function.identity()));
+
+		Map<SystemId, List<SystemNotificationView>> notificationMapping = systemNotifications.stream()
+			.collect(Collectors.groupingBy(SystemNotificationView::systemId));
 
 		Predicate<System> isColonizable = system -> {
 			OrbitingFleet orbiting = orbitingFleets.get(system.getId());
@@ -161,6 +164,7 @@ public class GameViewBuilder {
 						.scannerRange(system.getColony(player).map(c -> technology.getColonyScannerRange()))
 						.colonizable(isColonizable.test(system))
 						.colonizeCommand(hasColonizeCommand.test(system))
+						.notifications(new HashSet<>(notificationMapping.getOrDefault(system.getId(), List.of())))
 						.build();
 				})
 				.orElseThrow());
@@ -222,7 +226,6 @@ public class GameViewBuilder {
 			.fleets(fleetViews.stream().collect(Collectors.toMap(FleetView::id, Function.identity())))
 			.spaceCombats(spaceCombatViews)
 			.selectTechGroups(technologies)
-			.systemNotifications(systemNotifications)
 			.build();
 	}
 
