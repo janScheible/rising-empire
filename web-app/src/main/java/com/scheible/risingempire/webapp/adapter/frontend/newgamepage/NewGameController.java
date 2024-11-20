@@ -14,18 +14,17 @@ import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.Game;
 import com.scheible.risingempire.game.api.GameFactory;
 import com.scheible.risingempire.game.api.GameOptions;
-import com.scheible.risingempire.game.api.GameOptionsBuilder;
 import com.scheible.risingempire.game.api._scenario.AnnexationTest;
 import com.scheible.risingempire.game.api._scenario.ColonizationTest;
 import com.scheible.risingempire.game.api._scenario.ExplorationTest;
 import com.scheible.risingempire.game.api._scenario.SpaceCombatTest;
 import com.scheible.risingempire.game.api._testgame.TestScenario;
 import com.scheible.risingempire.game.api.universe.Player;
-import com.scheible.risingempire.game.api.view.notification.SystemNotificationViewBuilder;
+import com.scheible.risingempire.game.api.view.notification.SystemNotificationView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
-import com.scheible.risingempire.game.api.view.tech.TechGroupViewBuilder;
+import com.scheible.risingempire.game.api.view.tech.TechGroupView;
 import com.scheible.risingempire.game.api.view.tech.TechId;
-import com.scheible.risingempire.game.api.view.tech.TechViewBuilder;
+import com.scheible.risingempire.game.api.view.tech.TechView;
 import com.scheible.risingempire.util.jdk.Arrays2;
 import com.scheible.risingempire.webapp.adapter.frontend.annotation.FrontendController;
 import com.scheible.risingempire.webapp.adapter.frontend.context.FrontendContext;
@@ -108,19 +107,19 @@ class NewGameController {
 					game = GameFactory.get()
 						.create(GameOptions.testGameBuilder() //
 							.fakeTechProvider((player,
-									round) -> (round % 5 == 0) ? Set.of(TechGroupViewBuilder.builder()
+									round) -> (round % 5 == 0) ? Set.of(TechGroupView.builder()
 										.group(Arrays2.asSet( //
-												TechViewBuilder.builder()
+												TechView.builder()
 													.id(new TechId("hl"))
 													.name("Hand Lasers")
 													.description("Bla...")
 													.build(),
-												TechViewBuilder.builder()
+												TechView.builder()
 													.id(new TechId("gl"))
 													.name("Gatling Laser")
 													.description("Bla...")
 													.build(),
-												TechViewBuilder.builder()
+												TechView.builder()
 													.id(new TechId("hvr"))
 													.name("Hyper-V Rockets")
 													.description("Bla...")
@@ -128,17 +127,17 @@ class NewGameController {
 										.build()) : Set.of())
 							.fakeSystemNotificationProvider((player, round) -> {
 								if (round % 3 == 0) {
-									return (round % 6 == 0) ? Set.of(SystemNotificationViewBuilder.builder()
+									return (round % 6 == 0) ? Set.of(SystemNotificationView.builder()
 										.systemId(new SystemId("s60x60"))
 										.messages(Set
 											.of("This is a notification for s60x60. Please do what ever it tells you..."))
 										.build())
-											: new HashSet<>(Arrays.asList(SystemNotificationViewBuilder.builder()
+											: new HashSet<>(Arrays.asList(SystemNotificationView.builder()
 												.systemId(new SystemId("s984x728"))
 												.messages(Set
 													.of("This is a notification for s984x728. Please do what ever it tells you..."))
 												.build(),
-													SystemNotificationViewBuilder.builder()
+													SystemNotificationView.builder()
 														.systemId(new SystemId("s60x60"))
 														.messages(Set
 															.of("This is a notification for s60x60. Please do what ever it tells you..."))
@@ -153,7 +152,7 @@ class NewGameController {
 			}
 			else {
 				game = GameFactory.get()
-					.create(GameOptionsBuilder.builder()
+					.create(GameOptions.builder()
 						.galaxySize(body.galaxySize)
 						.playerCount(body.playerCount)
 						.game2(body.game2)

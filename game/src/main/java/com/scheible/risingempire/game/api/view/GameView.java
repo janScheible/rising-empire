@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.universe.Race;
+import com.scheible.risingempire.game.api.view.GameViewBuilder.GalaxyWidthStage;
 import com.scheible.risingempire.game.api.view.colony.AnnexationStatusView;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
@@ -38,6 +39,10 @@ public record GameView(int galaxyWidth, int galaxyHeight, Player player, Race ra
 		spaceCombats = unmodifiableSet(spaceCombats);
 		selectTechGroups = unmodifiableSet(selectTechGroups);
 		systemNotifications = unmodifiableSet(systemNotifications);
+	}
+
+	public static GalaxyWidthStage builder() {
+		return GameViewBuilder.builder();
 	}
 
 	public Optional<FleetView> orbiting(SystemId systemId) {

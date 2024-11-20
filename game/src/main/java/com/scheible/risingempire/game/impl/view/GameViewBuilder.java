@@ -19,30 +19,23 @@ import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.GameView;
-import com.scheible.risingempire.game.api.view.colony.AnnexationStatusViewBuilder;
+import com.scheible.risingempire.game.api.view.colony.AnnexationStatusView;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
-import com.scheible.risingempire.game.api.view.colony.ColonyViewBuilder;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
-import com.scheible.risingempire.game.api.view.fleet.FleetViewDeployedBuilder;
-import com.scheible.risingempire.game.api.view.fleet.FleetViewOrbitingBuilder;
 import com.scheible.risingempire.game.api.view.notification.SystemNotificationView;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
-import com.scheible.risingempire.game.api.view.ship.ShipsViewBuilder;
+import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.api.view.spacecombat.CombatantShipSpecsView;
-import com.scheible.risingempire.game.api.view.spacecombat.CombatantShipSpecsViewBuilder;
-import com.scheible.risingempire.game.api.view.spacecombat.FireExchangeViewBuilder;
+import com.scheible.risingempire.game.api.view.spacecombat.FireExchangeView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
-import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatViewBuilder;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.system.SystemView;
-import com.scheible.risingempire.game.api.view.system.SystemViewBuilder;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
-import com.scheible.risingempire.game.api.view.tech.TechGroupViewBuilder;
-import com.scheible.risingempire.game.api.view.tech.TechViewBuilder;
+import com.scheible.risingempire.game.api.view.tech.TechView;
 import com.scheible.risingempire.game.impl.colony.Colony;
 import com.scheible.risingempire.game.impl.fleet.DeployedFleet;
 import com.scheible.risingempire.game.impl.fleet.Fleet;
@@ -122,25 +115,24 @@ public class GameViewBuilder {
 						.map(ds -> ds.toShipType(designs.get(player).get(ds)));
 					Optional<Map<ProductionArea, Integer>> ratios = colony.map(Colony::getRatios);
 
-					Optional<ColonyView> colonyView = colonyPlayer.map(cc -> ColonyViewBuilder.builder()
+					Optional<ColonyView> colonyView = colonyPlayer.map(cc -> ColonyView.builder()
 						.id(snapshot.getId().toColonyId())
 						.player(colonyPlayer.get())
 						.race(playerRaceMapping.get(colonyPlayer.get()))
 						.population(snapshot.getColonyPopulation().get())
 						.spaceDock(spaceDock)
 						.ratios(ratios)
-						.annexationStatus(Optional
-							.ofNullable(!(siegePlayer.apply(system) == null && !isAnnexable.test(system))
-									? AnnexationStatusViewBuilder.builder()
-										.siegeRounds(Optional.ofNullable(siegeRounds.apply(system)))
-										.roundsUntilAnnexable(Optional.ofNullable(roundsUntilAnnexable.apply(system)))
-										.siegingPlayer(Optional.ofNullable(siegePlayer.apply(system)))
-										.siegingRace(Optional.ofNullable(siegePlayer.apply(system))
-											.map(playerRaceMapping::get))
-										.annexable(isAnnexable.test(system))
-										.annexationCommand(hasAnnexCommand.test(system))
-										.build()
-									: null))
+						.annexationStatus(Optional.ofNullable(
+								!(siegePlayer.apply(system) == null && !isAnnexable.test(system)) ? AnnexationStatusView
+									.builder()
+									.siegeRounds(Optional.ofNullable(siegeRounds.apply(system)))
+									.roundsUntilAnnexable(Optional.ofNullable(roundsUntilAnnexable.apply(system)))
+									.siegingPlayer(Optional.ofNullable(siegePlayer.apply(system)))
+									.siegingRace(
+											Optional.ofNullable(siegePlayer.apply(system)).map(playerRaceMapping::get))
+									.annexable(isAnnexable.test(system))
+									.annexationCommand(hasAnnexCommand.test(system))
+									.build() : null))
 						.colonistTransfers(colonistTransfers.getOrDefault(snapshot.getId().toColonyId(), Map.of()))
 						.relocationTarget(Optional.ofNullable(shipRelocations.get(snapshot.getId().toColonyId())))
 						.build());
@@ -150,7 +142,7 @@ public class GameViewBuilder {
 					Optional<Integer> range = Optional
 						.ofNullable(system.getColony(player).isPresent() ? null : system.calcRange(player, systems));
 
-					return SystemViewBuilder.builder()
+					return SystemView.builder()
 						.id(snapshot.getId())
 						.justExplored(snapshot.wasJustExplored(round))
 						.location(snapshot.getLocation())
@@ -190,7 +182,7 @@ public class GameViewBuilder {
 
 		Set<SpaceCombatView> spaceCombatViews = spaceCombats.stream()
 			.filter(sc -> sc.getAttacker() == player || sc.getDefender() == player)
-			.map(sc -> SpaceCombatViewBuilder.builder()
+			.map(sc -> SpaceCombatView.builder()
 				.systemId(sc.getSystemId())
 				.order(sc.getOrder())
 				.fireExchangeCount(sc.getFireExchangeCount())
@@ -211,14 +203,14 @@ public class GameViewBuilder {
 
 		Set<TechGroupView> technologies = techManager.getSelectTechs(player)
 			.stream()
-			.map(g -> TechGroupViewBuilder.builder()
+			.map(g -> TechGroupView.builder()
 				.group(g.stream()
-					.map(t -> TechViewBuilder.builder().id(t.getKey()).name(t.getValue()).description("-").build())
+					.map(t -> TechView.builder().id(t.getKey()).name(t.getValue()).description("-").build())
 					.collect(Collectors.toSet()))
 				.build())
 			.collect(Collectors.toSet());
 
-		return com.scheible.risingempire.game.api.view.GameViewBuilder.builder()
+		return GameView.builder()
 			.galaxyWidth(galaxySize.width())
 			.galaxyHeight(galaxySize.height())
 			.player(player)
@@ -251,7 +243,7 @@ public class GameViewBuilder {
 						shipDesign.getSpecials().stream().map(AbstractSpecial::getName))
 				.collect(Collectors.toList());
 
-			result.add(CombatantShipSpecsViewBuilder.builder()
+			result.add(CombatantShipSpecsView.builder()
 				.id(shipType.id())
 				.name(shipType.name())
 				.count(count)
@@ -268,7 +260,7 @@ public class GameViewBuilder {
 				.fireExchanges(count == previousCount ? List.of()
 						: fireExchanges.getOrDefault(shipCount.getKey(), List.of())
 							.stream()
-							.map(fe -> FireExchangeViewBuilder.builder()
+							.map(fe -> FireExchangeView.builder()
 								.round(fe.getRound())
 								.lostHitPoints(fe.getLostHitPoints())
 								.damage(fe.getDamage())
@@ -293,12 +285,12 @@ public class GameViewBuilder {
 
 		if (fleet.isDeployed()) {
 			DeployedFleet deployedFleet = fleet.asDeployed();
-			return FleetView.create(FleetViewDeployedBuilder.builder()
+			return FleetView.create(FleetView.deployedBuilder()
 				.id(fleet.getId())
 				.parentId(parentFleetProvider.apply(fleet.getPlayer(), fleet))
 				.player(player)
 				.race(race)
-				.ships(ShipsViewBuilder.builder().ships(shipTypesAndCounts).build())
+				.ships(ShipsView.builder().ships(shipTypesAndCounts).build())
 				.source(Optional.of(deployedFleet.getSource().getId()))
 				.destination(Optional.of(deployedFleet.getDestination().getId()))
 				.previousLocation(deployedFleet.getPreviousLocation())
@@ -315,12 +307,12 @@ public class GameViewBuilder {
 		else if (fleet.isOrbiting()) {
 			OrbitingFleet orbitingFleet = fleet.asOrbiting();
 
-			return FleetView.create(FleetViewOrbitingBuilder.builder()
+			return FleetView.create(FleetView.orbitingBuilder()
 				.id(fleet.getId())
 				.parentId(parentFleetProvider.apply(fleet.getPlayer(), fleet))
 				.player(player)
 				.race(race)
-				.ships(ShipsViewBuilder.builder().ships(shipTypesAndCounts).build())
+				.ships(ShipsView.builder().ships(shipTypesAndCounts).build())
 				.orbiting(orbitingFleet.getSystem().getId())
 				.location(orbitingFleet.getSystem().getLocation())
 				.fleetsBeforeArrival(fleetsBeforeArrival)
@@ -351,12 +343,12 @@ public class GameViewBuilder {
 	private static FleetView toForeignFleetView(Fleet fleet, Set<FleetBeforeArrivalView> fleetsBeforeArrival, Race race,
 			SystemId closest, BiFunction<Player, Fleet, Optional<FleetId>> parentFleetProvider) {
 		if (fleet.isDeployed()) {
-			return FleetView.create(FleetViewDeployedBuilder.builder()
+			return FleetView.create(FleetView.deployedBuilder()
 				.id(fleet.getId())
 				.parentId(parentFleetProvider.apply(fleet.getPlayer(), fleet))
 				.player(fleet.getPlayer())
 				.race(race)
-				.ships(ShipsViewBuilder.builder().ships(Map.of()).build())
+				.ships(ShipsView.builder().ships(Map.of()).build())
 				.source(Optional.empty())
 				.destination(Optional.empty())
 				.previousLocation(fleet.asDeployed().getPreviousLocation())
@@ -372,12 +364,12 @@ public class GameViewBuilder {
 		}
 		else if (fleet.isOrbiting()) {
 			OrbitingFleet orbitingFleet = fleet.asOrbiting();
-			return FleetView.create(FleetViewOrbitingBuilder.builder()
+			return FleetView.create(FleetView.orbitingBuilder()
 				.id(fleet.getId())
 				.parentId(parentFleetProvider.apply(fleet.getPlayer(), fleet))
 				.player(fleet.getPlayer())
 				.race(race)
-				.ships(ShipsViewBuilder.builder().ships(Map.of()).build())
+				.ships(ShipsView.builder().ships(Map.of()).build())
 				.orbiting(orbitingFleet.getSystem().getId())
 				.location(orbitingFleet.getSystem().getLocation())
 				.fleetsBeforeArrival(fleetsBeforeArrival)

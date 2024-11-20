@@ -5,6 +5,7 @@ import java.util.Optional;
 import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.universe.Race;
+import com.scheible.risingempire.game.api.view.colony.AnnexationStatusViewBuilder.SiegeRoundsStage;
 
 /**
  * @author sj
@@ -22,6 +23,10 @@ public record AnnexationStatusView(Optional<Integer> siegeRounds, Optional<Integ
 		if (!siegeState && !annexableState) {
 			throw new IllegalArgumentException("Must be either siege or annexable state!");
 		}
+	}
+
+	public static SiegeRoundsStage builder() {
+		return AnnexationStatusViewBuilder.builder();
 	}
 
 	public Optional<Integer> progress() {

@@ -6,6 +6,7 @@ import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
 import com.scheible.risingempire.game.api.universe.Location;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
+import com.scheible.risingempire.game.api.view.system.SystemViewBuilder.IdStage;
 
 /**
  * @author sj
@@ -17,6 +18,10 @@ public record SystemView(SystemId id, boolean justExplored, Location location, S
 		Optional<Integer> planetMaxPopulation, Optional<ColonyView> colony, Optional<Integer> fleetRange,
 		Optional<Integer> extendedFleetRange, Optional<Integer> scannerRange, boolean colonizable,
 		boolean colonizeCommand) {
+
+	public static IdStage builder() {
+		return SystemViewBuilder.builder();
+	}
 
 	public Optional<ColonyView> colony(Player player) {
 		return this.colony.filter(c -> c.player().equals(player));

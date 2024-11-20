@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
 import com.scheible.risingempire.game.api.view.ship.ShipSize;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
+import com.scheible.risingempire.game.api.view.spacecombat.CombatantShipSpecsViewBuilder.IdStage;
 
 import static java.util.Collections.unmodifiableList;
 
@@ -21,6 +22,10 @@ public record CombatantShipSpecsView(ShipTypeId id, String name, int count, int 
 	public CombatantShipSpecsView {
 		equipment = unmodifiableList(equipment);
 		fireExchanges = unmodifiableList(fireExchanges);
+	}
+
+	public static IdStage builder() {
+		return CombatantShipSpecsViewBuilder.builder();
 	}
 
 }

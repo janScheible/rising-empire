@@ -3,6 +3,7 @@ package com.scheible.risingempire.game.api;
 import java.util.Optional;
 import java.util.Set;
 
+import com.scheible.risingempire.game.api.GameOptionsBuilder.GalaxySizeStage;
 import com.scheible.risingempire.game.api.annotation.Initialized;
 import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
 import com.scheible.risingempire.game.api.universe.Player;
@@ -45,8 +46,12 @@ public record GameOptions(GalaxySize galaxySize, int playerCount,
 	public GameOptions {
 	}
 
+	public static GalaxySizeStage builder() {
+		return GameOptionsBuilder.builder();
+	}
+
 	public static GameOptionsBuilder testGameBuilder() {
-		return GameOptionsBuilder.builder().galaxySize(GalaxySize.HUGE).playerCount(3).testGame(true);
+		return builder().galaxySize(GalaxySize.HUGE).playerCount(3).testGame(true);
 	}
 
 	/**

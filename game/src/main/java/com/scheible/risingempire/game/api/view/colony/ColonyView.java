@@ -8,6 +8,7 @@ import java.util.Optional;
 import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.universe.Race;
+import com.scheible.risingempire.game.api.view.colony.ColonyViewBuilder.IdStage;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 
 import static java.util.Collections.unmodifiableMap;
@@ -23,6 +24,10 @@ public record ColonyView(ColonyId id, Player player, Race race, int population, 
 	public ColonyView {
 		ratios = ratios.map(EnumMap::new).map(Collections::unmodifiableMap);
 		colonistTransfers = unmodifiableMap(colonistTransfers);
+	}
+
+	public static IdStage builder() {
+		return ColonyViewBuilder.builder();
 	}
 
 }

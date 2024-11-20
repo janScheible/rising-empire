@@ -38,6 +38,14 @@ public record FleetView(FleetId id, Optional<FleetId> parentId, FleetViewType ty
 		fleetsBeforeArrival = unmodifiableSet(fleetsBeforeArrival);
 	}
 
+	public static com.scheible.risingempire.game.api.view.fleet.FleetViewDeployedBuilder.IdStage deployedBuilder() {
+		return FleetViewDeployedBuilder.builder();
+	}
+
+	public static com.scheible.risingempire.game.api.view.fleet.FleetViewOrbitingBuilder.IdStage orbitingBuilder() {
+		return FleetViewOrbitingBuilder.builder();
+	}
+
 	public static FleetView create(FleetView.Deployed deployed) {
 		return new FleetView(deployed.id(), deployed.parentId(), FleetViewType.DEPLOYED, deployed.player(),
 				deployed.race(), deployed.ships(), Optional.of(deployed.previousLocation()),

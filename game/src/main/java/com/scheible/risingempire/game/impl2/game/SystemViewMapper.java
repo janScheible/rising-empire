@@ -9,7 +9,6 @@ import com.scheible.risingempire.game.api.view.ship.ShipSize;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.system.SystemView;
-import com.scheible.risingempire.game.api.view.system.SystemViewBuilder;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
 import com.scheible.risingempire.game.impl2.intelligence.ColonyScanSpecsProvider;
 import com.scheible.risingempire.game.impl2.navy.ShipSpecsProvider;
@@ -23,7 +22,7 @@ class SystemViewMapper {
 
 	static SystemView toSystemView(Player player, Star star, Planet planet, Optional<Colony> colony,
 			ColonyScanSpecsProvider colonyScanSpecsProvider, ShipSpecsProvider shipSpecsProvider) {
-		return SystemViewBuilder.builder()
+		return SystemView.builder()
 			.id(SystemIdMapper.toSystemId(star.position()))
 			.justExplored(false)
 			.location(LocationMapper.toLocation(star.position()))

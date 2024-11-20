@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
-import com.scheible.risingempire.game.api.view.ship.ShipTypeViewBuilder;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
 
 /**
@@ -22,7 +21,7 @@ public enum DesignSlot {
 	}
 
 	public ShipTypeView toShipType(ShipDesign design) {
-		return ShipTypeViewBuilder.builder()
+		return ShipTypeView.builder()
 			.id(new ShipTypeId(design.getName() + "@" + ordinal()))
 			.index(ordinal())
 			.name(design.getName())

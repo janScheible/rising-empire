@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
+import com.scheible.risingempire.game.api.view.ship.ShipsViewBuilder.ShipsStage;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
@@ -27,6 +28,10 @@ public record ShipsView(Map<ShipTypeView, Integer> ships) {
 		}
 	}
 
+	public static ShipsStage builder() {
+		return ShipsViewBuilder.builder();
+	}
+
 	public boolean empty() {
 		return this.ships.isEmpty();
 	}
@@ -42,7 +47,7 @@ public record ShipsView(Map<ShipTypeView, Integer> ships) {
 					"Can't get " + count + " of " + typeAndCount.getValue() + "'" + name + "'!");
 		}
 
-		return ShipsViewBuilder.builder().ships(Map.of(typeAndCount.getKey(), count)).build();
+		return ShipsView.builder().ships(Map.of(typeAndCount.getKey(), count)).build();
 	}
 
 	public int countByType(ShipTypeView type) {

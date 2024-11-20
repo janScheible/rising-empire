@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.scheible.risingempire.game.api.universe.Player;
-import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalViewBuilder;
+import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.impl.fleet.DeployedFleet;
@@ -68,7 +68,7 @@ public class SimulatingSpaceCombatResolver implements SpaceCombatResolver {
 					.collect(Collectors.toMap(e -> toDesginSlot.apply(e.getKey(), player), Entry::getValue));
 
 		return new SpaceCombat(systemId, summary.fireExchangeCount, attacking.getPlayer(),
-				FleetBeforeArrivalViewBuilder.builder()
+				FleetBeforeArrivalView.builder()
 					.id(attacking.getId())
 					.horizontalDirection(attacking.getHorizontalDirection())
 					.speed(attacking.getSpeed())

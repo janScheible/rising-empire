@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalView;
-import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalViewBuilder;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import com.scheible.risingempire.game.api.view.system.SystemId;
@@ -75,7 +74,7 @@ public class FleetTurn {
 				}
 				emptyFleets.add(deployedFleet);
 				orbitingArrivingMapping.computeIfAbsent(orbitingFleet.get().getId(), key -> new HashSet<>())
-					.add(FleetBeforeArrivalViewBuilder.builder()
+					.add(FleetBeforeArrivalView.builder()
 						.id(deployedFleet.getId())
 						.horizontalDirection(deployedFleet.getHorizontalDirection())
 						.speed(deployedFleet.getSpeed())

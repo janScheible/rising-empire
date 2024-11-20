@@ -22,7 +22,6 @@ import com.scheible.risingempire.game.api.GameOptions.FakeSystemNotificationProv
 import com.scheible.risingempire.game.api.GameOptions.FakeTechProvider;
 import com.scheible.risingempire.game.api.PlayerGame;
 import com.scheible.risingempire.game.api.TurnStatus;
-import com.scheible.risingempire.game.api.TurnStatusBuilder;
 import com.scheible.risingempire.game.api.ai.Ai;
 import com.scheible.risingempire.game.api.ai.AiFactory;
 import com.scheible.risingempire.game.api.universe.Player;
@@ -259,7 +258,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 			this.finishedTurn.clear();
 		}
 
-		return TurnStatusBuilder.builder().playerStatus(getTurnFinishedStatus()).roundFinished(turnFinished).build();
+		return TurnStatus.builder().playerStatus(getTurnFinishedStatus()).roundFinished(turnFinished).build();
 	}
 
 	private void validateTurnFinished(Player player) {

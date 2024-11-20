@@ -15,7 +15,6 @@ import com.scheible.risingempire.game.api.TurnStatus;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.GameView;
-import com.scheible.risingempire.game.api.view.GameViewBuilder;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
@@ -143,7 +142,7 @@ public class Game2Impl implements Game {
 		public GameView view() {
 			Navy navy = Game2Impl.this.navy.apply(Game2Impl.this.round, List.of());
 
-			return GameViewBuilder.builder()
+			return GameView.builder()
 				.galaxyWidth(LocationMapper.toLocationValue(Game2Impl.this.universe.width()))
 				.galaxyHeight(LocationMapper.toLocationValue(Game2Impl.this.universe.height()))
 				.player(this.player)

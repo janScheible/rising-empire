@@ -15,7 +15,6 @@ import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
-import com.scheible.risingempire.game.api.view.ship.ShipsViewBuilder;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.system.SystemView;
 import com.scheible.risingempire.webapp.adapter.frontend.annotation.FrontendController;
@@ -227,7 +226,7 @@ class MainPageController {
 	}
 
 	private static ShipsView toShipTypesAndCounts(ShipsView fleetShips, Map<String, String> parameters) {
-		return ShipsViewBuilder.builder()
+		return ShipsView.builder()
 			.ships(fleetShips.types()
 				.stream()
 				.filter(st -> parameters.containsKey(st.id().value()))

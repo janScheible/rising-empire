@@ -1,6 +1,7 @@
 package com.scheible.risingempire.game.api.view.tech;
 
 import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
+import com.scheible.risingempire.game.api.view.tech.TechViewBuilder.IdStage;
 
 /**
  * @author sj
@@ -8,7 +9,7 @@ import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
 @StagedRecordBuilder
 public record TechView(TechId id, String name, String description) {
 
-	public TechView {
+	public static IdStage builder() {
+		return TechViewBuilder.builder();
 	}
-
 }

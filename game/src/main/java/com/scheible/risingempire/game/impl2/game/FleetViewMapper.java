@@ -11,8 +11,6 @@ import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
 import com.scheible.risingempire.game.api.view.fleet.FleetView.HorizontalDirection;
-import com.scheible.risingempire.game.api.view.fleet.FleetViewDeployedBuilder;
-import com.scheible.risingempire.game.api.view.fleet.FleetViewOrbitingBuilder;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
@@ -47,7 +45,7 @@ class FleetViewMapper {
 
 		return switch (fleet.location()) {
 			case Orbit(Position system, Set<Itinerary> partsBeforArrival) ->
-				FleetView.create(FleetViewOrbitingBuilder.builder()
+				FleetView.create(FleetView.orbitingBuilder()
 					.id(FleetIdMapper.toFleetId(system))
 					.parentId(parentId)
 					.player(fleet.player())
@@ -64,7 +62,7 @@ class FleetViewMapper {
 					.scannerRange(Optional.of(LocationMapper.toLocationValue(shipScanSpecsProvider
 						.effectiveScanRange(fleetEmpire.player(), fleet.ships().counts().keySet()))))
 					.build());
-			case Itinerary itinerary -> FleetView.create(FleetViewDeployedBuilder.builder()
+			case Itinerary itinerary -> FleetView.create(FleetView.deployedBuilder()
 				.id(FleetIdMapper.toFleetId(itinerary.origin(), itinerary.destination(), itinerary.dispatchment(),
 						itinerary.speed()))
 				.parentId(parentId)

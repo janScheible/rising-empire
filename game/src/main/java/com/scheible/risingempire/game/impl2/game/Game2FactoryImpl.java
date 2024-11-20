@@ -2,7 +2,6 @@ package com.scheible.risingempire.game.impl2.game;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import com.scheible.risingempire.game.api.Game;
 import com.scheible.risingempire.game.api.GameFactory;
@@ -11,7 +10,6 @@ import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.system.StarType;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
-import com.scheible.risingempire.game.impl2.colonization.Colony;
 import com.scheible.risingempire.game.impl2.empire.Empire;
 import com.scheible.risingempire.game.impl2.navy.Fleet;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Orbit;

@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
+import com.scheible.risingempire.game.api.view.tech.TechGroupViewBuilder.GroupStage;
 
 import static java.util.Collections.unmodifiableSet;
 
@@ -16,6 +17,10 @@ public record TechGroupView(Set<TechView> group) implements Iterable<TechView> {
 
 	public TechGroupView {
 		group = unmodifiableSet(group);
+	}
+
+	public static GroupStage builder() {
+		return TechGroupViewBuilder.builder();
 	}
 
 	@Override

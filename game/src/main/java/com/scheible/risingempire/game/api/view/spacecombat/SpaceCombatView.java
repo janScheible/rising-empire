@@ -9,6 +9,7 @@ import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
+import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatViewBuilder.SystemIdStage;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 
 import static java.util.Collections.unmodifiableList;
@@ -31,6 +32,10 @@ public record SpaceCombatView(SystemId systemId, int order, int fireExchangeCoun
 	public SpaceCombatView {
 		attackerShipSpecs = unmodifiableList(attackerShipSpecs);
 		defenderShipSpecs = unmodifiableList(defenderShipSpecs);
+	}
+
+	public static SystemIdStage builder() {
+		return SpaceCombatViewBuilder.builder();
 	}
 
 }
