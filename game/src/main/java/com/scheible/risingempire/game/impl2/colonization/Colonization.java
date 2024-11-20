@@ -16,6 +16,12 @@ public class Colonization {
 		if (new Position("6.173", "5.026").equals(system)) {
 			return Optional.of(new Colony(new Empire(Player.BLUE, Race.LUMERISKS)));
 		}
+		else if (new Position("9.973", "5.626").equals(system)) {
+			return Optional.of(new Colony(new Empire(Player.YELLOW, Race.MYXALOR)));
+		}
+		else if (new Position("4.080", "8.226").equals(system)) {
+			return Optional.of(new Colony(new Empire(Player.WHITE, Race.XELIPHARI)));
+		}
 		else {
 			return Optional.empty();
 		}
