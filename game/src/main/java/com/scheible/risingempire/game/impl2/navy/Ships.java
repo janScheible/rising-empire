@@ -2,12 +2,12 @@ package com.scheible.risingempire.game.impl2.navy;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.impl2.ship.ShipClassId;
-
-import static java.util.Collections.unmodifiableMap;
 
 public record Ships(Map<ShipClassId, Integer> counts) {
 
@@ -20,7 +20,18 @@ public record Ships(Map<ShipClassId, Integer> counts) {
 							+ "'!");
 		}
 
-		counts = unmodifiableMap(counts);
+		for (Entry<ShipClassId, Integer> entry : counts.entrySet()) {
+			if (entry.getValue() < 0) {
+				throw new IllegalArgumentException("Count of " + entry.getKey().value() + " is negative ("
+						+ entry.getValue() + ") but must be greater or equal than zero!");
+			}
+
+		}
+
+		counts = counts.entrySet()
+			.stream()
+			.filter(e -> e.getValue() > 0)
+			.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	}
 
 	public static Ships transporters(int count) {
