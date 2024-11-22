@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl2.intelligence;
+package com.scheible.risingempire.game.impl2.technology;
 
 import java.util.Set;
 

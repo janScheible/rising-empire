@@ -16,12 +16,12 @@ import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.empire.Empire;
-import com.scheible.risingempire.game.impl2.intelligence.ShipScanSpecsProvider;
 import com.scheible.risingempire.game.impl2.navy.Fleet;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Itinerary;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Orbit;
 import com.scheible.risingempire.game.impl2.ship.ShipDesign;
 import com.scheible.risingempire.game.impl2.ship.Shipyard;
+import com.scheible.risingempire.game.impl2.technology.ShipScanSpecsProvider;
 import com.scheible.risingempire.game.impl2.universe.Star;
 
 /**

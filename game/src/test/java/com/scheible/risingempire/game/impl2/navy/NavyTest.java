@@ -38,10 +38,10 @@ class NavyTest extends AbstractNavyTest {
 				new Orbit(this.destination,
 						Set.of(new Itinerary(this.origin, this.destination, Optional.of(new Position("1.998", "0.000")),
 								new Position("2.997", "0.000"), new Round(3),
-								this.shipSpecsProvider.speed(this.player, this.enterprise)),
+								this.shipMovementSpecsProvider.speed(this.player, this.enterprise)),
 								new Itinerary(this.otherDestination, this.destination,
 										Optional.of(new Position("2.000", "2.000")), new Position("0.670", "-1.341"),
-										new Round(1), this.shipSpecsProvider.speed(this.player, this.scout)))),
+										new Round(1), this.shipMovementSpecsProvider.speed(this.player, this.scout)))),
 				ships(this.enterprise, 1, this.scout, 1));
 		assertThat(arrivedFleets.fleets()).containsOnly(arrivedFleet);
 		assertThat(navy.fleets()).containsOnly(arrivedFleet);
@@ -57,12 +57,12 @@ class NavyTest extends AbstractNavyTest {
 	}
 
 	private Navy createNavy(List<Fleet> fleets) {
-		return new Navy(fleets, this.shipSpecsProvider);
+		return new Navy(fleets, this.shipMovementSpecsProvider);
 	}
 
 	private Fleet justLeavingFleet(Position origin, Position destination, Round dispatchment, Ships ships) {
 		return new Fleet(this.player, new Itinerary(origin, destination, dispatchment,
-				this.shipSpecsProvider.effectiveSpeed(this.player, ships.counts().keySet())), ships);
+				this.shipMovementSpecsProvider.effectiveSpeed(this.player, ships.counts().keySet())), ships);
 	}
 
 }

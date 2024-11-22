@@ -29,7 +29,6 @@ import com.scheible.risingempire.game.impl2.empire.Empire;
 import com.scheible.risingempire.game.impl2.game.FleetIdMapper.DeployedFleetId;
 import com.scheible.risingempire.game.impl2.game.FleetIdMapper.DomainFleetId;
 import com.scheible.risingempire.game.impl2.game.FleetIdMapper.OrbitingFleetId;
-import com.scheible.risingempire.game.impl2.intelligence.Intelligence;
 import com.scheible.risingempire.game.impl2.navy.Fleet;
 import com.scheible.risingempire.game.impl2.navy.Navy;
 import com.scheible.risingempire.game.impl2.navy.Navy.DeployJustLeaving;
@@ -54,8 +53,6 @@ public class Game2Impl implements Game {
 
 	private final Navy navy;
 
-	private final Intelligence intelligence;
-
 	private final Colonization colonization;
 
 	private Round round;
@@ -68,7 +65,6 @@ public class Game2Impl implements Game {
 		this.technology = new Technology();
 		this.shipyard = new Shipyard();
 		this.navy = new Navy(fleets, this.technology);
-		this.intelligence = new Intelligence();
 		this.colonization = new Colonization();
 
 		this.round = new Round(1);
@@ -154,7 +150,7 @@ public class Game2Impl implements Game {
 					.stream()
 					.map(star -> Map.entry(SystemIdMapper.toSystemId(star.position()),
 							SystemViewMapper.toSystemView(this.player, star, Game2Impl.this.universe.planet(star),
-									Game2Impl.this.colonization.colony(star.position()), Game2Impl.this.intelligence,
+									Game2Impl.this.colonization.colony(star.position()), Game2Impl.this.technology,
 									Game2Impl.this.technology)))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue)))
 				.fleets(navy.fleets()

@@ -19,11 +19,11 @@ class Fleets {
 
 	private final List<Fleet> fleets;
 
-	private final ShipSpecsProvider shipSpecsProvider;
+	private final ShipMovementSpecsProvider shipMovementSpecsProvider;
 
-	Fleets(List<Fleet> fleets, ShipSpecsProvider shipSpecsProvider) {
+	Fleets(List<Fleet> fleets, ShipMovementSpecsProvider shipMovementSpecsProvider) {
 		this.fleets = fleets;
-		this.shipSpecsProvider = shipSpecsProvider;
+		this.shipMovementSpecsProvider = shipMovementSpecsProvider;
 	}
 
 	void add(Fleet fleet) {
@@ -50,8 +50,8 @@ class Fleets {
 		return this.fleets;
 	}
 
-	ShipSpecsProvider shipSpecsProvider() {
-		return this.shipSpecsProvider;
+	ShipMovementSpecsProvider shipMovementSpecsProvider() {
+		return this.shipMovementSpecsProvider;
 	}
 
 	Optional<Fleet> findOrbiting(Player player, Position system) {
@@ -95,11 +95,11 @@ class Fleets {
 	}
 
 	Speed effectiveSpeed(Player player, Ships ships) {
-		return this.shipSpecsProvider.effectiveSpeed(player, ships.counts().keySet());
+		return this.shipMovementSpecsProvider.effectiveSpeed(player, ships.counts().keySet());
 	}
 
 	Parsec effectiveRange(Player player, Ships ships) {
-		return this.shipSpecsProvider.effectiveRange(player, ships.counts().keySet());
+		return this.shipMovementSpecsProvider.effectiveRange(player, ships.counts().keySet());
 	}
 
 }

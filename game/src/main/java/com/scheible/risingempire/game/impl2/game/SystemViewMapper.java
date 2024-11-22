@@ -10,9 +10,10 @@ import com.scheible.risingempire.game.api.view.ship.ShipSize;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.system.SystemView;
+import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
-import com.scheible.risingempire.game.impl2.intelligence.ColonyScanSpecsProvider;
-import com.scheible.risingempire.game.impl2.navy.ShipSpecsProvider;
+import com.scheible.risingempire.game.impl2.navy.ShipMovementSpecsProvider;
+import com.scheible.risingempire.game.impl2.technology.ColonyScanSpecsProvider;
 import com.scheible.risingempire.game.impl2.universe.Planet;
 import com.scheible.risingempire.game.impl2.universe.Star;
 
@@ -22,7 +23,10 @@ import com.scheible.risingempire.game.impl2.universe.Star;
 class SystemViewMapper {
 
 	static SystemView toSystemView(Player player, Star star, Planet planet, Optional<Colony> colony,
-			ColonyScanSpecsProvider colonyScanSpecsProvider, ShipSpecsProvider shipSpecsProvider) {
+			ColonyScanSpecsProvider colonyScanSpecsProvider, ShipMovementSpecsProvider shipMovementSpecsProvider) {
+		boolean ownColony = colony.filter(c -> c.empire().player() == player).isPresent();
+		Parsec closestDistanceToAnyOwnColony = new Parsec(42);
+
 		return SystemView.builder()
 			.id(SystemIdMapper.toSystemId(star.position()))
 			.justExplored(false)
@@ -30,8 +34,7 @@ class SystemViewMapper {
 			.starType(star.type())
 			.small(star.small())
 			.homeSystem(colony.isPresent())
-			.range(Optional.ofNullable(colony.isPresent()
-					? LocationMapper.toLocationValue(colonyScanSpecsProvider.scanRange(player)) : null))
+			.range(Optional.ofNullable(LocationMapper.toLocationValue(closestDistanceToAnyOwnColony)))
 			.planetType(Optional.of(planet.type()))
 			.planetSpecial(Optional.of(planet.planetSpecial()))
 			.seenInTurn(Optional.of(1))
@@ -41,12 +44,12 @@ class SystemViewMapper {
 					c.empire().player(), c.empire().race(), 50,
 					Optional.of(new ShipTypeView(new ShipTypeId("ship"), 0, "Ship", ShipSize.MEDIUM, 0)),
 					Optional.empty(), Optional.empty(), Map.of(), Optional.empty())))
-			.fleetRange(Optional.ofNullable(
-					colony.isPresent() ? LocationMapper.toLocationValue(shipSpecsProvider.range(player)) : null))
-			.extendedFleetRange(Optional.ofNullable(colony.isPresent()
-					? LocationMapper.toLocationValue(shipSpecsProvider.extendedRange(player)) : null))
-			.scannerRange(Optional.ofNullable(colony.isPresent()
-					? LocationMapper.toLocationValue(colonyScanSpecsProvider.scanRange(player)) : null))
+			.fleetRange(Optional
+				.ofNullable(ownColony ? LocationMapper.toLocationValue(shipMovementSpecsProvider.range(player)) : null))
+			.extendedFleetRange(Optional.ofNullable(
+					ownColony ? LocationMapper.toLocationValue(shipMovementSpecsProvider.extendedRange(player)) : null))
+			.scannerRange(Optional.ofNullable(
+					ownColony ? LocationMapper.toLocationValue(colonyScanSpecsProvider.colonyScanRange(player)) : null))
 			.colonizable(false)
 			.colonizeCommand(false)
 			.notifications(Set.of())

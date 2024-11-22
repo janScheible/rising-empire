@@ -65,8 +65,8 @@ class DispatcherTest extends AbstractNavyTest {
 		List<Fleet> dispatched = dispatch(
 				List.of(justLeavingFleet(this.origin, this.destination, ships(this.scout, 1))),
 				List.of(deployJustLeaving(this.origin, this.destination,
-						this.shipSpecsProvider.effectiveSpeed(this.player, Set.of(this.scout)), ships(this.scout, 1),
-						this.otherDestination)));
+						this.shipMovementSpecsProvider.effectiveSpeed(this.player, Set.of(this.scout)),
+						ships(this.scout, 1), this.otherDestination)));
 
 		assertThat(dispatched).containsOnly(justLeavingFleet(this.origin, this.otherDestination, ships(this.scout, 1)));
 	}
@@ -76,8 +76,8 @@ class DispatcherTest extends AbstractNavyTest {
 		List<Fleet> dispatched = dispatch(
 				List.of(justLeavingFleet(this.origin, this.destination, ships(this.scout, 2))),
 				List.of(deployJustLeaving(this.origin, this.destination,
-						this.shipSpecsProvider.effectiveSpeed(this.player, Set.of(this.scout)), ships(this.scout, 1),
-						this.otherDestination)));
+						this.shipMovementSpecsProvider.effectiveSpeed(this.player, Set.of(this.scout)),
+						ships(this.scout, 1), this.otherDestination)));
 
 		assertThat(dispatched).containsOnly(justLeavingFleet(this.origin, this.destination, ships(this.scout, 1)),
 				justLeavingFleet(this.origin, this.otherDestination, ships(this.scout, 1)));
@@ -88,8 +88,8 @@ class DispatcherTest extends AbstractNavyTest {
 		List<Fleet> dispatched = dispatch(
 				List.of(justLeavingFleet(this.origin, this.destination, ships(this.scout, 1))),
 				List.of(deployJustLeaving(this.origin, this.destination,
-						this.shipSpecsProvider.effectiveSpeed(this.player, Set.of(this.scout)), ships(this.scout, 1),
-						this.origin)));
+						this.shipMovementSpecsProvider.effectiveSpeed(this.player, Set.of(this.scout)),
+						ships(this.scout, 1), this.origin)));
 
 		assertThat(dispatched).containsOnly(orbitingFleet(this.origin, ships(this.scout, 1)));
 	}
@@ -99,8 +99,8 @@ class DispatcherTest extends AbstractNavyTest {
 		List<Fleet> dispatched = dispatch(
 				List.of(justLeavingFleet(this.origin, this.destination, ships(this.scout, 2))),
 				List.of(deployJustLeaving(this.origin, this.destination,
-						this.shipSpecsProvider.effectiveSpeed(this.player, Set.of(this.scout)), ships(this.scout, 1),
-						this.origin)));
+						this.shipMovementSpecsProvider.effectiveSpeed(this.player, Set.of(this.scout)),
+						ships(this.scout, 1), this.origin)));
 
 		assertThat(dispatched).containsOnly(orbitingFleet(this.origin, ships(this.scout, 1)),
 				justLeavingFleet(this.origin, this.destination, ships(this.scout, 1)));
@@ -112,7 +112,7 @@ class DispatcherTest extends AbstractNavyTest {
 				List.of(orbitingFleet(this.origin, ships(this.scout, 1)),
 						justLeavingFleet(this.origin, this.destination, ships(this.enterprise, 1))),
 				List.of(deployJustLeaving(this.origin, this.destination,
-						this.shipSpecsProvider.effectiveSpeed(this.player, Set.of(this.enterprise)),
+						this.shipMovementSpecsProvider.effectiveSpeed(this.player, Set.of(this.enterprise)),
 						ships(this.enterprise, 1), this.origin)));
 
 		assertThat(dispatched).containsOnly(orbitingFleet(this.origin, ships(this.scout, 1, this.enterprise, 1)));
@@ -124,7 +124,7 @@ class DispatcherTest extends AbstractNavyTest {
 				List.of(justLeavingFleet(this.origin, destination, ships(this.scout, 1)),
 						justLeavingFleet(this.origin, destination, ships(this.enterprise, 1))),
 				List.of(deployJustLeaving(this.origin, this.destination,
-						this.shipSpecsProvider.effectiveSpeed(this.player, Set.of(this.enterprise)),
+						this.shipMovementSpecsProvider.effectiveSpeed(this.player, Set.of(this.enterprise)),
 						ships(this.enterprise, 1), this.otherDestination)));
 
 		assertThat(dispatched).containsOnly(justLeavingFleet(this.origin, destination, ships(this.scout, 1)),
@@ -156,19 +156,19 @@ class DispatcherTest extends AbstractNavyTest {
 
 	private Fleet justLeavingFleet(Position origin, Position destination, Ships ships) {
 		return new Fleet(this.player, new Itinerary(origin, destination, this.round,
-				this.shipSpecsProvider.effectiveSpeed(this.player, ships.counts().keySet())), ships);
+				this.shipMovementSpecsProvider.effectiveSpeed(this.player, ships.counts().keySet())), ships);
 	}
 
 	private Fleet justLeavingtransporterFleet(Position origin, Position destination, int transporterCount) {
 		return new Fleet(this.player,
-				new Itinerary(origin, destination, this.round,
-						this.shipSpecsProvider.effectiveSpeed(this.player, Set.of(ShipClassId.COLONISTS_TRANSPORTER))),
+				new Itinerary(origin, destination, this.round, this.shipMovementSpecsProvider
+					.effectiveSpeed(this.player, Set.of(ShipClassId.COLONISTS_TRANSPORTER))),
 				Ships.transporters(transporterCount));
 	}
 
 	private List<Fleet> dispatch(List<Fleet> fleets, List<Deployment> deployments) {
 		List<Fleet> fleetsCopy = new ArrayList<>(fleets);
-		Dispatcher dispatcher = new Dispatcher(new Fleets(fleetsCopy, this.shipSpecsProvider));
+		Dispatcher dispatcher = new Dispatcher(new Fleets(fleetsCopy, this.shipMovementSpecsProvider));
 		dispatcher.dispatch(this.round, deployments);
 		return fleetsCopy;
 	}

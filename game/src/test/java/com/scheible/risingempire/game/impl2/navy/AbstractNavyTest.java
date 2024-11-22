@@ -20,7 +20,7 @@ abstract class AbstractNavyTest {
 
 	protected final ShipClassId enterprise = new ShipClassId("enterprise");
 
-	protected final ShipSpecsProvider shipSpecsProvider = new ShipSpecsProvider() {
+	protected final ShipMovementSpecsProvider shipMovementSpecsProvider = new ShipMovementSpecsProvider() {
 
 		private final Map<ShipClassId, Speed> shipSpeeds = Map.of(//
 				AbstractNavyTest.this.scout, new Speed(1.5), //

@@ -7,7 +7,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
 import com.scheible.risingempire.game.impl2.ship.ShipClassId;
 
-public interface ShipSpecsProvider /* should be: ShipMovementSpecsProvider */ {
+public interface ShipMovementSpecsProvider {
 
 	Speed speed(Player player, ShipClassId shipClassId);
 

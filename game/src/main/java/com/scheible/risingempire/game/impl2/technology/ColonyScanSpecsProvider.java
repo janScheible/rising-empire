@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl2.intelligence;
+package com.scheible.risingempire.game.impl2.technology;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
@@ -8,6 +8,6 @@ import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
  */
 public interface ColonyScanSpecsProvider {
 
-	Parsec scanRange(Player player);
+	Parsec colonyScanRange(Player player);
 
 }

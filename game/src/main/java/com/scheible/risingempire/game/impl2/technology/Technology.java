@@ -5,11 +5,10 @@ import java.util.Map;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
-import com.scheible.risingempire.game.impl2.intelligence.ShipScanSpecsProvider;
-import com.scheible.risingempire.game.impl2.navy.ShipSpecsProvider;
+import com.scheible.risingempire.game.impl2.navy.ShipMovementSpecsProvider;
 import com.scheible.risingempire.game.impl2.ship.ShipClassId;
 
-public class Technology implements ShipSpecsProvider, ShipScanSpecsProvider {
+public class Technology implements ShipMovementSpecsProvider, ShipScanSpecsProvider, ColonyScanSpecsProvider {
 
 	private static final Map<ShipClassId, Speed> SPEEDS = Map.of( //
 			new ShipClassId("enterprise"), new Speed(1.0), //
@@ -44,6 +43,11 @@ public class Technology implements ShipSpecsProvider, ShipScanSpecsProvider {
 	@Override
 	public Parsec scanRange(Player player, ShipClassId shipClassId) {
 		return new Parsec(0.5);
+	}
+
+	@Override
+	public Parsec colonyScanRange(Player player) {
+		return new Parsec(0.2);
 	}
 
 }
