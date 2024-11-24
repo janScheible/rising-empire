@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PlayerTurnsTest {
 
 	@Test
-	public void testSomeMethod() {
+	public void testTurnSequence() {
 		Round round = new Round(1);
 
 		PlayerTurns turns = new PlayerTurns(Set.of(Player.BLUE, Player.WHITE));
