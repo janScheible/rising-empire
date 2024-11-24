@@ -84,15 +84,17 @@ public class Game2Impl implements Game {
 
 	@Override
 	public void registerAi(Player player) {
+		this.playerTurns.enableAutoTurn(player);
 	}
 
 	@Override
 	public boolean aiControlled(Player player) {
-		return false;
+		return this.playerTurns.autoTurn(player);
 	}
 
 	@Override
 	public void unregisterAi(Player player) {
+		this.playerTurns.disableAutoTurn(player);
 	}
 
 	@Override

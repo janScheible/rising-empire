@@ -2,6 +2,7 @@ package com.scheible.risingempire.game.impl2.game;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,6 +22,8 @@ class PlayerTurns {
 	private final Map<Player, PlayerTurn> turnMapping;
 
 	private final Map<Round, Map<Player, List<Order>>> pastOrdersMapping = new HashMap<>();
+
+	private final Set<Player> autoTurn = new HashSet<>();
 
 	PlayerTurns(Set<Player> players) {
 		this.turnMapping = new HashMap<>(
@@ -47,6 +50,7 @@ class PlayerTurns {
 
 	void finishTurn(Player player) {
 		this.turnMapping.get(player).finishTurn();
+		this.autoTurn.forEach(p -> this.turnMapping.get(p).finishTurn());
 	}
 
 	boolean roundFinished() {
@@ -61,6 +65,18 @@ class PlayerTurns {
 
 	Map<Round, Map<Player, List<Order>>> pastOrdersMapping() {
 		return new HashMap<>(this.pastOrdersMapping);
+	}
+
+	void enableAutoTurn(Player player) {
+		this.autoTurn.add(player);
+	}
+
+	void disableAutoTurn(Player player) {
+		this.autoTurn.remove(player);
+	}
+
+	boolean autoTurn(Player player) {
+		return this.autoTurn.contains(player);
 	}
 
 	private static class PlayerTurn {
