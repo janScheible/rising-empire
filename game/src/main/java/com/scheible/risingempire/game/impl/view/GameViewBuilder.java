@@ -152,7 +152,7 @@ public class GameViewBuilder {
 						.starType(snapshot.getStarType())
 						.small(system.getName().toLowerCase(Locale.ROOT).contains("u"))
 						.homeSystem(system.isHomeSystem(player))
-						.range(range)
+						.nearestColony(range)
 						.planetType(snapshot.getPlanetType())
 						.planetSpecial(snapshot.getPlanetSpecial())
 						.seenInTurn(seenInTurn)

@@ -1,5 +1,6 @@
 package com.scheible.risingempire.game.impl2.game;
 
+import java.math.MathContext;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -25,7 +26,7 @@ class SystemViewMapper {
 	static SystemView toSystemView(Player player, Star star, Planet planet, Optional<Colony> colony,
 			ColonyScanSpecsProvider colonyScanSpecsProvider, ShipMovementSpecsProvider shipMovementSpecsProvider) {
 		boolean ownColony = colony.filter(c -> c.empire().player() == player).isPresent();
-		Parsec closestDistanceToAnyOwnColony = new Parsec(42);
+		Parsec nearestColony = new Parsec(42);
 
 		return SystemView.builder()
 			.id(SystemIdMapper.toSystemId(star.position()))
@@ -34,7 +35,7 @@ class SystemViewMapper {
 			.starType(star.type())
 			.small(star.small())
 			.homeSystem(colony.isPresent())
-			.range(Optional.ofNullable(LocationMapper.toLocationValue(closestDistanceToAnyOwnColony)))
+			.nearestColony(Optional.ofNullable(nearestColony.quantity().intValue()))
 			.planetType(Optional.of(planet.type()))
 			.planetSpecial(Optional.of(planet.planetSpecial()))
 			.seenInTurn(Optional.of(1))

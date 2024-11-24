@@ -363,12 +363,12 @@ public class MainPageDtoPopulator {
 															.toColonyId()
 															.value())))
 								: Optional.empty(),
-						selectedSystem.range());
+						selectedSystem.nearestColony());
 
 			}
 			else {
 				mainPage.inspector.unexplored = new UnexploredDto(selectedSystem.starType(),
-						selectedSystem.range().orElseThrow());
+						selectedSystem.nearestColony().orElseThrow());
 			}
 		}
 		else if (colonization || annexation) {
@@ -483,7 +483,7 @@ public class MainPageDtoPopulator {
 			if (selectedFleet.deployable()) {
 				mainPage.inspector.fleetDeployment = new EntityModel<>(
 						new FleetDeploymentDto(selectedFleet.id(), gameView.round(), selectedFleet.player(), eta,
-								eta.isPresent() ? Optional.empty() : selectedSystem.range(), true,
+								eta.isPresent() ? Optional.empty() : selectedSystem.nearestColony(), true,
 								toDtoShipList(ships, Optional.of(totalShips))))
 					.with(selectedFleet.deployable() && eta.isPresent(),
 							() -> Action

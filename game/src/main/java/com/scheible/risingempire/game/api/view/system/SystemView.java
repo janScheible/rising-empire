@@ -14,7 +14,7 @@ import com.scheible.risingempire.game.api.view.system.SystemViewBuilder.IdStage;
  */
 @StagedRecordBuilder
 public record SystemView(SystemId id, boolean justExplored, Location location, StarType starType, boolean small,
-		boolean homeSystem, Optional<Integer> range, Optional<PlanetType> planetType,
+		boolean homeSystem, Optional<Integer> nearestColony, Optional<PlanetType> planetType,
 		Optional<PlanetSpecial> planetSpecial, Optional<Integer> seenInTurn, Optional<String> starName,
 		Optional<Integer> planetMaxPopulation, Optional<ColonyView> colony, Optional<Integer> fleetRange,
 		Optional<Integer> extendedFleetRange, Optional<Integer> scannerRange, boolean colonizable,
