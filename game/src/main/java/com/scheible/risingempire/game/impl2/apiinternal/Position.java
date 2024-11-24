@@ -39,9 +39,9 @@ public record Position(Parsec x, Parsec y) {
 			return to;
 		}
 		else {
-			Parsec x = to.x.subtract(from.x).multiply(newLength, totalLength);
-			Parsec y = to.y.subtract(from.y).multiply(newLength, totalLength);
-			return new Position(x, y);
+			Parsec deltaX = to.x.subtract(from.x).multiply(newLength, totalLength);
+			Parsec deltaY = to.y.subtract(from.y).multiply(newLength, totalLength);
+			return new Position(from.x.add(deltaX), from.y.add(deltaY));
 		}
 	}
 

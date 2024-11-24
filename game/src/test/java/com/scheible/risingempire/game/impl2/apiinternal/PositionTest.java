@@ -11,8 +11,8 @@ class PositionTest {
 
 	@Test
 	void testInterpolate() {
-		Position from = new Position(0, 0);
-		Position to = new Position(3, 4);
+		Position from = new Position(3, 4);
+		Position to = new Position(0, 0);
 
 		List<Position> positions = new ArrayList<>();
 		Position current = from;
@@ -22,9 +22,9 @@ class PositionTest {
 		}
 		positions.add(current);
 
-		assertThat(positions).containsExactly(new Position("0.000", "0.000"), new Position("0.600", "0.800"),
-				new Position("1.200", "1.600"), new Position("1.800", "2.400"), new Position("2.400", "3.200"),
-				new Position("3.000", "4.000"));
+		assertThat(positions).containsExactly(new Position("3.000", "4.000"), new Position("2.400", "3.200"),
+				new Position("1.800", "2.400"), new Position("1.200", "1.600"), new Position("0.600", "0.800"),
+				new Position("0.000", "0.000"));
 	}
 
 	@Test
