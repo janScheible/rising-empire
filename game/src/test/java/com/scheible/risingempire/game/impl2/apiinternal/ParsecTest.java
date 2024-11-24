@@ -26,4 +26,11 @@ class ParsecTest {
 		assertThat(new Parsec("1.234").toPlainString()).isEqualTo("1234");
 	}
 
+	@Test
+	void testRoundUp() {
+		assertThat(new Parsec("0.999").roundUp()).isEqualTo(1);
+		assertThat(new Parsec("1.0").roundUp()).isEqualTo(1);
+		assertThat(new Parsec("1.001").roundUp()).isEqualTo(2);
+	}
+
 }

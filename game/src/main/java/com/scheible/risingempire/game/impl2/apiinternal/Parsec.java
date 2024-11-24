@@ -62,6 +62,10 @@ public record Parsec(BigDecimal quantity) implements Comparable<Parsec> {
 		return Long.toString(this.quantity.movePointRight(3).longValue());
 	}
 
+	public int roundUp() {
+		return this.quantity.setScale(0, RoundingMode.UP).intValue();
+	}
+
 	@Override
 	public int compareTo(Parsec o) {
 		return this.quantity.compareTo(o.quantity);
