@@ -40,7 +40,7 @@ class NavyTest extends AbstractNavyTest {
 								new Position("2.997", "0.000"), new Round(3),
 								this.shipMovementSpecsProvider.speed(this.player, this.enterprise)),
 								new Itinerary(this.otherDestination, this.destination,
-										Optional.of(new Position("2.000", "2.000")), new Position("0.670", "-1.341"),
+										Optional.of(new Position("2.000", "2.000")), new Position("2.670", "0.659"),
 										new Round(1), this.shipMovementSpecsProvider.speed(this.player, this.scout)))),
 				ships(this.enterprise, 1, this.scout, 1));
 		assertThat(arrivedFleets.fleets()).containsOnly(arrivedFleet);
