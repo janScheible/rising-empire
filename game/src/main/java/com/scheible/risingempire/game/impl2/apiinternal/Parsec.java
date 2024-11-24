@@ -51,7 +51,7 @@ public record Parsec(BigDecimal quantity) implements Comparable<Parsec> {
 	}
 
 	public Parsec divide(Parsec divisor) {
-		return new Parsec(this.quantity.divide(divisor.quantity));
+		return new Parsec(this.quantity.divide(divisor.quantity, 3, RoundingMode.HALF_UP));
 	}
 
 	public Parsec sqrt() {
