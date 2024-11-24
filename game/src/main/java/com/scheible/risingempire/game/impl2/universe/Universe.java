@@ -3,8 +3,8 @@ package com.scheible.risingempire.game.impl2.universe;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
-import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.view.system.PlanetSpecial;
 import com.scheible.risingempire.game.api.view.system.PlanetType;
 import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
@@ -15,28 +15,35 @@ import com.scheible.risingempire.game.impl2.apiinternal.Position;
  */
 public class Universe {
 
-	private GalaxySize galaxySize;
+	private Parsec galaxyWidth;
+
+	private Parsec galaxyHeight;
 
 	private List<Star> stars;
 
-	public Universe(GalaxySize galaxySize, List<Star> stars) {
-		this.galaxySize = galaxySize;
+	public Universe(Parsec galaxyWidth, Parsec galaxyHeight, List<Star> stars) {
+		this.galaxyWidth = galaxyWidth;
+		this.galaxyHeight = galaxyHeight;
 		this.stars = new ArrayList<>(stars);
 	}
 
 	public Parsec height() {
-		return new Parsec(this.galaxySize.height() / 10.0);
+		return this.galaxyHeight;
 	}
 
 	public Parsec width() {
-		return new Parsec(this.galaxySize.width() / 10.0);
+		return this.galaxyWidth;
 	}
 
-	public Star closest(Position position) {
+	public Star closest(Position position, Predicate<Star> filter) {
 		Star closest = null;
 		Parsec distance = null;
 
 		for (Star star : this.stars) {
+			if (!filter.test(star) || position.equals(star.position())) {
+				continue;
+			}
+
 			if (closest == null) {
 				closest = star;
 				distance = star.position().subtract(position).length();

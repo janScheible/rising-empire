@@ -15,6 +15,10 @@ class LocationMapper {
 		return parse.multiply(FACTOR).quantity().intValue();
 	}
 
+	static Parsec fromLocationValue(int width) {
+		return new Parsec(width).divide(FACTOR);
+	}
+
 	static Location toLocation(Position position) {
 		return new Location(toLocationValue(position.x()), toLocationValue(position.y()));
 	}

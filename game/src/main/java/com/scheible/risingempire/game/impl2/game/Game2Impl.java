@@ -60,7 +60,8 @@ public class Game2Impl implements Game {
 	private final PlayerTurns playerTurns;
 
 	public Game2Impl(GalaxySize galaxySize, List<Empire> empires, List<Star> stars, List<Fleet> fleets) {
-		this.universe = new Universe(galaxySize, stars);
+		this.universe = new Universe(LocationMapper.fromLocationValue(galaxySize.width()),
+				LocationMapper.fromLocationValue(galaxySize.height()), stars);
 		this.empires = new ArrayList<>(empires);
 		this.technology = new Technology();
 		this.shipyard = new Shipyard();
@@ -153,8 +154,8 @@ public class Game2Impl implements Game {
 					.stream()
 					.map(star -> Map.entry(SystemIdMapper.toSystemId(star.position()),
 							SystemViewMapper.toSystemView(this.player, star, Game2Impl.this.universe.planet(star),
-									Game2Impl.this.colonization.colony(star.position()), Game2Impl.this.technology,
-									Game2Impl.this.technology)))
+									Game2Impl.this.technology, Game2Impl.this.technology, Game2Impl.this.universe,
+									Game2Impl.this.colonization)))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue)))
 				.fleets(navy.fleets()
 					.stream()
@@ -164,7 +165,8 @@ public class Game2Impl implements Game {
 										.filter(empire -> empire.player().equals(fleet.player()))
 										.findFirst()
 										.orElseThrow(),
-									fleet, Game2Impl.this.universe.closest(fleet.location().current()),
+									fleet,
+									Game2Impl.this.universe.closest(fleet.location().current(), (Star _) -> true),
 									Game2Impl.this.technology, Game2Impl.this.shipyard)))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue)))
 				.spaceCombats(Set.of())
