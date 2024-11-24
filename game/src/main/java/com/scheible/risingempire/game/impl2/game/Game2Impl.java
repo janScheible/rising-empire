@@ -116,7 +116,7 @@ public class Game2Impl implements Game {
 	private void finishRound() {
 		// populationGrowth();
 		// industryProduction();
-		// ArrivedFleets arrivedFleets = moveFleetsAndAddNewShips();
+		this.navy.moveFleetsAndAddNewShips(this.round, this.playerTurns.orders(Deployment.class), List.of());
 		// arrivedFleets = resolveSpaceCombats(arrivedFleets);
 		// colonizeSystems();
 		// annexColonies();
@@ -138,7 +138,8 @@ public class Game2Impl implements Game {
 
 		@Override
 		public GameView view() {
-			Navy navy = Game2Impl.this.navy.apply(Game2Impl.this.round, List.of());
+			Navy navy = Game2Impl.this.navy.apply(Game2Impl.this.round,
+					Game2Impl.this.playerTurns.orders(this.player, Deployment.class));
 
 			return GameView.builder()
 				.galaxyWidth(LocationMapper.toLocationValue(Game2Impl.this.universe.width()))

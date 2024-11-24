@@ -1,6 +1,7 @@
 package com.scheible.risingempire.game.impl2.game;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +47,16 @@ class PlayerTurns {
 
 	<T extends Order> List<T> orders(Player player, Class<T> clazz) {
 		return this.turnMapping.get(player).orders.stream().filter(clazz::isInstance).map(clazz::cast).toList();
+	}
+
+	<T extends Order> List<T> orders(Class<T> clazz) {
+		return this.turnMapping.values()
+			.stream()
+			.map(PlayerTurn::orders)
+			.flatMap(Collection::stream)
+			.filter(clazz::isInstance)
+			.map(clazz::cast)
+			.toList();
 	}
 
 	void finishTurn(Player player) {
