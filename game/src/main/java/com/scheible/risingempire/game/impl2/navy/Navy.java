@@ -100,7 +100,7 @@ public class Navy {
 	public Optional<Rounds> calcEta(Player player, Position origin, Position destination, Ships ships) {
 		Parsec distance = destination.subtract(origin).length();
 
-		if (distance.compareTo(this.fleets.effectiveRange(player, ships)) <= 0) {
+		if (!ships.empty() && distance.compareTo(this.fleets.effectiveRange(player, ships)) <= 0) {
 			Speed speed = this.fleets.effectiveSpeed(player, ships);
 			Rounds rounds = new Rounds((int) Math.ceil(distance.divide(speed.distance()).quantity().doubleValue()));
 			return Optional.of(rounds);
