@@ -71,7 +71,7 @@ class FleetViewMapper {
 				.ships(new ShipsView(ships))
 				.source(Optional.of(SystemIdMapper.toSystemId(itinerary.origin())))
 				.destination(Optional.of(SystemIdMapper.toSystemId(itinerary.destination())))
-				.previousLocation(itinerary.previous().map(LocationMapper::toLocation).orElseThrow())
+				.previousLocation(LocationMapper.toLocation(itinerary.previous().orElse(itinerary.current())))
 				.previousJustLeaving(itinerary.previousJustLeaving())
 				.location(LocationMapper.toLocation(itinerary.current()))
 				.speed(LocationMapper.toLocationValue(itinerary.speed().distance()))
