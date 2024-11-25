@@ -77,7 +77,7 @@ class FleetViewMapper {
 				.speed(LocationMapper.toLocationValue(itinerary.speed().distance()))
 				.closest(SystemIdMapper.toSystemId(closest.position()))
 				.orientation(horizontalDirection(itinerary))
-				.deployable(false)
+				.deployable(itinerary.justLeaving())
 				.scannerRange(Optional.of(LocationMapper.toLocationValue(shipScanSpecsProvider
 					.effectiveScanRange(fleetEmpire.player(), fleet.ships().counts().keySet()))))
 				.justLeaving(itinerary.justLeaving())
