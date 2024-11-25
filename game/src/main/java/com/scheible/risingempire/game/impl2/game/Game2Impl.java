@@ -139,9 +139,6 @@ public class Game2Impl implements Game {
 
 		@Override
 		public GameView view() {
-			Navy navy = Game2Impl.this.navy.apply(Game2Impl.this.round,
-					Game2Impl.this.playerTurns.orders(this.player, Deployment.class));
-
 			return GameView.builder()
 				.galaxyWidth(LocationMapper.toLocationValue(Game2Impl.this.universe.width()))
 				.galaxyHeight(LocationMapper.toLocationValue(Game2Impl.this.universe.height()))
@@ -157,7 +154,7 @@ public class Game2Impl implements Game {
 									Game2Impl.this.technology, Game2Impl.this.technology, Game2Impl.this.universe,
 									Game2Impl.this.colonization)))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue)))
-				.fleets(navy.fleets()
+				.fleets(navy().fleets()
 					.stream()
 					.map(fleet -> Map.entry(FleetIdMapper.toFleetId(fleet.location()),
 							FleetViewMapper.toFleetView(this.player,
@@ -176,25 +173,25 @@ public class Game2Impl implements Game {
 
 		@Override
 		public Optional<Integer> calcEta(FleetId fleetId, SystemId destinationId, ShipsView ships) {
+			Navy navy = navy();
+
 			Position origin = switch (FleetIdMapper.fromFleetId(fleetId)) {
 				case OrbitingFleetId orbitingFleetId -> orbitingFleetId.system();
 				case DeployedFleetId deployedFleetId ->
-					Game2Impl.this.navy
-						.findDispatched(this.player, deployedFleetId.origin(), deployedFleetId.destination(),
-								deployedFleetId.dispatchment(), deployedFleetId.speed())
+					navy.findDispatched(this.player, deployedFleetId.origin(), deployedFleetId.destination(),
+							deployedFleetId.dispatchment(), deployedFleetId.speed())
 						.orElseThrow()
 						.location()
 						.current();
 			};
 
-			return Game2Impl.this.navy
-				.calcEta(this.player, origin, SystemIdMapper.fromSystemId(destinationId), toShips(ships))
+			return navy.calcEta(this.player, origin, SystemIdMapper.fromSystemId(destinationId), toShips(ships))
 				.map(Rounds::quantity);
 		}
 
 		@Override
 		public Optional<Integer> calcTranportColonistsEta(SystemId originId, SystemId destinationId) {
-			return Game2Impl.this.navy
+			return navy()
 				.calcTranportColonistsEta(this.player, SystemIdMapper.fromSystemId(originId),
 						SystemIdMapper.fromSystemId(destinationId))
 				.map(Rounds::quantity);
@@ -267,6 +264,11 @@ public class Game2Impl implements Game {
 		@Override
 		public TurnStatus finishTurn() {
 			return Game2Impl.this.finishTurn(this.player);
+		}
+
+		private Navy navy() {
+			return Game2Impl.this.navy.apply(Game2Impl.this.round,
+					Game2Impl.this.playerTurns.orders(this.player, Deployment.class));
 		}
 
 	}
