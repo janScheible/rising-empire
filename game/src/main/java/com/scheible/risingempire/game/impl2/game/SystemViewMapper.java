@@ -45,7 +45,7 @@ class SystemViewMapper {
 			.starType(star.type())
 			.small(star.small())
 			.homeSystem(colony.isPresent())
-			.nearestColony(nearestColony)
+			.closestColony(nearestColony)
 			.planetType(Optional.of(planet.type()))
 			.planetSpecial(Optional.of(planet.planetSpecial()))
 			.seenInTurn(Optional.of(1))
