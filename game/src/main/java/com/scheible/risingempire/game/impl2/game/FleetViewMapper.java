@@ -86,7 +86,7 @@ class FleetViewMapper {
 	}
 
 	private static HorizontalDirection horizontalDirection(Itinerary itinerary) {
-		return itinerary.current().x().compareTo(itinerary.destination().x()) < 0 ? HorizontalDirection.LEFT
+		return itinerary.current().x().compareTo(itinerary.destination().x()) > 0 ? HorizontalDirection.LEFT
 				: HorizontalDirection.RIGHT;
 	}
 
