@@ -3,6 +3,7 @@ package com.scheible.risingempire.game.impl2.game;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
@@ -10,8 +11,6 @@ import com.scheible.risingempire.game.api.view.ship.ShipSize;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.system.SystemView;
-import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
-import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
 import com.scheible.risingempire.game.impl2.navy.ShipMovementSpecsProvider;
@@ -29,14 +28,13 @@ class SystemViewMapper {
 			ColonyScanSpecsProvider colonyScanSpecsProvider, ShipMovementSpecsProvider shipMovementSpecsProvider,
 			Universe universe, Colonization colonization) {
 		Optional<Colony> colony = colonization.colony(star.position());
-		boolean ownColony = colony.filter(c -> c.empire().player() == player).isPresent();
-		Optional<Integer> nearestColony = Optional
-			.ofNullable(universe.closest(star.position(),
-					s -> colonization.colony(s.position()).filter(c -> c.empire().player().equals(player)).isPresent()))
-			.map(Star::position)
-			.map(nearest -> nearest.subtract(star.position()))
-			.map(Position::length)
-			.map(Parsec::roundUp);
+		Predicate<Star> starHasOwnColony = s -> colonization.colony(s.position())
+			.filter(c -> c.empire().player() == player)
+			.isPresent();
+		boolean ownColony = starHasOwnColony.test(star);
+
+		Optional<Integer> closestColony = Optional.ofNullable(universe.closest(star.position(), starHasOwnColony))
+			.map(closest -> universe.distance(star, closest).roundUp());
 
 		return SystemView.builder()
 			.id(SystemIdMapper.toSystemId(star.position()))
@@ -45,7 +43,7 @@ class SystemViewMapper {
 			.starType(star.type())
 			.small(star.small())
 			.homeSystem(colony.isPresent())
-			.closestColony(nearestColony)
+			.closestColony(closestColony)
 			.planetType(Optional.of(planet.type()))
 			.planetSpecial(Optional.of(planet.planetSpecial()))
 			.seenInTurn(Optional.of(1))

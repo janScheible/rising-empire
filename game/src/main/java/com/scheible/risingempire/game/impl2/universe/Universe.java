@@ -35,12 +35,12 @@ public class Universe {
 		return this.galaxyWidth;
 	}
 
-	public Star closest(Position position, Predicate<Star> filter) {
+	public Star closest(Position position, Predicate<Star> starPredicate) {
 		Star closest = null;
 		Parsec distance = null;
 
 		for (Star star : this.stars) {
-			if (!filter.test(star) || position.equals(star.position())) {
+			if (!starPredicate.test(star) || position.equals(star.position())) {
 				continue;
 			}
 
@@ -59,6 +59,10 @@ public class Universe {
 		}
 
 		return closest;
+	}
+
+	public Parsec distance(Star from, Star to) {
+		return to.position().subtract(from.position()).length();
 	}
 
 	public Planet planet(Star star) {
