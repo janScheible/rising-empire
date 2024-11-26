@@ -117,7 +117,7 @@ public class Game2Impl implements Game {
 	private void finishRound() {
 		// populationGrowth();
 		// industryProduction();
-		this.navy.moveFleetsAndAddNewShips(this.round, this.playerTurns.orders(Deployment.class), List.of());
+		this.navy.moveFleetsAndAddNewShips(this.round, this.playerTurns.commands(Deployment.class), List.of());
 		// arrivedFleets = resolveSpaceCombats(arrivedFleets);
 		// colonizeSystems();
 		// annexColonies();
@@ -244,7 +244,7 @@ public class Game2Impl implements Game {
 							SystemIdMapper.fromSystemId(destinationId), toShips(ships));
 			};
 
-			Game2Impl.this.playerTurns.addOrder(this.player, deployment);
+			Game2Impl.this.playerTurns.addCommand(this.player, deployment);
 		}
 
 		private static Ships toShips(ShipsView ships) {
@@ -268,7 +268,7 @@ public class Game2Impl implements Game {
 
 		private Navy navy() {
 			return Game2Impl.this.navy.apply(Game2Impl.this.round,
-					Game2Impl.this.playerTurns.orders(this.player, Deployment.class));
+					Game2Impl.this.playerTurns.commands(this.player, Deployment.class));
 		}
 
 	}

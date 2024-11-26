@@ -15,7 +15,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
 import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
-import com.scheible.risingempire.game.impl2.common.Order;
+import com.scheible.risingempire.game.impl2.common.Command;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Itinerary;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Orbit;
@@ -122,7 +122,7 @@ public class Navy {
 		return Collections.unmodifiableList(this.fleets.fleets());
 	}
 
-	public sealed interface Deployment extends Order {
+	public sealed interface Deployment extends Command {
 
 		Player player();
 

@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
-import com.scheible.risingempire.game.impl2.common.Order;
+import com.scheible.risingempire.game.impl2.common.Command;
 
 /**
  * @author sj
@@ -22,7 +22,7 @@ class PlayerTurns {
 
 	private final Map<Player, PlayerTurn> turnMapping;
 
-	private final Map<Round, Map<Player, List<Order>>> pastOrdersMapping = new HashMap<>();
+	private final Map<Round, Map<Player, List<Command>>> pastCommandsMapping = new HashMap<>();
 
 	private final Set<Player> autoTurn = new HashSet<>();
 
@@ -33,26 +33,26 @@ class PlayerTurns {
 
 	void beginNewRound(Round round) {
 		round.previous()
-			.ifPresent(previousRound -> this.pastOrdersMapping.put(previousRound,
+			.ifPresent(previousRound -> this.pastCommandsMapping.put(previousRound,
 					this.turnMapping.entrySet()
 						.stream()
-						.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().orders()))));
+						.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().commands()))));
 
 		this.turnMapping.values().stream().forEach(PlayerTurn::beginNewTurn);
 	}
 
-	void addOrder(Player player, Order order) {
-		this.turnMapping.get(player).addOrder(order);
+	void addCommand(Player player, Command command) {
+		this.turnMapping.get(player).addCommand(command);
 	}
 
-	<T extends Order> List<T> orders(Player player, Class<T> clazz) {
-		return this.turnMapping.get(player).orders.stream().filter(clazz::isInstance).map(clazz::cast).toList();
+	<T extends Command> List<T> commands(Player player, Class<T> clazz) {
+		return this.turnMapping.get(player).commands.stream().filter(clazz::isInstance).map(clazz::cast).toList();
 	}
 
-	<T extends Order> List<T> orders(Class<T> clazz) {
+	<T extends Command> List<T> commands(Class<T> clazz) {
 		return this.turnMapping.values()
 			.stream()
-			.map(PlayerTurn::orders)
+			.map(PlayerTurn::commands)
 			.flatMap(Collection::stream)
 			.filter(clazz::isInstance)
 			.map(clazz::cast)
@@ -74,8 +74,8 @@ class PlayerTurns {
 			.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().turnFinished()));
 	}
 
-	Map<Round, Map<Player, List<Order>>> pastOrdersMapping() {
-		return new HashMap<>(this.pastOrdersMapping);
+	Map<Round, Map<Player, List<Command>>> pastCommandMapping() {
+		return new HashMap<>(this.pastCommandsMapping);
 	}
 
 	void enableAutoTurn(Player player) {
@@ -92,16 +92,16 @@ class PlayerTurns {
 
 	private static class PlayerTurn {
 
-		private List<Order> orders = new ArrayList<>();
+		private List<Command> commands = new ArrayList<>();
 
 		private boolean turnFinished = false;
 
-		private void addOrder(Order order) {
-			this.orders.add(order);
+		private void addCommand(Command command) {
+			this.commands.add(command);
 		}
 
 		private void beginNewTurn() {
-			this.orders = new ArrayList<>();
+			this.commands = new ArrayList<>();
 			this.turnFinished = false;
 		}
 
@@ -113,8 +113,8 @@ class PlayerTurns {
 			return this.turnFinished;
 		}
 
-		private List<Order> orders() {
-			return this.orders;
+		private List<Command> commands() {
+			return this.commands;
 		}
 
 	}
