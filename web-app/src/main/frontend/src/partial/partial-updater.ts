@@ -44,6 +44,15 @@ export default class PartialUpdater extends SubmitInterceptor {
 				} as Action);
 
 			if (stateName === 'FleetInspectionState' || stateName === 'FleetDeploymentState') {
+				// the ship counts must also be available in the 'select' action of the stars to correctly determine if a deployment is possible
+				const assignShipsAction = HypermediaUtil.getAction(
+					cachedData.inspector.fleetDeployment,
+					'assign-ships'
+				);
+				const shipCountFields = [...assignShipsAction.fields].filter(
+					(field) => !['selectedStarId', 'selectedFleetId'].includes(field.name)
+				);
+
 				cachedData.starMap.stars.map((star) => {
 					const selectable =
 						!cachedData.starMap.fleetSelection.deployable ||
@@ -57,11 +66,13 @@ export default class PartialUpdater extends SubmitInterceptor {
 							[
 								{ name: 'selectedStarId', value: star.id },
 								{ name: 'selectedFleetId', value: cachedData.starMap.fleetSelection.id },
-							].filter(
-								(f) =>
-									f.name !== 'selectedFleetId' ||
-									(f.name === 'selectedFleetId' && cachedData.starMap.fleetSelection.deployable)
-							)
+							]
+								.filter(
+									(f) =>
+										f.name !== 'selectedFleetId' ||
+										(f.name === 'selectedFleetId' && cachedData.starMap.fleetSelection.deployable)
+								)
+								.concat(shipCountFields)
 						);
 					}
 				});
