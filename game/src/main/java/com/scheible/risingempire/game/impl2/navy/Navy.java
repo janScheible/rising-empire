@@ -85,6 +85,12 @@ public class Navy {
 					destinationArrivedFleetMapping.put(itinerary.destination(), newFleet);
 				}
 			}
+			else if (!obsoleteOrbitingFleets.contains(fleet) && fleet.location() instanceof Orbit orbit) {
+				// fleet arrived in the round before
+				if (!orbit.partsBeforArrival().isEmpty()) {
+					this.fleets.set(i, new Fleet(fleet.player(), new Orbit(orbit.system()), fleet.ships()));
+				}
+			}
 		}
 
 		obsoleteOrbitingFleets.forEach(this.fleets::remove);

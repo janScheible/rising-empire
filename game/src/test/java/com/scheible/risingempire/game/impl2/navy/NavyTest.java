@@ -32,16 +32,25 @@ class NavyTest extends AbstractNavyTest {
 		while (navy.fleets().stream().anyMatch(fleet -> fleet.location() instanceof Itinerary)) {
 			round = round.next();
 			arrivedFleets = navy.moveFleetsAndAddNewShips(round, List.of(), List.of());
+
+			// this is the scout arriving at the destiantion
+			if (arrivedFleets.fleets().stream().anyMatch(f -> f.contains(this.scout) && !f.contains(this.enterprise))) {
+				assertThat(arrivedFleets.fleets())
+					.containsOnly(new Fleet(this.player,
+							new Orbit(this.destination, Set.of(new Itinerary(this.otherDestination, this.destination,
+									Optional.of(new Position("2.000", "2.000")), new Position("2.670", "0.659"),
+									new Round(1), this.shipMovementSpecsProvider.speed(this.player, this.scout)))),
+							ships(this.scout, 1)));
+			}
 		}
 
+		// this is the final fleet arrived at destination (the scout has no
+		// `partsBeforeArrival` anymore because it arrived earlier)
 		Fleet arrivedFleet = new Fleet(this.player,
 				new Orbit(this.destination,
 						Set.of(new Itinerary(this.origin, this.destination, Optional.of(new Position("1.998", "0.000")),
 								new Position("2.997", "0.000"), new Round(3),
-								this.shipMovementSpecsProvider.speed(this.player, this.enterprise)),
-								new Itinerary(this.otherDestination, this.destination,
-										Optional.of(new Position("2.000", "2.000")), new Position("2.670", "0.659"),
-										new Round(1), this.shipMovementSpecsProvider.speed(this.player, this.scout)))),
+								this.shipMovementSpecsProvider.speed(this.player, this.enterprise)))),
 				ships(this.enterprise, 1, this.scout, 1));
 		assertThat(arrivedFleets.fleets()).containsOnly(arrivedFleet);
 		assertThat(navy.fleets()).containsOnly(arrivedFleet);

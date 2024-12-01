@@ -54,6 +54,10 @@ public record Ships(Map<ShipClassId, Integer> counts) {
 		return update(ships, Integer::sum);
 	}
 
+	public boolean contains(ShipClassId shipClass) {
+		return this.counts.containsKey(shipClass);
+	}
+
 	private Ships update(Ships ships, BiFunction<Integer, Integer, Integer> operation) {
 		Map<ShipClassId, Integer> updatedShips = new HashMap<>(this.counts);
 		ships.counts.forEach((key, value) -> {
@@ -71,4 +75,5 @@ public record Ships(Map<ShipClassId, Integer> counts) {
 		});
 		return new Ships(updatedShips);
 	}
+
 }

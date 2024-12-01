@@ -9,6 +9,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.Round;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Itinerary;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Orbit;
+import com.scheible.risingempire.game.impl2.ship.ShipClassId;
 
 public record Fleet(Player player, Location location, Ships ships) {
 
@@ -31,6 +32,10 @@ public record Fleet(Player player, Location location, Ships ships) {
 
 	public boolean colonistTransport() {
 		return this.ships.transporters();
+	}
+
+	public boolean contains(ShipClassId shipClass) {
+		return this.ships.contains(shipClass);
 	}
 
 	public sealed interface Location {
