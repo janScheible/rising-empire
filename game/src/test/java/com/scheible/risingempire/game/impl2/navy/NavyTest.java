@@ -6,7 +6,6 @@ import java.util.Set;
 
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
-import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Itinerary;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Orbit;
 import org.junit.jupiter.api.Test;
@@ -54,15 +53,6 @@ class NavyTest extends AbstractNavyTest {
 				ships(this.enterprise, 1, this.scout, 1));
 		assertThat(arrivedFleets.fleets()).containsOnly(arrivedFleet);
 		assertThat(navy.fleets()).containsOnly(arrivedFleet);
-	}
-
-	@Test
-	void testEta() {
-		Navy navy = createNavy(List.of());
-
-		Optional<Rounds> eta = navy.calcEta(this.player, this.origin, this.destination, ships(this.scout, 1));
-
-		assertThat(eta).contains(new Rounds(2));
 	}
 
 	private Navy createNavy(List<Fleet> fleets) {

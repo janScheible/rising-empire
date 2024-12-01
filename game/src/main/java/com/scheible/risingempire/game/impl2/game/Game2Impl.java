@@ -25,6 +25,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.Round;
 import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
+import com.scheible.risingempire.game.impl2.colonization.Colony;
 import com.scheible.risingempire.game.impl2.empire.Empire;
 import com.scheible.risingempire.game.impl2.navy.Fleet;
 import com.scheible.risingempire.game.impl2.navy.Navy;
@@ -32,6 +33,7 @@ import com.scheible.risingempire.game.impl2.navy.Navy.DeployJustLeaving;
 import com.scheible.risingempire.game.impl2.navy.Navy.DeployOrbiting;
 import com.scheible.risingempire.game.impl2.navy.Navy.Deployment;
 import com.scheible.risingempire.game.impl2.navy.Ships;
+import com.scheible.risingempire.game.impl2.navy.eta.EtaCalculator;
 import com.scheible.risingempire.game.impl2.ship.ShipClassId;
 import com.scheible.risingempire.game.impl2.ship.Shipyard;
 import com.scheible.risingempire.game.impl2.technology.Technology;
@@ -58,6 +60,8 @@ public class Game2Impl implements Game {
 
 	private final Navy navy;
 
+	private final EtaCalculator etaCalculator;
+
 	private final Colonization colonization;
 
 	private Round round;
@@ -71,6 +75,7 @@ public class Game2Impl implements Game {
 		this.technology = new Technology();
 		this.shipyard = new Shipyard();
 		this.navy = new Navy(fleets, this.technology);
+		this.etaCalculator = new EtaCalculator(this.technology);
 		this.colonization = new Colonization();
 
 		this.round = new Round(1);
@@ -190,15 +195,17 @@ public class Game2Impl implements Game {
 						.current();
 			};
 
-			return navy.calcEta(this.player, origin, SystemIdMapper.fromSystemId(destinationId), toShips(ships))
+			return Game2Impl.this.etaCalculator
+				.calc(this.player, origin, SystemIdMapper.fromSystemId(destinationId), toShips(ships),
+						toPositions(Game2Impl.this.colonization.colonies(this.player)))
 				.map(Rounds::quantity);
 		}
 
 		@Override
 		public Optional<Integer> calcTranportColonistsEta(SystemId originId, SystemId destinationId) {
-			return navy()
-				.calcTranportColonistsEta(this.player, SystemIdMapper.fromSystemId(originId),
-						SystemIdMapper.fromSystemId(destinationId))
+			return Game2Impl.this.etaCalculator
+				.calc(this.player, SystemIdMapper.fromSystemId(originId), SystemIdMapper.fromSystemId(destinationId),
+						Ships.COLONISTS_TRANSPORTER, toPositions(Game2Impl.this.colonization.colonies(this.player)))
 				.map(Rounds::quantity);
 		}
 
@@ -279,6 +286,10 @@ public class Game2Impl implements Game {
 		private Navy navy() {
 			return Game2Impl.this.navy.apply(Game2Impl.this.round,
 					Game2Impl.this.playerTurns.commands(this.player, Deployment.class));
+		}
+
+		private static Set<Position> toPositions(Set<Colony> colonies) {
+			return colonies.stream().map(Colony::position).collect(Collectors.toSet());
 		}
 
 	}

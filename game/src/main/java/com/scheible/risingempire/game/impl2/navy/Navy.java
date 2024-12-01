@@ -10,10 +10,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.scheible.risingempire.game.api.universe.Player;
-import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
-import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
 import com.scheible.risingempire.game.impl2.common.Command;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location;
@@ -101,23 +99,6 @@ public class Navy {
 	public Optional<Fleet> findDispatched(Player player, Position origin, Position destination, Round dispatchment,
 			Speed speed) {
 		return this.fleets.findDispatched(player, origin, destination, dispatchment, speed);
-	}
-
-	public Optional<Rounds> calcEta(Player player, Position origin, Position destination, Ships ships) {
-		Parsec distance = destination.subtract(origin).length();
-
-		if (!ships.empty() && distance.compareTo(this.fleets.effectiveRange(player, ships)) <= 0) {
-			Speed speed = this.fleets.effectiveSpeed(player, ships);
-			Rounds rounds = new Rounds((int) Math.ceil(distance.divide(speed.distance()).quantity().doubleValue()));
-			return Optional.of(rounds);
-		}
-		else {
-			return Optional.empty();
-		}
-	}
-
-	public Optional<Rounds> calcTranportColonistsEta(Player player, Position origin, Position destination) {
-		return calcEta(player, origin, destination, Ships.transporters(1));
 	}
 
 	public void removeDestroyedShips(List<DestroyedShips> destroyedShips) {

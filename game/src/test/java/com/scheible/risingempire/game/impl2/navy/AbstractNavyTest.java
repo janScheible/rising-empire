@@ -12,7 +12,7 @@ import com.scheible.risingempire.game.impl2.ship.ShipClassId;
 /**
  * @author sj
  */
-abstract class AbstractNavyTest {
+public abstract class AbstractNavyTest {
 
 	protected final Player player = Player.BLUE;
 

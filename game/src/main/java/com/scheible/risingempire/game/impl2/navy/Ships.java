@@ -13,6 +13,8 @@ public record Ships(Map<ShipClassId, Integer> counts) {
 
 	public static Ships NONE = new Ships(Map.of());
 
+	public static Ships COLONISTS_TRANSPORTER = Ships.transporters(1);
+
 	public Ships {
 		if (counts.keySet().contains(ShipClassId.COLONISTS_TRANSPORTER) && counts.size() != 1) {
 			throw new IllegalArgumentException(
