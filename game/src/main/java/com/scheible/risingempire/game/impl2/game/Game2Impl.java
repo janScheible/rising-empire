@@ -26,9 +26,6 @@ import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
 import com.scheible.risingempire.game.impl2.empire.Empire;
-import com.scheible.risingempire.game.impl2.game.FleetIdMapper.DeployedFleetId;
-import com.scheible.risingempire.game.impl2.game.FleetIdMapper.DomainFleetId;
-import com.scheible.risingempire.game.impl2.game.FleetIdMapper.OrbitingFleetId;
 import com.scheible.risingempire.game.impl2.navy.Fleet;
 import com.scheible.risingempire.game.impl2.navy.Navy;
 import com.scheible.risingempire.game.impl2.navy.Navy.DeployJustLeaving;
@@ -40,6 +37,14 @@ import com.scheible.risingempire.game.impl2.ship.Shipyard;
 import com.scheible.risingempire.game.impl2.technology.Technology;
 import com.scheible.risingempire.game.impl2.universe.Star;
 import com.scheible.risingempire.game.impl2.universe.Universe;
+import com.scheible.risingempire.game.impl2.view.FleetIdMapper;
+import com.scheible.risingempire.game.impl2.view.FleetIdMapper.DeployedFleetId;
+import com.scheible.risingempire.game.impl2.view.FleetIdMapper.DomainFleetId;
+import com.scheible.risingempire.game.impl2.view.FleetIdMapper.OrbitingFleetId;
+import com.scheible.risingempire.game.impl2.view.FleetViewMapper;
+import com.scheible.risingempire.game.impl2.view.LocationMapper;
+import com.scheible.risingempire.game.impl2.view.SystemIdMapper;
+import com.scheible.risingempire.game.impl2.view.SystemViewMapper;
 
 public class Game2Impl implements Game {
 

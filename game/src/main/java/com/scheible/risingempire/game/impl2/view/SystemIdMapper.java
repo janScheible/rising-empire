@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl2.game;
+package com.scheible.risingempire.game.impl2.view;
 
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
@@ -6,13 +6,13 @@ import com.scheible.risingempire.game.impl2.apiinternal.Position;
 /**
  * @author sj
  */
-class SystemIdMapper {
+public class SystemIdMapper {
 
-	static SystemId toSystemId(Position position) {
+	public static SystemId toSystemId(Position position) {
 		return new SystemId("s" + position.toPlainString());
 	}
 
-	static Position fromSystemId(SystemId systemId) {
+	public static Position fromSystemId(SystemId systemId) {
 		return Position.fromPlainString(systemId.value().substring(1));
 	}
 

@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl2.game;
+package com.scheible.risingempire.game.impl2.view;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,9 +27,9 @@ import com.scheible.risingempire.game.impl2.universe.Star;
 /**
  * @author sj
  */
-class FleetViewMapper {
+public class FleetViewMapper {
 
-	static FleetView toFleetView(Player player, Empire fleetEmpire, Fleet fleet, Star closest,
+	public static FleetView toFleetView(Player player, Empire fleetEmpire, Fleet fleet, Star closest,
 			ShipScanSpecsProvider shipScanSpecsProvider, Shipyard shipyard) {
 		// Simply always group by orbiting system or current fleet position. This is in
 		// contrast to the inital orbiting fleet at begin of turn as in the original game.

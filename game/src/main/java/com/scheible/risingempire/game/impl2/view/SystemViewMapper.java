@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl2.game;
+package com.scheible.risingempire.game.impl2.view;
 
 import java.util.Map;
 import java.util.Optional;
@@ -22,9 +22,9 @@ import com.scheible.risingempire.game.impl2.universe.Universe;
 /**
  * @author sj
  */
-class SystemViewMapper {
+public class SystemViewMapper {
 
-	static SystemView toSystemView(Player player, Star star, Planet planet,
+	public static SystemView toSystemView(Player player, Star star, Planet planet,
 			ColonyScanSpecsProvider colonyScanSpecsProvider, ShipMovementSpecsProvider shipMovementSpecsProvider,
 			Universe universe, Colonization colonization) {
 		Optional<Colony> colony = colonization.colony(star.position());

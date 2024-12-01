@@ -1,10 +1,10 @@
-package com.scheible.risingempire.game.impl2.game;
+package com.scheible.risingempire.game.impl2.view;
 
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
-import com.scheible.risingempire.game.impl2.game.FleetIdMapper.DeployedFleetId;
-import com.scheible.risingempire.game.impl2.game.FleetIdMapper.OrbitingFleetId;
+import com.scheible.risingempire.game.impl2.view.FleetIdMapper.DeployedFleetId;
+import com.scheible.risingempire.game.impl2.view.FleetIdMapper.OrbitingFleetId;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

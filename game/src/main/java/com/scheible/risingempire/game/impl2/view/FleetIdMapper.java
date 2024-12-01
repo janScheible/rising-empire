@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl2.game;
+package com.scheible.risingempire.game.impl2.view;
 
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
@@ -11,9 +11,9 @@ import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Orbit;
 /**
  * @author sj
  */
-class FleetIdMapper {
+public class FleetIdMapper {
 
-	static FleetId toFleetId(Location location) {
+	public static FleetId toFleetId(Location location) {
 		return switch (location) {
 			case Orbit orbit -> toFleetId(orbit.system());
 			case Itinerary itinerary ->
@@ -21,16 +21,16 @@ class FleetIdMapper {
 		};
 	}
 
-	static FleetId toFleetId(Position origin, Position destination, Round dispatchment, Speed speed) {
+	public static FleetId toFleetId(Position origin, Position destination, Round dispatchment, Speed speed) {
 		return new FleetId("f" + origin.toPlainString() + "->" + destination.toPlainString() + "@"
 				+ dispatchment.quantity() + "w/" + speed.toPlainString());
 	}
 
-	static FleetId toFleetId(Position origin) {
+	public static FleetId toFleetId(Position origin) {
 		return new FleetId("f" + origin.toPlainString());
 	}
 
-	static DomainFleetId fromFleetId(FleetId fleetId) {
+	public static DomainFleetId fromFleetId(FleetId fleetId) {
 		if (!fleetId.value().contains("-")) {
 			return new OrbitingFleetId(Position.fromPlainString(fleetId.value().substring(1)));
 		}
@@ -45,15 +45,15 @@ class FleetIdMapper {
 		}
 	}
 
-	sealed interface DomainFleetId {
+	public sealed interface DomainFleetId {
 
 	}
 
-	record OrbitingFleetId(Position system) implements DomainFleetId {
+	public record OrbitingFleetId(Position system) implements DomainFleetId {
 
 	}
 
-	record DeployedFleetId(Position origin, Position destination, Round dispatchment,
+	public record DeployedFleetId(Position origin, Position destination, Round dispatchment,
 			Speed speed) implements DomainFleetId {
 
 	}
