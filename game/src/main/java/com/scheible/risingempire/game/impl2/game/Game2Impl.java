@@ -234,6 +234,11 @@ public class Game2Impl implements Game {
 
 		@Override
 		public void deployFleet(FleetId fleetId, SystemId destinationId, ShipsView ships) {
+			if (calcEta(fleetId, destinationId, ships).isEmpty()) {
+				throw new IllegalArgumentException(
+						"The star " + destinationId + " is beyond the reach of the " + fleetId + " fleet.");
+			}
+
 			DomainFleetId domainFleetId = FleetIdMapper.fromFleetId(fleetId);
 
 			Deployment deployment = switch (domainFleetId) {
