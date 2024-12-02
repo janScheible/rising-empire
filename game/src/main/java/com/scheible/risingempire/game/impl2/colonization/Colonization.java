@@ -8,11 +8,12 @@ import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.empire.Empire;
+import com.scheible.risingempire.game.impl2.navy.eta.BasePositionsProvider;
 
 /**
  * @author sj
  */
-public class Colonization {
+public class Colonization implements BasePositionsProvider {
 
 	private final Set<Colony> colonies = Set.of(
 			new Colony(new Empire(Player.BLUE, Race.LUMERISKS), new Position("6.173", "5.026")),
@@ -25,6 +26,14 @@ public class Colonization {
 
 	public Optional<Colony> colony(Position system) {
 		return this.colonies.stream().filter(c -> c.position().equals(system)).findFirst();
+	}
+
+	@Override
+	public Set<Position> positions(Player player) {
+		return this.colonies.stream()
+			.filter(c -> c.empire().player().equals(player))
+			.map(Colony::position)
+			.collect(Collectors.toSet());
 	}
 
 }

@@ -1,14 +1,12 @@
 package com.scheible.risingempire.game.impl2.navy.eta;
 
 import java.util.Optional;
-import java.util.Set;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
-import com.scheible.risingempire.game.impl2.navy.ShipMovementSpecsProvider;
 import com.scheible.risingempire.game.impl2.navy.Ships;
 
 /**
@@ -18,12 +16,18 @@ public class EtaCalculator {
 
 	private final ShipMovementSpecsProvider shipMovementSpecsProvider;
 
-	public EtaCalculator(ShipMovementSpecsProvider shipMovementSpecsProvider) {
-		this.shipMovementSpecsProvider = shipMovementSpecsProvider;
+	private final BasePositionsProvider basePositionsProvider;
+
+	public EtaCalculator(ShipMovementSpecsProvider shipMovementSpecsProviderSupplier,
+			BasePositionsProvider basePositionsProviderSupplier) {
+		this.shipMovementSpecsProvider = shipMovementSpecsProviderSupplier;
+		this.basePositionsProvider = basePositionsProviderSupplier;
 	}
 
-	public Optional<Rounds> calc(Player player, Position origin, Position destination, Ships ships,
-			Set<Position> bases) {
+	public Optional<Rounds> calc(Player player, Position origin, Position destination, Ships ships) {
+		// differenct logic needed: Is the destination < range?
+		this.basePositionsProvider.positions(player);
+
 		Parsec distance = destination.subtract(origin).length();
 
 		if (!ships.empty() && distance

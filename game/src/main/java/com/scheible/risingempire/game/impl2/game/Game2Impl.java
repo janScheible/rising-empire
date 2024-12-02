@@ -25,7 +25,6 @@ import com.scheible.risingempire.game.impl2.apiinternal.Round;
 import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
-import com.scheible.risingempire.game.impl2.colonization.Colony;
 import com.scheible.risingempire.game.impl2.empire.Empire;
 import com.scheible.risingempire.game.impl2.navy.Fleet;
 import com.scheible.risingempire.game.impl2.navy.Navy;
@@ -75,8 +74,8 @@ public class Game2Impl implements Game {
 		this.technology = new Technology();
 		this.shipyard = new Shipyard();
 		this.navy = new Navy(fleets, this.technology);
-		this.etaCalculator = new EtaCalculator(this.technology);
 		this.colonization = new Colonization();
+		this.etaCalculator = new EtaCalculator(this.technology, this.colonization);
 
 		this.round = new Round(1);
 		this.playerTurns = new PlayerTurns(this.empires.stream().map(Empire::player).collect(Collectors.toSet()));
@@ -161,8 +160,7 @@ public class Game2Impl implements Game {
 					.stream()
 					.map(star -> Map.entry(SystemIdMapper.toSystemId(star.position()),
 							SystemViewMapper.toSystemView(this.player, star, Game2Impl.this.universe.planet(star),
-									Game2Impl.this.technology, Game2Impl.this.technology, Game2Impl.this.universe,
-									Game2Impl.this.colonization)))
+									Game2Impl.this.technology, Game2Impl.this.universe, Game2Impl.this.colonization)))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue)))
 				.fleets(navy().fleets()
 					.stream()
@@ -196,8 +194,7 @@ public class Game2Impl implements Game {
 			};
 
 			return Game2Impl.this.etaCalculator
-				.calc(this.player, origin, SystemIdMapper.fromSystemId(destinationId), toShips(ships),
-						toPositions(Game2Impl.this.colonization.colonies(this.player)))
+				.calc(this.player, origin, SystemIdMapper.fromSystemId(destinationId), toShips(ships))
 				.map(Rounds::quantity);
 		}
 
@@ -205,7 +202,7 @@ public class Game2Impl implements Game {
 		public Optional<Integer> calcTranportColonistsEta(SystemId originId, SystemId destinationId) {
 			return Game2Impl.this.etaCalculator
 				.calc(this.player, SystemIdMapper.fromSystemId(originId), SystemIdMapper.fromSystemId(destinationId),
-						Ships.COLONISTS_TRANSPORTER, toPositions(Game2Impl.this.colonization.colonies(this.player)))
+						Ships.COLONISTS_TRANSPORTER)
 				.map(Rounds::quantity);
 		}
 
@@ -286,10 +283,6 @@ public class Game2Impl implements Game {
 		private Navy navy() {
 			return Game2Impl.this.navy.apply(Game2Impl.this.round,
 					Game2Impl.this.playerTurns.commands(this.player, Deployment.class));
-		}
-
-		private static Set<Position> toPositions(Set<Colony> colonies) {
-			return colonies.stream().map(Colony::position).collect(Collectors.toSet());
 		}
 
 	}

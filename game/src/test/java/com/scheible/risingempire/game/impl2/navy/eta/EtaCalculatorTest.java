@@ -16,10 +16,9 @@ public class EtaCalculatorTest extends AbstractNavyTest {
 
 	@Test
 	void testEta() {
-		EtaCalculator etaCalculator = new EtaCalculator(this.shipMovementSpecsProvider);
+		EtaCalculator etaCalculator = new EtaCalculator(this.shipMovementSpecsProvider, (_) -> Set.of());
 
-		Optional<Rounds> eta = etaCalculator.calc(this.player, this.origin, this.destination, ships(this.scout, 1),
-				Set.of());
+		Optional<Rounds> eta = etaCalculator.calc(this.player, this.origin, this.destination, ships(this.scout, 1));
 
 		assertThat(eta).contains(new Rounds(2));
 	}

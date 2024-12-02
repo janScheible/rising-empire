@@ -21,7 +21,7 @@ import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Itinerary;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Orbit;
 import com.scheible.risingempire.game.impl2.ship.ShipDesign;
 import com.scheible.risingempire.game.impl2.ship.Shipyard;
-import com.scheible.risingempire.game.impl2.technology.ShipScanSpecsProvider;
+import com.scheible.risingempire.game.impl2.technology.Technology;
 import com.scheible.risingempire.game.impl2.universe.Star;
 
 /**
@@ -30,7 +30,7 @@ import com.scheible.risingempire.game.impl2.universe.Star;
 public class FleetViewMapper {
 
 	public static FleetView toFleetView(Player player, Empire fleetEmpire, Fleet fleet, Star closest,
-			ShipScanSpecsProvider shipScanSpecsProvider, Shipyard shipyard) {
+			Technology technology, Shipyard shipyard) {
 		// Simply always group by orbiting system or current fleet position. This is in
 		// contrast to the inital orbiting fleet at begin of turn as in the original game.
 		// Should have the same effect and makes the whole parent-child fleet tracking
@@ -59,8 +59,8 @@ public class FleetViewMapper {
 								LocationMapper.toLocation(pba.current()), pba.justLeaving()))
 						.collect(Collectors.toSet()))
 					.deployable(player.equals(fleet.player()))
-					.scannerRange(Optional.of(LocationMapper.toLocationValue(shipScanSpecsProvider
-						.effectiveScanRange(fleetEmpire.player(), fleet.ships().counts().keySet()))))
+					.scannerRange(Optional.of(LocationMapper.toLocationValue(
+							technology.effectiveScanRange(fleetEmpire.player(), fleet.ships().counts().keySet()))))
 					.build());
 			case Itinerary itinerary -> FleetView.create(FleetView.deployedBuilder()
 				.id(FleetIdMapper.toFleetId(itinerary.origin(), itinerary.destination(), itinerary.dispatchment(),
@@ -78,8 +78,8 @@ public class FleetViewMapper {
 				.closest(SystemIdMapper.toSystemId(closest.position()))
 				.orientation(horizontalDirection(itinerary))
 				.deployable(itinerary.justLeaving())
-				.scannerRange(Optional.of(LocationMapper.toLocationValue(shipScanSpecsProvider
-					.effectiveScanRange(fleetEmpire.player(), fleet.ships().counts().keySet()))))
+				.scannerRange(Optional.of(LocationMapper.toLocationValue(
+						technology.effectiveScanRange(fleetEmpire.player(), fleet.ships().counts().keySet()))))
 				.justLeaving(itinerary.justLeaving())
 				.build());
 		};

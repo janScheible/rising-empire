@@ -24,13 +24,13 @@ public class Navy {
 
 	private final Dispatcher dispatcher;
 
-	public Navy(List<Fleet> fleets, ShipMovementSpecsProvider shipMovementSpecsProvider) {
-		this.fleets = new Fleets(new ArrayList<>(fleets), shipMovementSpecsProvider);
+	public Navy(List<Fleet> fleets, ShipSpeedSpecsProvider shipSpeedSpecsProvider) {
+		this.fleets = new Fleets(new ArrayList<>(fleets), shipSpeedSpecsProvider);
 		this.dispatcher = new Dispatcher(this.fleets);
 	}
 
 	private Navy(Fleets fleets) {
-		this.fleets = new Fleets(new ArrayList<>(fleets.fleets()), fleets.shipMovementSpecsProvider());
+		this.fleets = new Fleets(new ArrayList<>(fleets.fleets()), fleets.shipSpeedSpecsProvider());
 		this.dispatcher = new Dispatcher(this.fleets);
 	}
 

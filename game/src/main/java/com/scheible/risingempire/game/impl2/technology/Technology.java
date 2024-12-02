@@ -5,7 +5,7 @@ import java.util.Map;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
-import com.scheible.risingempire.game.impl2.navy.ShipMovementSpecsProvider;
+import com.scheible.risingempire.game.impl2.navy.eta.ShipMovementSpecsProvider;
 import com.scheible.risingempire.game.impl2.ship.ShipClassId;
 
 public class Technology implements ShipMovementSpecsProvider, ShipScanSpecsProvider, ColonyScanSpecsProvider {

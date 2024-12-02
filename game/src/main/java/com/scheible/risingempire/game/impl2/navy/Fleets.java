@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import com.scheible.risingempire.game.api.universe.Player;
-import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
@@ -19,11 +18,11 @@ class Fleets {
 
 	private final List<Fleet> fleets;
 
-	private final ShipMovementSpecsProvider shipMovementSpecsProvider;
+	private final ShipSpeedSpecsProvider shipSpeedSpecsProvider;
 
-	Fleets(List<Fleet> fleets, ShipMovementSpecsProvider shipMovementSpecsProvider) {
+	Fleets(List<Fleet> fleets, ShipSpeedSpecsProvider shipSpeedSpecsProvider) {
 		this.fleets = fleets;
-		this.shipMovementSpecsProvider = shipMovementSpecsProvider;
+		this.shipSpeedSpecsProvider = shipSpeedSpecsProvider;
 	}
 
 	void add(Fleet fleet) {
@@ -50,8 +49,8 @@ class Fleets {
 		return this.fleets;
 	}
 
-	ShipMovementSpecsProvider shipMovementSpecsProvider() {
-		return this.shipMovementSpecsProvider;
+	ShipSpeedSpecsProvider shipSpeedSpecsProvider() {
+		return this.shipSpeedSpecsProvider;
 	}
 
 	Optional<Fleet> findOrbiting(Player player, Position system) {
@@ -95,11 +94,7 @@ class Fleets {
 	}
 
 	Speed effectiveSpeed(Player player, Ships ships) {
-		return this.shipMovementSpecsProvider.effectiveSpeed(player, ships.counts().keySet());
-	}
-
-	Parsec effectiveRange(Player player, Ships ships) {
-		return this.shipMovementSpecsProvider.effectiveRange(player, ships.counts().keySet());
+		return this.shipSpeedSpecsProvider.effectiveSpeed(player, ships.counts().keySet());
 	}
 
 }

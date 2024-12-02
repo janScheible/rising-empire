@@ -13,8 +13,7 @@ import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.system.SystemView;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
-import com.scheible.risingempire.game.impl2.navy.ShipMovementSpecsProvider;
-import com.scheible.risingempire.game.impl2.technology.ColonyScanSpecsProvider;
+import com.scheible.risingempire.game.impl2.technology.Technology;
 import com.scheible.risingempire.game.impl2.universe.Planet;
 import com.scheible.risingempire.game.impl2.universe.Star;
 import com.scheible.risingempire.game.impl2.universe.Universe;
@@ -24,8 +23,7 @@ import com.scheible.risingempire.game.impl2.universe.Universe;
  */
 public class SystemViewMapper {
 
-	public static SystemView toSystemView(Player player, Star star, Planet planet,
-			ColonyScanSpecsProvider colonyScanSpecsProvider, ShipMovementSpecsProvider shipMovementSpecsProvider,
+	public static SystemView toSystemView(Player player, Star star, Planet planet, Technology technology,
 			Universe universe, Colonization colonization) {
 		Optional<Colony> colony = colonization.colony(star.position());
 		Predicate<Star> starHasOwnColony = s -> colonization.colony(s.position())
@@ -53,12 +51,12 @@ public class SystemViewMapper {
 					c.empire().player(), c.empire().race(), 50,
 					Optional.of(new ShipTypeView(new ShipTypeId("ship"), 0, "Ship", ShipSize.MEDIUM, 0)),
 					Optional.empty(), Optional.empty(), Map.of(), Optional.empty())))
-			.fleetRange(Optional
-				.ofNullable(ownColony ? LocationMapper.toLocationValue(shipMovementSpecsProvider.range(player)) : null))
-			.extendedFleetRange(Optional.ofNullable(
-					ownColony ? LocationMapper.toLocationValue(shipMovementSpecsProvider.extendedRange(player)) : null))
-			.scannerRange(Optional.ofNullable(
-					ownColony ? LocationMapper.toLocationValue(colonyScanSpecsProvider.colonyScanRange(player)) : null))
+			.fleetRange(
+					Optional.ofNullable(ownColony ? LocationMapper.toLocationValue(technology.range(player)) : null))
+			.extendedFleetRange(Optional
+				.ofNullable(ownColony ? LocationMapper.toLocationValue(technology.extendedRange(player)) : null))
+			.scannerRange(Optional
+				.ofNullable(ownColony ? LocationMapper.toLocationValue(technology.colonyScanRange(player)) : null))
 			.colonizable(false)
 			.colonizeCommand(false)
 			.notifications(Set.of())
