@@ -26,6 +26,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
 import com.scheible.risingempire.game.impl2.empire.Empire;
+import com.scheible.risingempire.game.impl2.game.Adapters.BasePositionsProviderAdapter;
 import com.scheible.risingempire.game.impl2.navy.Fleet;
 import com.scheible.risingempire.game.impl2.navy.Navy;
 import com.scheible.risingempire.game.impl2.navy.Navy.DeployJustLeaving;
@@ -68,14 +69,18 @@ public class Game2Impl implements Game {
 	private final PlayerTurns playerTurns;
 
 	public Game2Impl(GalaxySize galaxySize, List<Empire> empires, List<Star> stars, List<Fleet> fleets) {
+		BasePositionsProviderAdapter basePositionsProviderAdapter = new BasePositionsProviderAdapter();
+
 		this.universe = new Universe(LocationMapper.fromLocationValue(galaxySize.width()),
 				LocationMapper.fromLocationValue(galaxySize.height()), stars);
 		this.empires = new ArrayList<>(empires);
 		this.technology = new Technology();
 		this.shipyard = new Shipyard();
 		this.navy = new Navy(fleets, this.technology);
+		this.etaCalculator = new EtaCalculator(this.technology, basePositionsProviderAdapter);
 		this.colonization = new Colonization();
-		this.etaCalculator = new EtaCalculator(this.technology, this.colonization);
+
+		basePositionsProviderAdapter.delegate(this.colonization);
 
 		this.round = new Round(1);
 		this.playerTurns = new PlayerTurns(this.empires.stream().map(Empire::player).collect(Collectors.toSet()));
