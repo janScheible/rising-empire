@@ -25,13 +25,23 @@ public class EtaCalculator {
 	}
 
 	public Optional<Rounds> calc(Player player, Position origin, Position destination, Ships ships) {
-		// differenct logic needed: Is the destination < range?
-		this.basePositionsProvider.positions(player);
+		if (ships.empty()) {
+			return Optional.empty();
+		}
 
-		Parsec distance = destination.subtract(origin).length();
+		boolean inRange = false;
+		for (Position base : this.basePositionsProvider.positions(player)) {
+			Parsec baseDistance = destination.subtract(base).length();
 
-		if (!ships.empty() && distance
-			.compareTo(this.shipMovementSpecsProvider.effectiveRange(player, ships.counts().keySet())) <= 0) {
+			if (baseDistance
+				.compareTo(this.shipMovementSpecsProvider.effectiveRange(player, ships.counts().keySet())) <= 0) {
+				inRange = true;
+				break;
+			}
+		}
+
+		if (inRange) {
+			Parsec distance = destination.subtract(origin).length();
 			Speed speed = this.shipMovementSpecsProvider.effectiveSpeed(player, ships.counts().keySet());
 			Rounds rounds = new Rounds((int) Math.ceil(distance.divide(speed.distance()).quantity().doubleValue()));
 			return Optional.of(rounds);
