@@ -1,6 +1,7 @@
 package com.scheible.risingempire.game.impl2.technology;
 
 import java.util.Map;
+import java.util.Set;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
@@ -8,7 +9,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.Speed;
 import com.scheible.risingempire.game.impl2.navy.eta.ShipMovementSpecsProvider;
 import com.scheible.risingempire.game.impl2.ship.ShipClassId;
 
-public class Technology implements ShipMovementSpecsProvider, ShipScanSpecsProvider, ColonyScanSpecsProvider {
+public class Technology implements ShipMovementSpecsProvider {
 
 	private static final Map<ShipClassId, Speed> SPEEDS = Map.of( //
 			new ShipClassId("enterprise"), new Speed(1.0), //
@@ -40,12 +41,14 @@ public class Technology implements ShipMovementSpecsProvider, ShipScanSpecsProvi
 		return RANGES.values().stream().max(Parsec::compareTo).get();
 	}
 
-	@Override
 	public Parsec scanRange(Player player, ShipClassId shipClassId) {
 		return new Parsec(0.5);
 	}
 
-	@Override
+	public Parsec effectiveScanRange(Player player, Set<ShipClassId> shipClassIds) {
+		return shipClassIds.stream().map(id -> scanRange(player, id)).max(Parsec::compareTo).orElseThrow();
+	}
+
 	public Parsec colonyScanRange(Player player) {
 		return new Parsec(1.5);
 	}
