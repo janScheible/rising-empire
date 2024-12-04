@@ -44,11 +44,10 @@ export default class PartialUpdater extends SubmitInterceptor {
 				} as Action);
 
 			if (stateName === 'FleetInspectionState' || stateName === 'FleetDeploymentState') {
-				// the ship counts must also be available in the 'select' action of the stars to correctly determine if a deployment is possible
-				const assignShipsAction = HypermediaUtil.getAction(
-					cachedData.inspector.fleetDeployment,
-					'assign-ships'
-				);
+				// if there is a deployable fleet the ship counts must also be available in the 'select' action of the stars to correctly determine if a deployment is possible
+				const assignShipsAction = cachedData.inspector.fleetDeployment
+					? HypermediaUtil.getAction(cachedData.inspector.fleetDeployment, 'assign-ships')
+					: { fields: [] };
 				const shipCountFields = [...assignShipsAction.fields].filter(
 					(field) => !['selectedStarId', 'selectedFleetId'].includes(field.name)
 				);
