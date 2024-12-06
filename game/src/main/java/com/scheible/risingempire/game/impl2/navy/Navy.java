@@ -40,7 +40,7 @@ public class Navy {
 		return copy;
 	}
 
-	public ArrivedFleets moveFleetsAndAddNewShips(Round round, List<Deployment> deployments, List<NewShips> newShips) {
+	public ArrivedFleets finishRound(Round round, List<Deployment> deployments, List<NewShips> newShips) {
 		this.dispatcher.dispatch(round, deployments);
 
 		Map<Position, Fleet> destinationArrivedFleetMapping = new HashMap<>();

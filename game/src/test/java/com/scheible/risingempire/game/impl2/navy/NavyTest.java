@@ -20,7 +20,7 @@ class NavyTest extends AbstractNavyTest {
 		Navy navy = createNavy(
 				List.of(justLeavingFleet(this.origin, this.destination, round, ships(this.enterprise, 1)),
 						justLeavingFleet(this.otherDestination, this.destination, round, ships(this.scout, 1))));
-		ArrivedFleets arrivedFleets = navy.moveFleetsAndAddNewShips(round, List.of(), List.of());
+		ArrivedFleets arrivedFleets = navy.finishRound(round, List.of(), List.of());
 
 		assertThat(arrivedFleets.fleets()).isEmpty();
 		assertThat(navy.fleets()).extracting(Fleet::location).hasSize(2).allSatisfy(position -> {
@@ -30,7 +30,7 @@ class NavyTest extends AbstractNavyTest {
 		// move until the fleets arrive at their destinations
 		while (navy.fleets().stream().anyMatch(fleet -> fleet.location() instanceof Itinerary)) {
 			round = round.next();
-			arrivedFleets = navy.moveFleetsAndAddNewShips(round, List.of(), List.of());
+			arrivedFleets = navy.finishRound(round, List.of(), List.of());
 
 			// this is the scout arriving at the destiantion
 			if (arrivedFleets.fleets().stream().anyMatch(f -> f.contains(this.scout) && !f.contains(this.enterprise))) {

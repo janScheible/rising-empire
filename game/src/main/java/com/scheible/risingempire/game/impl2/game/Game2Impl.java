@@ -131,7 +131,7 @@ public class Game2Impl implements Game {
 	private void finishRound() {
 		// populationGrowth();
 		// industryProduction();
-		this.navy.moveFleetsAndAddNewShips(this.round, this.playerTurns.commands(Deployment.class), List.of());
+		this.navy.finishRound(this.round, this.playerTurns.commands(Deployment.class), List.of());
 		// arrivedFleets = resolveSpaceCombats(arrivedFleets);
 		// colonizeSystems();
 		// annexColonies();
