@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl2.ship;
+package com.scheible.risingempire.game.impl2.apiinternal;
 
 public record ShipClassId(String value) {
 

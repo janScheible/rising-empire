@@ -2,7 +2,7 @@ package com.scheible.risingempire.game.impl2.navy;
 
 import java.util.Map;
 
-import com.scheible.risingempire.game.impl2.ship.ShipClassId;
+import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

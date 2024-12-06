@@ -10,11 +10,11 @@ import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.system.StarType;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
+import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.empire.Empire;
 import com.scheible.risingempire.game.impl2.navy.Fleet;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Orbit;
 import com.scheible.risingempire.game.impl2.navy.Ships;
-import com.scheible.risingempire.game.impl2.ship.ShipClassId;
 import com.scheible.risingempire.game.impl2.universe.Star;
 
 /**

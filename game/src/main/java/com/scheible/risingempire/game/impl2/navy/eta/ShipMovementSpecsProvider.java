@@ -4,8 +4,8 @@ import java.util.Set;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
+import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.navy.ShipSpeedSpecsProvider;
-import com.scheible.risingempire.game.impl2.ship.ShipClassId;
 
 public interface ShipMovementSpecsProvider extends ShipSpeedSpecsProvider {
 

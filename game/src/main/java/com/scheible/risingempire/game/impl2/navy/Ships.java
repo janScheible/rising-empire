@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import com.scheible.risingempire.game.impl2.ship.ShipClassId;
+import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 
 public record Ships(Map<ShipClassId, Integer> counts) {
 
