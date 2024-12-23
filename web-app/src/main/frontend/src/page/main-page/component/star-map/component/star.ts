@@ -30,6 +30,7 @@ export default class Star extends HTMLElement {
 					top: var(--star-top);
 
 					display: flex;
+					flex-direction: column;
 				}
 
 				#star {
@@ -51,9 +52,13 @@ export default class Star extends HTMLElement {
 				}
 
 				#name-wrapper {
-					margin-left: calc(-50%);
-					margin-top: 36px;
+					position: relative;
+  					left: calc(-50% + 16px);
+					top: 5px;
 
+					text-align: center;
+
+					white-space: nowrap;
 					font-family: var(--theme-scifi-font);
 				}
 			</style>
