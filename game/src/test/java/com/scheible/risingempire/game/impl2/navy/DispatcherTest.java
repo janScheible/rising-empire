@@ -8,7 +8,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Itinerary;
-import com.scheible.risingempire.game.impl2.navy.Navy.Deployment;
+import com.scheible.risingempire.game.impl2.navy.Navy.Deploy;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -166,7 +166,7 @@ class DispatcherTest extends AbstractNavyTest {
 				Ships.transporters(transporterCount));
 	}
 
-	private List<Fleet> dispatch(List<Fleet> fleets, List<Deployment> deployments) {
+	private List<Fleet> dispatch(List<Fleet> fleets, List<Deploy> deployments) {
 		List<Fleet> fleetsCopy = new ArrayList<>(fleets);
 		Dispatcher dispatcher = new Dispatcher(new Fleets(fleetsCopy, this.shipMovementSpecsProvider));
 		dispatcher.dispatch(this.round, deployments);

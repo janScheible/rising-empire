@@ -24,23 +24,31 @@ public class Navy {
 
 	private final Dispatcher dispatcher;
 
-	public Navy(List<Fleet> fleets, ShipSpeedSpecsProvider shipSpeedSpecsProvider) {
+	private final NewShipsProvider newShipsProvider;
+
+	public Navy(List<Fleet> fleets, ShipSpeedSpecsProvider shipSpeedSpecsProvider, NewShipsProvider newShipsProvider) {
 		this.fleets = new Fleets(new ArrayList<>(fleets), shipSpeedSpecsProvider);
 		this.dispatcher = new Dispatcher(this.fleets);
+		this.newShipsProvider = newShipsProvider;
 	}
 
-	private Navy(Fleets fleets) {
+	private Navy(Fleets fleets, NewShipsProvider newShipsProvider) {
 		this.fleets = new Fleets(new ArrayList<>(fleets.fleets()), fleets.shipSpeedSpecsProvider());
 		this.dispatcher = new Dispatcher(this.fleets);
+		this.newShipsProvider = newShipsProvider;
 	}
 
-	public Navy apply(Round round, List<Deployment> deployments) {
-		Navy copy = new Navy(this.fleets);
+	public void beginRound() {
+
+	}
+
+	public Navy apply(Round round, List<Deploy> deployments) {
+		Navy copy = new Navy(this.fleets, this.newShipsProvider);
 		copy.dispatcher.dispatch(round, deployments);
 		return copy;
 	}
 
-	public ArrivedFleets finishRound(Round round, List<Deployment> deployments, List<NewShips> newShips) {
+	public void moveFleets(Round round, List<Deploy> deployments) {
 		this.dispatcher.dispatch(round, deployments);
 
 		Map<Position, Fleet> destinationArrivedFleetMapping = new HashMap<>();
@@ -92,8 +100,6 @@ public class Navy {
 		}
 
 		obsoleteOrbitingFleets.forEach(this.fleets::remove);
-
-		return new ArrivedFleets(new ArrayList<>(destinationArrivedFleetMapping.values()));
 	}
 
 	public Optional<Fleet> findDispatched(Player player, Position origin, Position destination, Round dispatchment,
@@ -101,15 +107,20 @@ public class Navy {
 		return this.fleets.findDispatched(player, origin, destination, dispatchment, speed);
 	}
 
-	public void removeDestroyedShips(List<DestroyedShips> destroyedShips) {
-
-	}
-
 	public List<Fleet> fleets() {
 		return Collections.unmodifiableList(this.fleets.fleets());
 	}
 
-	public sealed interface Deployment extends Command {
+	public void commissionNewShips() {
+	}
+
+	public void issueRelocations(List<RelocateShips> commands) {
+	}
+
+	public void removeDestroyedFleets() {
+	}
+
+	public sealed interface Deploy extends Command {
 
 		Player player();
 
@@ -119,7 +130,7 @@ public class Navy {
 
 	}
 
-	public sealed interface ShipDeployment extends Deployment {
+	public sealed interface ShipDeployment extends Deploy {
 
 		Ships ships();
 
@@ -141,15 +152,11 @@ public class Navy {
 	}
 
 	public record TransferColonists(Player player, Position origin, Position destination,
-			int transporterCount) implements Deployment {
+			int transporterCount) implements Deploy {
 
 	}
 
-	public record NewShips(Player player, Position target, Ships ships) {
-
-	}
-
-	public record DestroyedShips(Player player, Position target, Ships ships) {
+	public record RelocateShips(Player player, Position origin, Position target) implements Command {
 
 	}
 

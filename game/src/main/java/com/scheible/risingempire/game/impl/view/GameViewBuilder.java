@@ -140,8 +140,6 @@ public class GameViewBuilder {
 						.relocationTarget(Optional.ofNullable(shipRelocations.get(snapshot.getId().toColonyId())))
 						.build());
 
-					Optional<Integer> seenInTurn = Optional.ofNullable(snapshot.getLastSeenTurn())
-						.filter(t -> t != round);
 					Optional<Integer> range = Optional
 						.ofNullable(system.getColony(player).isPresent() ? null : system.calcRange(player, systems));
 
@@ -155,7 +153,6 @@ public class GameViewBuilder {
 						.closestColony(range)
 						.planetType(snapshot.getPlanetType())
 						.planetSpecial(snapshot.getPlanetSpecial())
-						.seenInTurn(seenInTurn)
 						.starName(snapshot.getStarName())
 						.planetMaxPopulation(snapshot.getPlanetMaxPopulation())
 						.colony(colonyView)

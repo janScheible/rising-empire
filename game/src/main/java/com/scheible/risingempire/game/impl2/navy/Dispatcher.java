@@ -6,9 +6,9 @@ import java.util.Optional;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
+import com.scheible.risingempire.game.impl2.navy.Navy.Deploy;
 import com.scheible.risingempire.game.impl2.navy.Navy.DeployJustLeaving;
 import com.scheible.risingempire.game.impl2.navy.Navy.DeployOrbiting;
-import com.scheible.risingempire.game.impl2.navy.Navy.Deployment;
 import com.scheible.risingempire.game.impl2.navy.Navy.ShipDeployment;
 import com.scheible.risingempire.game.impl2.navy.Navy.TransferColonists;
 
@@ -23,8 +23,8 @@ class Dispatcher {
 		this.fleets = fleets;
 	}
 
-	void dispatch(Round round, List<Deployment> deployments) {
-		for (Deployment deployment : deployments) {
+	void dispatch(Round round, List<Deploy> deployments) {
+		for (Deploy deployment : deployments) {
 			switch (deployment) {
 				case ShipDeployment shipDeployment -> {
 					// move ships from the `from` fleet to the `to` fleet (which might not

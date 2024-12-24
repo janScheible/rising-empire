@@ -1,12 +1,15 @@
 package com.scheible.risingempire.game.impl2.technology;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.scheible.risingempire.game.api.universe.Player;
+import com.scheible.risingempire.game.api.view.tech.TechId;
 import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
+import com.scheible.risingempire.game.impl2.common.Command;
 
 public class Technology {
 
@@ -19,6 +22,13 @@ public class Technology {
 			new ShipClassId("enterprise"), new Parsec(3.0), //
 			new ShipClassId("scout"), new Parsec(4.0), //
 			ShipClassId.COLONISTS_TRANSPORTER, new Parsec(3.0));
+
+	private final ResearchPointProvider researchPointProvider;
+
+	public Technology(ResearchPointProvider researchPointProvider) {
+		this.researchPointProvider = researchPointProvider;
+		this.researchPointProvider.hashCode(); // to make PMD happy for now...
+	}
 
 	public Speed speed(Player player, ShipClassId shipClassId) {
 		return SPEEDS.get(shipClassId);
@@ -46,6 +56,25 @@ public class Technology {
 
 	public Parsec colonyScanRange(Player player) {
 		return new Parsec(1.5);
+	}
+
+	public void advanceResearch(List<SelectTechnology> commands) {
+	}
+
+	public Set<TechId> selectableTechnologies(Player player) {
+		return Set.of();
+	}
+
+	public sealed interface TechnologyCommand extends Command {
+
+	}
+
+	public record AllocateResearch() implements TechnologyCommand {
+
+	}
+
+	public record SelectTechnology(Player player, TechId techId) implements TechnologyCommand {
+
 	}
 
 }

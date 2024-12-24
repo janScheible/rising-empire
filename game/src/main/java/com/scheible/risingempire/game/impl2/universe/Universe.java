@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import com.scheible.risingempire.game.api.view.system.PlanetSpecial;
 import com.scheible.risingempire.game.api.view.system.PlanetType;
 import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
+import com.scheible.risingempire.game.impl2.apiinternal.Population;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 
 /**
@@ -66,7 +67,11 @@ public class Universe {
 	}
 
 	public Planet planet(Star star) {
-		return new Planet(PlanetType.TERRAN, PlanetSpecial.NONE);
+		return new Planet(PlanetType.TERRAN, PlanetSpecial.NONE, new Population(100));
+	}
+
+	public Planet planet(Position system) {
+		return new Planet(PlanetType.TERRAN, PlanetSpecial.NONE, new Population(100));
 	}
 
 	public List<Star> stars() {
