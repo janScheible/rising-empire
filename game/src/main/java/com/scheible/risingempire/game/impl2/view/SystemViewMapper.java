@@ -49,7 +49,9 @@ public class SystemViewMapper {
 
 		return SystemView.builder()
 			.id(SystemIdMapper.toSystemId(star.position()))
-			.justExplored(systemIntelligence.justExplored(player, round, star.position()))
+			.justExplored(round.previous()
+				.map(previousRound -> systemIntelligence.justExplored(player, previousRound, star.position()))
+				.orElse(Boolean.FALSE))
 			.location(LocationMapper.toLocation(star.position()))
 			.starType(star.type())
 			.small(star.small())
