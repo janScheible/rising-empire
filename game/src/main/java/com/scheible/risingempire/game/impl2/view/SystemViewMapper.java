@@ -42,7 +42,8 @@ public class SystemViewMapper {
 		Optional<Integer> closestColony = Optional.ofNullable(universe.closest(star.position(), starHasOwnColony))
 			.map(closest -> universe.distance(star, closest).roundUp());
 
-		SystemReconReport systemReport = systemIntelligence.systemReconReport(player, star.position());
+		SystemReconReport systemReport = ownColony ? new SystemReconReport(true, Optional.empty())
+				: systemIntelligence.systemReconReport(player, star.position());
 		Optional<PlanetReconReport> planetReport = systemReport.planetReconReport(star.name(), planet.type(),
 				planet.special(), planet.max());
 
