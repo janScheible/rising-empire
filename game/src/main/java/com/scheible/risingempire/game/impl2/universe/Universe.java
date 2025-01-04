@@ -52,7 +52,7 @@ public class Universe {
 			else {
 				Parsec currentDistance = star.position().subtract(position).length();
 
-				if (currentDistance.compareTo(distance) < 0) {
+				if (currentDistance.lessThan(distance)) {
 					closest = star;
 					distance = currentDistance;
 				}

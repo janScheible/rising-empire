@@ -13,12 +13,13 @@ import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.system.SystemView;
 import com.scheible.risingempire.game.impl2.apiinternal.Population;
+import com.scheible.risingempire.game.impl2.apiinternal.Round;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
-import com.scheible.risingempire.game.impl2.intelligence.Intelligence;
-import com.scheible.risingempire.game.impl2.intelligence.SystemReconReport;
-import com.scheible.risingempire.game.impl2.intelligence.SystemReconReport.ColonyReconReport;
-import com.scheible.risingempire.game.impl2.intelligence.SystemReconReport.PlanetReconReport;
+import com.scheible.risingempire.game.impl2.intelligence.system.SystemIntelligence;
+import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconReport;
+import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconReport.ColonyReconReport;
+import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconReport.PlanetReconReport;
 import com.scheible.risingempire.game.impl2.military.Military;
 import com.scheible.risingempire.game.impl2.technology.Technology;
 import com.scheible.risingempire.game.impl2.universe.Planet;
@@ -30,8 +31,8 @@ import com.scheible.risingempire.game.impl2.universe.Universe;
  */
 public class SystemViewMapper {
 
-	public static SystemView toSystemView(Player player, Star star, Planet planet, Technology technology,
-			Universe universe, Colonization colonization, Intelligence intelligence, Military military) {
+	public static SystemView toSystemView(Round round, Player player, Star star, Planet planet, Technology technology,
+			Universe universe, Colonization colonization, SystemIntelligence systemIntelligence, Military military) {
 		Optional<Colony> colony = colonization.colony(star.position());
 		Predicate<Star> starHasOwnColony = s -> colonization.colony(s.position())
 			.filter(c -> c.empire().player() == player)
@@ -41,13 +42,13 @@ public class SystemViewMapper {
 		Optional<Integer> closestColony = Optional.ofNullable(universe.closest(star.position(), starHasOwnColony))
 			.map(closest -> universe.distance(star, closest).roundUp());
 
-		SystemReconReport systemReport = intelligence.systemReconReport(star.position());
+		SystemReconReport systemReport = systemIntelligence.systemReconReport(player, star.position());
 		Optional<PlanetReconReport> planetReport = systemReport.planetReconReport(star.name(), planet.type(),
 				planet.special(), planet.max());
 
 		return SystemView.builder()
 			.id(SystemIdMapper.toSystemId(star.position()))
-			.justExplored(intelligence.justExplored(star.position()))
+			.justExplored(systemIntelligence.justExplored(player, round, star.position()))
 			.location(LocationMapper.toLocation(star.position()))
 			.starType(star.type())
 			.small(star.small())

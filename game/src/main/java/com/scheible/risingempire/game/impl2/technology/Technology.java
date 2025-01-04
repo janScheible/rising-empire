@@ -65,6 +65,10 @@ public class Technology {
 		return Set.of();
 	}
 
+	public ShipScannerCapability shipScannerCapability(Player player) {
+		return ShipScannerCapability.LOCATION_AND_ITINERARY;
+	}
+
 	public sealed interface TechnologyCommand extends Command {
 
 	}

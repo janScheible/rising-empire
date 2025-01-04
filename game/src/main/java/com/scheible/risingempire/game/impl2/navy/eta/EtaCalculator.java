@@ -16,12 +16,11 @@ public class EtaCalculator {
 
 	private final ShipMovementSpecsProvider shipMovementSpecsProvider;
 
-	private final BasePositionsProvider basePositionsProvider;
+	private final ColoniesProvider basePositionsProvider;
 
-	public EtaCalculator(ShipMovementSpecsProvider shipMovementSpecsProviderSupplier,
-			BasePositionsProvider basePositionsProviderSupplier) {
-		this.shipMovementSpecsProvider = shipMovementSpecsProviderSupplier;
-		this.basePositionsProvider = basePositionsProviderSupplier;
+	public EtaCalculator(ShipMovementSpecsProvider shipMovementSpecsProvider, ColoniesProvider coloniesProvider) {
+		this.shipMovementSpecsProvider = shipMovementSpecsProvider;
+		this.basePositionsProvider = coloniesProvider;
 	}
 
 	public Optional<Rounds> calc(Player player, Position origin, Position destination, Ships ships) {
@@ -30,7 +29,7 @@ public class EtaCalculator {
 		}
 
 		boolean inRange = false;
-		for (Position base : this.basePositionsProvider.positions(player)) {
+		for (Position base : this.basePositionsProvider.colonies(player)) {
 			Parsec baseDistance = destination.subtract(base).length();
 
 			if (baseDistance

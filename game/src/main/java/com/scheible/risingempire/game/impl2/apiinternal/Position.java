@@ -35,7 +35,7 @@ public record Position(Parsec x, Parsec y) {
 		Parsec totalLength = to.subtract(from).length();
 		Parsec newLength = current.subtract(from).length().add(delta);
 
-		if (newLength.compareTo(totalLength) > 0) {
+		if (newLength.greaterThan(totalLength)) {
 			return to;
 		}
 		else {

@@ -1,6 +1,8 @@
 package com.scheible.risingempire.game.impl2.game;
 
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -8,6 +10,7 @@ import java.util.stream.Collectors;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Credit;
 import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
+import com.scheible.risingempire.game.impl2.apiinternal.Population;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.ResearchPoint;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
@@ -15,18 +18,28 @@ import com.scheible.risingempire.game.impl2.apiinternal.Speed;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
 import com.scheible.risingempire.game.impl2.colonization.ColonyFleetProvider;
+import com.scheible.risingempire.game.impl2.intelligence.fleet.FleetItinearySegmentProvider;
+import com.scheible.risingempire.game.impl2.intelligence.fleet.ScanAreasProvider;
+import com.scheible.risingempire.game.impl2.intelligence.fleet.ShipScannerSpecsProvider;
+import com.scheible.risingempire.game.impl2.intelligence.system.ArrivedFleetsProvider;
+import com.scheible.risingempire.game.impl2.intelligence.system.ColonyIntelProvider;
 import com.scheible.risingempire.game.impl2.military.ControlledSystemProvider;
+import com.scheible.risingempire.game.impl2.navy.Navy;
 import com.scheible.risingempire.game.impl2.navy.NewShipsProvider;
-import com.scheible.risingempire.game.impl2.navy.eta.BasePositionsProvider;
+import com.scheible.risingempire.game.impl2.navy.eta.ColoniesProvider;
 import com.scheible.risingempire.game.impl2.navy.eta.ShipMovementSpecsProvider;
 import com.scheible.risingempire.game.impl2.ship.BuildCapacityProvider;
 import com.scheible.risingempire.game.impl2.ship.Shipyard;
 import com.scheible.risingempire.game.impl2.technology.ResearchPointProvider;
+import com.scheible.risingempire.game.impl2.technology.ShipScannerCapability;
 import com.scheible.risingempire.game.impl2.technology.Technology;
 
 /**
  * Contains all adapters use in the game implementation. Adapters provide a delegate
- * mechanism to break up interface cyclic dependencies.
+ * mechanism to break up interface cyclic dependencies. They have to be as simple as
+ * possible. All more complex logic must reside in the sub-modules. Every adapter that
+ * needs more than one sub-module must use a `Function<...>` that is implemented in the
+ * game implementation.
  *
  * @author sj
  */
@@ -35,7 +48,7 @@ public final class Adapters {
 	private Adapters() {
 	}
 
-	public static class BasePositionsProviderAdapter implements BasePositionsProvider {
+	public static class ColoniesProviderAdapter implements ColoniesProvider {
 
 		private Colonization delegate;
 
@@ -44,7 +57,7 @@ public final class Adapters {
 		}
 
 		@Override
-		public Set<Position> positions(Player player) {
+		public Set<Position> colonies(Player player) {
 			return this.delegate.colonies(player).stream().map(Colony::position).collect(Collectors.toSet());
 		}
 
@@ -151,6 +164,93 @@ public final class Adapters {
 		@Override
 		public Map<Position, Map<ShipClassId, Integer>> newShips(Player player) {
 			return this.delegate.newShips(player);
+		}
+
+	}
+
+	public static class ArrivedFleetsProviderAdapter implements ArrivedFleetsProvider {
+
+		private Navy delegate;
+
+		public void delegate(Navy delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Map<Player, Set<Position>> arrivedFleets() {
+			return this.delegate.arrivedFleets()
+				.entrySet()
+				.stream()
+				.map(e -> Map.entry(e.getKey(),
+						e.getValue().stream().map(f -> f.location().current()).collect(Collectors.toSet())))
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+		}
+
+	}
+
+	public static class ColonyIntelProviderAdapter implements ColonyIntelProvider {
+
+		private Colonization delegate;
+
+		public void delegate(Colonization delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Optional<ColonyIntel> colony(Player player, Position system) {
+			Optional<Colony> colony = this.delegate.colony(player, system);
+			return colony.map(c -> new ColonyIntel(c.empire().player(), c.empire().race(), new Population(50.0)));
+		}
+
+	}
+
+	public static class ScanAreasProviderAdapter implements ScanAreasProvider {
+
+		private Function<Player, Set<ScanArea>> delegate;
+
+		public void delegate(Function<Player, Set<ScanArea>> delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Set<ScanArea> scanAreas(Player player) {
+			return this.delegate.apply(player);
+		}
+
+	}
+
+	public static class ShipScannerSpecsProviderAdapter implements ShipScannerSpecsProvider {
+
+		private Technology delegate;
+
+		public void delegate(Technology delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public boolean shipScannerRevealesItineary(Player player) {
+			return this.delegate.shipScannerCapability(player) == ShipScannerCapability.LOCATION_AND_ITINERARY;
+		}
+
+	}
+
+	public static class FleetItinearySegmentProviderAdapter implements FleetItinearySegmentProvider {
+
+		private Navy delegate;
+
+		public void delegate(Navy delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Optional<FleetItinerarySegment> fleetItinerarySegment(Player player, Position fleet) {
+			return this.delegate.fleets()
+				.stream()
+				.filter(f -> f.player().equals(player) && f.location().current().equals(fleet)
+						&& f.location().asItinerary().isPresent())
+				.findFirst()
+				.flatMap(f -> f.location().asItinerary())
+				.map(i -> new FleetItinerarySegment(i.origin(), i.destination()));
 		}
 
 	}

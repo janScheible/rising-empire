@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.Game;
@@ -30,14 +31,21 @@ import com.scheible.risingempire.game.impl2.colonization.Colonization.AllocateRe
 import com.scheible.risingempire.game.impl2.colonization.Colonization.Colonize;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.NextShipClass;
 import com.scheible.risingempire.game.impl2.empire.Empire;
-import com.scheible.risingempire.game.impl2.game.Adapters.BasePositionsProviderAdapter;
+import com.scheible.risingempire.game.impl2.game.Adapters.ArrivedFleetsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.BuildCapacityProviderAdapter;
+import com.scheible.risingempire.game.impl2.game.Adapters.ColoniesProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ColonyFleetProviderAdapter;
+import com.scheible.risingempire.game.impl2.game.Adapters.ColonyIntelProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ControlledSystemProviderAdapter;
+import com.scheible.risingempire.game.impl2.game.Adapters.FleetItinearySegmentProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.NewShipsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ResearchPointProviderAdapter;
+import com.scheible.risingempire.game.impl2.game.Adapters.ScanAreasProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ShipMovementSpecsProviderAdapter;
-import com.scheible.risingempire.game.impl2.intelligence.Intelligence;
+import com.scheible.risingempire.game.impl2.game.Adapters.ShipScannerSpecsProviderAdapter;
+import com.scheible.risingempire.game.impl2.intelligence.fleet.FleetIntelligence;
+import com.scheible.risingempire.game.impl2.intelligence.fleet.ScanAreasProvider.ScanArea;
+import com.scheible.risingempire.game.impl2.intelligence.system.SystemIntelligence;
 import com.scheible.risingempire.game.impl2.military.Military;
 import com.scheible.risingempire.game.impl2.military.Military.Annex;
 import com.scheible.risingempire.game.impl2.navy.Fleet;
@@ -84,20 +92,27 @@ public class Game2Impl implements Game {
 
 	private final SpaceCombat spaceCombat;
 
-	private final Intelligence intelligence;
+	private final SystemIntelligence systemIntelligence;
+
+	private final FleetIntelligence fleetIntelligence;
 
 	private Round round;
 
 	private final PlayerTurns playerTurns;
 
 	public Game2Impl(GalaxySize galaxySize, List<Empire> empires, List<Star> stars, List<Fleet> fleets) {
-		BasePositionsProviderAdapter basePositionsProviderAdapter = new BasePositionsProviderAdapter();
+		ColoniesProviderAdapter coloniesProviderAdapter = new ColoniesProviderAdapter();
 		ShipMovementSpecsProviderAdapter shipMovementSpecsProviderAdapter = new ShipMovementSpecsProviderAdapter();
 		ColonyFleetProviderAdapter colonyFleetProviderAdapter = new ColonyFleetProviderAdapter();
 		ControlledSystemProviderAdapter controlledSystemProviderAdapter = new ControlledSystemProviderAdapter();
 		BuildCapacityProviderAdapter buildCapacityProviderAdpater = new BuildCapacityProviderAdapter();
 		ResearchPointProviderAdapter researchPointProviderAdapter = new ResearchPointProviderAdapter();
 		NewShipsProviderAdapter newShipsProviderAdapter = new NewShipsProviderAdapter();
+		ArrivedFleetsProviderAdapter arrivedFleetsProviderAdapter = new ArrivedFleetsProviderAdapter();
+		ColonyIntelProviderAdapter colonyProviderAdapter = new ColonyIntelProviderAdapter();
+		ScanAreasProviderAdapter scanAreasProviderAdapter = new ScanAreasProviderAdapter();
+		ShipScannerSpecsProviderAdapter shipScannerSpecsProviderAdapter = new ShipScannerSpecsProviderAdapter();
+		FleetItinearySegmentProviderAdapter fleetItinearySegmentProviderAdapter = new FleetItinearySegmentProviderAdapter();
 
 		this.universe = new Universe(LocationMapper.fromLocationValue(galaxySize.width()),
 				LocationMapper.fromLocationValue(galaxySize.height()), stars);
@@ -105,19 +120,26 @@ public class Game2Impl implements Game {
 		this.technology = new Technology(researchPointProviderAdapter);
 		this.shipyard = new Shipyard(buildCapacityProviderAdpater);
 		this.navy = new Navy(fleets, shipMovementSpecsProviderAdapter, newShipsProviderAdapter);
-		this.etaCalculator = new EtaCalculator(shipMovementSpecsProviderAdapter, basePositionsProviderAdapter);
+		this.etaCalculator = new EtaCalculator(shipMovementSpecsProviderAdapter, coloniesProviderAdapter);
 		this.colonization = new Colonization(colonyFleetProviderAdapter);
 		this.military = new Military(controlledSystemProviderAdapter);
 		this.spaceCombat = new SpaceCombat();
-		this.intelligence = new Intelligence();
+		this.systemIntelligence = new SystemIntelligence(arrivedFleetsProviderAdapter, colonyProviderAdapter);
+		this.fleetIntelligence = new FleetIntelligence(scanAreasProviderAdapter, shipScannerSpecsProviderAdapter,
+				fleetItinearySegmentProviderAdapter);
 
-		basePositionsProviderAdapter.delegate(this.colonization);
+		coloniesProviderAdapter.delegate(this.colonization);
 		shipMovementSpecsProviderAdapter.delegate(this.technology);
 		colonyFleetProviderAdapter.delegate(this::colonizableSystems);
 		controlledSystemProviderAdapter.delegate(this::controlledSystems);
 		buildCapacityProviderAdpater.delegate(this.colonization);
 		researchPointProviderAdapter.delegate(this.colonization);
 		newShipsProviderAdapter.delegate(this.shipyard);
+		arrivedFleetsProviderAdapter.delegate(this.navy);
+		colonyProviderAdapter.delegate(this.colonization);
+		scanAreasProviderAdapter.delegate(this::scanAreas);
+		shipScannerSpecsProviderAdapter.delegate(this.technology);
+		fleetItinearySegmentProviderAdapter.delegate(this.navy);
 
 		this.round = new Round(1);
 		this.playerTurns = new PlayerTurns(this.empires.stream().map(Empire::player).collect(Collectors.toSet()));
@@ -178,7 +200,7 @@ public class Game2Impl implements Game {
 		this.colonization.welcomeColonistTransports();
 		this.colonization.colonizeSystems(this.playerTurns.commands(Colonize.class));
 		this.military.annexSystems(this.playerTurns.commands(Annex.class));
-		this.intelligence.recon();
+		this.systemIntelligence.recon(this.round);
 
 		this.round = this.round.next();
 		this.playerTurns.beginNewRound(this.round);
@@ -200,6 +222,19 @@ public class Game2Impl implements Game {
 			.filter(f -> f.location().asOrbit().isPresent()
 					&& this.colonization.colony(player, f.location().current()).isEmpty())
 			.map(f -> f.location().current())
+			.collect(Collectors.toSet());
+	}
+
+	private Set<ScanArea> scanAreas(Player player) {
+		return Stream
+			.concat(this.colonization.colonies(player)
+				.stream()
+				.map(c -> new ScanArea(c.position(), this.technology.colonyScanRange(player))),
+					this.navy.fleets()
+						.stream()
+						.filter(f -> f.player().equals(player))
+						.map(f -> new ScanArea(f.location().current(),
+								this.technology.effectiveScanRange(f.player(), f.ships().counts().keySet()))))
 			.collect(Collectors.toSet());
 	}
 
@@ -227,9 +262,10 @@ public class Game2Impl implements Game {
 				.systems(Game2Impl.this.universe.stars()
 					.stream()
 					.map(star -> Map.entry(SystemIdMapper.toSystemId(star.position()),
-							SystemViewMapper.toSystemView(this.player, star, Game2Impl.this.universe.planet(star),
-									Game2Impl.this.technology, Game2Impl.this.universe, Game2Impl.this.colonization,
-									Game2Impl.this.intelligence, Game2Impl.this.military)))
+							SystemViewMapper.toSystemView(Game2Impl.this.round, this.player, star,
+									Game2Impl.this.universe.planet(star), Game2Impl.this.technology,
+									Game2Impl.this.universe, Game2Impl.this.colonization,
+									Game2Impl.this.systemIntelligence, Game2Impl.this.military)))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue)))
 				.fleets(navy().fleets()
 					.stream()
@@ -240,7 +276,7 @@ public class Game2Impl implements Game {
 									.findFirst()
 									.orElseThrow(),
 								fleet, Game2Impl.this.universe, Game2Impl.this.technology, Game2Impl.this.shipyard,
-								Game2Impl.this.intelligence)
+								Game2Impl.this.fleetIntelligence)
 						.stream())
 					.map(f -> Map.entry(f.id(), f))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue)))

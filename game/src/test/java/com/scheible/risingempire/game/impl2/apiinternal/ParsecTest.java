@@ -33,4 +33,10 @@ class ParsecTest {
 		assertThat(new Parsec("1.001").roundUp()).isEqualTo(2);
 	}
 
+	@Test
+	void testGreaterAndLessThan() {
+		assertThat(new Parsec(5.0).greaterThan(new Parsec(3.0))).isTrue();
+		assertThat(new Parsec(3.0).lessThan(new Parsec(5.0))).isTrue();
+	}
+
 }

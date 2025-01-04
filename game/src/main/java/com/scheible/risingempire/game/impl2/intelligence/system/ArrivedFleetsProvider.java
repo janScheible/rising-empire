@@ -1,5 +1,6 @@
-package com.scheible.risingempire.game.impl2.navy.eta;
+package com.scheible.risingempire.game.impl2.intelligence.system;
 
+import java.util.Map;
 import java.util.Set;
 
 import com.scheible.risingempire.game.api.universe.Player;
@@ -8,8 +9,8 @@ import com.scheible.risingempire.game.impl2.apiinternal.Position;
 /**
  * @author sj
  */
-public interface BasePositionsProvider {
+public interface ArrivedFleetsProvider {
 
-	Set<Position> positions(Player player);
+	Map<Player, Set<Position>> arrivedFleets();
 
 }
