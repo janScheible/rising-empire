@@ -31,7 +31,6 @@ import com.scheible.risingempire.game.impl2.colonization.Colonization.AllocateRe
 import com.scheible.risingempire.game.impl2.colonization.Colonization.Colonize;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.NextShipClass;
 import com.scheible.risingempire.game.impl2.empire.Empire;
-import com.scheible.risingempire.game.impl2.game.Adapters.ArrivedFleetsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.BuildCapacityProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ColoniesProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ColonyFleetProviderAdapter;
@@ -39,6 +38,7 @@ import com.scheible.risingempire.game.impl2.game.Adapters.ColonyIntelProviderAda
 import com.scheible.risingempire.game.impl2.game.Adapters.ControlledSystemProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.FleetItinearySegmentProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.NewShipsProviderAdapter;
+import com.scheible.risingempire.game.impl2.game.Adapters.OrbitingFleetsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ResearchPointProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ScanAreasProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ShipMovementSpecsProviderAdapter;
@@ -108,7 +108,7 @@ public class Game2Impl implements Game {
 		BuildCapacityProviderAdapter buildCapacityProviderAdpater = new BuildCapacityProviderAdapter();
 		ResearchPointProviderAdapter researchPointProviderAdapter = new ResearchPointProviderAdapter();
 		NewShipsProviderAdapter newShipsProviderAdapter = new NewShipsProviderAdapter();
-		ArrivedFleetsProviderAdapter arrivedFleetsProviderAdapter = new ArrivedFleetsProviderAdapter();
+		OrbitingFleetsProviderAdapter orbitingFleetsProviderAdapter = new OrbitingFleetsProviderAdapter();
 		ColonyIntelProviderAdapter colonyProviderAdapter = new ColonyIntelProviderAdapter();
 		ScanAreasProviderAdapter scanAreasProviderAdapter = new ScanAreasProviderAdapter();
 		ShipScannerSpecsProviderAdapter shipScannerSpecsProviderAdapter = new ShipScannerSpecsProviderAdapter();
@@ -124,7 +124,7 @@ public class Game2Impl implements Game {
 		this.colonization = new Colonization(colonyFleetProviderAdapter);
 		this.military = new Military(controlledSystemProviderAdapter);
 		this.spaceCombat = new SpaceCombat();
-		this.systemIntelligence = new SystemIntelligence(arrivedFleetsProviderAdapter, colonyProviderAdapter);
+		this.systemIntelligence = new SystemIntelligence(orbitingFleetsProviderAdapter, colonyProviderAdapter);
 		this.fleetIntelligence = new FleetIntelligence(scanAreasProviderAdapter, shipScannerSpecsProviderAdapter,
 				fleetItinearySegmentProviderAdapter);
 
@@ -135,7 +135,7 @@ public class Game2Impl implements Game {
 		buildCapacityProviderAdpater.delegate(this.colonization);
 		researchPointProviderAdapter.delegate(this.colonization);
 		newShipsProviderAdapter.delegate(this.shipyard);
-		arrivedFleetsProviderAdapter.delegate(this.navy);
+		orbitingFleetsProviderAdapter.delegate(this.navy);
 		colonyProviderAdapter.delegate(this.colonization);
 		scanAreasProviderAdapter.delegate(this::scanAreas);
 		shipScannerSpecsProviderAdapter.delegate(this.technology);

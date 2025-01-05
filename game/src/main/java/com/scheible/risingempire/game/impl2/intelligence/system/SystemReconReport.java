@@ -26,7 +26,7 @@ public record SystemReconReport(boolean explored, Optional<ColonyReconReport> co
 
 	}
 
-	public record ColonyReconReport(Player player, Race race, Population population) {
+	public record ColonyReconReport(Player player, Race race, Population population, boolean outdated) {
 
 	}
 

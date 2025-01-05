@@ -89,4 +89,27 @@ export default class SystemDetailsStories {
 
 		story.showHtml(`<${SystemDetails.NAME} class="inspector-child-story"></${SystemDetails.NAME}>`);
 	}
+
+	static showSystemDetailsForeignColonyOutdated(story: Story) {
+		story.setRenderData(`{
+			"systemName": {
+				"name": "Fieras"
+			},
+			"habitability": {
+				"type": "JUNGLE",
+				"special": "NONE",
+				"maxPopulation": 120
+			},
+			"colony": {
+				"population": 50,
+				"bases": 0,
+				"race": "MYXALOR",
+				"playerColor": "red",
+				"outdated": true
+			},
+			"range": 7
+		}`);
+
+		story.showHtml(`<${SystemDetails.NAME} class="inspector-child-story"></${SystemDetails.NAME}>`);
+	}
 }

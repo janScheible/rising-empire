@@ -84,6 +84,8 @@ class Storybook extends HTMLElement {
 		'transfer-colonists': (story) => TransferColonistsStories.showTransferColonists(story),
 		'relocate-ships': (story) => RelocateStories.showRelocateShips(story),
 		'system-details-foreign-colony': (story) => SystemDetailsStories.showSystemDetailsForeignColony(story),
+		'system-details-foreign-colony-outdated': (story) =>
+			SystemDetailsStories.showSystemDetailsForeignColonyOutdated(story),
 		'system-details-no-colony': (story) => SystemDetailsStories.showSystemDetailsNoColony(story),
 		unexplored: (story) => UnexploredStories.showUnexplored(story),
 		'star-map-notification': (story) => StarMapStories.showStarMapNotification(story),
@@ -206,6 +208,7 @@ class Storybook extends HTMLElement {
 										<option value="transfer-colonists" class="lv-4">transfer-colonists</option>
 										<option value="relocate-ships" class="lv-4">relocate-ships</option>
 									<option value="system-details-foreign-colony" class="lv-3">system-details with foreign colony</option>
+										<option value="system-details-foreign-colony-outdated" class="lv-4">outdated</option>
 									<option value="system-details-no-colony" class="lv-3">system-details with no colony</option>
 									<option value="unexplored" class="lv-3">unexplored</option>
 								<option disabled class="lv-2">star-map</option>

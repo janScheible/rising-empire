@@ -1,7 +1,7 @@
 package com.scheible.risingempire.game.impl2.game;
 
+import java.util.ArrayList;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -21,9 +21,10 @@ import com.scheible.risingempire.game.impl2.colonization.ColonyFleetProvider;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.FleetItinearySegmentProvider;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.ScanAreasProvider;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.ShipScannerSpecsProvider;
-import com.scheible.risingempire.game.impl2.intelligence.system.ArrivedFleetsProvider;
 import com.scheible.risingempire.game.impl2.intelligence.system.ColonyIntelProvider;
+import com.scheible.risingempire.game.impl2.intelligence.system.OrbitingFleetsProvider;
 import com.scheible.risingempire.game.impl2.military.ControlledSystemProvider;
+import com.scheible.risingempire.game.impl2.navy.Fleet;
 import com.scheible.risingempire.game.impl2.navy.Navy;
 import com.scheible.risingempire.game.impl2.navy.NewShipsProvider;
 import com.scheible.risingempire.game.impl2.navy.eta.ColoniesProvider;
@@ -168,7 +169,7 @@ public final class Adapters {
 
 	}
 
-	public static class ArrivedFleetsProviderAdapter implements ArrivedFleetsProvider {
+	public static class OrbitingFleetsProviderAdapter implements OrbitingFleetsProvider {
 
 		private Navy delegate;
 
@@ -177,13 +178,13 @@ public final class Adapters {
 		}
 
 		@Override
-		public Map<Player, Set<Position>> arrivedFleets() {
-			return this.delegate.arrivedFleets()
-				.entrySet()
+		public Map<Player, Set<Position>> orbitingFleets() {
+			return this.delegate.fleets()
 				.stream()
-				.map(e -> Map.entry(e.getKey(),
-						e.getValue().stream().map(f -> f.location().current()).collect(Collectors.toSet())))
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+				.filter(f -> f.location().asOrbit().isPresent())
+				.collect(Collectors
+					.groupingBy(Fleet::player, Collectors.collectingAndThen(Collectors.toCollection(ArrayList::new),
+							fleets -> fleets.stream().map(f -> f.location().current()).collect(Collectors.toSet()))));
 		}
 
 	}
@@ -197,9 +198,9 @@ public final class Adapters {
 		}
 
 		@Override
-		public Optional<ColonyIntel> colony(Player player, Position system) {
-			Optional<Colony> colony = this.delegate.colony(player, system);
-			return colony.map(c -> new ColonyIntel(c.empire().player(), c.empire().race(), new Population(50.0)));
+		public Optional<ColonyIntel> colony(Position system) {
+			return this.delegate.colony(system)
+				.map(c -> new ColonyIntel(c.empire().player(), c.empire().race(), new Population(50.0)));
 		}
 
 	}

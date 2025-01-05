@@ -123,6 +123,7 @@ public class GameViewBuilder {
 						.player(colonyPlayer.get())
 						.race(playerRaceMapping.get(colonyPlayer.get()))
 						.population(snapshot.getColonyPopulation().get())
+						.outdated(false) // information not available
 						.spaceDock(spaceDock)
 						.ratios(ratios)
 						.annexationStatus(Optional.ofNullable(

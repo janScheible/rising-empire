@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
@@ -110,13 +109,6 @@ public class Navy {
 
 	public List<Fleet> fleets() {
 		return Collections.unmodifiableList(this.fleets.fleets());
-	}
-
-	public Map<Player, List<Fleet>> arrivedFleets() {
-		return this.fleets.fleets()
-			.stream()
-			.filter(f -> f.location().asOrbit().filter(o -> !o.partsBeforArrival().isEmpty()).isPresent())
-			.collect(Collectors.groupingBy(Fleet::player));
 	}
 
 	public void commissionNewShips() {

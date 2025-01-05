@@ -230,9 +230,9 @@ class InspectorDto {
 
 	static class SpaceCombatDto {
 
-		Optional<SystemNameDto> systemName;
+		final Optional<SystemNameDto> systemName;
 
-		Optional<HabitabilityDto> habitability;
+		final Optional<HabitabilityDto> habitability;
 
 		final RaceDto attackerRace;
 
@@ -358,27 +358,31 @@ class InspectorDto {
 
 	static class ColonyDto {
 
-		Optional<RaceDto> race;
+		final Optional<RaceDto> race;
 
-		Optional<PlayerDto> playerColor;
+		final Optional<PlayerDto> playerColor;
 
 		final int population;
 
+		final boolean outdated;
+
 		final int bases = 0;
 
-		Optional<ProductionDto> production;
+		final Optional<ProductionDto> production;
 
-		Optional<Integer> roundsUntilAnnexable;
+		final Optional<Integer> roundsUntilAnnexable;
 
-		Optional<PlayerDto> siegePlayerColor;
+		final Optional<PlayerDto> siegePlayerColor;
 
-		Optional<RaceDto> siegeRace;
+		final Optional<RaceDto> siegeRace;
 
-		ColonyDto(Optional<ForeignColonyOwner> foreignColonyOwner, int population, Optional<ProductionDto> production,
-				Optional<Integer> roundsUntilAnnexable, Optional<Player> siegePlayer, Optional<Race> siegeRace) {
+		ColonyDto(Optional<ForeignColonyOwner> foreignColonyOwner, int population, boolean outdated,
+				Optional<ProductionDto> production, Optional<Integer> roundsUntilAnnexable,
+				Optional<Player> siegePlayer, Optional<Race> siegeRace) {
 			this.playerColor = foreignColonyOwner.map(fco -> fco.playerColor);
 			this.race = foreignColonyOwner.map(co -> RaceDto.fromRace(co.race));
 			this.population = population;
+			this.outdated = outdated;
 			this.production = production;
 
 			this.roundsUntilAnnexable = roundsUntilAnnexable;

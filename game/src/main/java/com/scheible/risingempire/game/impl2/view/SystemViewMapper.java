@@ -43,15 +43,13 @@ public class SystemViewMapper {
 			.map(closest -> universe.distance(star, closest).roundUp());
 
 		SystemReconReport systemReport = ownColony ? new SystemReconReport(true, Optional.empty())
-				: systemIntelligence.systemReconReport(player, star.position());
+				: systemIntelligence.systemReconReport(player, round.previous(), star.position());
 		Optional<PlanetReconReport> planetReport = systemReport.planetReconReport(star.name(), planet.type(),
 				planet.special(), planet.max());
 
 		return SystemView.builder()
 			.id(SystemIdMapper.toSystemId(star.position()))
-			.justExplored(round.previous()
-				.map(previousRound -> systemIntelligence.justExplored(player, previousRound, star.position()))
-				.orElse(Boolean.FALSE))
+			.justExplored(systemIntelligence.justExplored(player, round.previous(), star.position()))
 			.location(LocationMapper.toLocation(star.position()))
 			.starType(star.type())
 			.small(star.small())
@@ -71,6 +69,7 @@ public class SystemViewMapper {
 						.map(ColonyReconReport::population)
 						.orElse(new Population(50))
 						.quantity())
+					.outdated(systemReport.colonyReconReport().map(ColonyReconReport::outdated).orElse(Boolean.FALSE))
 					.spaceDock(starHasOwnColony.test(star) ? Optional.of(ShipTypeView.builder()
 						.id(new ShipTypeId("ship"))
 						.index(0)

@@ -11,6 +11,7 @@ export default class Colony extends HTMLElement {
 
 	#colonyEl: FlowLayout;
 	#colonyRaceEl: HTMLSpanElement;
+	#outdatedColonyEl: HTMLSpanElement;
 
 	#figuresEl: GridLayout;
 	#productionEl: FlowLayout;
@@ -48,7 +49,7 @@ export default class Colony extends HTMLElement {
 			</style>
 			<${FlowLayout.NAME} id="wrapper" direction="column" gap="XL">
 				<${FlowLayout.NAME} id="colony" axis-align="center">
-					<span id="colony-race"></span>&nbsp;colony
+					<span id="outdated-colony">Last reported as a</span><span id="colony-race"></span>&nbsp;colony
 				</${FlowLayout.NAME}>
 
 				<${GridLayout.NAME} id="figures" cols="2" border>
@@ -79,6 +80,7 @@ export default class Colony extends HTMLElement {
 
 		this.#colonyEl = this.shadowRoot.querySelector('#colony');
 		this.#colonyRaceEl = this.shadowRoot.querySelector('#colony-race');
+		this.#outdatedColonyEl = this.shadowRoot.querySelector('#outdated-colony');
 
 		this.#figuresEl = this.shadowRoot.querySelector('#figures');
 		this.#productionEl = this.shadowRoot.querySelector('#production');
@@ -114,6 +116,11 @@ export default class Colony extends HTMLElement {
 				this.#colonyRaceEl,
 				'color',
 				data && data.playerColor ? `var(--${data.playerColor}-player-color)` : ''
+			);
+			Reconciler.reconcileStyle(
+				this.#outdatedColonyEl,
+				'display',
+				data && data.outdated === true ? 'unset' : 'none'
 			);
 		}
 

@@ -12,7 +12,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.Position;
  */
 public interface ColonyIntelProvider {
 
-	Optional<ColonyIntel> colony(Player player, Position system);
+	Optional<ColonyIntel> colony(Position system);
 
 	record ColonyIntel(Player player, Race race, Population population) {
 

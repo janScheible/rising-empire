@@ -9,8 +9,8 @@ import com.scheible.risingempire.game.impl2.apiinternal.Position;
 /**
  * @author sj
  */
-public interface ArrivedFleetsProvider {
+public interface OrbitingFleetsProvider {
 
-	Map<Player, Set<Position>> arrivedFleets();
+	Map<Player, Set<Position>> orbitingFleets();
 
 }
