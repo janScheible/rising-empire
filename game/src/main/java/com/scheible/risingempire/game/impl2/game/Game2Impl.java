@@ -209,7 +209,7 @@ public class Game2Impl implements Game {
 	private Set<Position> colonizableSystems(Player player) {
 		return this.navy.fleets()
 			.stream()
-			.filter(f -> f.player().equals(player) && f.location().asOrbit().isPresent()
+			.filter(f -> f.player().equals(player) && f.orbiting()
 					&& this.shipyard.colonizable(player, f.ships().counts().keySet(),
 							this.universe.planet(f.location().current()).type()))
 			.map(f -> f.location().current())
@@ -219,8 +219,7 @@ public class Game2Impl implements Game {
 	private Set<Position> controlledSystems(Player player) {
 		return this.navy.fleets()
 			.stream()
-			.filter(f -> f.location().asOrbit().isPresent()
-					&& this.colonization.colony(player, f.location().current()).isEmpty())
+			.filter(f -> f.orbiting() && this.colonization.colony(player, f.location().current()).isEmpty())
 			.map(f -> f.location().current())
 			.collect(Collectors.toSet());
 	}

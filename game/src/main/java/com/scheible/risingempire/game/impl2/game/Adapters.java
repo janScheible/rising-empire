@@ -181,7 +181,7 @@ public final class Adapters {
 		public Map<Player, Set<Position>> orbitingFleets() {
 			return this.delegate.fleets()
 				.stream()
-				.filter(f -> f.location().asOrbit().isPresent())
+				.filter(Fleet::orbiting)
 				.collect(Collectors
 					.groupingBy(Fleet::player, Collectors.collectingAndThen(Collectors.toCollection(ArrayList::new),
 							fleets -> fleets.stream().map(f -> f.location().current()).collect(Collectors.toSet()))));
@@ -247,8 +247,7 @@ public final class Adapters {
 		public Optional<FleetItinerarySegment> fleetItinerarySegment(Player player, Position fleet) {
 			return this.delegate.fleets()
 				.stream()
-				.filter(f -> f.player().equals(player) && f.location().current().equals(fleet)
-						&& f.location().asItinerary().isPresent())
+				.filter(f -> f.player().equals(player) && f.location().current().equals(fleet) && f.deployed())
 				.findFirst()
 				.flatMap(f -> f.location().asItinerary())
 				.map(i -> new FleetItinerarySegment(i.origin(), i.destination()));

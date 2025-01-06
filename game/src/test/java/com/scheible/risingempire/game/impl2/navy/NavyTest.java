@@ -3,7 +3,6 @@ package com.scheible.risingempire.game.impl2.navy;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
@@ -27,10 +26,10 @@ class NavyTest extends AbstractNavyTest {
 			navy.moveFleets(round, List.of());
 			round = round.next();
 
-			if (!scoutArrived && navy.fleets().stream().anyMatch(fleet -> fleet.location().asOrbit().isPresent())) {
+			if (!scoutArrived && navy.fleets().stream().anyMatch(fleet -> fleet.orbiting())) {
 				scoutArrived = true;
 
-				assertThat(navy.fleets().stream().filter(f -> f.location().asOrbit().isPresent()))
+				assertThat(navy.fleets().stream().filter(Fleet::orbiting))
 					.containsOnly(new Fleet(this.player,
 							new Orbit(this.destination, Set.of(new Itinerary(this.otherDestination, this.destination,
 									Optional.of(new Position("2.000", "2.000")), new Position("2.670", "0.659"),
@@ -38,7 +37,7 @@ class NavyTest extends AbstractNavyTest {
 							ships(this.scout, 1)));
 			}
 		}
-		while (navy.fleets().stream().anyMatch(fleet -> fleet.location().asItinerary().isPresent()));
+		while (navy.fleets().stream().anyMatch(Fleet::deployed));
 
 		// this is the final fleet arrived at destination (the scout has no
 		// `partsBeforeArrival` anymore because it arrived earlier)
@@ -60,7 +59,7 @@ class NavyTest extends AbstractNavyTest {
 			navy.moveFleets(round, List.of());
 			round = round.next();
 		}
-		while (navy.fleets().stream().anyMatch(fleet -> fleet.location().asItinerary().isPresent()));
+		while (navy.fleets().stream().anyMatch(Fleet::deployed));
 
 		// as an intermediate state it is okay to have two fleets of different players
 		// orbiting the same system --> sapce combat will resolve that later
