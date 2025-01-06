@@ -3,7 +3,9 @@ package com.scheible.risingempire.game.impl2.navy;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Itinerary;
@@ -46,6 +48,25 @@ class NavyTest extends AbstractNavyTest {
 								new Position("2.997", "0.000"), new Round(3),
 								this.shipMovementSpecsProvider.speed(this.player, this.enterprise)))),
 				ships(this.enterprise, 1, this.scout, 1)));
+	}
+
+	@Test
+	void testTwoFleetsOfDifferentPlayersOrbitingSameSystem() {
+		Round round = new Round(1);
+		Navy navy = createNavy(
+				List.of(justLeavingFleet(this.origin, this.destination, round, ships(this.enterprise, 1)),
+						orbitingFleet(this.destination, ships(this.scout, 1), Player.YELLOW)));
+		do {
+			navy.moveFleets(round, List.of());
+			round = round.next();
+		}
+		while (navy.fleets().stream().anyMatch(fleet -> fleet.location().asItinerary().isPresent()));
+
+		// as an intermediate state it is okay to have two fleets of different players
+		// orbiting the same system --> sapce combat will resolve that later
+		List<Fleet> orbitingFleets = navy.fleets().stream().filter(Fleet::orbiting).toList();
+		assertThat(orbitingFleets).hasSize(2);
+		assertThat(orbitingFleets.stream().map(f -> f.location().current())).containsOnly(this.destination);
 	}
 
 	private Navy createNavy(List<Fleet> fleets) {

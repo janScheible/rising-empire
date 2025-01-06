@@ -38,6 +38,14 @@ public record Fleet(Player player, Location location, Ships ships) {
 		return this.ships.contains(shipClass);
 	}
 
+	public boolean orbiting() {
+		return this.location instanceof Orbit;
+	}
+
+	public boolean deployed() {
+		return this.location instanceof Itinerary;
+	}
+
 	public sealed interface Location {
 
 		Position current();

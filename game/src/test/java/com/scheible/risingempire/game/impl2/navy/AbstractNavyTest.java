@@ -57,8 +57,12 @@ public abstract class AbstractNavyTest {
 
 	protected Position otherDestination = new Position(2.0, 2.0);
 
+	protected Fleet orbitingFleet(Position system, Ships ships, Player player) {
+		return new Fleet(player, new Orbit(system), ships);
+	}
+
 	protected Fleet orbitingFleet(Position system, Ships ships) {
-		return new Fleet(this.player, new Orbit(system), ships);
+		return orbitingFleet(system, ships, this.player);
 	}
 
 	protected Navy.DeployOrbiting deployOrbiting(Position origin, Ships ships, Position destination) {
