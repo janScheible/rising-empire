@@ -192,8 +192,8 @@ public class Game2Impl implements Game {
 		this.colonization.growPopulation();
 		this.technology.advanceResearch(this.playerTurns.commands(SelectTechnology.class));
 		this.shipyard.buildShips();
-		this.navy.issueRelocations(this.playerTurns.commands(RelocateShips.class));
 		this.navy.commissionNewShips();
+		this.navy.issueRelocations(this.playerTurns.commands(RelocateShips.class));
 		this.navy.moveFleets(this.round, this.playerTurns.commands(Deploy.class));
 		this.spaceCombat.resolve();
 		this.navy.removeDestroyedFleets();
