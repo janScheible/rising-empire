@@ -332,7 +332,7 @@ public class Game2Impl implements Game {
 
 		@Override
 		public void nextShipType(ColonyId colonyId) {
-			requireOwnerShip(colonyId);
+			requireOwnership(colonyId);
 
 			Game2Impl.this.playerTurns.addCommand(this.player,
 					new NextShipClass(this.player, SystemIdMapper.fromColonyId(colonyId)));
@@ -340,7 +340,7 @@ public class Game2Impl implements Game {
 
 		@Override
 		public void transferColonists(ColonyId originId, ColonyId destinationId, int colonists) {
-			requireOwnerShip(originId);
+			requireOwnership(originId);
 
 			Position colonySystem = SystemIdMapper.fromColonyId(originId);
 
@@ -356,7 +356,7 @@ public class Game2Impl implements Game {
 
 		@Override
 		public void relocateShips(ColonyId originId, ColonyId destinationId) {
-			requireOwnerShip(originId);
+			requireOwnership(originId);
 
 			Game2Impl.this.playerTurns.addCommand(this.player, new RelocateShips(this.player,
 					SystemIdMapper.fromColonyId(originId), SystemIdMapper.fromColonyId(destinationId)));
@@ -434,7 +434,7 @@ public class Game2Impl implements Game {
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
 		}
 
-		private void requireOwnerShip(ColonyId colonyId) {
+		private void requireOwnership(ColonyId colonyId) {
 			Position colonySystem = SystemIdMapper.fromColonyId(colonyId);
 
 			if (!Game2Impl.this.colonization.colony(this.player, colonySystem).isPresent()) {
