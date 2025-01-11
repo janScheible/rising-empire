@@ -102,6 +102,10 @@ public class Navy {
 		obsoleteOrbitingFleets.forEach(this.fleets::remove);
 	}
 
+	public Optional<Fleet> findOrbiting(Player player, Position system) {
+		return this.fleets.findOrbiting(player, system);
+	}
+
 	public Optional<Fleet> findDispatched(Player player, Position origin, Position destination, Round dispatchment,
 			Speed speed) {
 		return this.fleets.findDispatched(player, origin, destination, dispatchment, speed);
@@ -117,7 +121,7 @@ public class Navy {
 	public void issueRelocations(List<RelocateShips> commands) {
 	}
 
-	public void removeDestroyedFleets() {
+	public void removeDestroyedShips() {
 	}
 
 	public sealed interface Deploy extends Command {

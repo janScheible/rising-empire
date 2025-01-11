@@ -1,5 +1,6 @@
 package com.scheible.risingempire.game.impl2.navy;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -70,6 +71,25 @@ public record Fleet(Player player, Location location, Ships ships) {
 			@Override
 			public Position current() {
 				return this.system;
+			}
+
+			/**
+			 * Fractions of a round that were needed to reach the destination.
+			 */
+			public Optional<List<Double>> arrivalRoundFractions() {
+				if (partsBeforArrival().isEmpty()) {
+					return Optional.empty();
+				}
+				else {
+					return Optional.of(this.partsBeforArrival.stream()
+						.map(partBeforeArrival -> partBeforeArrival.current()
+							.subtract(this.current())
+							.length()
+							.divide(partBeforeArrival.speed().distance())
+							.quantity()
+							.doubleValue())
+						.toList());
+				}
 			}
 
 		}

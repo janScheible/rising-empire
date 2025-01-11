@@ -1,7 +1,9 @@
 package com.scheible.risingempire.game.impl2.game;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -31,6 +33,7 @@ import com.scheible.risingempire.game.impl2.navy.eta.ColoniesProvider;
 import com.scheible.risingempire.game.impl2.navy.eta.ShipMovementSpecsProvider;
 import com.scheible.risingempire.game.impl2.ship.BuildCapacityProvider;
 import com.scheible.risingempire.game.impl2.ship.Shipyard;
+import com.scheible.risingempire.game.impl2.spacecombat.EncounteringFleetShipsProvider;
 import com.scheible.risingempire.game.impl2.technology.ResearchPointProvider;
 import com.scheible.risingempire.game.impl2.technology.ShipScannerCapability;
 import com.scheible.risingempire.game.impl2.technology.Technology;
@@ -251,6 +254,37 @@ public final class Adapters {
 				.findFirst()
 				.flatMap(f -> f.location().asItinerary())
 				.map(i -> new FleetItinerarySegment(i.origin(), i.destination()));
+		}
+
+	}
+
+	public static class EncounteringFleetShipsProviderAdapter implements EncounteringFleetShipsProvider {
+
+		private Navy delegate;
+
+		public void delegate(Navy delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Map<Position, Map<Player, EncounteringFleet>> encounteringFleetShips() {
+			Map<Position, List<Fleet>> systemFleetMap = this.delegate.fleets()
+				.stream()
+				.filter(Fleet::orbiting)
+				.collect(Collectors.groupingBy(f -> f.location().current()));
+
+			return systemFleetMap.entrySet().stream().filter(e -> e.getValue().size() > 1).map(e -> {
+				Map<Player, EncounteringFleet> encounteringFleets = e.getValue()
+					.stream()
+					.collect(Collectors.toMap(Fleet::player,
+							f -> new EncounteringFleet(f.ships().counts(),
+									f.location()
+										.asOrbit()
+										.orElseThrow()
+										.arrivalRoundFractions()
+										.flatMap(fs -> fs.stream().min(Double::compare)))));
+				return Map.entry(e.getKey(), encounteringFleets);
+			}).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 		}
 
 	}

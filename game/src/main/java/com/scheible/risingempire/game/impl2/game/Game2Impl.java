@@ -36,6 +36,7 @@ import com.scheible.risingempire.game.impl2.game.Adapters.ColoniesProviderAdapte
 import com.scheible.risingempire.game.impl2.game.Adapters.ColonyFleetProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ColonyIntelProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ControlledSystemProviderAdapter;
+import com.scheible.risingempire.game.impl2.game.Adapters.EncounteringFleetShipsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.FleetItinearySegmentProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.NewShipsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.OrbitingFleetsProviderAdapter;
@@ -58,6 +59,7 @@ import com.scheible.risingempire.game.impl2.navy.Navy.TransferColonists;
 import com.scheible.risingempire.game.impl2.navy.Ships;
 import com.scheible.risingempire.game.impl2.navy.eta.EtaCalculator;
 import com.scheible.risingempire.game.impl2.ship.Shipyard;
+import com.scheible.risingempire.game.impl2.spacecombat.RetreatingFleet;
 import com.scheible.risingempire.game.impl2.spacecombat.SpaceCombat;
 import com.scheible.risingempire.game.impl2.technology.Technology;
 import com.scheible.risingempire.game.impl2.technology.Technology.SelectTechnology;
@@ -113,6 +115,7 @@ public class Game2Impl implements Game {
 		ScanAreasProviderAdapter scanAreasProviderAdapter = new ScanAreasProviderAdapter();
 		ShipScannerSpecsProviderAdapter shipScannerSpecsProviderAdapter = new ShipScannerSpecsProviderAdapter();
 		FleetItinearySegmentProviderAdapter fleetItinearySegmentProviderAdapter = new FleetItinearySegmentProviderAdapter();
+		EncounteringFleetShipsProviderAdapter encounteringFleetShipsProviderAdapter = new EncounteringFleetShipsProviderAdapter();
 
 		this.universe = new Universe(LocationMapper.fromLocationValue(galaxySize.width()),
 				LocationMapper.fromLocationValue(galaxySize.height()), stars);
@@ -123,7 +126,7 @@ public class Game2Impl implements Game {
 		this.etaCalculator = new EtaCalculator(shipMovementSpecsProviderAdapter, coloniesProviderAdapter);
 		this.colonization = new Colonization(colonyFleetProviderAdapter);
 		this.military = new Military(controlledSystemProviderAdapter);
-		this.spaceCombat = new SpaceCombat();
+		this.spaceCombat = new SpaceCombat(encounteringFleetShipsProviderAdapter);
 		this.systemIntelligence = new SystemIntelligence(orbitingFleetsProviderAdapter, colonyProviderAdapter);
 		this.fleetIntelligence = new FleetIntelligence(scanAreasProviderAdapter, shipScannerSpecsProviderAdapter,
 				fleetItinearySegmentProviderAdapter);
@@ -140,6 +143,7 @@ public class Game2Impl implements Game {
 		scanAreasProviderAdapter.delegate(this::scanAreas);
 		shipScannerSpecsProviderAdapter.delegate(this.technology);
 		fleetItinearySegmentProviderAdapter.delegate(this.navy);
+		encounteringFleetShipsProviderAdapter.delegate(this.navy);
 
 		this.round = new Round(1);
 		this.playerTurns = new PlayerTurns(this.empires.stream().map(Empire::player).collect(Collectors.toSet()));
@@ -196,7 +200,7 @@ public class Game2Impl implements Game {
 		this.navy.issueRelocations(this.playerTurns.commands(RelocateShips.class));
 		this.navy.moveFleets(this.round, this.playerTurns.commands(Deploy.class));
 		this.spaceCombat.resolve();
-		this.navy.removeDestroyedFleets();
+		this.navy.removeDestroyedShips();
 		this.colonization.welcomeColonistTransports();
 		this.colonization.colonizeSystems(this.playerTurns.commands(Colonize.class));
 		this.military.annexSystems(this.playerTurns.commands(Annex.class));
@@ -204,6 +208,16 @@ public class Game2Impl implements Game {
 
 		this.round = this.round.next();
 		this.playerTurns.beginNewRound(this.round);
+
+		for (RetreatingFleet retreatingFleet : this.spaceCombat.retreatingFleets()) {
+			Fleet fleet = this.navy.findOrbiting(retreatingFleet.player(), retreatingFleet.position()).orElseThrow();
+			Position closestColony = this.universe
+				.closest(retreatingFleet.position(),
+						star -> this.colonization.colony(retreatingFleet.player(), star.position()).isPresent())
+				.position();
+			this.playerTurns.addCommand(retreatingFleet.player(), new DeployOrbiting(retreatingFleet.player(),
+					retreatingFleet.position(), closestColony, fleet.ships()));
+		}
 	}
 
 	private Set<Position> colonizableSystems(Player player) {
@@ -275,7 +289,7 @@ public class Game2Impl implements Game {
 									.findFirst()
 									.orElseThrow(),
 								fleet, Game2Impl.this.universe, Game2Impl.this.technology, Game2Impl.this.shipyard,
-								Game2Impl.this.fleetIntelligence)
+								Game2Impl.this.fleetIntelligence, Game2Impl.this.spaceCombat)
 						.stream())
 					.map(f -> Map.entry(f.id(), f))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue)))
