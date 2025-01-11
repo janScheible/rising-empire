@@ -30,8 +30,9 @@ public class FleetIntelligence {
 		Optional<FleetItinerarySegment> itinerarySegment = this.fleetItinearySegmentProvider
 			.fleetItinerarySegment(player, fleet);
 
-		// for now every scanned fleet is visible in the whole itinerary segment - a
-		// possible impovement is to scrop the segment to only the visible part
+		// for now every scanned fleet is visible in its whole itinerary segment - a
+		// possible impovement is to crop the segment to only the visible part (but that
+		// could also result in multiple sub-segments...)
 		boolean scanned = false;
 		for (ScanArea scanArea : this.scanAreasProvider.scanAreas(player)) {
 			if (intersects(itinerarySegment.map(FleetItinerarySegment::origin).orElse(fleet),
