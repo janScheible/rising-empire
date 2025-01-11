@@ -66,7 +66,7 @@ public class SystemIntelligence {
 		return new SystemReconReport(systemIntelEntry.isPresent(),
 				systemIntelEntry.map(Entry::getValue)
 					.flatMap(si -> si.colonyIntel().map(ci -> Map.entry(si, ci)))
-					.map(siCiEntry -> new ColonyReconReport(siCiEntry.getValue().player(), siCiEntry.getValue().race(),
+					.map(siCiEntry -> new ColonyReconReport(siCiEntry.getValue().player(),
 							siCiEntry.getValue().population(),
 							!siCiEntry.getKey().lastSeen().equals(round.orElse(null)))));
 	}

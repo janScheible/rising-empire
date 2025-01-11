@@ -16,6 +16,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.Population;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
+import com.scheible.risingempire.game.impl2.empire.Empires;
 import com.scheible.risingempire.game.impl2.intelligence.system.SystemIntelligence;
 import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconReport;
 import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconReport.ColonyReconReport;
@@ -32,10 +33,11 @@ import com.scheible.risingempire.game.impl2.universe.Universe;
 public class SystemViewMapper {
 
 	public static SystemView toSystemView(Round round, Player player, Star star, Planet planet, Technology technology,
-			Universe universe, Colonization colonization, SystemIntelligence systemIntelligence, Military military) {
+			Universe universe, Colonization colonization, SystemIntelligence systemIntelligence, Military military,
+			Empires empires) {
 		Optional<Colony> colony = colonization.colony(star.position());
 		Predicate<Star> starHasOwnColony = s -> colonization.colony(s.position())
-			.filter(c -> c.empire().player() == player)
+			.filter(c -> c.player() == player)
 			.isPresent();
 		boolean ownColony = starHasOwnColony.test(star);
 
@@ -63,8 +65,10 @@ public class SystemViewMapper {
 			.colony(colony.filter(c -> starHasOwnColony.test(star) || systemReport.colonyReconReport().isPresent())
 				.map(c -> ColonyView.builder()
 					.id(SystemIdMapper.toSystemId(star.position()).toColonyId())
-					.player(systemReport.colonyReconReport().map(ColonyReconReport::player).orElse(c.empire().player()))
-					.race(systemReport.colonyReconReport().map(ColonyReconReport::race).orElse(c.empire().race()))
+					.player(systemReport.colonyReconReport().map(ColonyReconReport::player).orElse(c.player()))
+					.race(systemReport.colonyReconReport()
+						.map(crp -> empires.race(crp.player()))
+						.orElse(empires.race(c.player())))
 					.population((int) systemReport.colonyReconReport()
 						.map(ColonyReconReport::population)
 						.orElse(new Population(50))

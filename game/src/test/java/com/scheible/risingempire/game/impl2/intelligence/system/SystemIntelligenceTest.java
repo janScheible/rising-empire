@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.scheible.risingempire.game.api.universe.Player;
-import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.impl2.apiinternal.Population;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
@@ -48,7 +47,7 @@ class SystemIntelligenceTest {
 				providerData.colonyIntelProvider());
 
 		providerData.orbitingFleets.put(Player.BLUE, Set.of(new Position(5.0, 5.0)));
-		providerData.colonyIntel = new ColonyIntel(Player.BLUE, Race.MYXALOR, new Population(50));
+		providerData.colonyIntel = new ColonyIntel(Player.BLUE, new Population(50));
 		intelligence.recon(round);
 
 		round = round.next();
@@ -64,7 +63,7 @@ class SystemIntelligenceTest {
 				providerData.colonyIntelProvider());
 
 		providerData.orbitingFleets.put(Player.BLUE, Set.of(new Position(5.0, 5.0)));
-		providerData.colonyIntel = new ColonyIntel(Player.GREEN, Race.MYXALOR, new Population(42));
+		providerData.colonyIntel = new ColonyIntel(Player.GREEN, new Population(42));
 		intelligence.recon(round);
 
 		round = round.next();
@@ -78,8 +77,7 @@ class SystemIntelligenceTest {
 		// colonized system with an orbiting fleet
 		report = intelligence.systemReconReport(Player.BLUE, round.previous(), new Position(5.0, 5.0));
 		assertThat(report.explored()).isTrue();
-		assertThat(report.colonyReconReport())
-			.contains(new ColonyReconReport(Player.GREEN, Race.MYXALOR, new Population(42), false));
+		assertThat(report.colonyReconReport()).contains(new ColonyReconReport(Player.GREEN, new Population(42), false));
 
 		// in next round the system with the previous orbiting fleet is outdated
 		providerData.orbitingFleets.clear();

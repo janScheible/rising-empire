@@ -3,7 +3,6 @@ package com.scheible.risingempire.game.impl2.intelligence.system;
 import java.util.Optional;
 
 import com.scheible.risingempire.game.api.universe.Player;
-import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.system.PlanetSpecial;
 import com.scheible.risingempire.game.api.view.system.PlanetType;
 import com.scheible.risingempire.game.impl2.apiinternal.Population;
@@ -26,7 +25,7 @@ public record SystemReconReport(boolean explored, Optional<ColonyReconReport> co
 
 	}
 
-	public record ColonyReconReport(Player player, Race race, Population population, boolean outdated) {
+	public record ColonyReconReport(Player player, Population population, boolean outdated) {
 
 	}
 

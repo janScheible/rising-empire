@@ -1,6 +1,5 @@
 package com.scheible.risingempire.game.impl2.game;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,7 +13,6 @@ import com.scheible.risingempire.game.api.Game;
 import com.scheible.risingempire.game.api.PlayerGame;
 import com.scheible.risingempire.game.api.TurnStatus;
 import com.scheible.risingempire.game.api.universe.Player;
-import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
@@ -31,6 +29,7 @@ import com.scheible.risingempire.game.impl2.colonization.Colonization.AllocateRe
 import com.scheible.risingempire.game.impl2.colonization.Colonization.Colonize;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.NextShipClass;
 import com.scheible.risingempire.game.impl2.empire.Empire;
+import com.scheible.risingempire.game.impl2.empire.Empires;
 import com.scheible.risingempire.game.impl2.game.Adapters.BuildCapacityProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ColoniesProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ColonyFleetProviderAdapter;
@@ -78,7 +77,7 @@ public class Game2Impl implements Game {
 
 	private final Universe universe;
 
-	private final List<Empire> empires;
+	private final Empires empires;
 
 	private final Technology technology;
 
@@ -119,7 +118,7 @@ public class Game2Impl implements Game {
 
 		this.universe = new Universe(LocationMapper.fromLocationValue(galaxySize.width()),
 				LocationMapper.fromLocationValue(galaxySize.height()), stars);
-		this.empires = new ArrayList<>(empires);
+		this.empires = new Empires(empires);
 		this.technology = new Technology(researchPointProviderAdapter);
 		this.shipyard = new Shipyard(buildCapacityProviderAdpater);
 		this.navy = new Navy(fleets, shipMovementSpecsProviderAdapter, newShipsProviderAdapter);
@@ -146,18 +145,17 @@ public class Game2Impl implements Game {
 		encounteringFleetShipsProviderAdapter.delegate(this.navy);
 
 		this.round = new Round(1);
-		this.playerTurns = new PlayerTurns(this.empires.stream().map(Empire::player).collect(Collectors.toSet()));
+		this.playerTurns = new PlayerTurns(this.empires.players());
 	}
 
 	@Override
 	public PlayerGame forPlayer(Player player) {
-		return new PlayerGame2Impl(player,
-				this.empires.stream().filter(e -> e.player().equals(player)).findAny().orElseThrow().race());
+		return new PlayerGame2Impl(player);
 	}
 
 	@Override
 	public Set<Player> players() {
-		return this.empires.stream().map(Empire::player).collect(Collectors.toSet());
+		return this.empires.players();
 	}
 
 	@Override
@@ -255,11 +253,8 @@ public class Game2Impl implements Game {
 
 		private final Player player;
 
-		private final Race race;
-
-		private PlayerGame2Impl(Player player, Race race) {
+		private PlayerGame2Impl(Player player) {
 			this.player = player;
-			this.race = race;
 		}
 
 		@Override
@@ -268,28 +263,23 @@ public class Game2Impl implements Game {
 				.galaxyWidth(LocationMapper.toLocationValue(Game2Impl.this.universe.width()))
 				.galaxyHeight(LocationMapper.toLocationValue(Game2Impl.this.universe.height()))
 				.player(this.player)
-				.race(this.race)
+				.race(Game2Impl.this.empires.race(this.player))
 				.players(Game2Impl.this.players())
 				.round(Game2Impl.this.round())
 				.turnFinishedStatus(Game2Impl.this.playerTurns.turnStatus())
 				.systems(Game2Impl.this.universe.stars()
 					.stream()
-					.map(star -> Map.entry(SystemIdMapper.toSystemId(star.position()),
-							SystemViewMapper.toSystemView(Game2Impl.this.round, this.player, star,
-									Game2Impl.this.universe.planet(star), Game2Impl.this.technology,
-									Game2Impl.this.universe, Game2Impl.this.colonization,
-									Game2Impl.this.systemIntelligence, Game2Impl.this.military)))
+					.map(star -> Map.entry(SystemIdMapper.toSystemId(star.position()), SystemViewMapper.toSystemView(
+							Game2Impl.this.round, this.player, star, Game2Impl.this.universe.planet(star),
+							Game2Impl.this.technology, Game2Impl.this.universe, Game2Impl.this.colonization,
+							Game2Impl.this.systemIntelligence, Game2Impl.this.military, Game2Impl.this.empires)))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue)))
 				.fleets(navy().fleets()
 					.stream()
 					.flatMap(fleet -> FleetViewMapper
-						.toFleetView(this.player,
-								Game2Impl.this.empires.stream()
-									.filter(empire -> empire.player().equals(fleet.player()))
-									.findFirst()
-									.orElseThrow(),
-								fleet, Game2Impl.this.universe, Game2Impl.this.technology, Game2Impl.this.shipyard,
-								Game2Impl.this.fleetIntelligence, Game2Impl.this.spaceCombat)
+						.toFleetView(this.player, fleet, Game2Impl.this.universe, Game2Impl.this.technology,
+								Game2Impl.this.shipyard, Game2Impl.this.fleetIntelligence, Game2Impl.this.spaceCombat,
+								Game2Impl.this.empires)
 						.stream())
 					.map(f -> Map.entry(f.id(), f))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue)))
