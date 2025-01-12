@@ -3,7 +3,6 @@ package com.scheible.risingempire.game.impl2.game;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -266,24 +265,20 @@ public final class Adapters {
 		}
 
 		@Override
-		public Map<Position, Map<Player, EncounteringFleet>> encounteringFleetShips() {
-			Map<Position, List<Fleet>> systemFleetMap = this.delegate.fleets()
+		public Map<Position, List<EncounteringFleet>> encounteringFleetShips() {
+			return this.delegate.fleets()
 				.stream()
 				.filter(Fleet::orbiting)
-				.collect(Collectors.groupingBy(f -> f.location().current()));
-
-			return systemFleetMap.entrySet().stream().filter(e -> e.getValue().size() > 1).map(e -> {
-				Map<Player, EncounteringFleet> encounteringFleets = e.getValue()
-					.stream()
-					.collect(Collectors.toMap(Fleet::player,
-							f -> new EncounteringFleet(f.ships().counts(),
-									f.location()
-										.asOrbit()
-										.orElseThrow()
-										.arrivalRoundFractions()
-										.flatMap(fs -> fs.stream().min(Double::compare)))));
-				return Map.entry(e.getKey(), encounteringFleets);
-			}).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+				.collect(Collectors.groupingBy(f -> f.location().current(),
+						Collectors.collectingAndThen(Collectors.toCollection(ArrayList::new),
+								fleets -> fleets.stream()
+									.map(f -> new EncounteringFleet(f.player(), f.ships().counts(),
+											f.location()
+												.asOrbit()
+												.orElseThrow()
+												.arrivalRoundFractions()
+												.flatMap(fs -> fs.stream().min(Double::compare))))
+									.toList())));
 		}
 
 	}

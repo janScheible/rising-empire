@@ -17,6 +17,7 @@ import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
+import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.tech.TechId;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
@@ -283,7 +284,24 @@ public class Game2Impl implements Game {
 						.stream())
 					.map(f -> Map.entry(f.id(), f))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue)))
-				.spaceCombats(Set.of())
+				.spaceCombats(Game2Impl.this.spaceForce.spaceCombats()
+					.stream()
+					.map(spaceCombat -> SpaceCombatView.builder()
+						.systemId(SystemIdMapper.toSystemId(spaceCombat.system()))
+						.order(0)
+						.fireExchangeCount(0)
+						.attacker(Game2Impl.this.empires.race(spaceCombat.attacker()))
+						.attackerPlayer(spaceCombat.attacker())
+						.attackerFleets(Set.of())
+						.attackerShipSpecs(List.of())
+						.defender(Game2Impl.this.empires.race(spaceCombat.defender()))
+						.defenderPlayer(spaceCombat.defender())
+						.defenderFleet(Optional.empty())
+						.defenderFleetsBeforeArrival(Set.of())
+						.defenderShipSpecs(List.of())
+						.outcome(spaceCombat.outcome())
+						.build())
+					.collect(Collectors.toSet()))
 				.selectTechGroups(Set.of())
 				.build();
 		}

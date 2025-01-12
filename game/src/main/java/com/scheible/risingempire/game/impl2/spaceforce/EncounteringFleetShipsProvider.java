@@ -1,5 +1,6 @@
 package com.scheible.risingempire.game.impl2.spaceforce;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -12,9 +13,9 @@ import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
  */
 public interface EncounteringFleetShipsProvider {
 
-	Map<Position, Map<Player, EncounteringFleet>> encounteringFleetShips();
+	Map<Position, List<EncounteringFleet>> encounteringFleetShips();
 
-	record EncounteringFleet(Map<ShipClassId, Integer> counts, Optional<Double> arrivalRoundFraction) {
+	record EncounteringFleet(Player player, Map<ShipClassId, Integer> counts, Optional<Double> arrivalRoundFraction) {
 
 		public boolean arriving() {
 			return this.arrivalRoundFraction.isPresent();
