@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl2.spacecombat;
+package com.scheible.risingempire.game.impl2.spaceforce;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;

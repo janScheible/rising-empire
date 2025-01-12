@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl2.spacecombat;
+package com.scheible.risingempire.game.impl2.spaceforce;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,24 +6,24 @@ import java.util.Map;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
-import com.scheible.risingempire.game.impl2.spacecombat.EncounteringFleetShipsProvider.EncounteringFleet;
+import com.scheible.risingempire.game.impl2.spaceforce.EncounteringFleetShipsProvider.EncounteringFleet;
 
 import static java.util.Collections.unmodifiableList;
 
 /**
  * @author sj
  */
-public class SpaceCombat {
+public class SpaceForce {
 
 	private final EncounteringFleetShipsProvider encounteringFleetShipsProvider;
 
 	private final List<RetreatingFleet> retreatingFleets = new ArrayList<>();
 
-	public SpaceCombat(EncounteringFleetShipsProvider encounteringFleetShipsProvider) {
+	public SpaceForce(EncounteringFleetShipsProvider encounteringFleetShipsProvider) {
 		this.encounteringFleetShipsProvider = encounteringFleetShipsProvider;
 	}
 
-	public void resolve() {
+	public void resolveSpaceCombats() {
 		this.retreatingFleets.clear();
 
 		Map<Position, Map<Player, EncounteringFleet>> encounteringFleetShips = this.encounteringFleetShipsProvider

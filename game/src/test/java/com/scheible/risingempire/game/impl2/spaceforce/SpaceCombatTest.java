@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl2.spacecombat;
+package com.scheible.risingempire.game.impl2.spaceforce;
 
 import java.util.Map;
 import java.util.Optional;
@@ -6,7 +6,9 @@ import java.util.Optional;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
-import com.scheible.risingempire.game.impl2.spacecombat.EncounteringFleetShipsProvider.EncounteringFleet;
+import com.scheible.risingempire.game.impl2.spaceforce.EncounteringFleetShipsProvider.EncounteringFleet;
+import com.scheible.risingempire.game.impl2.spaceforce.RetreatingFleet;
+import com.scheible.risingempire.game.impl2.spaceforce.SpaceForce;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,13 +24,13 @@ public class SpaceCombatTest {
 
 	@Test
 	public void testRetreatingFleets() {
-		SpaceCombat spaceCombat = new SpaceCombat(() -> Map.of(this.conflictSystem,
+		SpaceForce spaceForce = new SpaceForce(() -> Map.of(this.conflictSystem,
 				Map.of(Player.BLUE, new EncounteringFleet(Map.of(this.shipClass, 1), Optional.empty()), Player.YELLOW,
 						new EncounteringFleet(Map.of(this.shipClass, 1), Optional.of(0.5)), Player.GREEN,
 						new EncounteringFleet(Map.of(this.shipClass, 1), Optional.of(0.5)))));
 
-		spaceCombat.resolve();
-		assertThat(spaceCombat.retreatingFleets()).containsOnly(new RetreatingFleet(Player.YELLOW, this.conflictSystem),
+		spaceForce.resolveSpaceCombats();
+		assertThat(spaceForce.retreatingFleets()).containsOnly(new RetreatingFleet(Player.YELLOW, this.conflictSystem),
 				new RetreatingFleet(Player.GREEN, this.conflictSystem));
 	}
 

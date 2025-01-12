@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl2.spacecombat;
+package com.scheible.risingempire.game.impl2.spaceforce;
 
 import java.util.Map;
 import java.util.Optional;

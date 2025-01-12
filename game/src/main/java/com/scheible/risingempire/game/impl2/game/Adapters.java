@@ -33,7 +33,7 @@ import com.scheible.risingempire.game.impl2.navy.eta.ColoniesProvider;
 import com.scheible.risingempire.game.impl2.navy.eta.ShipMovementSpecsProvider;
 import com.scheible.risingempire.game.impl2.ship.BuildCapacityProvider;
 import com.scheible.risingempire.game.impl2.ship.Shipyard;
-import com.scheible.risingempire.game.impl2.spacecombat.EncounteringFleetShipsProvider;
+import com.scheible.risingempire.game.impl2.spaceforce.EncounteringFleetShipsProvider;
 import com.scheible.risingempire.game.impl2.technology.ResearchPointProvider;
 import com.scheible.risingempire.game.impl2.technology.ShipScannerCapability;
 import com.scheible.risingempire.game.impl2.technology.Technology;
