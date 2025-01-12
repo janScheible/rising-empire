@@ -7,8 +7,6 @@ import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.spaceforce.EncounteringFleetShipsProvider.EncounteringFleet;
-import com.scheible.risingempire.game.impl2.spaceforce.RetreatingFleet;
-import com.scheible.risingempire.game.impl2.spaceforce.SpaceForce;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

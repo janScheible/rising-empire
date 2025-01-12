@@ -15,7 +15,6 @@ import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
-import com.scheible.risingempire.game.impl2.empire.Empire;
 import com.scheible.risingempire.game.impl2.empire.Empires;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.FleetIntelligence;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.FleetReconReport;
