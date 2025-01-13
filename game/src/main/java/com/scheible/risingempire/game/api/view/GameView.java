@@ -1,5 +1,6 @@
 package com.scheible.risingempire.game.api.view;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -94,9 +95,13 @@ public record GameView(int galaxyWidth, int galaxyHeight, Player player, Race ra
 	 * with space battle).
 	 */
 	public Set<SystemId> justExploredSystemIds() {
+		Set<SystemId> spaceCombatSystemIds = this.spaceCombats.stream()
+			.map(SpaceCombatView::systemId)
+			.collect(Collectors.toCollection(HashSet::new));
+
 		return this.systems.values()
 			.stream()
-			.filter(s -> s.justExplored() && !s.colonizable())
+			.filter(s -> s.justExplored() && !s.colonizable() && !spaceCombatSystemIds.contains(s.id()))
 			.map(SystemView::id)
 			.collect(Collectors.toSet());
 	}
