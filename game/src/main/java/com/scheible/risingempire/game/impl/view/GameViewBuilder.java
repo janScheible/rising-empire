@@ -186,7 +186,6 @@ public class GameViewBuilder {
 			.filter(sc -> sc.getAttacker() == player || sc.getDefender() == player)
 			.map(sc -> SpaceCombatView.builder()
 				.systemId(sc.getSystemId())
-				.order(sc.getOrder())
 				.fireExchangeCount(sc.getFireExchangeCount())
 				.attacker(playerRaceMapping.get(sc.getAttacker()))
 				.attackerPlayer(sc.getAttacker())

@@ -290,7 +290,6 @@ public class Game2Impl implements Game {
 					.stream()
 					.map(spaceCombat -> SpaceCombatView.builder()
 						.systemId(SystemIdMapper.toSystemId(spaceCombat.system()))
-						.order(0)
 						.fireExchangeCount(0)
 						.attacker(Game2Impl.this.empires.race(spaceCombat.attacker()))
 						.attackerPlayer(spaceCombat.attacker())

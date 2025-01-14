@@ -42,13 +42,11 @@ public class SpaceCombat {
 
 	private final Outcome outcome;
 
-	private final Integer order;
-
-	private SpaceCombat(SystemId systemId, int fireExchangeCount, Player attacker, FleetBeforeArrivalView attackerFleet,
+	public SpaceCombat(SystemId systemId, int fireExchangeCount, Player attacker, FleetBeforeArrivalView attackerFleet,
 			Map<DesignSlot, Integer> previousAttackerShipCounts,
 			Map<DesignSlot, List<FireExchange>> attackerFireExchanges, Player defender, FleetId defenderFleet,
 			Map<DesignSlot, Integer> previousDefenderShipCounts,
-			Map<DesignSlot, List<FireExchange>> defenderFireExchanges, Outcome outcome, Integer order) {
+			Map<DesignSlot, List<FireExchange>> defenderFireExchanges, Outcome outcome) {
 		this.systemId = systemId;
 
 		this.fireExchangeCount = fireExchangeCount;
@@ -64,24 +62,6 @@ public class SpaceCombat {
 		this.defenderFireExchanges = unmodifiableMap(defenderFireExchanges);
 
 		this.outcome = outcome;
-
-		this.order = order;
-	}
-
-	public SpaceCombat(SystemId systemId, int fireExchangeCount, Player attacker, FleetBeforeArrivalView attackerFleet,
-			Map<DesignSlot, Integer> attackerShipCounts, Map<DesignSlot, List<FireExchange>> attackerFireExchanges,
-			Player defender, FleetId defenderFleet, Map<DesignSlot, Integer> defenderShipCounts,
-			Map<DesignSlot, List<FireExchange>> defenderFireExchanges, Outcome outcome) {
-		this(systemId, fireExchangeCount, attacker, attackerFleet, attackerShipCounts, attackerFireExchanges, defender,
-				defenderFleet, defenderShipCounts, defenderFireExchanges, outcome, null);
-	}
-
-	public static SpaceCombat withOrder(SpaceCombat spaceCombat, int order) {
-		return new SpaceCombat(spaceCombat.getSystemId(), spaceCombat.getFireExchangeCount(), spaceCombat.getAttacker(),
-				spaceCombat.getAttackerFleet(), spaceCombat.getPreviousAttackerShipCounts(),
-				spaceCombat.getAttackerFireExchanges(), spaceCombat.getDefender(), spaceCombat.getDefenderFleet(),
-				spaceCombat.getPreviousDefenderShipCounts(), spaceCombat.getDefenderFireExchanges(),
-				spaceCombat.getOutcome(), order);
 	}
 
 	private Map<DesignSlot, Integer> getShipCounts(Map<DesignSlot, Integer> shipCounts,
@@ -148,10 +128,6 @@ public class SpaceCombat {
 
 	public Outcome getOutcome() {
 		return this.outcome;
-	}
-
-	public int getOrder() {
-		return this.order;
 	}
 
 }

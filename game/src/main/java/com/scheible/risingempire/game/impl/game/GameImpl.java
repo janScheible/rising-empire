@@ -166,9 +166,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 			FleetChanges changes = this.fleetTurn.nextTurn(fleet);
 			changes.getAdded().forEach(f -> this.fleets.put(f.getId(), f));
 			changes.getRemoved().forEach(f -> this.fleets.remove(f.getId()));
-			changes.getCombats()
-				.forEach(spaceCombat -> this.spaceCombats
-					.add(SpaceCombat.withOrder(spaceCombat, this.spaceCombats.size())));
+			changes.getCombats().forEach(this.spaceCombats::add);
 			changes.getOrbitingArrivingMapping()
 				.forEach((orbitingId, deployedIds) -> this.orbitingArrivingMapping
 					.computeIfAbsent(orbitingId, key -> new HashSet<>())
