@@ -270,10 +270,12 @@ public class Game2Impl implements Game {
 				.turnFinishedStatus(Game2Impl.this.playerTurns.turnStatus())
 				.systems(Game2Impl.this.universe.stars()
 					.stream()
-					.map(star -> Map.entry(SystemIdMapper.toSystemId(star.position()), SystemViewMapper.toSystemView(
-							Game2Impl.this.round, this.player, star, Game2Impl.this.universe.planet(star),
-							Game2Impl.this.technology, Game2Impl.this.universe, Game2Impl.this.colonization,
-							Game2Impl.this.systemIntelligence, Game2Impl.this.military, Game2Impl.this.empires)))
+					.map(star -> Map.entry(SystemIdMapper.toSystemId(star.position()),
+							SystemViewMapper.toSystemView(Game2Impl.this.round, this.player, star,
+									Game2Impl.this.universe.planet(star), Game2Impl.this.technology,
+									Game2Impl.this.universe, Game2Impl.this.colonization,
+									Game2Impl.this.systemIntelligence, Game2Impl.this.military, Game2Impl.this.empires,
+									Game2Impl.this.spaceForce)))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue)))
 				.fleets(navy().fleets()
 					.stream()

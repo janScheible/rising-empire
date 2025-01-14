@@ -22,6 +22,7 @@ import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconRepor
 import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconReport.ColonyReconReport;
 import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconReport.PlanetReconReport;
 import com.scheible.risingempire.game.impl2.military.Military;
+import com.scheible.risingempire.game.impl2.spaceforce.SpaceForce;
 import com.scheible.risingempire.game.impl2.technology.Technology;
 import com.scheible.risingempire.game.impl2.universe.Planet;
 import com.scheible.risingempire.game.impl2.universe.Star;
@@ -34,7 +35,7 @@ public class SystemViewMapper {
 
 	public static SystemView toSystemView(Round round, Player player, Star star, Planet planet, Technology technology,
 			Universe universe, Colonization colonization, SystemIntelligence systemIntelligence, Military military,
-			Empires empires) {
+			Empires empires, SpaceForce spaceForce) {
 		Optional<Colony> colony = colonization.colony(star.position());
 		Predicate<Star> starHasOwnColony = s -> colonization.colony(s.position())
 			.filter(c -> c.player() == player)
@@ -49,9 +50,12 @@ public class SystemViewMapper {
 		Optional<PlanetReconReport> planetReport = systemReport.planetReconReport(star.name(), planet.type(),
 				planet.special(), planet.max());
 
+		boolean colonizable = colonization.colonizable(player, star.position());
+
 		return SystemView.builder()
 			.id(SystemIdMapper.toSystemId(star.position()))
-			.justExplored(systemIntelligence.justExplored(player, round.previous(), star.position()))
+			.justExplored(systemIntelligence.justExplored(player, round.previous(), star.position())
+					&& spaceForce.spaceCombat(star.position()).isEmpty() && !colonizable)
 			.location(LocationMapper.toLocation(star.position()))
 			.starType(star.type())
 			.small(star.small())
@@ -97,7 +101,7 @@ public class SystemViewMapper {
 				.ofNullable(ownColony ? LocationMapper.toLocationValue(technology.extendedRange(player)) : null))
 			.scannerRange(Optional
 				.ofNullable(ownColony ? LocationMapper.toLocationValue(technology.colonyScanRange(player)) : null))
-			.colonizable(colonization.colonizable(player, star.position()))
+			.colonizable(colonizable)
 			.colonizeCommand(colonization.colonizeCommand(player, star.position()))
 			.notifications(Set.of())
 			.build();

@@ -75,6 +75,10 @@ public class SpaceForce {
 		return unmodifiableList(this.spaceCombats);
 	}
 
+	public List<SpaceCombat> spaceCombat(Position system) {
+		return this.spaceCombats.stream().filter(sc -> sc.system().equals(system)).toList();
+	}
+
 	static int compareEncounteringFleetsByArrivalRoundFraction(EncounteringFleet a, EncounteringFleet b) {
 		if (a.arrivalRoundFraction().isEmpty()) {
 			return -1;
