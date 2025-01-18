@@ -8,7 +8,6 @@ import java.util.function.Predicate;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
-import com.scheible.risingempire.game.api.view.ship.ShipSize;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.system.SystemView;
@@ -22,6 +21,7 @@ import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconRepor
 import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconReport.ColonyReconReport;
 import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconReport.PlanetReconReport;
 import com.scheible.risingempire.game.impl2.military.Military;
+import com.scheible.risingempire.game.impl2.ship.Shipyard;
 import com.scheible.risingempire.game.impl2.spaceforce.SpaceForce;
 import com.scheible.risingempire.game.impl2.technology.Technology;
 import com.scheible.risingempire.game.impl2.universe.Planet;
@@ -35,7 +35,7 @@ public class SystemViewMapper {
 
 	public static SystemView toSystemView(Round round, Player player, Star star, Planet planet, Technology technology,
 			Universe universe, Colonization colonization, SystemIntelligence systemIntelligence, Military military,
-			Empires empires, SpaceForce spaceForce) {
+			Empires empires, SpaceForce spaceForce, Shipyard shipyard) {
 		Optional<Colony> colony = colonization.colony(star.position());
 		Predicate<Star> starHasOwnColony = s -> colonization.colony(s.position())
 			.filter(c -> c.player() == player)
@@ -78,13 +78,16 @@ public class SystemViewMapper {
 						.orElse(new Population(50))
 						.quantity())
 					.outdated(systemReport.colonyReconReport().map(ColonyReconReport::outdated).orElse(Boolean.FALSE))
-					.spaceDock(starHasOwnColony.test(star) ? Optional.of(ShipTypeView.builder()
-						.id(new ShipTypeId("ship"))
-						.index(0)
-						.name("Ship")
-						.size(ShipSize.MEDIUM)
-						.look(0)
-						.build()) : Optional.empty())
+					.spaceDock(starHasOwnColony.test(star)
+							? Optional.of(shipyard.design(c.player(), c.spaceDockShipClass()))
+								.map(design -> ShipTypeView.builder()
+									.id(new ShipTypeId(design.id().value()))
+									.index(design.index())
+									.name(design.name())
+									.size(design.size())
+									.look(design.look())
+									.build())
+							: Optional.empty())
 					.ratios(starHasOwnColony.test(star) ? Optional.of(Map.of(//
 							ProductionArea.DEFENCE, 20, //
 							ProductionArea.ECOLOGY, 20, //

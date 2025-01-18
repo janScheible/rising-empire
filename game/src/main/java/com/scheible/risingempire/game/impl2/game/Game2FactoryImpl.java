@@ -36,11 +36,11 @@ public class Game2FactoryImpl implements GameFactory {
 						new Star("Lalande", new Position(3.386, 2.133), StarType.YELLOW, true),
 						new Star("Sirius", new Position("4.080", "8.226"), StarType.RED, true)),
 				List.of(new Fleet(Player.BLUE, new Orbit(new Position("6.173", "5.026")),
-						new Ships(Map.of(new ShipClassId("scout"), 2, new ShipClassId("enterprise"), 2))),
+						new Ships(Map.of(new ShipClassId("scout"), 2, new ShipClassId("colony-ship"), 1))),
 						new Fleet(Player.YELLOW, new Orbit(new Position("9.973", "5.626")),
-								new Ships(Map.of(new ShipClassId("scout"), 2, new ShipClassId("enterprise"), 2))),
+								new Ships(Map.of(new ShipClassId("scout"), 2, new ShipClassId("colony-ship"), 1))),
 						new Fleet(Player.WHITE, new Orbit(new Position("4.080", "8.226")),
-								new Ships(Map.of(new ShipClassId("scout"), 2, new ShipClassId("enterprise"), 2)))));
+								new Ships(Map.of(new ShipClassId("scout"), 2, new ShipClassId("colony-ship"), 1)))));
 	}
 
 	@Override

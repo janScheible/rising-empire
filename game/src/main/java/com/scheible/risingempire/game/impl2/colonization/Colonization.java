@@ -1,6 +1,8 @@
 package com.scheible.risingempire.game.impl2.colonization;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -9,6 +11,7 @@ import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Credit;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.ResearchPoint;
+import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.common.Command;
 
 /**
@@ -16,15 +19,29 @@ import com.scheible.risingempire.game.impl2.common.Command;
  */
 public class Colonization {
 
-	private final Set<Colony> colonies = Set.of(new Colony(Player.BLUE, new Position("6.173", "5.026")),
-			new Colony(Player.YELLOW, new Position("9.973", "5.626")),
-			new Colony(Player.WHITE, new Position("4.080", "8.226")));
+	private final List<Colony> colonies;
 
 	private final ColonyFleetProvider colonyFleetProvider;
 
 	public Colonization(ColonyFleetProvider colonyFleetProvider) {
+		this.colonies = new ArrayList<>(
+				List.of(new Colony(Player.BLUE, new Position("6.173", "5.026"), new ShipClassId("scout")),
+						new Colony(Player.YELLOW, new Position("9.973", "5.626"), new ShipClassId("scout")),
+						new Colony(Player.WHITE, new Position("4.080", "8.226"), new ShipClassId("scout"))));
+
 		this.colonyFleetProvider = colonyFleetProvider;
 		this.colonyFleetProvider.hashCode(); // to make PMD happy for now...
+	}
+
+	private Colonization(List<Colony> colonies, ColonyFleetProvider colonyFleetProvider) {
+		this.colonies = colonies;
+		this.colonyFleetProvider = colonyFleetProvider;
+	}
+
+	public Colonization apply(List<ColonyCommand> commands) {
+		Colonization copy = new Colonization(new ArrayList<>(this.colonies), this.colonyFleetProvider);
+		copy.updateColonies(commands);
+		return copy;
 	}
 
 	public boolean colonizable(Player player, Position system) {
@@ -43,10 +60,25 @@ public class Colonization {
 		return this.colonies.stream().filter(c -> c.position().equals(system)).findFirst();
 	}
 
-	public void allocate(List<AllocateResources> commands) {
-	}
+	public void updateColonies(List<ColonyCommand> commands) {
+		Map<Position, List<ColonyCommand>> colonyCommandMapping = commands.stream()
+			.filter(ColonyCommand.class::isInstance)
+			.map(ColonyCommand.class::cast)
+			.collect(Collectors.groupingBy(ColonyCommand::colony));
 
-	public void growPopulation() {
+		for (int i = 0; i < this.colonies.size(); i++) {
+			Colony colony = this.colonies.get(i);
+			List<ColonyCommand> colonyCommands = colonyCommandMapping.getOrDefault(colony.position(), List.of());
+			Optional<ShipClassId> spaceDockShipClass = colonyCommands.stream()
+				.filter(SpaceDockShipClass.class::isInstance)
+				.map(SpaceDockShipClass.class::cast)
+				.findFirst()
+				.map(SpaceDockShipClass::shipClassId);
+
+			Colony updatedColony = new Colony(colony.player(), colony.position(),
+					spaceDockShipClass.orElse(colony.spaceDockShipClass()));
+			this.colonies.set(i, updatedColony);
+		}
 	}
 
 	public void colonizeSystems(List<Colonize> commands) {
@@ -94,11 +126,17 @@ public class Colonization {
 
 	}
 
-	public record NextShipClass(Player player, Position colony) implements ColonizationCommand {
+	public sealed interface ColonyCommand extends ColonizationCommand {
+
+		Position colony();
 
 	}
 
-	public record AllocateResources(Player player, Position colony) implements ColonizationCommand {
+	public record SpaceDockShipClass(Player player, Position colony, ShipClassId shipClassId) implements ColonyCommand {
+
+	}
+
+	public record AllocateResources(Player player, Position colony) implements ColonyCommand {
 
 	}
 

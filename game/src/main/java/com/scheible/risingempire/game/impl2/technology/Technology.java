@@ -14,13 +14,19 @@ import com.scheible.risingempire.game.impl2.common.Command;
 public class Technology {
 
 	private static final Map<ShipClassId, Speed> SPEEDS = Map.of( //
-			new ShipClassId("enterprise"), new Speed(1.0), //
 			new ShipClassId("scout"), new Speed(1.5), //
+			new ShipClassId("colony-ship"), new Speed(1.0), //
+			new ShipClassId("fighter"), new Speed(1.0), //
+			new ShipClassId("destroyer"), new Speed(1.0), //
+			new ShipClassId("cruiser"), new Speed(1.0), //
 			ShipClassId.COLONISTS_TRANSPORTER, new Speed(1.0));
 
-	private static final Map<ShipClassId, Parsec> RANGES = Map.of(//
-			new ShipClassId("enterprise"), new Parsec(3.0), //
+	private static final Map<ShipClassId, Parsec> RANGES = Map.of( //
 			new ShipClassId("scout"), new Parsec(4.0), //
+			new ShipClassId("colony-ship"), new Parsec(3.0), //
+			new ShipClassId("fighter"), new Parsec(3.0), //
+			new ShipClassId("destroyer"), new Parsec(3.0), //
+			new ShipClassId("cruiser"), new Parsec(3.0), //
 			ShipClassId.COLONISTS_TRANSPORTER, new Parsec(3.0));
 
 	private final ResearchPointProvider researchPointProvider;

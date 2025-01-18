@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.universe.Player;
@@ -43,6 +44,10 @@ class PlayerTurns {
 
 	void addCommand(Player player, Command command) {
 		this.turnMapping.get(player).addCommand(command);
+	}
+
+	<T extends Command> List<T> removeCommands(Player player, Predicate<T> predicate, Class<T> clazz) {
+		return this.turnMapping.get(player).removeCommands(predicate, clazz);
 	}
 
 	<T extends Command> List<T> commands(Player player, Class<T> clazz) {
@@ -98,6 +103,31 @@ class PlayerTurns {
 
 		private void addCommand(Command command) {
 			this.commands.add(command);
+		}
+
+		<T extends Command> List<T> removeCommands(Predicate<T> predicate, Class<T> clazz) {
+			List<T> removed = new ArrayList<>();
+			List<Command> remaining = new ArrayList<>();
+
+			for (int i = 0; i < this.commands.size(); i++) {
+				Command command = this.commands.get(i);
+
+				boolean wasRemoved = false;
+				if (clazz.isInstance(command)) {
+					T castedCommand = clazz.cast(command);
+					if (predicate.test(castedCommand)) {
+						wasRemoved = true;
+						removed.add(castedCommand);
+					}
+				}
+
+				if (!wasRemoved) {
+					remaining.add(command);
+				}
+			}
+
+			this.commands = remaining;
+			return removed;
 		}
 
 		private void beginNewTurn() {

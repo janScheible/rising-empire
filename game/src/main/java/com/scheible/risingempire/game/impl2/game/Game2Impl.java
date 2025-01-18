@@ -26,9 +26,10 @@ import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
-import com.scheible.risingempire.game.impl2.colonization.Colonization.AllocateResources;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.Colonize;
-import com.scheible.risingempire.game.impl2.colonization.Colonization.NextShipClass;
+import com.scheible.risingempire.game.impl2.colonization.Colonization.ColonyCommand;
+import com.scheible.risingempire.game.impl2.colonization.Colonization.SpaceDockShipClass;
+import com.scheible.risingempire.game.impl2.colonization.Colony;
 import com.scheible.risingempire.game.impl2.empire.Empire;
 import com.scheible.risingempire.game.impl2.empire.Empires;
 import com.scheible.risingempire.game.impl2.game.Adapters.BuildCapacityProviderAdapter;
@@ -191,8 +192,7 @@ public class Game2Impl implements Game {
 	}
 
 	private void finishRound() {
-		this.colonization.allocate(this.playerTurns.commands(AllocateResources.class));
-		this.colonization.growPopulation();
+		this.colonization.updateColonies(this.playerTurns.commands(ColonyCommand.class));
 		this.technology.advanceResearch(this.playerTurns.commands(SelectTechnology.class));
 		this.shipyard.buildShips();
 		this.navy.commissionNewShips();
@@ -260,6 +260,8 @@ public class Game2Impl implements Game {
 
 		@Override
 		public GameView view() {
+			Colonization colonization = colonization();
+
 			return GameView.builder()
 				.galaxyWidth(LocationMapper.toLocationValue(Game2Impl.this.universe.width()))
 				.galaxyHeight(LocationMapper.toLocationValue(Game2Impl.this.universe.height()))
@@ -273,9 +275,9 @@ public class Game2Impl implements Game {
 					.map(star -> Map.entry(SystemIdMapper.toSystemId(star.position()),
 							SystemViewMapper.toSystemView(Game2Impl.this.round, this.player, star,
 									Game2Impl.this.universe.planet(star), Game2Impl.this.technology,
-									Game2Impl.this.universe, Game2Impl.this.colonization,
-									Game2Impl.this.systemIntelligence, Game2Impl.this.military, Game2Impl.this.empires,
-									Game2Impl.this.spaceForce)))
+									Game2Impl.this.universe, colonization, Game2Impl.this.systemIntelligence,
+									Game2Impl.this.military, Game2Impl.this.empires, Game2Impl.this.spaceForce,
+									Game2Impl.this.shipyard)))
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue)))
 				.fleets(navy().fleets()
 					.stream()
@@ -343,8 +345,16 @@ public class Game2Impl implements Game {
 		public void nextShipType(ColonyId colonyId) {
 			requireOwnership(colonyId);
 
-			Game2Impl.this.playerTurns.addCommand(this.player,
-					new NextShipClass(this.player, SystemIdMapper.fromColonyId(colonyId)));
+			Position system = SystemIdMapper.fromColonyId(colonyId);
+
+			Colony colony = colonization().colony(this.player, system).orElseThrow();
+
+			Game2Impl.this.playerTurns.removeCommands(this.player,
+					command -> command.player().equals(this.player) && command.colony().equals(system),
+					SpaceDockShipClass.class);
+
+			Game2Impl.this.playerTurns.addCommand(this.player, new SpaceDockShipClass(this.player, system,
+					Game2Impl.this.shipyard.nextShipClass(colony.spaceDockShipClass())));
 		}
 
 		@Override
@@ -433,6 +443,11 @@ public class Game2Impl implements Game {
 		private Navy navy() {
 			return Game2Impl.this.navy.apply(Game2Impl.this.round,
 					Game2Impl.this.playerTurns.commands(this.player, Deploy.class));
+		}
+
+		private Colonization colonization() {
+			return Game2Impl.this.colonization
+				.apply(Game2Impl.this.playerTurns.commands(this.player, ColonyCommand.class));
 		}
 
 		private static Ships toShips(ShipsView ships) {
