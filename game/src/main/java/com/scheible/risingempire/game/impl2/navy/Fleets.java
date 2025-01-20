@@ -41,6 +41,10 @@ class Fleets {
 		this.fleets.set(index, fleet);
 	}
 
+	int indexOf(Fleet fleet) {
+		return this.fleets.indexOf(fleet);
+	}
+
 	int size() {
 		return this.fleets.size();
 	}

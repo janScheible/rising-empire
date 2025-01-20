@@ -1,6 +1,7 @@
 package com.scheible.risingempire.game.impl2.navy;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -68,8 +69,26 @@ class NavyTest extends AbstractNavyTest {
 		assertThat(orbitingFleets.stream().map(f -> f.location().current())).containsOnly(this.destination);
 	}
 
+	@Test
+	void testCommissionNewShips() {
+		Navy navy = createNavy(List.of(orbitingFleet(this.origin, ships(this.enterprise, 1))),
+				(Player _) -> Map.of(this.origin, Map.of(this.enterprise, 1), //
+						this.destination, Map.of(this.scout, 1)));
+
+		navy.commissionNewShips();
+
+		assertThat(navy.findOrbiting(this.player, this.origin).orElseThrow().ships())
+			.isEqualTo(ships(this.enterprise, 2));
+		assertThat(navy.findOrbiting(this.player, this.destination).orElseThrow().ships())
+			.isEqualTo(ships(this.scout, 1));
+	}
+
 	private Navy createNavy(List<Fleet> fleets) {
-		return new Navy(fleets, this.shipMovementSpecsProvider, this.newShipsProvider);
+		return new Navy(fleets, this.shipMovementSpecsProvider, (Player _) -> Map.of());
+	}
+
+	private Navy createNavy(List<Fleet> fleets, NewShipsProvider newShipsProvider) {
+		return new Navy(fleets, this.shipMovementSpecsProvider, newShipsProvider);
 	}
 
 	private Fleet justLeavingFleet(Position origin, Position destination, Round dispatchment, Ships ships) {

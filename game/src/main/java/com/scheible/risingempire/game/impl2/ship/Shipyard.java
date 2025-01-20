@@ -1,13 +1,12 @@
 package com.scheible.risingempire.game.impl2.ship;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.ship.ShipSize;
 import com.scheible.risingempire.game.api.view.system.PlanetType;
-import com.scheible.risingempire.game.impl2.apiinternal.Position;
+import com.scheible.risingempire.game.impl2.apiinternal.Credit;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 
 /**
@@ -51,13 +50,6 @@ public class Shipyard {
 		return false;
 	}
 
-	public void buildShips() {
-	}
-
-	public Map<Position, Map<ShipClassId, Integer>> newShips(Player player) {
-		return Map.of();
-	}
-
 	public ShipClassId nextShipClass(ShipClassId shipClass) {
 		int i = SHIP_CLASS_IDS.indexOf(shipClass);
 
@@ -68,6 +60,27 @@ public class Shipyard {
 			return SHIP_CLASS_IDS.get(0);
 		}
 
+	}
+
+	public Credit cost(Player player, ShipClassId shipClassId) {
+		if (shipClassId.value().equals("scout")) {
+			return new Credit(100);
+		}
+		else if (shipClassId.value().equals("colony-ship")) {
+			return new Credit(5000);
+		}
+		else if (shipClassId.value().equals("fighter")) {
+			return new Credit(200);
+		}
+		else if (shipClassId.value().equals("destroyer")) {
+			return new Credit(2000);
+		}
+		else if (shipClassId.value().equals("cruiser")) {
+			return new Credit(6000);
+		}
+		else {
+			throw new IllegalArgumentException("Unknown ship class '" + shipClassId + "'!");
+		}
 	}
 
 }

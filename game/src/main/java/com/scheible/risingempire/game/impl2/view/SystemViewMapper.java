@@ -79,7 +79,7 @@ public class SystemViewMapper {
 						.quantity())
 					.outdated(systemReport.colonyReconReport().map(ColonyReconReport::outdated).orElse(Boolean.FALSE))
 					.spaceDock(starHasOwnColony.test(star)
-							? Optional.of(shipyard.design(c.player(), c.spaceDockShipClass()))
+							? Optional.of(shipyard.design(c.player(), c.spaceDock().current()))
 								.map(design -> ShipTypeView.builder()
 									.id(new ShipTypeId(design.id().value()))
 									.index(design.index())

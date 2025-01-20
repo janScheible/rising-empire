@@ -3,6 +3,7 @@ package com.scheible.risingempire.game.impl2.game;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -19,6 +20,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.Speed;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
 import com.scheible.risingempire.game.impl2.colonization.ColonyFleetProvider;
+import com.scheible.risingempire.game.impl2.colonization.ShipCostProvider;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.FleetItinearySegmentProvider;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.ScanAreasProvider;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.ShipScannerSpecsProvider;
@@ -158,15 +160,19 @@ public final class Adapters {
 
 	public static class NewShipsProviderAdapter implements NewShipsProvider {
 
-		private Shipyard delegate;
+		private Colonization delegate;
 
-		public void delegate(Shipyard delegate) {
+		public void delegate(Colonization delegate) {
 			this.delegate = delegate;
 		}
 
 		@Override
 		public Map<Position, Map<ShipClassId, Integer>> newShips(Player player) {
-			return this.delegate.newShips(player);
+			return this.delegate.colonies(player)
+				.stream()
+				.map(c -> Map.entry(c.position(), this.delegate.newShips().getOrDefault(c.position(), Map.of())))
+				.filter(e -> !e.getValue().isEmpty())
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 		}
 
 	}
@@ -279,6 +285,21 @@ public final class Adapters {
 												.arrivalRoundFractions()
 												.flatMap(fs -> fs.stream().min(Double::compare))))
 									.toList())));
+		}
+
+	}
+
+	public static class ShipCostProviderAdapter implements ShipCostProvider {
+
+		private Shipyard delegate;
+
+		public void delegate(Shipyard delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Credit cost(Player player, ShipClassId shipClassId) {
+			return this.delegate.cost(player, shipClassId);
 		}
 
 	}

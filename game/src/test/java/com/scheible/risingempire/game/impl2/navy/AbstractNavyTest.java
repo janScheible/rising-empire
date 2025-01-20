@@ -49,8 +49,6 @@ public abstract class AbstractNavyTest {
 		}
 	};
 
-	protected final NewShipsProvider newShipsProvider = (Player _) -> Map.of();
-
 	protected Position origin = new Position(0.0, 0.0);
 
 	protected Position destination = new Position(3.0, 0.0);

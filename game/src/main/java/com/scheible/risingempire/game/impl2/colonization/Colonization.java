@@ -1,6 +1,7 @@
 package com.scheible.risingempire.game.impl2.colonization;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -12,7 +13,10 @@ import com.scheible.risingempire.game.impl2.apiinternal.Credit;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.ResearchPoint;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
+import com.scheible.risingempire.game.impl2.colonization.SpaceDock.Construction;
 import com.scheible.risingempire.game.impl2.common.Command;
+
+import static java.util.Collections.unmodifiableMap;
 
 /**
  * @author sj
@@ -23,23 +27,37 @@ public class Colonization {
 
 	private final ColonyFleetProvider colonyFleetProvider;
 
-	public Colonization(ColonyFleetProvider colonyFleetProvider) {
-		this.colonies = new ArrayList<>(
-				List.of(new Colony(Player.BLUE, new Position("6.173", "5.026"), new ShipClassId("scout")),
-						new Colony(Player.YELLOW, new Position("9.973", "5.626"), new ShipClassId("scout")),
-						new Colony(Player.WHITE, new Position("4.080", "8.226"), new ShipClassId("scout"))));
+	private ShipCostProvider shipCostProvider;
+
+	private Map<Position, Map<ShipClassId, Integer>> newShips = new HashMap<>();
+
+	public Colonization(ColonyFleetProvider colonyFleetProvider, ShipCostProvider shipCostProvider) {
+		this.colonies = new ArrayList<>(List.of( //
+				new Colony(Player.BLUE, new Position("6.173", "5.026"),
+						new SpaceDock(new ShipClassId("scout"),
+								new Construction(new ShipClassId("scout"), new Credit(0)))),
+				new Colony(Player.YELLOW, new Position("9.973", "5.626"),
+						new SpaceDock(new ShipClassId("scout"),
+								new Construction(new ShipClassId("scout"), new Credit(0)))),
+				new Colony(Player.WHITE, new Position("4.080", "8.226"), //
+						new SpaceDock(new ShipClassId("scout"),
+								new Construction(new ShipClassId("scout"), new Credit(0))))));
 
 		this.colonyFleetProvider = colonyFleetProvider;
 		this.colonyFleetProvider.hashCode(); // to make PMD happy for now...
+		this.shipCostProvider = shipCostProvider;
 	}
 
-	private Colonization(List<Colony> colonies, ColonyFleetProvider colonyFleetProvider) {
+	private Colonization(List<Colony> colonies, ColonyFleetProvider colonyFleetProvider,
+			ShipCostProvider shipCostProvider) {
 		this.colonies = colonies;
 		this.colonyFleetProvider = colonyFleetProvider;
+		this.shipCostProvider = shipCostProvider;
 	}
 
 	public Colonization apply(List<ColonyCommand> commands) {
-		Colonization copy = new Colonization(new ArrayList<>(this.colonies), this.colonyFleetProvider);
+		Colonization copy = new Colonization(new ArrayList<>(this.colonies), this.colonyFleetProvider,
+				this.shipCostProvider);
 		copy.updateColonies(commands);
 		return copy;
 	}
@@ -76,8 +94,33 @@ public class Colonization {
 				.map(SpaceDockShipClass::shipClassId);
 
 			Colony updatedColony = new Colony(colony.player(), colony.position(),
-					spaceDockShipClass.orElse(colony.spaceDockShipClass()));
+					colony.spaceDock().withCurrent(spaceDockShipClass.orElse(colony.spaceDock().current())));
 			this.colonies.set(i, updatedColony);
+		}
+	}
+
+	public void buildShips() {
+		this.newShips.clear();
+
+		for (int i = 0; i < this.colonies.size(); i++) {
+			Colony colony = this.colonies.get(i);
+			SpaceDock spaceDock = colony.spaceDock();
+
+			Credit invest = buildCapacity(colony.player(), colony.position());
+			if (spaceDock.current().equals(spaceDock.construction().underConstruction())) {
+				invest = invest.add(spaceDock.construction().invest());
+			}
+
+			Credit shipCost = this.shipCostProvider.cost(colony.player(), spaceDock.current());
+			int newShipsCount = invest.integerDivide(shipCost);
+			if (newShipsCount > 0) {
+				invest = invest.modulo(shipCost);
+				this.newShips.put(colony.position(), Map.of(spaceDock.current(), newShipsCount));
+			}
+
+			Construction construction = new Construction(spaceDock.current(), invest);
+			this.colonies.set(i,
+					new Colony(colony.player(), colony.position(), new SpaceDock(spaceDock.current(), construction)));
 		}
 	}
 
@@ -92,7 +135,7 @@ public class Colonization {
 	}
 
 	public Credit buildCapacity(Player player, Position system) {
-		return new Credit(0);
+		return new Credit(1500);
 	}
 
 	public ResearchPoint researchPoints(Player player) {
@@ -112,6 +155,10 @@ public class Colonization {
 		else {
 			return false;
 		}
+	}
+
+	public Map<Position, Map<ShipClassId, Integer>> newShips() {
+		return unmodifiableMap(this.newShips);
 	}
 
 	public boolean colonizeCommand(Player player, Position position) {
