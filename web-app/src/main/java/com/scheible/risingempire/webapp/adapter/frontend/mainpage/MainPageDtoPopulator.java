@@ -3,19 +3,23 @@ package com.scheible.risingempire.webapp.adapter.frontend.mainpage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.scheible.risingempire.game.api.universe.Location;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.GameView;
+import com.scheible.risingempire.game.api.view.colony.AllocationView;
 import com.scheible.risingempire.game.api.view.colony.AnnexationStatusView;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
+import com.scheible.risingempire.game.api.view.colony.ProductionArea;
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
@@ -286,7 +290,7 @@ public class MainPageDtoPopulator {
 							.map(c -> new ColonyDto(
 									Optional.ofNullable(c.player() != gameView.player()
 											? new ForeignColonyOwner(c.race(), c.player()) : null),
-									c.population(), c.outdated(), c.ratios().map(r -> new ProductionDto(42, 78)),
+									c.population(), c.outdated(), c.allocations().map(r -> new ProductionDto(42, 78)),
 									c.annexationStatus().flatMap(AnnexationStatusView::roundsUntilAnnexable),
 									c.annexationStatus()
 										.filter(as -> context.getPlayer() == c.player())
@@ -297,15 +301,9 @@ public class MainPageDtoPopulator {
 						inspectedSystem.colony()
 							.filter(c -> c.player() == gameView.player() && !state.isTransferColonistsState()
 									&& !state.isRelocateShipsState())
-							.map(c -> new EntityModel<>(new AllocationsDto(c.id().value(), Map.of( //
-									"ship", new AllocationCategoryDto(10, "None"), //
-									"defence", new AllocationCategoryDto(15, "None"), //
-									"industry", new AllocationCategoryDto(20, "2.7/y"), //
-									"ecology", new AllocationCategoryDto(25, "Clean"), //
-									"technology", new AllocationCategoryDto(30, "0RP"))))
+							.map(c -> new EntityModel<>(toAllocationsDto(c.id().value(), c.allocations().orElseThrow()))
 								.with(Action
-									.jsonPost(
-											"allocate-spending",
+									.jsonPost("allocate-spending",
 											context.toFrontendUri("main-page", "inspector", "spendings"))
 									.with("selectedStarId", selectedSystem.id().value()))),
 						selectedSystem.colony()
@@ -572,6 +570,16 @@ public class MainPageDtoPopulator {
 		}
 
 		return new MainPageDto.SpaceCombatDto(destroyedFleetDtos.stream().map(f -> new EntityModel<>(f)).toList());
+	}
+
+	private static AllocationsDto toAllocationsDto(String id, Map<ProductionArea, AllocationView> allocations) {
+		Map<String, AllocationCategoryDto> categories = Stream.of(ProductionArea.values())
+			.collect(Collectors.toMap(pa -> pa.name().toLowerCase(Locale.ROOT), pa -> {
+				AllocationView allocation = allocations.get(pa);
+				return new AllocationCategoryDto(allocation.percentage(), allocation.status());
+			}));
+
+		return new AllocationsDto(id, categories);
 	}
 
 }

@@ -19,6 +19,7 @@ import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.GameView;
+import com.scheible.risingempire.game.api.view.colony.AllocationView;
 import com.scheible.risingempire.game.api.view.colony.AnnexationStatusView;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
@@ -116,7 +117,11 @@ public class GameViewBuilder {
 					Optional<Colony> colony = system.getColony(player);
 					Optional<ShipTypeView> spaceDock = colony.map(Colony::getSpaceDock)
 						.map(ds -> ds.toShipType(designs.get(player).get(ds)));
-					Optional<Map<ProductionArea, Integer>> ratios = colony.map(Colony::getRatios);
+					Optional<Map<ProductionArea, AllocationView>> allocations = colony.map(Colony::getAllocations)
+						.map(a -> a.entrySet()
+							.stream()
+							.collect(Collectors.toMap(Entry::getKey,
+									e -> new AllocationView(e.getValue().percentage(), e.getValue().status()))));
 
 					Optional<ColonyView> colonyView = colonyPlayer.map(cc -> ColonyView.builder()
 						.id(snapshot.getId().toColonyId())
@@ -125,7 +130,7 @@ public class GameViewBuilder {
 						.population(snapshot.getColonyPopulation().get())
 						.outdated(false) // information not available
 						.spaceDock(spaceDock)
-						.ratios(ratios)
+						.allocations(allocations)
 						.annexationStatus(Optional.ofNullable(
 								!(siegePlayer.apply(system) == null && !isAnnexable.test(system)) ? AnnexationStatusView
 									.builder()

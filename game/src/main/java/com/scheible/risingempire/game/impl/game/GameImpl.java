@@ -562,7 +562,10 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	public Map<ProductionArea, Integer> adjustRatio(Player player, ColonyId id, ProductionArea area, int percentage) {
 		Colony colony = this.systems.get(SystemId.fromColonyId(id)).getColony(player).get();
 		colony.adjustRation(area, percentage);
-		return colony.getRatios();
+		return colony.getAllocations()
+			.entrySet()
+			.stream()
+			.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().percentage()));
 	}
 
 	GameView getGameState(Player player) {

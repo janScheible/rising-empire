@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import com.scheible.risingempire.game.api.universe.Player;
+import com.scheible.risingempire.game.api.view.colony.AllocationView;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
@@ -88,12 +89,12 @@ public class SystemViewMapper {
 									.look(design.look())
 									.build())
 							: Optional.empty())
-					.ratios(starHasOwnColony.test(star) ? Optional.of(Map.of(//
-							ProductionArea.DEFENCE, 20, //
-							ProductionArea.ECOLOGY, 20, //
-							ProductionArea.INDUSTRY, 20, //
-							ProductionArea.SHIP, 20, //
-							ProductionArea.TECHNOLOGY, 20)) : Optional.empty())
+					.allocations(starHasOwnColony.test(star) ? Optional.of(Map.of( //
+							ProductionArea.DEFENCE, new AllocationView(0, "None"), //
+							ProductionArea.ECOLOGY, new AllocationView(25, "Clean"), //
+							ProductionArea.INDUSTRY, new AllocationView(0, "None"), //
+							ProductionArea.SHIP, new AllocationView(75, "5 r"), //
+							ProductionArea.TECHNOLOGY, new AllocationView(0, "0 RP"))) : Optional.empty())
 					.annexationStatus(military.annexationStatus(star.position()))
 					.colonistTransfers(Map.of())
 					.relocationTarget(Optional.empty())

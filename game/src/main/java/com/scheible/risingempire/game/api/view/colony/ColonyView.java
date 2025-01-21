@@ -18,12 +18,12 @@ import static java.util.Collections.unmodifiableMap;
  */
 @StagedRecordBuilder
 public record ColonyView(ColonyId id, Player player, Race race, int population, boolean outdated,
-		Optional<ShipTypeView> spaceDock, Optional<Map<ProductionArea, Integer>> ratios,
+		Optional<ShipTypeView> spaceDock, Optional<Map<ProductionArea, AllocationView>> allocations,
 		Optional<AnnexationStatusView> annexationStatus, Map<ColonyId, Integer> colonistTransfers,
 		Optional<ColonyId> relocationTarget) {
 
 	public ColonyView {
-		ratios = ratios.map(EnumMap::new).map(Collections::unmodifiableMap);
+		allocations = allocations.map(ap -> ap.isEmpty() ? ap : new EnumMap<>(ap)).map(Collections::unmodifiableMap);
 		colonistTransfers = unmodifiableMap(colonistTransfers);
 	}
 

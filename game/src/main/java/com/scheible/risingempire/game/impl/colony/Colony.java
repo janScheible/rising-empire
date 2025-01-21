@@ -1,11 +1,9 @@
 package com.scheible.risingempire.game.impl.colony;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
@@ -25,17 +23,22 @@ public class Colony {
 
 	private DesignSlot spaceDock;
 
-	private final Map<ProductionArea, Integer> ratios = new EnumMap<>(ProductionArea.class);
+	private final Map<ProductionArea, Allocation> allocations = new EnumMap<>(ProductionArea.class);
 
 	public Colony(Player player, int population, DesignSlot spaceDockDesign) {
 		this.player = player;
 		this.population = population;
 		this.spaceDock = spaceDockDesign;
-		this.ratios.putAll(Stream.of(ProductionArea.values()).collect(Collectors.toMap(Function.identity(), a -> 20)));
+		this.allocations.putAll(Map.of( //
+				ProductionArea.DEFENCE, new Allocation(0, "None"), //
+				ProductionArea.ECOLOGY, new Allocation(25, "Clean"), //
+				ProductionArea.INDUSTRY, new Allocation(0, "None"), //
+				ProductionArea.SHIP, new Allocation(75, "5 r"), //
+				ProductionArea.TECHNOLOGY, new Allocation(0, "0 RP")));
 	}
 
 	public void adjustRation(ProductionArea area, int percentage) {
-		adjustRationInternal(area, percentage, this.ratios);
+		adjustRationInternal(area, percentage, new HashMap<>());
 	}
 
 	static void adjustRationInternal(ProductionArea area, int percentage, Map<ProductionArea, Integer> ratios) {
@@ -76,8 +79,8 @@ public class Colony {
 		this.spaceDock = design;
 	}
 
-	public Map<ProductionArea, Integer> getRatios() {
-		return unmodifiableMap(this.ratios);
+	public Map<ProductionArea, Allocation> getAllocations() {
+		return unmodifiableMap(this.allocations);
 	}
 
 	public DesignSlot getSpaceDock() {
@@ -97,7 +100,7 @@ public class Colony {
 		return toStringBuilder(getClass()).add("player", this.player)
 			.add("population", this.population)
 			.add("spaceDock", this.spaceDock)
-			.add("ratios", this.ratios)
+			.add("allocations", this.allocations)
 			.toString();
 	}
 
