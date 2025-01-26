@@ -23,7 +23,7 @@ class GameTest {
 		for (int i = 0; i < 3; i++) {
 			GameView blueGameState = blueGame.view();
 
-			shipNames.add(blueGameState.system("Sol").colony().get().spaceDock().get().name());
+			shipNames.add(blueGameState.system("Sol").colony().get().spaceDock().get().current().name());
 			blueGame.nextShipType(blueGameState.system("Sol").colony().get().id());
 		}
 

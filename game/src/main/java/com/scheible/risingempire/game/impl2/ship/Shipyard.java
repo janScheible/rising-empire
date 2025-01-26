@@ -50,6 +50,10 @@ public class Shipyard {
 		return false;
 	}
 
+	public ShipClassId initalShipClass() {
+		return SHIP_CLASS_IDS.get(0);
+	}
+
 	public ShipClassId nextShipClass(ShipClassId shipClass) {
 		int i = SHIP_CLASS_IDS.indexOf(shipClass);
 

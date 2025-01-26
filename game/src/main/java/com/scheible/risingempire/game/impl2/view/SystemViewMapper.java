@@ -9,6 +9,7 @@ import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.colony.AllocationView;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
+import com.scheible.risingempire.game.api.view.colony.SpaceDockView;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.system.SystemView;
@@ -81,19 +82,23 @@ public class SystemViewMapper {
 					.outdated(systemReport.colonyReconReport().map(ColonyReconReport::outdated).orElse(Boolean.FALSE))
 					.spaceDock(starHasOwnColony.test(star)
 							? Optional.of(shipyard.design(c.player(), c.spaceDock().current()))
-								.map(design -> ShipTypeView.builder()
-									.id(new ShipTypeId(design.id().value()))
-									.index(design.index())
-									.name(design.name())
-									.size(design.size())
-									.look(design.look())
+								.map(design -> SpaceDockView.builder()
+									.current(ShipTypeView.builder()
+										.id(new ShipTypeId(design.id().value()))
+										.index(design.index())
+										.name(design.name())
+										.size(design.size())
+										.look(design.look())
+										.build())
+									.count(c.spaceDock().output().nextRoundCount())
 									.build())
 							: Optional.empty())
 					.allocations(starHasOwnColony.test(star) ? Optional.of(Map.of( //
 							ProductionArea.DEFENCE, new AllocationView(0, "None"), //
 							ProductionArea.ECOLOGY, new AllocationView(25, "Clean"), //
 							ProductionArea.INDUSTRY, new AllocationView(0, "None"), //
-							ProductionArea.SHIP, new AllocationView(75, "5 r"), //
+							ProductionArea.SHIP,
+							new AllocationView(75, c.spaceDock().output().duration().quantity() + " r"), //
 							ProductionArea.TECHNOLOGY, new AllocationView(0, "0 RP"))) : Optional.empty())
 					.annexationStatus(military.annexationStatus(star.position()))
 					.colonistTransfers(Map.of())

@@ -151,6 +151,7 @@ public class Game2Impl implements Game {
 
 		this.round = new Round(1);
 		this.playerTurns = new PlayerTurns(this.empires.players());
+		this.colonization.initialize(this.shipyard.initalShipClass());
 	}
 
 	@Override

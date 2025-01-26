@@ -24,6 +24,7 @@ import com.scheible.risingempire.game.api.view.colony.AnnexationStatusView;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
+import com.scheible.risingempire.game.api.view.colony.SpaceDockView;
 import com.scheible.risingempire.game.api.view.fleet.FleetBeforeArrivalView;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
@@ -115,8 +116,11 @@ public class GameViewBuilder {
 					Optional<Player> colonyPlayer = snapshot.getColonyPlayer();
 
 					Optional<Colony> colony = system.getColony(player);
-					Optional<ShipTypeView> spaceDock = colony.map(Colony::getSpaceDock)
-						.map(ds -> ds.toShipType(designs.get(player).get(ds)));
+					Optional<SpaceDockView> spaceDock = colony.map(Colony::getSpaceDock)
+						.map(ds -> SpaceDockView.builder()
+							.current(ds.toShipType(designs.get(player).get(ds)))
+							.count(1)
+							.build());
 					Optional<Map<ProductionArea, AllocationView>> allocations = colony.map(Colony::getAllocations)
 						.map(a -> a.entrySet()
 							.stream()
