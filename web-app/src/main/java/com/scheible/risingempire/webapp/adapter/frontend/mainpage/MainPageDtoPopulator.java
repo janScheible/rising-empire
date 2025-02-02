@@ -189,7 +189,7 @@ public class MainPageDtoPopulator {
 								.with(fleet.destination().isPresent(), "selectedStarId",
 										() -> fleet.destination().get().value())))
 				.collect(Collectors.groupingBy(fleetDto -> {
-					FleetView fleet = context.getGameView().fleet(new FleetId(fleetDto.getContent().id));
+					FleetView fleet = gameView.fleet(new FleetId(fleetDto.getContent().id));
 					return fleet.parentId().orElse(fleet.id()).value();
 				}));
 
@@ -233,9 +233,13 @@ public class MainPageDtoPopulator {
 				.with(spotlightAction.apply(asi)))
 			.toList();
 
-		return new EntityModel<>(mainPage).with(!context.getGameView().selectTechGroups().isEmpty(),
-				() -> Action.get("select-tech", context.toFrontendUri("select-tech-page"))
-					.with("selectedStarId", selectedSystemId.value()));
+		return new EntityModel<>(mainPage)
+			.with(!gameView.selectTechGroups().isEmpty(),
+					() -> Action.get("select-tech", context.toFrontendUri("select-tech-page"))
+						.with("selectedStarId", selectedSystemId.value()))
+			.with(!gameView.newShips().isEmpty(),
+					() -> Action.get("show-new-ships", context.toFrontendUri("new-ships-page"))
+						.with("selectedStarId", selectedSystemId.value()));
 	}
 
 	private static SystemId fromSelectedStar(GameView gameView, MainPageState state, MainPageDto mainPage,

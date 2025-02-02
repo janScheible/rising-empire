@@ -9,6 +9,7 @@ import ThemeManager from '~/component/theme-manager';
 import Container from '~/component/container';
 import ModalDialog from '~/component/modal-dialog';
 import ContainerTtile from '~/component/container-title';
+import NewShipsPage from '~/page/new-ships-page/new-ships-page';
 
 export default class Frontend extends HTMLElement {
 	static NAME = 're-frontend';
@@ -25,6 +26,7 @@ export default class Frontend extends HTMLElement {
 	#techPageEl: TechPage;
 	#selectTechPageEl: SelectTechPage;
 	#spaceCombatPageEl: SpaceCombatPage;
+	#newShipsPageEl: NewShipsPage;
 	#loadIndicatorEl: HTMLDivElement;
 
 	#pageMapping;
@@ -100,6 +102,7 @@ export default class Frontend extends HTMLElement {
 			<${TechPage.NAME} hidden class="page"></${TechPage.NAME}>
 			<${SelectTechPage.NAME} hidden class="page"></${SelectTechPage.NAME}>
 			<${SpaceCombatPage.NAME} hidden class="page"></${SpaceCombatPage.NAME}>
+			<${NewShipsPage.NAME} hidden class="page"></${NewShipsPage.NAME}>
 			<div id="load-indicator"><div class="animation"></div></div>`;
 
 		this.#themeManagerContainerEl = this.shadowRoot.querySelector('#theme-manager-container');
@@ -114,6 +117,7 @@ export default class Frontend extends HTMLElement {
 		this.#techPageEl = this.shadowRoot.querySelector(TechPage.NAME);
 		this.#selectTechPageEl = this.shadowRoot.querySelector(SelectTechPage.NAME);
 		this.#spaceCombatPageEl = this.shadowRoot.querySelector(SpaceCombatPage.NAME);
+		this.#newShipsPageEl = this.shadowRoot.querySelector(NewShipsPage.NAME);
 		this.#loadIndicatorEl = this.shadowRoot.querySelector('#load-indicator');
 
 		this.#pageMapping = {
@@ -122,6 +126,7 @@ export default class Frontend extends HTMLElement {
 			TechPageDto: this.#techPageEl,
 			SelectTechPageDto: this.#selectTechPageEl,
 			SpaceCombatPageDto: this.#spaceCombatPageEl,
+			NewShipsPageDto: this.#newShipsPageEl,
 		};
 	}
 

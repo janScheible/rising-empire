@@ -18,6 +18,7 @@ export default class MainPageState {
 	#colonizations = [];
 	#annexations = [];
 	#spaceCombats = [];
+	#newShipsAction: Action = undefined;
 	#selectTechActions: Action[] = [];
 	#starNotifications = [];
 
@@ -25,9 +26,6 @@ export default class MainPageState {
 		let previousState = this.#state;
 
 		if (data.round !== this.#round) {
-			if (this.#round === -1) {
-			}
-
 			previousState = undefined;
 			this.#round = data.round;
 
@@ -40,12 +38,23 @@ export default class MainPageState {
 			this.#colonizations = data.colonizations.filter((colonization) => !colonization.hasCommand);
 			this.#annexations = data.annexations.filter((annexation) => !annexation.hasCommand);
 			this.#spaceCombats = data.spaceCombats;
+			this.#newShipsAction = HypermediaUtil.getAction(data, 'show-new-ships');
 			this.#selectTechActions = HypermediaUtil.getActions(data, 'select-tech');
 			this.#starNotifications = data.starMap.starNotifications;
 		} else {
 			this.#fleetMovements = false;
 
 			let stateChanged = false;
+
+			if (!stateChanged && this.#newShipsAction) {
+				const newShipsAction = this.#newShipsAction;
+				this.#newShipsAction = undefined;
+
+				this.#state = 'show-new-ships';
+				stateChanged = true;
+
+				HypermediaUtil.submitAction(newShipsAction);
+			}
 
 			if (!stateChanged && this.#selectTechActions.length > 0) {
 				const selectTechAction = this.#selectTechActions.shift();

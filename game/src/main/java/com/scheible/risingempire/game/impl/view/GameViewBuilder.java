@@ -232,6 +232,7 @@ public class GameViewBuilder {
 			.fleets(fleetViews.stream().collect(Collectors.toMap(FleetView::id, Function.identity())))
 			.spaceCombats(spaceCombatViews)
 			.selectTechGroups(technologies)
+			.newShips(Map.of())
 			.build();
 	}
 

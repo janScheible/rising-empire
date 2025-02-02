@@ -5,13 +5,16 @@ import FlowLayout from '~/component/flow-layout';
 import GridLayout from '~/component/grid-layout';
 import ModalDialog from '~/component/modal-dialog';
 import Ships from '~/component/ships';
+import Action from '~/util/action';
 import cssUrl from '~/util/cssUrl';
+import HypermediaUtil from '~/util/hypermedia-util';
 import Reconciler from '~/util/reconciler';
 
-export default class NewShipsDialog extends HTMLElement {
-	static NAME = 're-new-ships-dialog';
+export default class NewShipsPage extends HTMLElement {
+	static NAME = 're-new-ships-page';
 
 	#roundEl: HTMLSpanElement;
+	#continueAction: Action;
 
 	constructor() {
 		super();
@@ -29,7 +32,7 @@ export default class NewShipsDialog extends HTMLElement {
 						<${ContainerTtile.NAME}>New ships in round <span id="round"></span></${ContainerTtile.NAME}>
 
 						<${GridLayout.NAME} cols="1fr 1fr 1fr" rows="1fr 1fr" border>
-							${NewShipsDialog.#shipSlots(
+							${NewShipsPage.#shipSlots(
 								(index) => `
 								
 								<${FlowLayout.NAME} direction="column" id="new-ship-${index}">
@@ -44,6 +47,10 @@ export default class NewShipsDialog extends HTMLElement {
 				</${ModalDialog.NAME}>`;
 
 		this.#roundEl = this.shadowRoot.querySelector('#round');
+
+		this.shadowRoot.querySelector('button').addEventListener('click', (e) => {
+			HypermediaUtil.submitAction(this.#continueAction, {});
+		});
 	}
 
 	static #shipSlots(template) {
@@ -54,6 +61,8 @@ export default class NewShipsDialog extends HTMLElement {
 	}
 
 	render(data) {
+		this.#continueAction = HypermediaUtil.getAction(data, 'continue');
+
 		Reconciler.reconcileProperty(this.#roundEl, 'innerText', data.round);
 
 		for (let i = 0; i < 6; i++) {
@@ -64,7 +73,7 @@ export default class NewShipsDialog extends HTMLElement {
 
 			if (newShip) {
 				const shipsEl = newShipEl.querySelector(Ships.NAME) as Ships;
-				shipsEl.render(newShip);
+				shipsEl.render(Object.assign({ playerColor: data.playerColor }, newShip));
 
 				const nameEl = newShipEl.querySelector('.ship-name');
 				Reconciler.reconcileProperty(nameEl, 'innerText', newShip.name);
@@ -73,4 +82,4 @@ export default class NewShipsDialog extends HTMLElement {
 	}
 }
 
-customElements.define(NewShipsDialog.NAME, NewShipsDialog);
+customElements.define(NewShipsPage.NAME, NewShipsPage);

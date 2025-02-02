@@ -1,5 +1,6 @@
 package com.scheible.risingempire.game.impl2.game;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,6 +17,7 @@ import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
+import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
@@ -310,6 +312,7 @@ public class Game2Impl implements Game {
 						.build())
 					.collect(Collectors.toSet()))
 				.selectTechGroups(Set.of())
+				.newShips(newShips(this.player))
 				.build();
 		}
 
@@ -452,6 +455,29 @@ public class Game2Impl implements Game {
 		private Colonization colonization() {
 			return Game2Impl.this.colonization
 				.apply(Game2Impl.this.playerTurns.commands(this.player, ColonyCommand.class));
+		}
+
+		private Map<ShipTypeView, Integer> newShips(Player player) {
+			Map<ShipClassId, Integer> colonyNewShipCounts = Game2Impl.this.colonization.newShips(player)
+				.values()
+				.stream()
+				.map(Map::entrySet)
+				.peek(e -> {
+				})
+				.flatMap(Collection::stream)
+				.collect(
+						Collectors.groupingBy(Entry::getKey, Collectors.reducing(0, Entry::getValue, (a, b) -> a + b)));
+
+			Map<ShipClassId, Integer> totalNewShipsCounts = colonyNewShipCounts.entrySet()
+				.stream()
+				.collect(
+						Collectors.groupingBy(Entry::getKey, Collectors.reducing(0, Entry::getValue, (a, b) -> a + b)));
+
+			return totalNewShipsCounts.entrySet()
+				.stream()
+				.collect(Collectors.toMap(
+						e -> FleetViewMapper.toShipTypeView(this.player, e.getKey(), Game2Impl.this.shipyard),
+						Entry::getValue));
 		}
 
 		private static Ships toShips(ShipsView ships) {

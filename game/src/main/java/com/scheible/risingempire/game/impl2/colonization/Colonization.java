@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -190,6 +191,13 @@ public class Colonization {
 
 	public Map<Position, Map<ShipClassId, Integer>> newShips() {
 		return unmodifiableMap(this.newShips);
+	}
+
+	public Map<Position, Map<ShipClassId, Integer>> newShips(Player player) {
+		return this.newShips.entrySet()
+			.stream()
+			.filter(e -> colony(player, e.getKey()).isPresent())
+			.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	}
 
 	public boolean colonizeCommand(Player player, Position position) {

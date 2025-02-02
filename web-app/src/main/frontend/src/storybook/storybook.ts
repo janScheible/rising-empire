@@ -44,7 +44,7 @@ import SubmitInterceptor from '~/util/submit-interceptor';
 import Action from '~/util/action';
 import TransferColonistsStories from '~/storybook/stories/transfer-colonists-stories';
 import RelocateStories from '~/storybook/stories/relocate-ships-stories';
-import NewShipsDialogStories from '~/storybook/stories/new-ships-dialog-stories';
+import NewShipsPageStories from '~/storybook/stories/new-ships-page-stories';
 
 class Storybook extends HTMLElement {
 	static NAME = 're-storybook';
@@ -93,7 +93,7 @@ class Storybook extends HTMLElement {
 		star: (story) => StarStories.showStars(story),
 		'turn-finished-dialog-waiting-for-others': (story) =>
 			TurnFinishedDialogStories.showTurnFinishedDialogWaitingForOthers(story),
-		'new-ships-dialog': (story) => NewShipsDialogStories.showNewShipsDialog(story),
+		'new-ships-page': (story) => NewShipsPageStories.showNewShipsDialog(story),
 	};
 
 	#stageEl: HTMLDivElement;
@@ -217,7 +217,7 @@ class Storybook extends HTMLElement {
 									<option value="star-map-notification" class="lv-3">star-map notification</option>
 									<option value="star" class="lv-3">star</option>
 								<option value="turn-finished-dialog-waiting-for-others" class="lv-2">turn-finished-dialog waiting for others</option>
-								<option value="new-ships-dialog" class="lv-2">new-ships-dialog</option>
+							<option value="new-ships-page" class="lv-1">new-ships-page</option>
 					</select>
 
 					<div id="stage" data-flow-size="1fr"></div>

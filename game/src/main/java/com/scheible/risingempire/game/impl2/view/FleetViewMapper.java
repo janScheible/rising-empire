@@ -15,6 +15,7 @@ import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
+import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.empire.Empires;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.FleetIntelligence;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.FleetReconReport;
@@ -49,11 +50,12 @@ public class FleetViewMapper {
 			return Optional.empty();
 		}
 
-		Map<ShipTypeView, Integer> ships = fleet.ships().counts().entrySet().stream().map(e -> {
-			ShipDesign design = shipyard.design(fleet.player(), e.getKey());
-			return Map.entry(new ShipTypeView(new ShipTypeId(e.getKey().value()), design.index(), design.name(),
-					design.size(), design.look()), e.getValue());
-		}).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+		Map<ShipTypeView, Integer> ships = fleet.ships()
+			.counts()
+			.entrySet()
+			.stream()
+			.map(e -> Map.entry(toShipTypeView(fleet.player(), e.getKey(), shipyard), e.getValue()))
+			.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
 		return Optional.of(switch (fleet.location()) {
 			case Orbit(Position system, Set<Itinerary> partsBeforArrival) -> FleetView.create(
@@ -98,6 +100,12 @@ public class FleetViewMapper {
 				.justLeaving(itinerary.justLeaving())
 				.build());
 		});
+	}
+
+	public static ShipTypeView toShipTypeView(Player player, ShipClassId shipClassId, Shipyard shipyard) {
+		ShipDesign design = shipyard.design(player, shipClassId);
+		return new ShipTypeView(new ShipTypeId(shipClassId.value()), design.index(), design.name(), design.size(),
+				design.look());
 	}
 
 	private static HorizontalDirection horizontalDirection(Itinerary itinerary) {
