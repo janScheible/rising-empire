@@ -18,6 +18,7 @@ import com.scheible.risingempire.game.impl2.common.Command;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Itinerary;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Orbit;
+import com.scheible.risingempire.game.impl2.navy.NewColoniesProvider.NewColony;
 
 public class Navy {
 
@@ -27,24 +28,32 @@ public class Navy {
 
 	private final NewShipsProvider newShipsProvider;
 
-	public Navy(List<Fleet> fleets, ShipSpeedSpecsProvider shipSpeedSpecsProvider, NewShipsProvider newShipsProvider) {
+	private final NewColoniesProvider newColoniesProvider;
+
+	private final ColonyShipSpecsProvider colonyShipSpecsProvider;
+
+	public Navy(List<Fleet> fleets, ShipSpeedSpecsProvider shipSpeedSpecsProvider, NewShipsProvider newShipsProvider,
+			NewColoniesProvider newColoniesProvider, ColonyShipSpecsProvider colonyShipSpecsProvider) {
 		this.fleets = new Fleets(new ArrayList<>(fleets), shipSpeedSpecsProvider);
 		this.dispatcher = new Dispatcher(this.fleets);
 		this.newShipsProvider = newShipsProvider;
+		this.newColoniesProvider = newColoniesProvider;
+		this.colonyShipSpecsProvider = colonyShipSpecsProvider;
+
 	}
 
-	private Navy(Fleets fleets, NewShipsProvider newShipsProvider) {
+	private Navy(Fleets fleets, NewShipsProvider newShipsProvider, NewColoniesProvider newColoniesProvider,
+			ColonyShipSpecsProvider colonyShipSpecsProvider) {
 		this.fleets = new Fleets(new ArrayList<>(fleets.fleets()), fleets.shipSpeedSpecsProvider());
 		this.dispatcher = new Dispatcher(this.fleets);
 		this.newShipsProvider = newShipsProvider;
-	}
-
-	public void beginRound() {
-
+		this.newColoniesProvider = newColoniesProvider;
+		this.colonyShipSpecsProvider = colonyShipSpecsProvider;
 	}
 
 	public Navy apply(Round round, List<Deploy> deployments) {
-		Navy copy = new Navy(this.fleets, this.newShipsProvider);
+		Navy copy = new Navy(this.fleets, this.newShipsProvider, this.newColoniesProvider,
+				this.colonyShipSpecsProvider);
 		copy.dispatcher.dispatch(round, deployments);
 		return copy;
 	}
@@ -138,6 +147,23 @@ public class Navy {
 	}
 
 	public void removeDestroyedShips() {
+	}
+
+	public void removeUsedColonyShips() {
+		for (NewColony newColony : this.newColoniesProvider.newColonies()) {
+			Fleet orbiting = this.fleets.findOrbiting(newColony.player(), newColony.system()).orElseThrow();
+
+			ShipClassId colonyShipClassId = orbiting.ships()
+				.counts()
+				.keySet()
+				.stream()
+				.filter(this.colonyShipSpecsProvider::colonyShip)
+				.findFirst()
+				.orElseThrow();
+
+			this.fleets.remove(orbiting);
+			this.fleets.add(orbiting.detach(new Ships(Map.of(colonyShipClassId, 1))));
+		}
 	}
 
 	public sealed interface Deploy extends Command {

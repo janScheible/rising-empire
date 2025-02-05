@@ -10,6 +10,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Itinerary;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Orbit;
+import com.scheible.risingempire.game.impl2.navy.NewColoniesProvider.NewColony;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,12 +84,25 @@ class NavyTest extends AbstractNavyTest {
 			.isEqualTo(ships(this.scout, 1));
 	}
 
+	@Test
+	void testRemoveUsedColonyShips() {
+		Navy navy = new Navy(List.of(orbitingFleet(this.origin, new Ships(Map.of(this.enterprise, 1, this.colony, 2)))),
+				this.shipMovementSpecsProvider, (Player _) -> Map.of(),
+				() -> Set.of(new NewColony(this.player, this.origin)), shipClassId -> this.colony.equals(shipClassId));
+
+		navy.removeUsedColonyShips();
+
+		assertThat(navy.fleets())
+			.containsOnly(orbitingFleet(this.origin, new Ships(Map.of(this.enterprise, 1, this.colony, 1))));
+	}
+
 	private Navy createNavy(List<Fleet> fleets) {
-		return new Navy(fleets, this.shipMovementSpecsProvider, (Player _) -> Map.of());
+		return new Navy(fleets, this.shipMovementSpecsProvider, (Player _) -> Map.of(), () -> Set.of(),
+				shipClassId -> false);
 	}
 
 	private Navy createNavy(List<Fleet> fleets, NewShipsProvider newShipsProvider) {
-		return new Navy(fleets, this.shipMovementSpecsProvider, newShipsProvider);
+		return new Navy(fleets, this.shipMovementSpecsProvider, newShipsProvider, () -> Set.of(), shipClassId -> false);
 	}
 
 	private Fleet justLeavingFleet(Position origin, Position destination, Round dispatchment, Ships ships) {

@@ -46,8 +46,12 @@ public class Shipyard {
 		}
 	}
 
+	public boolean colonyShip(ShipClassId shipClassId) {
+		return shipClassId.equals(new ShipClassId("colony-ship"));
+	}
+
 	public boolean colonizable(Player player, Set<ShipClassId> shipClassIds, PlanetType planetType) {
-		return false;
+		return shipClassIds.contains(new ShipClassId("colony-ship"));
 	}
 
 	public ShipClassId initalShipClass() {

@@ -21,11 +21,14 @@ public abstract class AbstractNavyTest {
 
 	protected final ShipClassId enterprise = new ShipClassId("enterprise");
 
+	protected final ShipClassId colony = new ShipClassId("colony");
+
 	protected final ShipMovementSpecsProvider shipMovementSpecsProvider = new ShipMovementSpecsProvider() {
 
 		private final Map<ShipClassId, Speed> shipSpeeds = Map.of(//
 				AbstractNavyTest.this.scout, new Speed(1.5), //
 				AbstractNavyTest.this.enterprise, new Speed(1.0), //
+				AbstractNavyTest.this.colony, new Speed(1.0), //
 				ShipClassId.COLONISTS_TRANSPORTER, new Speed(1.0));
 
 		@Override

@@ -20,6 +20,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.Speed;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
 import com.scheible.risingempire.game.impl2.colonization.ColonyFleetProvider;
+import com.scheible.risingempire.game.impl2.colonization.InitialShipClassProvider;
 import com.scheible.risingempire.game.impl2.colonization.ShipCostProvider;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.FleetItinearySegmentProvider;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.ScanAreasProvider;
@@ -27,8 +28,10 @@ import com.scheible.risingempire.game.impl2.intelligence.fleet.ShipScannerSpecsP
 import com.scheible.risingempire.game.impl2.intelligence.system.ColonyIntelProvider;
 import com.scheible.risingempire.game.impl2.intelligence.system.OrbitingFleetsProvider;
 import com.scheible.risingempire.game.impl2.military.ControlledSystemProvider;
+import com.scheible.risingempire.game.impl2.navy.ColonyShipSpecsProvider;
 import com.scheible.risingempire.game.impl2.navy.Fleet;
 import com.scheible.risingempire.game.impl2.navy.Navy;
+import com.scheible.risingempire.game.impl2.navy.NewColoniesProvider;
 import com.scheible.risingempire.game.impl2.navy.NewShipsProvider;
 import com.scheible.risingempire.game.impl2.navy.eta.ColoniesProvider;
 import com.scheible.risingempire.game.impl2.navy.eta.ShipMovementSpecsProvider;
@@ -300,6 +303,54 @@ public final class Adapters {
 		@Override
 		public Credit cost(Player player, ShipClassId shipClassId) {
 			return this.delegate.cost(player, shipClassId);
+		}
+
+	}
+
+	public static class NewColoniesProviderAdapter implements NewColoniesProvider {
+
+		private Colonization delegate;
+
+		public void delegate(Colonization delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Set<NewColony> newColonies() {
+			return this.delegate.newColonies()
+				.stream()
+				.map(system -> new NewColony(this.delegate.colony(system).orElseThrow().player(), system))
+				.collect(Collectors.toSet());
+		}
+
+	}
+
+	public static class ColonyShipSpecsProviderAdapter implements ColonyShipSpecsProvider {
+
+		private Shipyard delegate;
+
+		public void delegate(Shipyard delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public boolean colonyShip(ShipClassId shipClassId) {
+			return this.delegate.colonyShip(shipClassId);
+		}
+
+	}
+
+	public static class InitialShipClassProviderAdapter implements InitialShipClassProvider {
+
+		private Shipyard delegate;
+
+		public void delegate(Shipyard delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public ShipClassId initial() {
+			return this.delegate.initalShipClass();
 		}
 
 	}

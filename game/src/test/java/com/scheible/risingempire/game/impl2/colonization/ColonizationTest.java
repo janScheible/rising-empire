@@ -10,6 +10,9 @@ import com.scheible.risingempire.game.impl2.apiinternal.Credit;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
+import com.scheible.risingempire.game.impl2.colonization.Colonization.ColonizationCommand;
+import com.scheible.risingempire.game.impl2.colonization.Colonization.Colonize;
+import com.scheible.risingempire.game.impl2.colonization.Colonization.ColonyCommand;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.SpaceDockShipClass;
 import com.scheible.risingempire.game.impl2.colonization.SpaceDock.ConstructionProgress;
 import org.assertj.core.api.ObjectAssert;
@@ -32,9 +35,9 @@ public class ColonizationTest {
 
 		// build capacity per round = 1500 Credits
 		Colonization colonization = new Colonization((Player _) -> Set.of(),
-				(Player _, ShipClassId shipClassId) -> shipCosts.get(shipClassId));
+				(Player _, ShipClassId shipClassId) -> shipCosts.get(shipClassId), () -> first);
 
-		colonization.initialize(first);
+		colonization.initialize();
 		assertSpaceDock(colonization.colony(colonySystem), 0, new Rounds(2),
 				new ConstructionProgress(first, new Credit(0)));
 
@@ -57,6 +60,26 @@ public class ColonizationTest {
 		assertThat(colonization.newShips().get(colonySystem)).isEqualTo(Map.of(second, 2));
 		assertSpaceDock(colonization.colony(colonySystem), 3, new Rounds(1),
 				new ConstructionProgress(second, new Credit(300)));
+	}
+
+	@Test
+	void testColonize() {
+		Position system = new Position("6.000", "8.00");
+
+		Colonization colonization = new Colonization((Player _) -> Set.of(system),
+				(Player _, ShipClassId _) -> new Credit(1000), () -> new ShipClassId("first"));
+		colonization.initialize();
+
+		List<ColonizationCommand> commands = List.of(new Colonize(Player.BLUE, system, false));
+
+		assertThat(colonization.apply(commands).colonizeCommand(Player.BLUE, system)).isTrue();
+
+		colonization.updateColonies(
+				commands.stream().filter(ColonyCommand.class::isInstance).map(ColonyCommand.class::cast).toList());
+		colonization
+			.colonizeSystems(commands.stream().filter(Colonize.class::isInstance).map(Colonize.class::cast).toList());
+
+		assertThat(colonization.colony(Player.BLUE, system)).isPresent();
 	}
 
 	private static ObjectAssert<SpaceDock> assertSpaceDock(Optional<Colony> colony, int nextRoundCount, Rounds duration,
