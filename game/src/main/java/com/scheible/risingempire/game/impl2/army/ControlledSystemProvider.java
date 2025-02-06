@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl2.military;
+package com.scheible.risingempire.game.impl2.army;
 
 import java.util.Set;
 

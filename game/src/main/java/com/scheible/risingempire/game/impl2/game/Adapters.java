@@ -17,6 +17,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.ResearchPoint;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
+import com.scheible.risingempire.game.impl2.army.ControlledSystemProvider;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
 import com.scheible.risingempire.game.impl2.colonization.ColonyFleetProvider;
@@ -27,7 +28,6 @@ import com.scheible.risingempire.game.impl2.intelligence.fleet.ScanAreasProvider
 import com.scheible.risingempire.game.impl2.intelligence.fleet.ShipScannerSpecsProvider;
 import com.scheible.risingempire.game.impl2.intelligence.system.ColonyIntelProvider;
 import com.scheible.risingempire.game.impl2.intelligence.system.OrbitingFleetsProvider;
-import com.scheible.risingempire.game.impl2.military.ControlledSystemProvider;
 import com.scheible.risingempire.game.impl2.navy.ColonyShipSpecsProvider;
 import com.scheible.risingempire.game.impl2.navy.Fleet;
 import com.scheible.risingempire.game.impl2.navy.Navy;

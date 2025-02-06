@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl2.military;
+package com.scheible.risingempire.game.impl2.army;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,11 +11,11 @@ import com.scheible.risingempire.game.impl2.common.Command;
 /**
  * @author sj
  */
-public class Military {
+public class Army {
 
 	private final ControlledSystemProvider controlledSystemProvider;
 
-	public Military(ControlledSystemProvider controlledSystemProvider) {
+	public Army(ControlledSystemProvider controlledSystemProvider) {
 		this.controlledSystemProvider = controlledSystemProvider;
 		this.controlledSystemProvider.hashCode(); // to make PMD happy for now...
 	}
@@ -31,11 +31,11 @@ public class Military {
 		return Optional.empty();
 	}
 
-	public sealed interface MilitaryCommand extends Command {
+	public sealed interface ArmyCommand extends Command {
 
 	}
 
-	public record Annex(Player player, Position system, boolean skip) implements MilitaryCommand {
+	public record Annex(Player player, Position system, boolean skip) implements ArmyCommand {
 
 	}
 

@@ -15,6 +15,7 @@ import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.system.SystemView;
 import com.scheible.risingempire.game.impl2.apiinternal.Population;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
+import com.scheible.risingempire.game.impl2.army.Army;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
 import com.scheible.risingempire.game.impl2.empire.Empires;
@@ -22,7 +23,6 @@ import com.scheible.risingempire.game.impl2.intelligence.system.SystemIntelligen
 import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconReport;
 import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconReport.ColonyReconReport;
 import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconReport.PlanetReconReport;
-import com.scheible.risingempire.game.impl2.military.Military;
 import com.scheible.risingempire.game.impl2.ship.Shipyard;
 import com.scheible.risingempire.game.impl2.spaceforce.SpaceForce;
 import com.scheible.risingempire.game.impl2.technology.Technology;
@@ -36,7 +36,7 @@ import com.scheible.risingempire.game.impl2.universe.Universe;
 public class SystemViewMapper {
 
 	public static SystemView toSystemView(Round round, Player player, Star star, Planet planet, Technology technology,
-			Universe universe, Colonization colonization, SystemIntelligence systemIntelligence, Military military,
+			Universe universe, Colonization colonization, SystemIntelligence systemIntelligence, Army army,
 			Empires empires, SpaceForce spaceForce, Shipyard shipyard) {
 		Optional<Colony> colony = colonization.colony(star.position());
 		Predicate<Star> starHasOwnColony = s -> colonization.colony(s.position())
@@ -100,7 +100,7 @@ public class SystemViewMapper {
 							ProductionArea.SHIP,
 							new AllocationView(75, c.spaceDock().output().duration().quantity() + " r"), //
 							ProductionArea.TECHNOLOGY, new AllocationView(0, "0 RP"))) : Optional.empty())
-					.annexationStatus(military.annexationStatus(star.position()))
+					.annexationStatus(army.annexationStatus(star.position()))
 					.colonistTransfers(Map.of())
 					.relocationTarget(Optional.empty())
 					.build()))
