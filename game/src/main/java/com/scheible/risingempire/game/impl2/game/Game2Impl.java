@@ -58,6 +58,7 @@ import com.scheible.risingempire.game.impl2.intelligence.fleet.FleetIntelligence
 import com.scheible.risingempire.game.impl2.intelligence.fleet.ScanAreasProvider.ScanArea;
 import com.scheible.risingempire.game.impl2.intelligence.system.SystemIntelligence;
 import com.scheible.risingempire.game.impl2.navy.Fleet;
+import com.scheible.risingempire.game.impl2.navy.Fleet.Location;
 import com.scheible.risingempire.game.impl2.navy.Navy;
 import com.scheible.risingempire.game.impl2.navy.Navy.Deploy;
 import com.scheible.risingempire.game.impl2.navy.Navy.DeployJustLeaving;
@@ -333,19 +334,20 @@ public class Game2Impl implements Game {
 		public Optional<Integer> calcEta(FleetId fleetId, SystemId destinationId, ShipsView ships) {
 			Navy navy = navy();
 
-			Position origin = switch (FleetIdMapper.fromFleetId(fleetId)) {
-				case OrbitingFleetId orbitingFleetId -> orbitingFleetId.system();
-				case DeployedFleetId deployedFleetId ->
-					navy.findDispatched(this.player, deployedFleetId.origin(), deployedFleetId.destination(),
-							deployedFleetId.dispatchment(), deployedFleetId.speed())
-						.orElseThrow()
-						.location()
-						.current();
-			};
+			Optional<Position> origin = (switch (FleetIdMapper.fromFleetId(fleetId)) {
+				case OrbitingFleetId orbitingFleetId -> navy.findOrbiting(this.player, orbitingFleetId.system());
+				case DeployedFleetId deployedFleetId -> navy.findDispatched(this.player, deployedFleetId.origin(),
+						deployedFleetId.destination(), deployedFleetId.dispatchment(), deployedFleetId.speed());
+			}).map(Fleet::location).map(Location::current);
 
-			return Game2Impl.this.etaCalculator
-				.calc(this.player, origin, SystemIdMapper.fromSystemId(destinationId), toShips(ships))
-				.map(Rounds::quantity);
+			if (origin.isEmpty()) {
+				return Optional.empty();
+			}
+			else {
+				return Game2Impl.this.etaCalculator
+					.calc(this.player, origin.get(), SystemIdMapper.fromSystemId(destinationId), toShips(ships))
+					.map(Rounds::quantity);
+			}
 		}
 
 		@Override
