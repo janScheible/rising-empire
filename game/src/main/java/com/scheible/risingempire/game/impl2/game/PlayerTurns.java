@@ -50,10 +50,6 @@ class PlayerTurns {
 		return this.turnMapping.get(player).removeCommands(predicate, clazz);
 	}
 
-	<T extends Command> List<T> commands(Player player, Class<T> clazz) {
-		return this.turnMapping.get(player).commands.stream().filter(clazz::isInstance).map(clazz::cast).toList();
-	}
-
 	<T extends Command> List<T> commands(Class<T> clazz) {
 		return this.turnMapping.values()
 			.stream()

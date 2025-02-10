@@ -466,13 +466,11 @@ public class Game2Impl implements Game {
 		}
 
 		private Navy navy() {
-			return Game2Impl.this.navy.apply(Game2Impl.this.round,
-					Game2Impl.this.playerTurns.commands(this.player, Deploy.class));
+			return Game2Impl.this.navy.apply(Game2Impl.this.round, Game2Impl.this.playerTurns.commands(Deploy.class));
 		}
 
 		private Colonization colonization() {
-			return Game2Impl.this.colonization
-				.apply(Game2Impl.this.playerTurns.commands(this.player, ColonizationCommand.class));
+			return Game2Impl.this.colonization.apply(Game2Impl.this.playerTurns.commands(ColonizationCommand.class));
 		}
 
 		private Map<ShipTypeView, Integer> newShips(Player player) {
