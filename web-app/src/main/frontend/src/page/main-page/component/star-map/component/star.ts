@@ -123,7 +123,7 @@ export default class Star extends HTMLElement {
 			(elValue, value) => elValue.toLowerCase() !== value.toLowerCase()
 		);
 
-		if (!Reconciler.isHiddenAfterPropertyReconciliation(this.#siegeProgressEl, !data.siegeProgress)) {
+		if (!Reconciler.isHiddenAfterPropertyReconciliation(this.#siegeProgressEl, data.siegeProgress === undefined)) {
 			Reconciler.reconcileCssVariable(this.#siegeProgressEl, 'star-siege-progress', data.siegeProgress + '%');
 
 			Reconciler.reconcileCssVariable(

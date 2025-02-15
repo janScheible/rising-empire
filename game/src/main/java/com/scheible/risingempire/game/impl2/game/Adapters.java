@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.universe.Player;
@@ -17,7 +18,10 @@ import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.ResearchPoint;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
-import com.scheible.risingempire.game.impl2.army.ControlledSystemProvider;
+import com.scheible.risingempire.game.impl2.army.Army;
+import com.scheible.risingempire.game.impl2.army.SiegedSystem;
+import com.scheible.risingempire.game.impl2.army.SiegedSystemsProvider;
+import com.scheible.risingempire.game.impl2.colonization.AnnexedSystemsProvider;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
 import com.scheible.risingempire.game.impl2.colonization.ColonyFleetProvider;
@@ -116,17 +120,17 @@ public final class Adapters {
 
 	}
 
-	public static class ControlledSystemProviderAdapter implements ControlledSystemProvider {
+	public static class SiegedSystemProviderAdapter implements SiegedSystemsProvider {
 
-		private Function<Player, Set<Position>> delegate;
+		private Supplier<Set<SiegedSystem>> delegate;
 
-		public void delegate(Function<Player, Set<Position>> delegate) {
+		public void delegate(Supplier<Set<SiegedSystem>> delegate) {
 			this.delegate = delegate;
 		}
 
 		@Override
-		public Set<Position> controlledSystems(Player player) {
-			return this.delegate.apply(player);
+		public Set<SiegedSystem> siegedSystems() {
+			return this.delegate.get();
 		}
 
 	}
@@ -351,6 +355,25 @@ public final class Adapters {
 		@Override
 		public ShipClassId initial() {
 			return this.delegate.initalShipClass();
+		}
+
+	}
+
+	public static class AnnexedSystemsProviderAdapter implements AnnexedSystemsProvider {
+
+		private Army delegate;
+
+		public void delegate(Army delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Set<AnnexedSystem> annexedSystems() {
+			return this.delegate.annexedSystems()
+				.entrySet()
+				.stream()
+				.map(e -> new AnnexedSystem(e.getKey(), e.getValue()))
+				.collect(Collectors.toSet());
 		}
 
 	}

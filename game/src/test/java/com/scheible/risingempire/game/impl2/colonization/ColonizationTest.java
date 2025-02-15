@@ -10,6 +10,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.Credit;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
+import com.scheible.risingempire.game.impl2.colonization.AnnexedSystemsProvider.AnnexedSystem;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.ColonizationCommand;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.Colonize;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.ColonyCommand;
@@ -35,7 +36,7 @@ public class ColonizationTest {
 
 		// build capacity per round = 1500 Credits
 		Colonization colonization = new Colonization((Player _) -> Set.of(),
-				(Player _, ShipClassId shipClassId) -> shipCosts.get(shipClassId), () -> first);
+				(Player _, ShipClassId shipClassId) -> shipCosts.get(shipClassId), () -> first, () -> Set.of());
 
 		colonization.initialize();
 		assertSpaceDock(colonization.colony(colonySystem), 0, new Rounds(2),
@@ -62,12 +63,21 @@ public class ColonizationTest {
 				new ConstructionProgress(second, new Credit(300)));
 	}
 
+	private static ObjectAssert<SpaceDock> assertSpaceDock(Optional<Colony> colony, int nextRoundCount, Rounds duration,
+			ConstructionProgress constructionProgress) {
+		return assertThat(colony.orElseThrow().spaceDock()).satisfies(spaceDock -> {
+			assertThat(spaceDock.output().nextRoundCount()).isEqualTo(nextRoundCount);
+			assertThat(spaceDock.output().duration()).isEqualTo(duration);
+			assertThat(spaceDock.progress()).isEqualTo(constructionProgress);
+		});
+	}
+
 	@Test
 	void testColonize() {
 		Position system = new Position("6.000", "8.00");
 
 		Colonization colonization = new Colonization((Player _) -> Set.of(system),
-				(Player _, ShipClassId _) -> new Credit(1000), () -> new ShipClassId("first"));
+				(Player _, ShipClassId _) -> new Credit(1000), () -> new ShipClassId("first"), () -> Set.of());
 		colonization.initialize();
 
 		List<ColonizationCommand> commands = List.of(new Colonize(Player.BLUE, system, false));
@@ -82,13 +92,20 @@ public class ColonizationTest {
 		assertThat(colonization.colony(Player.BLUE, system)).isPresent();
 	}
 
-	private static ObjectAssert<SpaceDock> assertSpaceDock(Optional<Colony> colony, int nextRoundCount, Rounds duration,
-			ConstructionProgress constructionProgress) {
-		return assertThat(colony.orElseThrow().spaceDock()).satisfies(spaceDock -> {
-			assertThat(spaceDock.output().nextRoundCount()).isEqualTo(nextRoundCount);
-			assertThat(spaceDock.output().duration()).isEqualTo(duration);
-			assertThat(spaceDock.progress()).isEqualTo(constructionProgress);
-		});
+	@Test
+	void testAnnexSystems() {
+		Position system = new Position("6.173", "5.026");
+
+		Colonization colonization = new Colonization((Player _) -> Set.of(),
+				(Player _, ShipClassId _) -> new Credit(1000), () -> new ShipClassId("first"),
+				() -> Set.of(new AnnexedSystem(Player.YELLOW, system)));
+		colonization.initialize();
+
+		assertThat(colonization.colony(system).orElseThrow().player()).isEqualTo(Player.BLUE);
+
+		colonization.annexSystems();
+
+		assertThat(colonization.colony(system).orElseThrow().player()).isEqualTo(Player.YELLOW);
 	}
 
 }

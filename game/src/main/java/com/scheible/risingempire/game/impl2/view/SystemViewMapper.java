@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.colony.AllocationView;
+import com.scheible.risingempire.game.api.view.colony.AnnexationStatusView;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
 import com.scheible.risingempire.game.api.view.colony.SpaceDockView;
@@ -15,6 +16,8 @@ import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.system.SystemView;
 import com.scheible.risingempire.game.impl2.apiinternal.Population;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
+import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
+import com.scheible.risingempire.game.impl2.army.AnnexationStatus;
 import com.scheible.risingempire.game.impl2.army.Army;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
@@ -53,6 +56,8 @@ public class SystemViewMapper {
 				planet.special(), planet.max());
 
 		boolean colonizable = colonization.colonizable(player, star.position());
+
+		Optional<AnnexationStatus> annexationStatus = army.annexationStatus(player, star.position());
 
 		return SystemView.builder()
 			.id(SystemIdMapper.toSystemId(star.position()))
@@ -100,7 +105,14 @@ public class SystemViewMapper {
 							ProductionArea.SHIP,
 							new AllocationView(75, c.spaceDock().output().duration().quantity() + " r"), //
 							ProductionArea.TECHNOLOGY, new AllocationView(0, "0 RP"))) : Optional.empty())
-					.annexationStatus(army.annexationStatus(star.position()))
+					.annexationStatus(annexationStatus.map(as -> AnnexationStatusView.builder()
+						.siegeRounds(as.siegeRounds().map(Rounds::quantity))
+						.roundsUntilAnnexable(as.roundsUntilAnnexable().map(Rounds::quantity))
+						.siegingPlayer(as.siegingPlayer())
+						.siegingRace(as.siegingPlayer().map(empires::race))
+						.annexable(as.annexable())
+						.annexationCommand(as.annexationCommand())
+						.build()))
 					.colonistTransfers(Map.of())
 					.relocationTarget(Optional.empty())
 					.build()))

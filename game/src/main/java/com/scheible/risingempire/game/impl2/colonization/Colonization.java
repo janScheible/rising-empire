@@ -16,6 +16,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.ResearchPoint;
 import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
+import com.scheible.risingempire.game.impl2.colonization.AnnexedSystemsProvider.AnnexedSystem;
 import com.scheible.risingempire.game.impl2.colonization.SpaceDock.ConstructionProgress;
 import com.scheible.risingempire.game.impl2.colonization.SpaceDock.SpaceDockOutput;
 import com.scheible.risingempire.game.impl2.common.Command;
@@ -36,6 +37,8 @@ public class Colonization {
 
 	private InitialShipClassProvider initialShipClassProvider;
 
+	private AnnexedSystemsProvider annexedSystemsProvider;
+
 	private final Map<Position, Map<ShipClassId, Integer>> newShips = new HashMap<>();
 
 	private final Set<Position> newColonies = new HashSet<>();
@@ -43,7 +46,7 @@ public class Colonization {
 	private final Set<Colonize> colonizationCommands;
 
 	public Colonization(ColonyFleetProvider colonyFleetProvider, ShipCostProvider shipCostProvider,
-			InitialShipClassProvider initialShipClassProvider) {
+			InitialShipClassProvider initialShipClassProvider, AnnexedSystemsProvider annexedSystemsProvider) {
 		this.colonies = new ArrayList<>(List.of( //
 				new Colony(Player.BLUE, new Position("6.173", "5.026"), SpaceDock.UNINITIALIZED),
 				new Colony(Player.YELLOW, new Position("9.973", "5.626"), SpaceDock.UNINITIALIZED),
@@ -52,17 +55,20 @@ public class Colonization {
 		this.colonyFleetProvider = colonyFleetProvider;
 		this.shipCostProvider = shipCostProvider;
 		this.initialShipClassProvider = initialShipClassProvider;
+		this.annexedSystemsProvider = annexedSystemsProvider;
 
 		this.colonizationCommands = new HashSet<>();
 	}
 
 	private Colonization(List<Colony> colonies, ColonyFleetProvider colonyFleetProvider,
 			ShipCostProvider shipCostProvider, InitialShipClassProvider initialShipClassProvider,
-			Set<Colonize> colonizationCommands) {
+			AnnexedSystemsProvider annexedSystemsProvider, Set<Colonize> colonizationCommands) {
 		this.colonies = colonies;
+
 		this.colonyFleetProvider = colonyFleetProvider;
 		this.shipCostProvider = shipCostProvider;
 		this.initialShipClassProvider = initialShipClassProvider;
+		this.annexedSystemsProvider = annexedSystemsProvider;
 
 		this.colonizationCommands = colonizationCommands;
 	}
@@ -86,7 +92,8 @@ public class Colonization {
 			.map(Colonize.class::cast)
 			.collect(Collectors.toSet());
 		Colonization copy = new Colonization(new ArrayList<>(this.colonies), this.colonyFleetProvider,
-				this.shipCostProvider, this.initialShipClassProvider, currrentColonizationCommands);
+				this.shipCostProvider, this.initialShipClassProvider, this.annexedSystemsProvider,
+				currrentColonizationCommands);
 
 		copy.updateColonies(
 				commands.stream().filter(ColonyCommand.class::isInstance).map(ColonyCommand.class::cast).toList());
@@ -199,6 +206,21 @@ public class Colonization {
 				this.colonies.add(new Colony(colonize.player(), colonize.system(),
 						new SpaceDock(initalShipClass, output, progress)));
 				this.newColonies.add(colonize.system());
+			}
+		}
+	}
+
+	public void annexSystems() {
+		Map<Position, Player> annexedSystems = this.annexedSystemsProvider.annexedSystems()
+			.stream()
+			.collect(Collectors.toMap(AnnexedSystem::system, AnnexedSystem::player));
+
+		for (int i = 0; i < this.colonies.size(); i++) {
+			Colony colony = this.colonies.get(i);
+
+			Player annexPlayer = annexedSystems.get(colony.position());
+			if (annexPlayer != null) {
+				this.colonies.set(i, new Colony(annexPlayer, colony.position(), colony.spaceDock()));
 			}
 		}
 	}
