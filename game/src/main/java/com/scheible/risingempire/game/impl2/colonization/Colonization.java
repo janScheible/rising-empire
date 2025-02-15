@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Credit;
+import com.scheible.risingempire.game.impl2.apiinternal.Population;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.ResearchPoint;
 import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
@@ -48,9 +49,9 @@ public class Colonization {
 	public Colonization(ColonyFleetProvider colonyFleetProvider, ShipCostProvider shipCostProvider,
 			InitialShipClassProvider initialShipClassProvider, AnnexedSystemsProvider annexedSystemsProvider) {
 		this.colonies = new ArrayList<>(List.of( //
-				new Colony(Player.BLUE, new Position("6.173", "5.026"), SpaceDock.UNINITIALIZED),
-				new Colony(Player.YELLOW, new Position("9.973", "5.626"), SpaceDock.UNINITIALIZED),
-				new Colony(Player.WHITE, new Position("4.080", "8.226"), SpaceDock.UNINITIALIZED)));
+				new Colony(Player.BLUE, new Position("6.173", "5.026"), SpaceDock.UNINITIALIZED, new Population(50)),
+				new Colony(Player.YELLOW, new Position("9.973", "5.626"), SpaceDock.UNINITIALIZED, new Population(50)),
+				new Colony(Player.WHITE, new Position("4.080", "8.226"), SpaceDock.UNINITIALIZED, new Population(50))));
 
 		this.colonyFleetProvider = colonyFleetProvider;
 		this.shipCostProvider = shipCostProvider;
@@ -81,8 +82,8 @@ public class Colonization {
 			ConstructionProgress progress = new ConstructionProgress(initalShipClass, new Credit(0));
 			SpaceDockOutput output = spaceDockOutput(colony, initalShipClass, progress).spaceDockOutput();
 
-			this.colonies.set(i,
-					new Colony(colony.player(), colony.position(), new SpaceDock(initalShipClass, output, progress)));
+			this.colonies.set(i, new Colony(colony.player(), colony.position(),
+					new SpaceDock(initalShipClass, output, progress), colony.population()));
 		}
 	}
 
@@ -142,7 +143,16 @@ public class Colonization {
 				.spaceDockOutput();
 
 			this.colonies.set(i, new Colony(colony.player(), colony.position(),
-					new SpaceDock(spaceDockShipClassId, output, spaceDock.progress())));
+					new SpaceDock(spaceDockShipClassId, output, spaceDock.progress()), colony.population()));
+		}
+	}
+
+	public void growPopulations() {
+		for (int i = 0; i < this.colonies.size(); i++) {
+			Colony colony = this.colonies.get(i);
+
+			this.colonies.set(i, new Colony(colony.player(), colony.position(), colony.spaceDock(),
+					colony.population().grow(new Population(100))));
 		}
 	}
 
@@ -167,7 +177,7 @@ public class Colonization {
 			SpaceDockOutput nextRoundOutput = spaceDockOutput(colony, spaceDock.current(), progress).spaceDockOutput();
 
 			this.colonies.set(i, new Colony(colony.player(), colony.position(),
-					new SpaceDock(spaceDock.current(), nextRoundOutput, progress)));
+					new SpaceDock(spaceDock.current(), nextRoundOutput, progress), colony.population()));
 		}
 	}
 
@@ -196,7 +206,9 @@ public class Colonization {
 
 			if (this.colonyFleetProvider.colonizableSystems(colonize.player()).contains(colonize.system())) {
 
-				Colony preliminaryColony = new Colony(colonize.player(), colonize.system(), SpaceDock.UNINITIALIZED);
+				Population population = new Population(20);
+				Colony preliminaryColony = new Colony(colonize.player(), colonize.system(), SpaceDock.UNINITIALIZED,
+						population);
 
 				ShipClassId initalShipClass = this.initialShipClassProvider.initial();
 				ConstructionProgress progress = new ConstructionProgress(initalShipClass, new Credit(0));
@@ -204,7 +216,7 @@ public class Colonization {
 					.spaceDockOutput();
 
 				this.colonies.add(new Colony(colonize.player(), colonize.system(),
-						new SpaceDock(initalShipClass, output, progress)));
+						new SpaceDock(initalShipClass, output, progress), population));
 				this.newColonies.add(colonize.system());
 			}
 		}
@@ -220,7 +232,8 @@ public class Colonization {
 
 			Player annexPlayer = annexedSystems.get(colony.position());
 			if (annexPlayer != null) {
-				this.colonies.set(i, new Colony(annexPlayer, colony.position(), colony.spaceDock()));
+				this.colonies.set(i,
+						new Colony(annexPlayer, colony.position(), colony.spaceDock(), colony.population()));
 			}
 		}
 	}

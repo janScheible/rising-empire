@@ -218,6 +218,7 @@ public class Game2Impl implements Game {
 
 	private void finishRound() {
 		this.colonization.updateColonies(this.playerTurns.commands(ColonyCommand.class));
+		this.colonization.growPopulations();
 		this.technology.advanceResearch(this.playerTurns.commands(SelectTechnology.class));
 		this.colonization.buildShips();
 		this.navy.commissionNewShips();

@@ -14,7 +14,6 @@ import com.scheible.risingempire.game.api.view.colony.SpaceDockView;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.system.SystemView;
-import com.scheible.risingempire.game.impl2.apiinternal.Population;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
 import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.army.AnnexationStatus;
@@ -80,10 +79,10 @@ public class SystemViewMapper {
 					.race(systemReport.colonyReconReport()
 						.map(crp -> empires.race(crp.player()))
 						.orElse(empires.race(c.player())))
-					.population((int) systemReport.colonyReconReport()
+					.population((int) Math.round(systemReport.colonyReconReport()
 						.map(ColonyReconReport::population)
-						.orElse(new Population(50))
-						.quantity())
+						.orElse(c.population())
+						.quantity()))
 					.outdated(systemReport.colonyReconReport().map(ColonyReconReport::outdated).orElse(Boolean.FALSE))
 					.spaceDock(starHasOwnColony.test(star)
 							? Optional.of(shipyard.design(c.player(), c.spaceDock().current()))
