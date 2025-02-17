@@ -148,7 +148,8 @@ public class Colonization {
 
 	public void growPopulations() {
 		for (int i = 0; i < this.colonies.size(); i++) {
-			this.colonies.set(i, this.colonies.get(i).withPopulation(new Population(100)));
+			this.colonies.set(i, this.colonies.get(i)
+				.with(colonyBuilder -> colonyBuilder.population(colonyBuilder.population().grow(new Population(100)))));
 		}
 	}
 
