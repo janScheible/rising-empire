@@ -41,6 +41,9 @@ public class Shipyard {
 		else if (shipClassId.value().equals("cruiser")) {
 			return new ShipDesign(new ShipClassId("cruiser"), 0, "Cruiser", ShipSize.LARGE, 0);
 		}
+		else if (shipClassId.value().equals("_colonists_transporter")) {
+			return new ShipDesign(new ShipClassId("_colonists_transporter"), 0, "Transporter", ShipSize.LARGE, 0);
+		}
 		else {
 			throw new IllegalArgumentException("Unknown ship class '" + shipClassId + "'!");
 		}

@@ -7,14 +7,17 @@ import java.util.Set;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Credit;
+import com.scheible.risingempire.game.impl2.apiinternal.Population;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.colonization.AnnexedSystemsProvider.AnnexedSystem;
+import com.scheible.risingempire.game.impl2.colonization.ArrivingColonistTransportsProvider.ArrivingColonistTransport;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.ColonizationCommand;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.Colonize;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.ColonyCommand;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.SpaceDockShipClass;
+import com.scheible.risingempire.game.impl2.colonization.Colonization.TransferColonists;
 import com.scheible.risingempire.game.impl2.colonization.SpaceDock.ConstructionProgress;
 import org.assertj.core.api.ObjectAssert;
 import org.junit.jupiter.api.Test;
@@ -36,7 +39,8 @@ public class ColonizationTest {
 
 		// build capacity per round = 1500 Credits
 		Colonization colonization = new Colonization((Player _) -> Set.of(),
-				(Player _, ShipClassId shipClassId) -> shipCosts.get(shipClassId), () -> first, () -> Set.of());
+				(Player _, ShipClassId shipClassId) -> shipCosts.get(shipClassId), () -> first, () -> Set.of(),
+				() -> Set.of());
 
 		colonization.initialize();
 		assertSpaceDock(colonization.colony(colonySystem), 0, new Rounds(2),
@@ -77,7 +81,8 @@ public class ColonizationTest {
 		Position system = new Position("6.000", "8.00");
 
 		Colonization colonization = new Colonization((Player _) -> Set.of(system),
-				(Player _, ShipClassId _) -> new Credit(1000), () -> new ShipClassId("first"), () -> Set.of());
+				(Player _, ShipClassId _) -> new Credit(1000), () -> new ShipClassId("first"), () -> Set.of(),
+				() -> Set.of());
 		colonization.initialize();
 
 		List<ColonizationCommand> commands = List.of(new Colonize(Player.BLUE, system, false));
@@ -98,7 +103,7 @@ public class ColonizationTest {
 
 		Colonization colonization = new Colonization((Player _) -> Set.of(),
 				(Player _, ShipClassId _) -> new Credit(1000), () -> new ShipClassId("first"),
-				() -> Set.of(new AnnexedSystem(Player.YELLOW, system)));
+				() -> Set.of(new AnnexedSystem(Player.YELLOW, system)), () -> Set.of());
 		colonization.initialize();
 
 		assertThat(colonization.colony(system).orElseThrow().player()).isEqualTo(Player.BLUE);
@@ -106,6 +111,38 @@ public class ColonizationTest {
 		colonization.annexSystems();
 
 		assertThat(colonization.colony(system).orElseThrow().player()).isEqualTo(Player.YELLOW);
+	}
+
+	@Test
+	void testCrewColonists() {
+		Position system = new Position("6.173", "5.026");
+
+		Colonization colonization = new Colonization((Player _) -> Set.of(),
+				(Player _, ShipClassId _) -> new Credit(1000), () -> new ShipClassId("first"), () -> Set.of(),
+				() -> Set.of());
+		colonization.initialize();
+
+		assertThat(colonization.colony(system).orElseThrow().population()).isEqualTo(new Population(50));
+
+		colonization.crewColonistTransports(
+				List.of(new TransferColonists(Player.BLUE, system, new Position(1, 1), new Population(20))));
+
+		assertThat(colonization.colony(system).orElseThrow().population()).isEqualTo(new Population(30));
+	}
+
+	@Test
+	void testWelcomeColonists() {
+		Position system = new Position("6.173", "5.026");
+
+		Colonization colonization = new Colonization((Player _) -> Set.of(),
+				(Player _, ShipClassId _) -> new Credit(1000), () -> new ShipClassId("first"), () -> Set.of(),
+				() -> Set.of(new ArrivingColonistTransport(Player.BLUE, system, 20)));
+
+		assertThat(colonization.colony(system).orElseThrow().population()).isEqualTo(new Population(50));
+
+		colonization.welcomeColonistTransports();
+
+		assertThat(colonization.colony(system).orElseThrow().population()).isEqualTo(new Population(70));
 	}
 
 }

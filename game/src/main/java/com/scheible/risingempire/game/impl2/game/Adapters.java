@@ -22,6 +22,7 @@ import com.scheible.risingempire.game.impl2.army.Army;
 import com.scheible.risingempire.game.impl2.army.SiegedSystem;
 import com.scheible.risingempire.game.impl2.army.SiegedSystemsProvider;
 import com.scheible.risingempire.game.impl2.colonization.AnnexedSystemsProvider;
+import com.scheible.risingempire.game.impl2.colonization.ArrivingColonistTransportsProvider;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
 import com.scheible.risingempire.game.impl2.colonization.ColonyFleetProvider;
@@ -33,6 +34,7 @@ import com.scheible.risingempire.game.impl2.intelligence.fleet.ShipScannerSpecsP
 import com.scheible.risingempire.game.impl2.intelligence.system.ColonyIntelProvider;
 import com.scheible.risingempire.game.impl2.intelligence.system.OrbitingFleetsProvider;
 import com.scheible.risingempire.game.impl2.navy.ColonyShipSpecsProvider;
+import com.scheible.risingempire.game.impl2.navy.DepartingColonistTransportsProvider;
 import com.scheible.risingempire.game.impl2.navy.Fleet;
 import com.scheible.risingempire.game.impl2.navy.Navy;
 import com.scheible.risingempire.game.impl2.navy.NewColoniesProvider;
@@ -373,6 +375,44 @@ public final class Adapters {
 				.entrySet()
 				.stream()
 				.map(e -> new AnnexedSystem(e.getKey(), e.getValue()))
+				.collect(Collectors.toSet());
+		}
+
+	}
+
+	public static class DepartingColonistTransportsProviderAdpater implements DepartingColonistTransportsProvider {
+
+		private Colonization delegate;
+
+		public void delegate(Colonization delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Set<DepartingColonistTransport> colonistTransports() {
+			return this.delegate.colonistTransfers()
+				.entrySet()
+				.stream()
+				.map(e -> new DepartingColonistTransport(this.delegate.colony(e.getKey()).orElseThrow().player(),
+						e.getKey(), e.getValue().destination(), (int) e.getValue().population().quantity()))
+				.collect(Collectors.toSet());
+		}
+
+	}
+
+	public static class ArrivingColonistTransportsProviderAdapter implements ArrivingColonistTransportsProvider {
+
+		private Navy delegate;
+
+		public void delegate(Navy delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Set<ArrivingColonistTransport> colonistTransports() {
+			return this.delegate.arrivedColonistTransports()
+				.stream()
+				.map(act -> new ArrivingColonistTransport(act.player(), act.destination(), act.transporters()))
 				.collect(Collectors.toSet());
 		}
 

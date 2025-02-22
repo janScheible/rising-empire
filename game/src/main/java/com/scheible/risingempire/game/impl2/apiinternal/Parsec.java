@@ -33,8 +33,8 @@ public record Parsec(BigDecimal quantity) implements Comparable<Parsec> {
 		return fromMilliparsec(Long.parseLong(plain));
 	}
 
-	public Parsec add(Parsec other) {
-		return new Parsec(this.quantity.add(other.quantity));
+	public Parsec add(Parsec augend) {
+		return new Parsec(this.quantity.add(augend.quantity));
 	}
 
 	public Parsec subtract(Parsec other) {

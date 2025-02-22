@@ -19,4 +19,12 @@ public record Population(double quantity) {
 		return new Population(LOGISTIC_FUNCTION.apply(currentX + INCREMENT) * max.quantity());
 	}
 
+	public Population subtract(Population subtrahend) {
+		return new Population(this.quantity - subtrahend.quantity);
+	}
+
+	public Population add(Population augend, Population max) {
+		return new Population(Math.min(max.quantity, this.quantity + augend.quantity));
+	}
+
 }

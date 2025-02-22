@@ -13,6 +13,10 @@ public class SystemIdMapper {
 		return new SystemId("s" + position.toPlainString());
 	}
 
+	public static ColonyId toColonyId(Position position) {
+		return new ColonyId("s" + position.toPlainString());
+	}
+
 	public static Position fromSystemId(SystemId systemId) {
 		return Position.fromPlainString(systemId.value().substring(1));
 	}

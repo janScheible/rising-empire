@@ -8,6 +8,7 @@ import java.util.Set;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
+import com.scheible.risingempire.game.impl2.navy.DepartingColonistTransportsProvider.DepartingColonistTransport;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Itinerary;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Orbit;
 import com.scheible.risingempire.game.impl2.navy.NewColoniesProvider.NewColony;
@@ -88,7 +89,8 @@ class NavyTest extends AbstractNavyTest {
 	void testRemoveUsedColonyShips() {
 		Navy navy = new Navy(List.of(orbitingFleet(this.origin, new Ships(Map.of(this.enterprise, 1, this.colony, 2)))),
 				this.shipMovementSpecsProvider, (Player _) -> Map.of(),
-				() -> Set.of(new NewColony(this.player, this.origin)), shipClassId -> this.colony.equals(shipClassId));
+				() -> Set.of(new NewColony(this.player, this.origin)), shipClassId -> this.colony.equals(shipClassId),
+				() -> Set.of());
 
 		navy.removeUsedColonyShips();
 
@@ -96,13 +98,36 @@ class NavyTest extends AbstractNavyTest {
 			.containsOnly(orbitingFleet(this.origin, new Ships(Map.of(this.enterprise, 1, this.colony, 1))));
 	}
 
+	@Test
+	void testSendColonistTransports() {
+		Navy navy = new Navy(List.of(), this.shipMovementSpecsProvider, (Player _) -> Map.of(), () -> Set.of(),
+				shipClassId -> false,
+				() -> Set.of(new DepartingColonistTransport(this.player, this.origin, this.destination, 42)));
+
+		Round round = new Round(1);
+		navy.sendColonistTransports(round);
+		assertThat(navy.fleets())
+			.containsOnly(justLeavingFleet(this.origin, this.destination, round, Ships.transporters(42)));
+
+		do {
+			navy.moveFleets(round, List.of());
+			round = round.next();
+		}
+		while (navy.fleets().stream().anyMatch(Fleet::deployed));
+
+		assertThat(navy.fleets()).isEmpty();
+		assertThat(navy.arrivedColonistTransports())
+			.containsOnly(new ArrivedColonistTransport(this.player, this.destination, 42));
+	}
+
 	private Navy createNavy(List<Fleet> fleets) {
 		return new Navy(fleets, this.shipMovementSpecsProvider, (Player _) -> Map.of(), () -> Set.of(),
-				shipClassId -> false);
+				shipClassId -> false, () -> Set.of());
 	}
 
 	private Navy createNavy(List<Fleet> fleets, NewShipsProvider newShipsProvider) {
-		return new Navy(fleets, this.shipMovementSpecsProvider, newShipsProvider, () -> Set.of(), shipClassId -> false);
+		return new Navy(fleets, this.shipMovementSpecsProvider, newShipsProvider, () -> Set.of(), shipClassId -> false,
+				() -> Set.of());
 	}
 
 	private Fleet justLeavingFleet(Position origin, Position destination, Round dispatchment, Ships ships) {

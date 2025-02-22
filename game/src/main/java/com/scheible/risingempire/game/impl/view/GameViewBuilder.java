@@ -21,6 +21,7 @@ import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.colony.AllocationView;
 import com.scheible.risingempire.game.api.view.colony.AnnexationStatusView;
+import com.scheible.risingempire.game.api.view.colony.ColonistTransferView;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
@@ -146,7 +147,14 @@ public class GameViewBuilder {
 									.annexable(isAnnexable.test(system))
 									.annexationCommand(hasAnnexCommand.test(system))
 									.build() : null))
-						.colonistTransfers(colonistTransfers.getOrDefault(snapshot.getId().toColonyId(), Map.of()))
+						.colonistTransfer(colonistTransfers.getOrDefault(snapshot.getId().toColonyId(), Map.of())
+							.entrySet()
+							.stream()
+							.findFirst()
+							.map(e -> ColonistTransferView.builder()
+								.desination(e.getKey())
+								.colonists(e.getValue())
+								.build()))
 						.relocationTarget(Optional.ofNullable(shipRelocations.get(snapshot.getId().toColonyId())))
 						.build());
 

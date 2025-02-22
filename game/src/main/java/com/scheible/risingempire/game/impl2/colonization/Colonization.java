@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.universe.Player;
@@ -18,6 +19,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.ResearchPoint;
 import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.colonization.AnnexedSystemsProvider.AnnexedSystem;
+import com.scheible.risingempire.game.impl2.colonization.ArrivingColonistTransportsProvider.ArrivingColonistTransport;
 import com.scheible.risingempire.game.impl2.colonization.SpaceDock.ConstructionProgress;
 import com.scheible.risingempire.game.impl2.colonization.SpaceDock.SpaceDockOutput;
 import com.scheible.risingempire.game.impl2.common.Command;
@@ -36,18 +38,25 @@ public class Colonization {
 
 	private final ShipCostProvider shipCostProvider;
 
-	private InitialShipClassProvider initialShipClassProvider;
+	private final InitialShipClassProvider initialShipClassProvider;
 
-	private AnnexedSystemsProvider annexedSystemsProvider;
+	private final AnnexedSystemsProvider annexedSystemsProvider;
+
+	private final ArrivingColonistTransportsProvider arrivingColonistTransportsProvider;
 
 	private final Map<Position, Map<ShipClassId, Integer>> newShips = new HashMap<>();
 
 	private final Set<Position> newColonies = new HashSet<>();
 
+	private final Map<Position, ColonistTransfer> colonistTransfers = new HashMap<>();
+
 	private final Set<Colonize> colonizationCommands;
 
+	private final Set<TransferColonists> transferColonistsCommands;
+
 	public Colonization(ColonyFleetProvider colonyFleetProvider, ShipCostProvider shipCostProvider,
-			InitialShipClassProvider initialShipClassProvider, AnnexedSystemsProvider annexedSystemsProvider) {
+			InitialShipClassProvider initialShipClassProvider, AnnexedSystemsProvider annexedSystemsProvider,
+			ArrivingColonistTransportsProvider arrivingColonistTransportsProvider) {
 		this.colonies = new ArrayList<>(List.of( //
 				new Colony(Player.BLUE, new Position("6.173", "5.026"), SpaceDock.UNINITIALIZED, new Population(50)),
 				new Colony(Player.YELLOW, new Position("9.973", "5.626"), SpaceDock.UNINITIALIZED, new Population(50)),
@@ -57,21 +66,27 @@ public class Colonization {
 		this.shipCostProvider = shipCostProvider;
 		this.initialShipClassProvider = initialShipClassProvider;
 		this.annexedSystemsProvider = annexedSystemsProvider;
+		this.arrivingColonistTransportsProvider = arrivingColonistTransportsProvider;
 
 		this.colonizationCommands = new HashSet<>();
+		this.transferColonistsCommands = new HashSet<>();
 	}
 
 	private Colonization(List<Colony> colonies, ColonyFleetProvider colonyFleetProvider,
 			ShipCostProvider shipCostProvider, InitialShipClassProvider initialShipClassProvider,
-			AnnexedSystemsProvider annexedSystemsProvider, Set<Colonize> colonizationCommands) {
+			AnnexedSystemsProvider annexedSystemsProvider,
+			ArrivingColonistTransportsProvider arrivingColonistTransportsProvider, Set<Colonize> colonizationCommands,
+			Set<TransferColonists> transferColonistsCommands) {
 		this.colonies = colonies;
 
 		this.colonyFleetProvider = colonyFleetProvider;
 		this.shipCostProvider = shipCostProvider;
 		this.initialShipClassProvider = initialShipClassProvider;
 		this.annexedSystemsProvider = annexedSystemsProvider;
+		this.arrivingColonistTransportsProvider = arrivingColonistTransportsProvider;
 
 		this.colonizationCommands = colonizationCommands;
+		this.transferColonistsCommands = transferColonistsCommands;
 	}
 
 	public void initialize() {
@@ -91,9 +106,15 @@ public class Colonization {
 			.filter(Colonize.class::isInstance)
 			.map(Colonize.class::cast)
 			.collect(Collectors.toSet());
+		Set<TransferColonists> currentTransferColonistsCommands = commands.stream()
+			.filter(TransferColonists.class::isInstance)
+			.map(TransferColonists.class::cast)
+			.collect(Collectors.toSet());
+
 		Colonization copy = new Colonization(new ArrayList<>(this.colonies), this.colonyFleetProvider,
 				this.shipCostProvider, this.initialShipClassProvider, this.annexedSystemsProvider,
-				currrentColonizationCommands);
+				this.arrivingColonistTransportsProvider, currrentColonizationCommands,
+				currentTransferColonistsCommands);
 
 		copy.updateColonies(
 				commands.stream().filter(ColonyCommand.class::isInstance).map(ColonyCommand.class::cast).toList());
@@ -231,11 +252,45 @@ public class Colonization {
 		}
 	}
 
-	public void welcomeColonistTransports() {
+	public void crewColonistTransports(List<TransferColonists> commands) {
+		this.colonistTransfers.clear();
+
+		Map<Position, TransferColonists> colonyCommandMapping = commands.stream()
+			.collect(Collectors.toMap(TransferColonists::originColony, Function.identity()));
+
+		for (int i = 0; i < this.colonies.size(); i++) {
+			Colony colony = this.colonies.get(i);
+			TransferColonists command = colonyCommandMapping.get(colony.position());
+
+			if (command != null && colony.player() == command.player()) {
+				this.colonies.set(i, colony.with(colonyBuilder -> colonyBuilder
+					.population(colonyBuilder.population().subtract(command.population()))));
+				this.colonistTransfers.put(command.originColony(),
+						new ColonistTransfer(command.destinationColony(), command.population()));
+			}
+		}
 	}
 
-	public boolean transfareable(Player player, Position colony, int colonists) {
-		return false;
+	public void welcomeColonistTransports() {
+		Map<Position, ArrivingColonistTransport> arrivingMapping = this.arrivingColonistTransportsProvider
+			.colonistTransports()
+			.stream()
+			.collect(Collectors.toMap(ArrivingColonistTransport::destination, Function.identity()));
+
+		for (int i = 0; i < this.colonies.size(); i++) {
+			Colony colony = this.colonies.get(i);
+			ArrivingColonistTransport arriving = arrivingMapping.get(colony.position());
+
+			if (arriving != null && colony.player() == arriving.player()) {
+				this.colonies.set(i, colony.with(colonyBuilder -> colonyBuilder.population(
+						colonyBuilder.population().add(new Population(arriving.transporters()), new Population(100)))));
+			}
+		}
+	}
+
+	public boolean transfareable(Player player, Position system, Population population) {
+		double maxTranfser = Math.floor(colony(player, system).orElseThrow().population().quantity() / 2.0);
+		return population.quantity() <= maxTranfser;
 	}
 
 	public Credit buildCapacity(Player player, Position system) {
@@ -279,6 +334,17 @@ public class Colonization {
 			.isPresent();
 	}
 
+	public Optional<ColonistTransfer> colonistTransfer(Position system) {
+		return this.transferColonistsCommands.stream()
+			.filter(tcc -> tcc.originColony.equals(system))
+			.findFirst()
+			.map(e -> new ColonistTransfer(e.destinationColony(), e.population()));
+	}
+
+	public Map<Position, ColonistTransfer> colonistTransfers() {
+		return unmodifiableMap(this.colonistTransfers);
+	}
+
 	public Set<Position> newColonies() {
 		return unmodifiableSet(this.newColonies);
 	}
@@ -302,6 +368,16 @@ public class Colonization {
 	}
 
 	public record AllocateResources(Player player, Position colony) implements ColonyCommand {
+
+	}
+
+	public record TransferColonists(Player player, Position originColony, Position destinationColony,
+			Population population) implements ColonyCommand {
+
+		@Override
+		public Position colony() {
+			return this.originColony;
+		}
 
 	}
 

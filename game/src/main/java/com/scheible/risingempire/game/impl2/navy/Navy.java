@@ -2,7 +2,6 @@ package com.scheible.risingempire.game.impl2.navy;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -15,10 +14,13 @@ import com.scheible.risingempire.game.impl2.apiinternal.Round;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
 import com.scheible.risingempire.game.impl2.common.Command;
+import com.scheible.risingempire.game.impl2.navy.DepartingColonistTransportsProvider.DepartingColonistTransport;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Itinerary;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Orbit;
 import com.scheible.risingempire.game.impl2.navy.NewColoniesProvider.NewColony;
+
+import static java.util.Collections.unmodifiableSet;
 
 public class Navy {
 
@@ -32,37 +34,46 @@ public class Navy {
 
 	private final ColonyShipSpecsProvider colonyShipSpecsProvider;
 
+	private final DepartingColonistTransportsProvider departingColonistTransportsProvider;
+
+	private final Set<ArrivedColonistTransport> arrivedColonistTransports = new HashSet<>();
+
 	public Navy(List<Fleet> fleets, ShipSpeedSpecsProvider shipSpeedSpecsProvider, NewShipsProvider newShipsProvider,
-			NewColoniesProvider newColoniesProvider, ColonyShipSpecsProvider colonyShipSpecsProvider) {
+			NewColoniesProvider newColoniesProvider, ColonyShipSpecsProvider colonyShipSpecsProvider,
+			DepartingColonistTransportsProvider departingColonistTransportsProvider) {
 		this.fleets = new Fleets(new ArrayList<>(fleets), shipSpeedSpecsProvider);
 		this.dispatcher = new Dispatcher(this.fleets);
 		this.newShipsProvider = newShipsProvider;
 		this.newColoniesProvider = newColoniesProvider;
 		this.colonyShipSpecsProvider = colonyShipSpecsProvider;
+		this.departingColonistTransportsProvider = departingColonistTransportsProvider;
 
 	}
 
 	private Navy(Fleets fleets, NewShipsProvider newShipsProvider, NewColoniesProvider newColoniesProvider,
-			ColonyShipSpecsProvider colonyShipSpecsProvider) {
+			ColonyShipSpecsProvider colonyShipSpecsProvider,
+			DepartingColonistTransportsProvider departingColonistTransportsProvider) {
 		this.fleets = new Fleets(new ArrayList<>(fleets.fleets()), fleets.shipSpeedSpecsProvider());
 		this.dispatcher = new Dispatcher(this.fleets);
 		this.newShipsProvider = newShipsProvider;
 		this.newColoniesProvider = newColoniesProvider;
 		this.colonyShipSpecsProvider = colonyShipSpecsProvider;
+		this.departingColonistTransportsProvider = departingColonistTransportsProvider;
 	}
 
-	public Navy apply(Round round, List<Deploy> deployments) {
-		Navy copy = new Navy(this.fleets, this.newShipsProvider, this.newColoniesProvider,
-				this.colonyShipSpecsProvider);
+	public Navy apply(Round round, List<ShipDeployment> deployments) {
+		Navy copy = new Navy(this.fleets, this.newShipsProvider, this.newColoniesProvider, this.colonyShipSpecsProvider,
+				this.departingColonistTransportsProvider);
 		copy.dispatcher.dispatch(round, deployments);
 		return copy;
 	}
 
-	public void moveFleets(Round round, List<Deploy> deployments) {
+	public void moveFleets(Round round, List<ShipDeployment> deployments) {
+		this.arrivedColonistTransports.clear();
+
 		this.dispatcher.dispatch(round, deployments);
 
-		Map<Position, Fleet> destinationArrivedFleetMapping = new HashMap<>();
-		Set<Fleet> obsoleteOrbitingFleets = new HashSet<>();
+		Set<Fleet> obsoleteFleets = new HashSet<>();
 
 		for (int i = 0; i < this.fleets.size(); i++) {
 			Fleet fleet = this.fleets.get(i);
@@ -84,24 +95,35 @@ public class Navy {
 					this.fleets.set(i, newFleet);
 				}
 				else {
-					Optional<Fleet> alreadyOrbiting = this.fleets.findOrbiting(fleet.player(), itinerary.destination());
-					alreadyOrbiting.ifPresent(obsoleteOrbitingFleets::add);
+					if (fleet.colonistTransport()) {
+						// if colonist transporter arrives just remove it and remember
+						// that it arrived
+						obsoleteFleets.add(fleet);
+						this.arrivedColonistTransports
+							.add(new ArrivedColonistTransport(fleet.player(), itinerary.destination(),
+									fleet.ships().counts().get(ShipClassId.COLONISTS_TRANSPORTER)));
+					}
+					else {
+						Optional<Fleet> alreadyOrbiting = this.fleets.findOrbiting(fleet.player(),
+								itinerary.destination());
+						alreadyOrbiting.ifPresent(obsoleteFleets::add);
 
-					Set<Itinerary> partsBeforeArrival = new HashSet<>(Set.of(itinerary));
-					partsBeforeArrival.addAll(alreadyOrbiting.map(Fleet::location)
-						.flatMap(Location::asOrbit)
-						.map(Orbit::partsBeforArrival)
-						.orElse(Set.of()));
+						Set<Itinerary> partsBeforeArrival = new HashSet<>(Set.of(itinerary));
+						partsBeforeArrival.addAll(alreadyOrbiting.map(Fleet::location)
+							.flatMap(Location::asOrbit)
+							.map(Orbit::partsBeforArrival)
+							.orElse(Set.of()));
 
-					Ships shipsInOrbit = alreadyOrbiting.map(Fleet::ships).orElse(Ships.NONE);
+						Ships shipsInOrbit = alreadyOrbiting.map(Fleet::ships).orElse(Ships.NONE);
 
-					Fleet newFleet = new Fleet(fleet.player(), new Orbit(itinerary.destination(), partsBeforeArrival),
-							fleet.ships().merge(shipsInOrbit));
-					this.fleets.set(i, newFleet);
-					destinationArrivedFleetMapping.put(itinerary.destination(), newFleet);
+						Fleet newFleet = new Fleet(fleet.player(),
+								new Orbit(itinerary.destination(), partsBeforeArrival),
+								fleet.ships().merge(shipsInOrbit));
+						this.fleets.set(i, newFleet);
+					}
 				}
 			}
-			else if (!obsoleteOrbitingFleets.contains(fleet) && fleet.location() instanceof Orbit orbit) {
+			else if (!obsoleteFleets.contains(fleet) && fleet.location() instanceof Orbit orbit) {
 				// fleet arrived in the round before
 				if (!orbit.partsBeforArrival().isEmpty()) {
 					this.fleets.set(i, new Fleet(fleet.player(), new Orbit(orbit.system()), fleet.ships()));
@@ -109,7 +131,7 @@ public class Navy {
 			}
 		}
 
-		obsoleteOrbitingFleets.forEach(this.fleets::remove);
+		obsoleteFleets.forEach(this.fleets::remove);
 	}
 
 	public Optional<Fleet> findOrbiting(Player player, Position system) {
@@ -143,6 +165,23 @@ public class Navy {
 		}
 	}
 
+	public void sendColonistTransports(Round round) {
+		for (DepartingColonistTransport colonistTransport : this.departingColonistTransportsProvider
+			.colonistTransports()) {
+			Ships ships = Ships.transporters(colonistTransport.transporters());
+
+			Fleet deployed = Fleet.createDeployed(colonistTransport.player(), colonistTransport.origin(),
+					colonistTransport.destination(), round,
+					this.fleets.effectiveSpeed(colonistTransport.player(), ships), ships);
+
+			this.fleets.add(deployed);
+		}
+	}
+
+	public Set<ArrivedColonistTransport> arrivedColonistTransports() {
+		return unmodifiableSet(this.arrivedColonistTransports);
+	}
+
 	public void issueRelocations(List<RelocateShips> commands) {
 	}
 
@@ -166,17 +205,13 @@ public class Navy {
 		}
 	}
 
-	public sealed interface Deploy extends Command {
+	public sealed interface ShipDeployment extends Command {
 
 		Player player();
 
 		Position origin();
 
 		Position destination();
-
-	}
-
-	public sealed interface ShipDeployment extends Deploy {
 
 		Ships ships();
 
@@ -194,11 +229,6 @@ public class Navy {
 		public Position destination() {
 			return this.newDestination;
 		}
-
-	}
-
-	public record TransferColonists(Player player, Position origin, Position destination,
-			int transporterCount) implements Deploy {
 
 	}
 

@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.colony.AllocationView;
 import com.scheible.risingempire.game.api.view.colony.AnnexationStatusView;
+import com.scheible.risingempire.game.api.view.colony.ColonistTransferView;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
 import com.scheible.risingempire.game.api.view.colony.SpaceDockView;
@@ -112,7 +113,11 @@ public class SystemViewMapper {
 						.annexable(as.annexable())
 						.annexationCommand(as.annexationCommand())
 						.build()))
-					.colonistTransfers(Map.of())
+					.colonistTransfer(colonization.colonistTransfer(star.position())
+						.map(ct -> ColonistTransferView.builder()
+							.desination(SystemIdMapper.toColonyId(ct.destination()))
+							.colonists((int) ct.population().quantity())
+							.build()))
 					.relocationTarget(Optional.empty())
 					.build()))
 			.fleetRange(

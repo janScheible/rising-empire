@@ -6,9 +6,8 @@ import java.util.Set;
 
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
-import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Itinerary;
-import com.scheible.risingempire.game.impl2.navy.Navy.Deploy;
+import com.scheible.risingempire.game.impl2.navy.Navy.ShipDeployment;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -131,42 +130,12 @@ class DispatcherTest extends AbstractNavyTest {
 				justLeavingFleet(this.origin, this.otherDestination, ships(this.enterprise, 1)));
 	}
 
-	@Test
-	void testTransferColonists() {
-		List<Fleet> dispatched = dispatch(List.of(), List.of(transferColonists(this.origin, 42, this.destination)));
-
-		assertThat(dispatched).containsOnly(justLeavingtransporterFleet(this.origin, this.destination, 42));
-	}
-
-	@Test
-	void testTransferColonistsWithAlreadyDeployed() {
-		List<Fleet> dispatched = dispatch(List.of(justLeavingtransporterFleet(this.origin, this.destination, 21)),
-				List.of(transferColonists(this.origin, 21, this.destination)));
-
-		assertThat(dispatched).containsOnly(justLeavingtransporterFleet(this.origin, this.destination, 42));
-	}
-
-	@Test
-	void testTransferColonistsCancel() {
-		List<Fleet> dispatched = dispatch(List.of(justLeavingtransporterFleet(this.origin, this.destination, 42)),
-				List.of(transferColonists(this.origin, 0, this.destination)));
-
-		assertThat(dispatched).isEmpty();
-	}
-
 	private Fleet justLeavingFleet(Position origin, Position destination, Ships ships) {
 		return new Fleet(this.player, new Itinerary(origin, destination, this.round,
 				this.shipMovementSpecsProvider.effectiveSpeed(this.player, ships.counts().keySet())), ships);
 	}
 
-	private Fleet justLeavingtransporterFleet(Position origin, Position destination, int transporterCount) {
-		return new Fleet(this.player,
-				new Itinerary(origin, destination, this.round, this.shipMovementSpecsProvider
-					.effectiveSpeed(this.player, Set.of(ShipClassId.COLONISTS_TRANSPORTER))),
-				Ships.transporters(transporterCount));
-	}
-
-	private List<Fleet> dispatch(List<Fleet> fleets, List<Deploy> deployments) {
+	private List<Fleet> dispatch(List<Fleet> fleets, List<ShipDeployment> deployments) {
 		List<Fleet> fleetsCopy = new ArrayList<>(fleets);
 		Dispatcher dispatcher = new Dispatcher(new Fleets(fleetsCopy, this.shipMovementSpecsProvider));
 		dispatcher.dispatch(this.round, deployments);

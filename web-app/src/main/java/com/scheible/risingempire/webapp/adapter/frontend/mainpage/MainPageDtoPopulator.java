@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -17,6 +18,7 @@ import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.colony.AllocationView;
 import com.scheible.risingempire.game.api.view.colony.AnnexationStatusView;
+import com.scheible.risingempire.game.api.view.colony.ColonistTransferView;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.colony.ProductionArea;
@@ -326,12 +328,19 @@ public class MainPageDtoPopulator {
 									.with("relocateStarId", selectedSystem.id().value()))
 								.with(Action.get("transfer-colonists", context.toFrontendUri("main-page"))
 									.with("selectedStarId", selectedSystem.id().value())
-									.with("transferStarId", selectedSystem.id().value()))),
+									.with("transferStarId",
+											c.colonistTransfer()
+												.map(ColonistTransferView::desination)
+												.map(SystemId::fromColonyId)
+												.orElse(selectedSystem.id())
+												.value()))),
 						state.isTransferColonistsState() ? Optional
-							.of(new EntityModel<>(new TransferColonistsDto(selectedSystem.colony()
-								.get()
-								.colonistTransfers()
-								.getOrDefault(state.asTransferColonistsState().getTransferSystemId().toColonyId(), 0),
+							.of(new EntityModel<>(new TransferColonistsDto(
+									selectedSystem.colony()
+										.get()
+										.colonistTransfer()
+										.map(ColonistTransferView::colonists)
+										.orElse(0),
 									selectedSystem.colony().map(ColonyView::population).map(p -> p / 2).orElseThrow(),
 									destinationEta))
 								.with(Action.get("cancel", context.toFrontendUri("main-page"))

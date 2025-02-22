@@ -75,10 +75,6 @@ public abstract class AbstractNavyTest {
 		return new Navy.DeployJustLeaving(this.player, origin, previousDestination, speed, destination, ships);
 	}
 
-	protected Navy.TransferColonists transferColonists(Position origin, int transporterCount, Position destination) {
-		return new Navy.TransferColonists(this.player, origin, destination, transporterCount);
-	}
-
 	protected static Ships ships(ShipClassId shipClassId1, int count1) {
 		return new Ships(Map.of(shipClassId1, count1));
 	}
