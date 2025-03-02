@@ -65,6 +65,21 @@ export default class Theme {
 			spriteHeight: 9,
 			margin: 3,
 		},
+		transports: {
+			sprites: [
+				{ qualifier: 'transport-blue', x: 0, y: 0 },
+				{ qualifier: 'transport-green', x: 1, y: 0 },
+				{ qualifier: 'transport-purple', x: 2, y: 0 },
+				{ qualifier: 'transport-red', x: 3, y: 0 },
+				{ qualifier: 'transport-white', x: 4, y: 0 },
+				{ qualifier: 'transport-yellow', x: 5, y: 0 },
+			],
+			sheetWidth: 147,
+			sheetHeight: 15,
+			spriteWidth: 21,
+			spriteHeight: 9,
+			margin: 3,
+		},
 		planets: {
 			sprites: [
 				{ qualifier: 'planet-radiated', x: 5, y: 4 },
@@ -115,6 +130,16 @@ export default class Theme {
 				{ qualifier: 'ship-yellow-huge', x: 3, y: 3 },
 			],
 			...Theme.#SHIPS_SPRITE_SHEET,
+		},
+		inspector: {
+			sprites: [{ qualifier: 'inspector-transport', x: 0, y: 0 }],
+			sheetWidth: 213,
+			sheetHeight: 69,
+			spriteWidth: 207,
+			spriteHeight: 63,
+			margin: 3,
+			targetSpriteWidth: 207,
+			targetSpriteHeight: 63,
 		},
 	};
 

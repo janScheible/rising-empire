@@ -35,7 +35,7 @@ export default class RelocateShips extends HTMLElement {
 				<div>Select another star system under your control to redirect newly built ships to.</div>
 
 				<${Container.NAME} id="delay-section" direction="column" gap="M">
-					<div id="delay-container">Delay <span id="delay"></span> turns</div>
+					<div id="delay-container">Delay <span id="delay"></span> rounds</div>
 				</${Container.NAME}>
 
 				<${ContainerButtons.NAME} fill-horizontally>

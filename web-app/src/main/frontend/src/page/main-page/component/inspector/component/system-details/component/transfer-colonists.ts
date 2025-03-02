@@ -47,7 +47,7 @@ export default class TransferColonists extends HTMLElement {
 					<${Slider.NAME} id="colonists-slider"></${Slider.NAME}>
 					<div>Moving <span id="colonists"></span> million colonists.</div>
 					<${Container.NAME} direction="column" gap="M">
-						<div id="eta-container">ETA <span id="eta"></span> turns</div>
+						<div id="eta-container">ETA <span id="eta"></span> rounds</div>
 					</${Container.NAME}>
 				</${FlowLayout.NAME}>
 				

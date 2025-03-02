@@ -83,6 +83,7 @@ public class FleetViewMapper {
 				.player(fleet.player())
 				.race(empires.race(fleet.player()))
 				.ships(new ShipsView(ships))
+				.colonistTransporters(fleet.colonistTransport())
 				.source(Optional
 					.ofNullable(reconReport.itineraryRevealed() ? SystemIdMapper.toSystemId(itinerary.origin()) : null))
 				.destination(Optional.ofNullable(

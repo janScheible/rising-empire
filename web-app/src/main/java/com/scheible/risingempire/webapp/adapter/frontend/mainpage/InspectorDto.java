@@ -36,6 +36,8 @@ class InspectorDto {
 
 	EntityModel<FleetViewDto> fleetView;
 
+	EntityModel<TransportsDto> transports;
+
 	EntityModel<SpaceCombatDto> spaceCombat;
 
 	UnexploredDto unexplored;
@@ -128,6 +130,25 @@ class InspectorDto {
 			this.race = RaceDto.fromRace(race);
 			this.eta = eta;
 			this.ships = ships;
+		}
+
+	}
+
+	static class TransportsDto {
+
+		final PlayerDto playerColor;
+
+		final RaceDto race;
+
+		final int transports;
+
+		final Optional<Integer> eta;
+
+		TransportsDto(Player player, Race race, int transports, Optional<Integer> eta) {
+			this.playerColor = PlayerDto.fromPlayer(player);
+			this.race = RaceDto.fromRace(race);
+			this.transports = transports;
+			this.eta = eta;
 		}
 
 	}

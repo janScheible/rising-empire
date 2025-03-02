@@ -58,7 +58,7 @@ export default class FleetDeployment extends HTMLElement {
 				</${FlowLayout.NAME}>
 
 				<div id="eta-text">
-					ETA <span id="eta"></span> turns
+					ETA <span id="eta"></span> rounds
 				</div>
 				<div id="out-of-range-by-text">
 					Destination is out of range, <span id="out-of-range-by"></span> parsecs from closest colony

@@ -7,6 +7,7 @@ import SystemDetails from '~/page/main-page/component/inspector/component/system
 import SpaceCombat from '~/page/main-page/component/inspector/component/space-combat';
 import FleetView from '~/page/main-page/component/inspector/component/fleet-view';
 import Unexplored from '~/page/main-page/component/inspector/component/unexplored';
+import Transports from '~/page/main-page/component/inspector/component/transports';
 
 export default class Inspector extends HTMLElement {
 	static NAME = 're-inspector';
@@ -16,6 +17,7 @@ export default class Inspector extends HTMLElement {
 	#systemDetailsEl: SystemDetails;
 	#fleetDeploymentEl: FleetDeployment;
 	#fleetViewEl: FleetView;
+	#transportsEl: Transports;
 	#explorationEl: Exploration;
 	#colonizationEl: Colonization;
 	#annexationEl: Annexation;
@@ -41,6 +43,7 @@ export default class Inspector extends HTMLElement {
 			<${SystemDetails.NAME} hidden></${SystemDetails.NAME}>
 			<${FleetDeployment.NAME} hidden></${FleetDeployment.NAME}>
 			<${FleetView.NAME} hidden></${FleetView.NAME}>
+			<${Transports.NAME} hidden></${Transports.NAME}>
 			<${Exploration.NAME} hidden></${Exploration.NAME}>
 			<${Colonization.NAME} hidden></${Colonization.NAME}>
 			<${Annexation.NAME} hidden></${Annexation.NAME}>
@@ -51,6 +54,7 @@ export default class Inspector extends HTMLElement {
 		this.#systemDetailsEl = this.shadowRoot.querySelector(SystemDetails.NAME);
 		this.#fleetDeploymentEl = this.shadowRoot.querySelector(FleetDeployment.NAME);
 		this.#fleetViewEl = this.shadowRoot.querySelector(FleetView.NAME);
+		this.#transportsEl = this.shadowRoot.querySelector(Transports.NAME);
 		this.#explorationEl = this.shadowRoot.querySelector(Exploration.NAME);
 		this.#colonizationEl = this.shadowRoot.querySelector(Colonization.NAME);
 		this.#annexationEl = this.shadowRoot.querySelector(Annexation.NAME);
@@ -62,6 +66,7 @@ export default class Inspector extends HTMLElement {
 		this.#systemDetailsEl.render(data.systemDetails);
 		this.#fleetDeploymentEl.render(data.fleetDeployment);
 		this.#fleetViewEl.render(data.fleetView);
+		this.#transportsEl.render(data.transports);
 		this.#explorationEl.render(data.exploration);
 		this.#colonizationEl.render(data.colonization);
 		this.#annexationEl.render(data.annexation);

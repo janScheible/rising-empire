@@ -53,7 +53,7 @@ export default class FleetView extends HTMLElement {
 				</${FlowLayout.NAME}>
 
 				<div id="eta-text">
-					ETA <span id="eta"></span> turns
+					ETA <span id="eta"></span> rounds
 				</div>
 			</${Container.NAME}>`;
 

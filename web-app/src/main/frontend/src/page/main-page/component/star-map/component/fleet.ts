@@ -17,7 +17,10 @@ export default class Fleet extends HTMLElement {
 
 	static #logger: Logger = LoggerFactory.get(`${import.meta.url}`);
 
-	#fleetImageEl: HTMLImageElement;
+	#fleetSvgEl: SVGElement;
+	#transportSvgEl: SVGElement;
+
+	#imageEl: HTMLImageElement;
 
 	#selectAction;
 
@@ -32,37 +35,36 @@ export default class Fleet extends HTMLElement {
 					width: ${Fleet.WIDTH}px;
 					height: ${Fleet.HEIGHT}px;
 				}
+
+				svg {
+					fill: currentColor;
+				}				
 				
-				:host::before {
-					content: var(--fleet-before-content);
-					border-style: solid;
-					border-width: ${(Fleet.HEIGHT / 2) * 1.4}px ${Fleet.WIDTH * 1.2}px ${(Fleet.HEIGHT / 2) * 1.4}px 0px;
-					border-color: transparent var(--fleet-color) transparent transparent;
-					display: inline-block;
-					vertical-align: top;
-					margin-left: -${Fleet.WIDTH * 1.2 - Fleet.WIDTH}px;
-					margin-top: -${((Fleet.HEIGHT / 2) * 1.4 - Fleet.HEIGHT / 2) * 0.5}px;
-				}
-
-				:host(.oriented-right)::before {
-					border-width: ${(Fleet.HEIGHT / 2) * 1.4}px ${Fleet.WIDTH * 1.2}px ${(Fleet.HEIGHT / 2) * 1.4}px ${Fleet.WIDTH * 1.2}px;
-					border-color: transparent transparent transparent var(--fleet-color);
-					margin-left: 0px;
-				}
-
-				#fleet-image {
+				svg, #image {
 					padding-bottom: ${(Fleet.HEIGHT / 2) * 1.4}px;
 
 					transform: scaleX(-1);
 				}
 				
-				#fleet-image.oriented-right {
+				#fleet-svg.oriented-right, #transport-svg.oriented-right, #image.oriented-right {
 					transform: scaleX(1);
 				}
 			</style>
-			<img id="fleet-image"></img>`;
+			<svg id="fleet-svg" viewBox="0 0 200 80">
+				<rect x="28" y="24" width="172" height="32" shape-rendering="geometricPrecision"/>
+				<rect x="0" y="0" width="60" height="80" shape-rendering="geometricPrecision"/>
+			</svg>
+			<svg id="transport-svg" viewBox="0 0 200 80">
+				<rect x="0" y="25" width="160" height="30" shape-rendering="geometricPrecision"/>
+				<ellipse cx="126.4" cy="40" rx="60" ry="40" shape-rendering="geometricPrecision"/>
+				<rect x="0" y="0" width="50" height="80" shape-rendering="geometricPrecision"/>
+			</svg>
+			<img id="image"></img>`;
 
-		this.#fleetImageEl = this.shadowRoot.querySelector('#fleet-image');
+		this.#fleetSvgEl = this.shadowRoot.querySelector('#fleet-svg');
+		this.#transportSvgEl = this.shadowRoot.querySelector('#transport-svg');
+
+		this.#imageEl = this.shadowRoot.querySelector('#image');
 
 		this.addEventListener('click', (e) => {
 			if (this.#selectAction) {
@@ -79,25 +81,30 @@ export default class Fleet extends HTMLElement {
 	render(data) {
 		this.#selectAction = HypermediaUtil.getAction(data, 'select');
 
-		const fleetQualifier = `fleet-${data.playerColor}`;
-		const fleetImageDataUrl = Theme.getDataUrl(fleetQualifier);
+		const qualifier = !data.colonistTransporters ? `fleet-${data.playerColor}` : `transport-${data.playerColor}`;
+		const imageDataUrl = Theme.getDataUrl(qualifier);
 
 		const orientedRight = data.orbiting || data.horizontalDirection === 'right';
 
-		if (!fleetImageDataUrl) {
-			Reconciler.reconcileCssVariable(this, 'fleet-before-content', `''`);
-			Reconciler.reconcileProperty(this.#fleetImageEl, 'hidden', true);
+		Reconciler.reconcileStyle(this, 'color', `var(--${data.playerColor}-player-color)`);
 
-			Reconciler.reconcileCssVariable(this, 'fleet-color', `var(--${data.playerColor}-player-color)`);
+		if (!imageDataUrl) {
+			Reconciler.reconcileProperty(this.#imageEl, 'hidden', true);
 
-			Reconciler.reconcileClass(this, 'oriented-right', orientedRight);
+			Reconciler.reconcileStyle(this.#fleetSvgEl, 'display', !data.colonistTransporters ? 'initial' : 'none');
+			Reconciler.reconcileStyle(this.#transportSvgEl, 'display', data.colonistTransporters ? 'initial' : 'none');
+
+			Reconciler.reconcileClass(this.#fleetSvgEl, 'oriented-right', orientedRight);
+			Reconciler.reconcileClass(this.#transportSvgEl, 'oriented-right', orientedRight);
 		} else {
-			Reconciler.reconcileCssVariable(this, 'fleet-before-content', 'none');
-			Reconciler.reconcileProperty(this.#fleetImageEl, 'hidden', false);
+			Reconciler.reconcileStyle(this.#fleetSvgEl, 'display', 'none');
+			Reconciler.reconcileStyle(this.#transportSvgEl, 'display', 'none');
 
-			Reconciler.reconcileAttribute(this.#fleetImageEl, 'src', fleetImageDataUrl);
+			Reconciler.reconcileProperty(this.#imageEl, 'hidden', false);
 
-			Reconciler.reconcileClass(this.#fleetImageEl, 'oriented-right', orientedRight);
+			Reconciler.reconcileAttribute(this.#imageEl, 'src', imageDataUrl);
+
+			Reconciler.reconcileClass(this.#imageEl, 'oriented-right', orientedRight);
 		}
 
 		const previousLocation =

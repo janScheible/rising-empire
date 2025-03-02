@@ -190,6 +190,8 @@ class StarMapDto {
 
 		final PlayerDto playerColor;
 
+		final boolean colonistTransporters;
+
 		final Optional<Integer> previousX;
 
 		final Optional<Integer> previousY;
@@ -210,12 +212,13 @@ class StarMapDto {
 
 		final List<EntityModel<FleetDto>> fleetsBeforeArrival;
 
-		FleetDto(FleetId id, Player playerColor, Optional<Integer> previousX, Optional<Integer> previousY,
-				boolean previousJustLeaving, int x, int y, boolean orbiting, boolean justLeaving,
-				Optional<Integer> speed, Optional<HorizontalDirection> horizontalDirection,
+		FleetDto(FleetId id, Player playerColor, boolean colonistTransporters, Optional<Integer> previousX,
+				Optional<Integer> previousY, boolean previousJustLeaving, int x, int y, boolean orbiting,
+				boolean justLeaving, Optional<Integer> speed, Optional<HorizontalDirection> horizontalDirection,
 				List<EntityModel<FleetDto>> fleetsBeforeArrival) {
 			this.id = id.value();
 			this.playerColor = PlayerDto.fromPlayer(playerColor);
+			this.colonistTransporters = colonistTransporters;
 			this.previousX = previousX;
 			this.previousY = previousY;
 			this.previousJustLeaving = previousJustLeaving;

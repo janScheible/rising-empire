@@ -51,6 +51,7 @@ import com.scheible.risingempire.webapp.adapter.frontend.mainpage.InspectorDto.S
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.InspectorDto.SpaceCombatSystem;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.InspectorDto.SystemDetailsDto;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.InspectorDto.TransferColonistsDto;
+import com.scheible.risingempire.webapp.adapter.frontend.mainpage.InspectorDto.TransportsDto;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.InspectorDto.UnexploredDto;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.MainPageDto.ButtonBarDto;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.MainPageDto.TurnStatusDto;
@@ -172,14 +173,14 @@ public class MainPageDtoPopulator {
 			.getContent().fleets = gameView.fleets()
 				.values()
 				.stream()
-				.map(fleet -> new EntityModel<>(new FleetDto(fleet.id(), fleet.player(),
+				.map(fleet -> new EntityModel<>(new FleetDto(fleet.id(), fleet.player(), fleet.colonistTransporters(),
 						fleet.previousLocation().map(Location::x), fleet.previousLocation().map(Location::y),
 						fleet.previousJustLeaving(), fleet.location().x(), fleet.location().y(),
 						fleet.type() == FleetViewType.ORBITING, fleet.justLeaving(), fleet.speed(),
 						fleet.horizontalDirection(),
 						fleet.fleetsBeforeArrival()
 							.stream()
-							.map(fba -> new EntityModel<>(new FleetDto(fba.id(), fleet.player(),
+							.map(fba -> new EntityModel<>(new FleetDto(fba.id(), fleet.player(), false,
 									Optional.of(fba.location().x()), Optional.of(fba.location().y()), fba.justLeaving(),
 									fleet.location().x(), fleet.location().y(), !isSpaceCombatAttacker.test(fba.id()),
 									fba.justLeaving(), Optional.of(fba.speed()), Optional.of(fba.horizontalDirection()),
@@ -483,8 +484,21 @@ public class MainPageDtoPopulator {
 						toDtoShipList(ships, Optional.of(totalShips))));
 			}
 			else {
-				mainPage.inspector.fleetView = new EntityModel<>(new FleetViewDto(selectedFleet.player(),
-						selectedFleet.race(), Optional.empty(), toDtoShipList(ships, Optional.of(totalShips))));
+				if (!selectedFleet.colonistTransporters()) {
+					mainPage.inspector.fleetView = new EntityModel<>(new FleetViewDto(selectedFleet.player(),
+							selectedFleet.race(), Optional.empty(), toDtoShipList(ships, Optional.of(totalShips))));
+				}
+				else {
+					int transports = selectedFleet.ships()
+						.ships()
+						.entrySet()
+						.stream()
+						.map(Entry::getValue)
+						.findFirst()
+						.orElseThrow();
+					mainPage.inspector.transports = new EntityModel<>(new TransportsDto(selectedFleet.player(),
+							selectedFleet.race(), transports, Optional.empty()));
+				}
 			}
 		}
 		else if (state.isFleetDeploymentState()) {
@@ -506,8 +520,21 @@ public class MainPageDtoPopulator {
 									.map(twc -> new ActionField(twc.getKey().id().value(), twc.getValue()))));
 			}
 			else {
-				mainPage.inspector.fleetView = new EntityModel<>(new FleetViewDto(selectedFleet.player(),
-						selectedFleet.race(), eta, toDtoShipList(ships, Optional.empty())));
+				if (!selectedFleet.colonistTransporters()) {
+					mainPage.inspector.fleetView = new EntityModel<>(new FleetViewDto(selectedFleet.player(),
+							selectedFleet.race(), eta, toDtoShipList(ships, Optional.empty())));
+				}
+				else {
+					int transports = selectedFleet.ships()
+						.ships()
+						.entrySet()
+						.stream()
+						.map(Entry::getValue)
+						.findFirst()
+						.orElseThrow();
+					mainPage.inspector.transports = new EntityModel<>(
+							new TransportsDto(selectedFleet.player(), selectedFleet.race(), transports, eta));
+				}
 			}
 
 			mainPage.starMap.getContent().fleetSelection.itinerary = Optional
@@ -569,14 +596,14 @@ public class MainPageDtoPopulator {
 
 		if (player != null) {
 			destroyedFleetDtos.addAll(fleets.stream()
-				.map(fba -> new FleetDto(fba.id(), finalPlayer, Optional.of(fba.location().x()),
+				.map(fba -> new FleetDto(fba.id(), finalPlayer, false, Optional.of(fba.location().x()),
 						Optional.of(fba.location().y()), fba.justLeaving(), combatSystem.location().x(),
 						combatSystem.location().y(), finalOrbiting, false, Optional.of(fba.speed()),
 						Optional.of(fba.horizontalDirection()), List.of()))
 				.toList());
 
 			if (sc.outcome() == Outcome.ATTACKER_WON && sc.defenderFleet().isPresent()) {
-				destroyedFleetDtos.add(new FleetDto(sc.defenderFleet().get(), finalPlayer, Optional.empty(),
+				destroyedFleetDtos.add(new FleetDto(sc.defenderFleet().get(), finalPlayer, false, Optional.empty(),
 						Optional.empty(), false, combatSystem.location().x(), combatSystem.location().y(), true, false,
 						Optional.empty(), Optional.empty(), List.of()));
 			}

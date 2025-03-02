@@ -45,6 +45,8 @@ import Action from '~/util/action';
 import TransferColonistsStories from '~/storybook/stories/transfer-colonists-stories';
 import RelocateStories from '~/storybook/stories/relocate-ships-stories';
 import NewShipsPageStories from '~/storybook/stories/new-ships-page-stories';
+import FleetStories from '~/storybook/stories/fleet-stories';
+import TransportsStories from '~/storybook/stories/transports-stories';
 
 class Storybook extends HTMLElement {
 	static NAME = 're-storybook';
@@ -76,6 +78,7 @@ class Storybook extends HTMLElement {
 		'fleet-deployment-deployable-fleet': (story) =>
 			FleetDeploymentStories.showFleetDeploymentDeployableFleet(story),
 		'fleet-view': (story) => FleetViewStories.showFleetView(story),
+		transports: (story) => TransportsStories.showTransports(story),
 		'space-combat-in-explored-system': (story) => SpaceCombatStories.showSpaceCombatInExploredSystem(story),
 		'space-combat-in-unexplored-system': (story) => SpaceCombatStories.showSpaceCombatPageInUnexploredSystem(story),
 		'system-details-own-colony': (story) => SystemDetailsStories.showSystemDetailsOwnColony(story),
@@ -91,6 +94,7 @@ class Storybook extends HTMLElement {
 		unexplored: (story) => UnexploredStories.showUnexplored(story),
 		'star-map-notification': (story) => StarMapStories.showStarMapNotification(story),
 		star: (story) => StarStories.showStars(story),
+		fleet: (story) => FleetStories.showFleets(story),
 		'turn-finished-dialog-waiting-for-others': (story) =>
 			TurnFinishedDialogStories.showTurnFinishedDialogWaitingForOthers(story),
 		'new-ships-page': (story) => NewShipsPageStories.showNewShipsDialog(story),
@@ -178,7 +182,7 @@ class Storybook extends HTMLElement {
 							<option value="star-background" class="lv-1">star-background</option>
 							<option value="star-background-animated" data-animated-story class="lv-1">star-background-animated</option>
 							<option value="slider-group" class="lv-1">slider-group</option>
-							<option value="theme" class="lv-1">theme</option>							
+							<option value="theme" class="lv-1">theme</option>
 							<option value="theme-manager" data-animated-story class="lv-1">theme-manager</option>
 							<option value="rising-empire-logo" class="lv-1">rising-empire-logo</option>
 						<option disabled>game browser</option>
@@ -201,6 +205,7 @@ class Storybook extends HTMLElement {
 									<option value="exploration" class="lv-3">exploration</option>
 									<option value="fleet-deployment-deployable-fleet" class="lv-3">fleet-deployment for deployable fleet</option>
 									<option value="fleet-view" class="lv-3">fleet-view</option>
+									<option value="transports" class="lv-3">transports</option>
 									<option value="space-combat-in-explored-system" class="lv-3">space-combat in explored system</option>
 									<option value="space-combat-in-unexplored-system" class="lv-3">space-combat in unexplored system</option>
 									<option value="system-details-own-colony" class="lv-3">system-details for own colony</option>
@@ -216,6 +221,7 @@ class Storybook extends HTMLElement {
 								<option disabled class="lv-2">star-map</option>
 									<option value="star-map-notification" class="lv-3">star-map notification</option>
 									<option value="star" class="lv-3">star</option>
+									<option value="fleet" class="lv-3">fleet</option>
 								<option value="turn-finished-dialog-waiting-for-others" class="lv-2">turn-finished-dialog waiting for others</option>
 							<option value="new-ships-page" class="lv-1">new-ships-page</option>
 					</select>
@@ -225,7 +231,7 @@ class Storybook extends HTMLElement {
 
 				<${FlowLayout.NAME}" id="json">
 					<textarea id="render-data"></textarea>
-					<textarea id="render-data-original" hidden></textarea>				
+					<textarea id="render-data-original" hidden></textarea>
 				</${FlowLayout.NAME}">
 
 				<${ContainerButtons.NAME}>

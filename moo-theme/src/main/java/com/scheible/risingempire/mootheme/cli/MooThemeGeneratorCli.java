@@ -104,6 +104,14 @@ public class MooThemeGeneratorCli {
 							process(getImage.apply(starmap, 71), Scale.TRIPLE, -16_777_216),
 							process(getImage.apply(starmap, 72), Scale.TRIPLE, -16_777_216)));
 
+			BufferedImage transportsSheet = SpriteSheetGenerator.generate(3, true,
+					List.of(process(getImage.apply(starmap, 73), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 74), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 75), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 76), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 77), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(starmap, 78), Scale.TRIPLE, -16_777_216)));
+
 			BufferedImage starsSheet = SpriteSheetGenerator.generate(3, true,
 					List.of(process(getImage.apply(starmap, 9), Scale.TRIPLE, -16_777_216),
 							process(getImage.apply(starmap, 10), Scale.TRIPLE, -16_777_216),
@@ -235,6 +243,9 @@ public class MooThemeGeneratorCli {
 							process(getImage.apply(planets, 33), Scale.TRIPLE, -16_777_216),
 							process(getImage.apply(planets, 34), Scale.TRIPLE, -16_777_216)));
 
+			BufferedImage inspectorSheet = SpriteSheetGenerator.generate(3, true,
+					List.of(process(getImage.apply(starmap, 101), Scale.TRIPLE, -16_777_216)));
+
 			Set<String> races = new TextBinaryReader(10, 12,
 					new char[] { 'H', 'M', 'S', 'S', 'P', 'A', 'K', 'B', 'M', 'D' })
 				.read(Files.newInputStream(Path.of(orionDir.getAbsolutePath(), "ORION.EXE")));
@@ -244,10 +255,11 @@ public class MooThemeGeneratorCli {
 				.get();
 			Path themeZip = Path.of(targetDir.getAbsolutePath(), "moo-theme.zip");
 
-			writeZipFile(themeZip, sheetEntry("fleets.png", fleetsSheet), sheetEntry("stars.png", starsSheet),
-					sheetEntry("stars-small.png", starsSmallSheet), sheetEntry("ships-blue.png", shipsBlueSheet),
-					sheetEntry("ships-white.png", shipsWhiteSheet), sheetEntry("ships-yellow.png", shipsYellowSheet),
-					sheetEntry("planets.png", planetsSheet), sheetEntry("races.txt", races));
+			writeZipFile(themeZip, sheetEntry("fleets.png", fleetsSheet), sheetEntry("transports.png", transportsSheet),
+					sheetEntry("stars.png", starsSheet), sheetEntry("stars-small.png", starsSmallSheet),
+					sheetEntry("ships-blue.png", shipsBlueSheet), sheetEntry("ships-white.png", shipsWhiteSheet),
+					sheetEntry("ships-yellow.png", shipsYellowSheet), sheetEntry("planets.png", planetsSheet),
+					sheetEntry("inspector.png", inspectorSheet), sheetEntry("races.txt", races));
 			logger.info("Wrote ZIP file to ''{0}''.", themeZip);
 		}
 		catch (UncheckedIOException ex) {
