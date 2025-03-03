@@ -113,6 +113,7 @@ public class SystemViewMapper {
 						.annexable(as.annexable())
 						.annexationCommand(as.annexationCommand())
 						.build()))
+					.maxTransferPopulation((int) Math.floor(c.population().quantity() / 2))
 					.colonistTransfer(colonization.colonistTransfer(star.position())
 						.map(ct -> ColonistTransferView.builder()
 							.desination(SystemIdMapper.toColonyId(ct.destination()))

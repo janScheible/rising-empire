@@ -147,6 +147,7 @@ public class GameViewBuilder {
 									.annexable(isAnnexable.test(system))
 									.annexationCommand(hasAnnexCommand.test(system))
 									.build() : null))
+						.maxTransferPopulation(snapshot.getColonyPopulation().get() / 2)
 						.colonistTransfer(colonistTransfers.getOrDefault(snapshot.getId().toColonyId(), Map.of())
 							.entrySet()
 							.stream()

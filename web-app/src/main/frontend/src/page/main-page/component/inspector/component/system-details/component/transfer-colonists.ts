@@ -18,6 +18,10 @@ export default class TransferColonists extends HTMLElement {
 	#etaEl: HTMLSpanElement;
 	#acceptButton: HTMLButtonElement;
 
+	#chooseNumberTextEl: HTMLSpanElement;
+	#thresholdWarningTextEl: HTMLSpanElement;
+	#thresholdEl: HTMLSpanElement;
+
 	#cancelAction: Action;
 	#transferAction: Action;
 
@@ -37,13 +41,18 @@ export default class TransferColonists extends HTMLElement {
 				#header {
 					font-size: 150%;
 					text-align: center;
-				}	
+				}
+
+				#threshold-warning-text {
+					font-weight: bold;
+				}
 			</style>
 			<${Container.NAME} outer-gap="0px">
 				<div id="header">Transfer</div>
 				<div id="select-destination-star" hidden>Select a destination star system under your control to send colonists to.</div>
 				<${FlowLayout.NAME} id="choose-number" hidden direction="column">
-					Choose number of colonists to transfer.
+					<span id="choose-number-text">Choose number of colonists to transfer.</span>
+					<span id="threshold-warning-text">Warning - Target system can only support <span id="threshold"></span> million more!</span>
 					<${Slider.NAME} id="colonists-slider"></${Slider.NAME}>
 					<div>Moving <span id="colonists"></span> million colonists.</div>
 					<${Container.NAME} direction="column" gap="M">
@@ -63,6 +72,10 @@ export default class TransferColonists extends HTMLElement {
 		this.#colonistsSliderEl = this.shadowRoot.querySelector('#colonists-slider');
 		this.#colonistsEl = this.shadowRoot.querySelector('#colonists');
 		this.#etaEl = this.shadowRoot.querySelector('#eta');
+
+		this.#chooseNumberTextEl = this.shadowRoot.querySelector('#choose-number-text');
+		this.#thresholdWarningTextEl = this.shadowRoot.querySelector('#threshold-warning-text');
+		this.#thresholdEl = this.shadowRoot.querySelector('#threshold');
 
 		this.shadowRoot
 			.querySelector('#cancel')
@@ -87,6 +100,11 @@ export default class TransferColonists extends HTMLElement {
 			this.#transferAction = HypermediaUtil.getAction(data, 'transfer');
 
 			Reconciler.reconcileProperty(this.#selectDestinationStarEl, 'hidden', data.eta);
+
+			const showWarning = data.colonists > data.warningThreshold;
+			Reconciler.reconcileProperty(this.#chooseNumberTextEl, 'hidden', showWarning);
+			Reconciler.reconcileProperty(this.#thresholdWarningTextEl, 'hidden', !showWarning);
+			Reconciler.reconcileProperty(this.#thresholdEl, 'innerText', data.warningThreshold);
 
 			if (!Reconciler.isHiddenAfterPropertyReconciliation(this.#chooseNumberEl, !(data.eta > 0))) {
 				Reconciler.reconcileProperty(this.#colonistsEl, 'innerText', Math.round(data.colonists).toString());

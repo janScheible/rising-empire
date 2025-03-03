@@ -315,11 +315,14 @@ class InspectorDto {
 
 		final int maxColonists;
 
+		final int warningThreshold;
+
 		final Optional<Integer> eta;
 
-		TransferColonistsDto(int colonists, int maxColonists, Optional<Integer> eta) {
+		TransferColonistsDto(int colonists, int maxColonists, int warningThreshold, Optional<Integer> eta) {
 			this.colonists = colonists;
 			this.maxColonists = maxColonists;
+			this.warningThreshold = warningThreshold;
 			this.eta = eta;
 		}
 

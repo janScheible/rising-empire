@@ -270,6 +270,8 @@ public class MainPageDtoPopulator {
 			if (selectedSystem.starName().isPresent()) {
 				Optional<Integer> destinationEta = Optional.empty();
 				SystemView inspectedSystem = selectedSystem;
+				int transferWarningThreshold = 0;
+
 				if ((state.isTransferColonistsState() && !state.getSelectedSystemId()
 					.get()
 					.equals(state.asTransferColonistsState().getTransferSystemId()))
@@ -284,6 +286,12 @@ public class MainPageDtoPopulator {
 					destinationEta = context.getPlayerGame()
 						.calcTranportColonistsEta(selectedSystem.id(), destinationSystem.id())
 						.filter(eta -> destinationSystem.colony(gameView.player()).isPresent());
+
+					transferWarningThreshold = destinationSystem.colony()
+						.map(ColonyView::population)
+						.flatMap(population -> destinationSystem.planetMaxPopulation()
+							.map(maxPopulation -> maxPopulation - population))
+						.orElse(0);
 
 					mainPage.starMap.getContent().starSelection.itinerary = Optional
 						.of(new ItineraryDto(destinationSystem.location().x(), destinationSystem.location().y(),
@@ -335,29 +343,29 @@ public class MainPageDtoPopulator {
 												.map(SystemId::fromColonyId)
 												.orElse(selectedSystem.id())
 												.value()))),
-						state.isTransferColonistsState() ? Optional
-							.of(new EntityModel<>(new TransferColonistsDto(
-									selectedSystem.colony()
-										.get()
-										.colonistTransfer()
-										.map(ColonistTransferView::colonists)
-										.orElse(0),
-									selectedSystem.colony().map(ColonyView::population).map(p -> p / 2).orElseThrow(),
-									destinationEta))
-								.with(Action.get("cancel", context.toFrontendUri("main-page"))
-									.with("selectedStarId", selectedSystem.id().value()))
-								.with(destinationEta.isPresent(),
-										() -> Action
-											.jsonPost("transfer",
-													context.toFrontendUri("main-page", "inspector",
-															"colonist-transfers"))
-											.with("selectedStarId", selectedSystem.id().value())
-											.with("colonists", 0)
-											.with("transferColonyId",
-													state.asTransferColonistsState()
-														.getTransferSystemId()
-														.toColonyId()
-														.value())))
+						state.isTransferColonistsState()
+								? Optional.of(new EntityModel<>(new TransferColonistsDto(
+										selectedSystem.colony()
+											.get()
+											.colonistTransfer()
+											.map(ColonistTransferView::colonists)
+											.orElse(0),
+										selectedSystem.colony().get().maxTransferPopulation(), transferWarningThreshold,
+										destinationEta))
+									.with(Action.get("cancel", context.toFrontendUri("main-page"))
+										.with("selectedStarId", selectedSystem.id().value()))
+									.with(destinationEta.isPresent(),
+											() -> Action
+												.jsonPost("transfer",
+														context.toFrontendUri("main-page", "inspector",
+																"colonist-transfers"))
+												.with("selectedStarId", selectedSystem.id().value())
+												.with("colonists", 0)
+												.with("transferColonyId",
+														state.asTransferColonistsState()
+															.getTransferSystemId()
+															.toColonyId()
+															.value())))
 								: Optional.empty(),
 						state.isRelocateShipsState()
 								? Optional.of(
