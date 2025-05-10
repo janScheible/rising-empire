@@ -27,6 +27,13 @@ class ApiDependenciesTest {
 		.resideInAPackage("..game.impl2..");
 
 	@ArchTest
+	static final ArchRule impl2MustNotDependOnImpl2Rule = noClasses().that()
+		.resideInAPackage("..game.impl2..") //
+		.should()
+		.dependOnClassesThat()
+		.resideInAPackage("..game.impl..");
+
+	@ArchTest
 	static final ArchRule apiMustNotDependOnUtilRule = noClasses().that()
 		.resideInAPackage("..game.api..") //
 		.should()
