@@ -90,7 +90,6 @@ public class SystemViewMapper {
 								.map(design -> SpaceDockView.builder()
 									.current(ShipTypeView.builder()
 										.id(new ShipTypeId(design.id().value()))
-										.index(design.index())
 										.name(design.name())
 										.size(design.size())
 										.look(design.look())

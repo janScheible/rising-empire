@@ -23,7 +23,6 @@ public enum DesignSlot {
 	public ShipTypeView toShipType(ShipDesign design) {
 		return ShipTypeView.builder()
 			.id(new ShipTypeId(design.getName() + "@" + ordinal()))
-			.index(ordinal())
 			.name(design.getName())
 			.size(design.getSize())
 			.look(design.getLook())

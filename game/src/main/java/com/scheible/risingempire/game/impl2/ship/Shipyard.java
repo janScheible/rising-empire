@@ -27,22 +27,22 @@ public class Shipyard {
 
 	public ShipDesign design(Player player, ShipClassId shipClassId) {
 		if (shipClassId.value().equals("scout")) {
-			return new ShipDesign(new ShipClassId("scout"), 0, "Scout", ShipSize.SMALL, 0);
+			return new ShipDesign(new ShipClassId("scout"), "Scout", ShipSize.SMALL, 0);
 		}
 		else if (shipClassId.value().equals("colony-ship")) {
-			return new ShipDesign(new ShipClassId("colony-ship"), 0, "Colony Ship", ShipSize.LARGE, 0);
+			return new ShipDesign(new ShipClassId("colony-ship"), "Colony Ship", ShipSize.LARGE, 0);
 		}
 		else if (shipClassId.value().equals("fighter")) {
-			return new ShipDesign(new ShipClassId("fighter"), 0, "Fighter", ShipSize.SMALL, 0);
+			return new ShipDesign(new ShipClassId("fighter"), "Fighter", ShipSize.SMALL, 0);
 		}
 		else if (shipClassId.value().equals("destroyer")) {
-			return new ShipDesign(new ShipClassId("destroyer"), 0, "Destroyer", ShipSize.MEDIUM, 0);
+			return new ShipDesign(new ShipClassId("destroyer"), "Destroyer", ShipSize.MEDIUM, 0);
 		}
 		else if (shipClassId.value().equals("cruiser")) {
-			return new ShipDesign(new ShipClassId("cruiser"), 0, "Cruiser", ShipSize.LARGE, 0);
+			return new ShipDesign(new ShipClassId("cruiser"), "Cruiser", ShipSize.LARGE, 0);
 		}
 		else if (shipClassId.value().equals("_colonists_transporter")) {
-			return new ShipDesign(new ShipClassId("_colonists_transporter"), 0, "Transporter", ShipSize.LARGE, 0);
+			return new ShipDesign(new ShipClassId("_colonists_transporter"), "Transporter", ShipSize.LARGE, 0);
 		}
 		else {
 			throw new IllegalArgumentException("Unknown ship class '" + shipClassId + "'!");

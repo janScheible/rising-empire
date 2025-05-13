@@ -6,6 +6,6 @@ import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 /**
  * @author sj
  */
-public record ShipDesign(ShipClassId id, int index, String name, ShipSize size, int look) {
+public record ShipDesign(ShipClassId id, String name, ShipSize size, int look) {
 
 }

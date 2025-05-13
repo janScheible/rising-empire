@@ -105,8 +105,7 @@ public class FleetViewMapper {
 
 	public static ShipTypeView toShipTypeView(Player player, ShipClassId shipClassId, Shipyard shipyard) {
 		ShipDesign design = shipyard.design(player, shipClassId);
-		return new ShipTypeView(new ShipTypeId(shipClassId.value()), design.index(), design.name(), design.size(),
-				design.look());
+		return new ShipTypeView(new ShipTypeId(shipClassId.value()), design.name(), design.size(), design.look());
 	}
 
 	private static HorizontalDirection horizontalDirection(Itinerary itinerary) {
