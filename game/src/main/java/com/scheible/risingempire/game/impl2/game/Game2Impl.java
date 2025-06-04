@@ -1,6 +1,7 @@
 package com.scheible.risingempire.game.impl2.game;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -9,8 +10,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.Game;
+import com.scheible.risingempire.game.api.GameFactory.Savegame;
+import com.scheible.risingempire.game.api.GameOptions;
 import com.scheible.risingempire.game.api.PlayerGame;
 import com.scheible.risingempire.game.api.TurnStatus;
 import com.scheible.risingempire.game.api.universe.Player;
@@ -40,6 +42,7 @@ import com.scheible.risingempire.game.impl2.colonization.Colonization.ColonyComm
 import com.scheible.risingempire.game.impl2.colonization.Colonization.SpaceDockShipClass;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.TransferColonists;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
+import com.scheible.risingempire.game.impl2.common.Command;
 import com.scheible.risingempire.game.impl2.empire.Empire;
 import com.scheible.risingempire.game.impl2.empire.Empires;
 import com.scheible.risingempire.game.impl2.game.Adapters.AnnexedSystemsProviderAdapter;
@@ -92,6 +95,8 @@ import com.scheible.risingempire.game.impl2.view.SystemViewMapper;
 
 public class Game2Impl implements Game {
 
+	private final GameOptions gameOptions;
+
 	private final Universe universe;
 
 	private final Empires empires;
@@ -118,7 +123,7 @@ public class Game2Impl implements Game {
 
 	private final PlayerTurns playerTurns;
 
-	public Game2Impl(GalaxySize galaxySize, List<Empire> empires, List<Star> stars, List<Fleet> fleets) {
+	public Game2Impl(GameOptions gameOptions, List<Empire> empires, List<Star> stars, List<Fleet> fleets) {
 		ColoniesProviderAdapter coloniesProviderAdapter = new ColoniesProviderAdapter();
 		ShipMovementSpecsProviderAdapter shipMovementSpecsProviderAdapter = new ShipMovementSpecsProviderAdapter();
 		ColonyFleetProviderAdapter colonyFleetProviderAdapter = new ColonyFleetProviderAdapter();
@@ -140,8 +145,10 @@ public class Game2Impl implements Game {
 		DepartingColonistTransportsProviderAdpater departingColonistTransportsProviderAdpater = new DepartingColonistTransportsProviderAdpater();
 		ArrivingColonistTransportsProviderAdapter arrivingColonistTransportsProviderAdapter = new ArrivingColonistTransportsProviderAdapter();
 
-		this.universe = new Universe(LocationMapper.fromLocationValue(galaxySize.width()),
-				LocationMapper.fromLocationValue(galaxySize.height()), stars);
+		this.gameOptions = gameOptions;
+
+		this.universe = new Universe(LocationMapper.fromLocationValue(gameOptions.galaxySize().width()),
+				LocationMapper.fromLocationValue(gameOptions.galaxySize().height()), stars);
 		this.empires = new Empires(empires);
 		this.technology = new Technology(researchPointProviderAdapter);
 		this.shipyard = new Shipyard(buildCapacityProviderAdpater);
@@ -295,6 +302,19 @@ public class Game2Impl implements Game {
 						.map(f -> new ScanArea(f.location().current(),
 								this.technology.effectiveScanRange(f.player(), f.ships().counts().keySet()))))
 			.collect(Collectors.toSet());
+	}
+
+	@Override
+	public Savegame save() {
+		Map<Round, Map<Player, List<Command>>> commands = new HashMap<>();
+		commands.putAll(this.playerTurns.pastCommandMapping());
+		commands.put(this.round, this.playerTurns.commandMapping());
+
+		return new Savegame2Impl(this.gameOptions, 0L, commands);
+	}
+
+	void applyCommands(Player player, List<Command> commands) {
+		commands.forEach(command -> this.playerTurns.addCommand(player, command));
 	}
 
 	private class PlayerGame2Impl implements PlayerGame {

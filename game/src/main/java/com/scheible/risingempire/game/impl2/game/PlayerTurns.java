@@ -75,6 +75,12 @@ class PlayerTurns {
 			.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().turnFinished()));
 	}
 
+	Map<Player, List<Command>> commandMapping() {
+		return this.turnMapping.entrySet()
+			.stream()
+			.collect(Collectors.toMap(Entry::getKey, e -> new ArrayList<>(e.getValue().commands())));
+	}
+
 	Map<Round, Map<Player, List<Command>>> pastCommandMapping() {
 		return new HashMap<>(this.pastCommandsMapping);
 	}

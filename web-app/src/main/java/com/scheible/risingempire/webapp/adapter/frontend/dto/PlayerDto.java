@@ -30,4 +30,8 @@ public enum PlayerDto {
 		return PlayerDto.valueOf(player.name());
 	}
 
+	public Player toPlayer() {
+		return Player.valueOf(this.name());
+	}
+
 }

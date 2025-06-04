@@ -5,7 +5,7 @@ import java.util.Optional;
 /**
  * @author sj
  */
-public record Round(int quantity) {
+public record Round(int quantity) implements Comparable<Round> {
 
 	public Round {
 		if (quantity <= 0) {
@@ -24,6 +24,11 @@ public record Round(int quantity) {
 
 	public Round next() {
 		return new Round(this.quantity + 1);
+	}
+
+	@Override
+	public int compareTo(Round o) {
+		return Integer.compare(this.quantity, o.quantity);
 	}
 
 }

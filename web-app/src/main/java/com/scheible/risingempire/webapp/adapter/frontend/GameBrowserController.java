@@ -1,5 +1,7 @@
 package com.scheible.risingempire.webapp.adapter.frontend;
 
+import java.io.IOException;
+import java.lang.reflect.Proxy;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -9,23 +11,58 @@ import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.KeyDeserializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.scheible.risingempire.game.api.Game;
+import com.scheible.risingempire.game.api.GameFactory;
+import com.scheible.risingempire.game.api.GameFactory.Savegame;
 import com.scheible.risingempire.game.api.universe.Player;
+import com.scheible.risingempire.game.impl2.apiinternal.Round;
+import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
+import com.scheible.risingempire.game.impl2.army.Army.Annex;
+import com.scheible.risingempire.game.impl2.colonization.Colonization.AllocateResources;
+import com.scheible.risingempire.game.impl2.colonization.Colonization.Colonize;
+import com.scheible.risingempire.game.impl2.colonization.Colonization.SpaceDockShipClass;
+import com.scheible.risingempire.game.impl2.colonization.Colonization.TransferColonists;
+import com.scheible.risingempire.game.impl2.common.Command;
+import com.scheible.risingempire.game.impl2.game.Game2Impl;
+import com.scheible.risingempire.game.impl2.game.Savegame2Impl;
+import com.scheible.risingempire.game.impl2.navy.Navy.DeployJustLeaving;
+import com.scheible.risingempire.game.impl2.navy.Navy.DeployOrbiting;
+import com.scheible.risingempire.game.impl2.navy.Navy.RelocateShips;
+import com.scheible.risingempire.game.impl2.technology.Technology.AllocateResearch;
+import com.scheible.risingempire.game.impl2.technology.Technology.SelectTechnology;
 import com.scheible.risingempire.webapp.adapter.frontend.GameBrowserDto.GameLauncherDto;
 import com.scheible.risingempire.webapp.adapter.frontend.GameBrowserDto.RunningGameDto;
 import com.scheible.risingempire.webapp.adapter.frontend.GameBrowserDto.RunningGameDto.RunningGamePlayerDto;
 import com.scheible.risingempire.webapp.adapter.frontend.dto.PlayerDto;
 import com.scheible.risingempire.webapp.game.GameHolder;
 import com.scheible.risingempire.webapp.game.GameManager;
+import com.scheible.risingempire.webapp.game.SynchronizedGameProxyFactory.GameInvocationHandler;
 import com.scheible.risingempire.webapp.hypermedia.Action;
 import com.scheible.risingempire.webapp.hypermedia.EntityModel;
 import com.scheible.risingempire.webapp.notification.NotificationService;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.info.GitProperties;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -51,6 +88,9 @@ class GameBrowserController {
 
 	private final Optional<BuildProperties> buildProperties;
 
+	private final ObjectMapper savegameObjectMapper = new ObjectMapper().registerModule(new Jdk8Module())
+		.registerModule(createSavegameModule());
+
 	GameBrowserController(GameHolder gameHolder, GameManager gameManager, NotificationService notificationService,
 			Optional<GitProperties> gitProperties, Optional<BuildProperties> buildProperties) {
 		this.gameHolder = gameHolder;
@@ -72,12 +112,15 @@ class GameBrowserController {
 
 		return ResponseEntity.ok(new GameBrowserDto(new EntityModel<>(
 				new GameLauncherDto(defaultGameId, List.of(PlayerDto.YELLOW, PlayerDto.BLUE, PlayerDto.WHITE)))
-			.with(Action.get("start", "games", "{gameId}", "{player}").with("gameId", null).with("player", null)),
+			.with(Action.get("start", "games", "{gameId}", "{player}").with("gameId", null).with("player", null))
+			.with(Action.jsonPost("load", "game-browser", "games")),
 				this.gameHolder.getGameIds()
 					.stream()
 					.map(gameId -> new EntityModel<>(new RunningGameDto(gameId, toRunningGamePlayers(gameId),
 							this.gameHolder.get(gameId).get().round()))
-						.with(Action.delete("stop", "game-browser", "games", gameId)))
+						.with(Action.delete("stop", "game-browser", "games", gameId))
+						.with(isGame2(this.gameHolder.get(gameId).get()),
+								() -> Action.get("save", "game-browser", "games", gameId)))
 					.toList(),
 				this.gitProperties.map(GitProperties::getShortCommitId),
 				this.buildProperties.map(BuildProperties::getTime)
@@ -104,6 +147,16 @@ class GameBrowserController {
 		return result;
 	}
 
+	private boolean isGame2(Game game) {
+		if (Proxy.isProxyClass(game.getClass())
+				&& Proxy.getInvocationHandler(game) instanceof GameInvocationHandler gameInvocationHandler) {
+			return gameInvocationHandler.getGame() instanceof Game2Impl;
+		}
+		else {
+			return false;
+		}
+	}
+
 	@DeleteMapping(path = "/game-browser/games/{gameId}/{player}")
 	ResponseEntity<Object> kickPlayer(@PathVariable String gameId, @PathVariable Player player) {
 		this.gameManager.kickPlayer(gameId, player);
@@ -114,6 +167,91 @@ class GameBrowserController {
 	ResponseEntity<Object> stopGame(@PathVariable String gameId) {
 		this.gameManager.stopGame(gameId);
 		return ResponseEntity.ok(new Object());
+	}
+
+	@GetMapping(path = "/game-browser/games/{gameId}")
+	ResponseEntity<String> saveGame(@PathVariable String gameId) throws JsonProcessingException {
+		Savegame savegame = this.gameManager.saveGame(gameId);
+		// the JSON must be serialized manually to use `this.saveGameObjectMapper`
+		return ResponseEntity.ok(this.savegameObjectMapper.writeValueAsString(savegame));
+	}
+
+	@PostMapping(path = "/game-browser/games", consumes = APPLICATION_JSON_VALUE)
+	ResponseEntity<String> loadGame(@RequestBody SavegameBodyDto savegameBody) {
+		Savegame savegame;
+
+		try {
+			// the JSON must be deserialized manually to use `this.saveGameObjectMapper`
+			savegame = this.savegameObjectMapper.readValue(savegameBody.savegame(), Savegame2Impl.class);
+		}
+		catch (JsonProcessingException ex) {
+			return ResponseEntity
+				.of(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
+						"Invalid JSON file. Only game 2 savegames can be loaded."))
+				.build();
+		}
+
+		Game game = GameFactory.get().load(savegame);
+
+		this.gameManager.startGame(savegameBody.gameId(), savegameBody.player().toPlayer(), game, Optional.empty());
+
+		return ResponseEntity.status(HttpStatus.SEE_OTHER).header(HttpHeaders.LOCATION, "/game-browser").build();
+	}
+
+	private static SimpleModule createSavegameModule() {
+		SimpleModule module = new SimpleModule();
+
+		module.addKeySerializer(Round.class, new JsonSerializer<Round>() {
+			@Override
+			public void serialize(Round round, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+				gen.writeFieldName(Integer.toString(round.quantity()));
+			}
+		});
+		module.addKeyDeserializer(Round.class, new KeyDeserializer() {
+			@Override
+			public Round deserializeKey(String key, DeserializationContext ctxt) throws IOException {
+				return new Round(Integer.parseInt(key));
+			}
+		});
+
+		module.addKeySerializer(ShipClassId.class, new JsonSerializer<ShipClassId>() {
+			@Override
+			public void serialize(ShipClassId value, JsonGenerator gen, SerializerProvider serializers)
+					throws IOException {
+				gen.writeFieldName(value.value());
+			}
+		});
+		module.addKeyDeserializer(ShipClassId.class, new KeyDeserializer() {
+			@Override
+			public ShipClassId deserializeKey(String key, DeserializationContext ctxt) throws IOException {
+				return new ShipClassId(key);
+			}
+		});
+
+		module.setMixInAnnotation(Command.class, CommandMixin.class);
+		return module;
+	}
+
+	@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "_type")
+	@JsonSubTypes({ //
+			@Type(value = Annex.class, name = "Annex"), //
+			@Type(value = Colonize.class, name = "Colonize"), //
+			@Type(value = AllocateResources.class, name = "AllocateResources"), //
+			@Type(value = SpaceDockShipClass.class, name = "SpaceDockShipClass"), //
+			@Type(value = TransferColonists.class, name = "TransferColonists"), //
+			@Type(value = RelocateShips.class, name = "RelocateShips"), //
+			@Type(value = DeployJustLeaving.class, name = "DeployJustLeaving"), //
+			@Type(value = DeployOrbiting.class, name = "DeployOrbiting"), //
+			@Type(value = AllocateResearch.class, name = "AllocateResearch"), //
+			@Type(value = SelectTechnology.class, name = "SelectTechnology"),
+
+	})
+	private abstract class CommandMixin {
+
+	}
+
+	public record SavegameBodyDto(String savegame, PlayerDto player, String gameId) {
+
 	}
 
 }

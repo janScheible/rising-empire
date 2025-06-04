@@ -237,7 +237,7 @@ public class GameFactoryImpl implements GameFactory {
 	}
 
 	@Override
-	public Game load(Object whatEver) {
+	public Game load(Savegame savegame) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 

@@ -14,13 +14,22 @@ export default class FetchUtil {
 			const json = await response.json();
 
 			if (!response.ok) {
-				throw new Error(`${json.error} (${response.status}) for ${json.message} in ${json.path}`);
+				throw new Error(`${json.error} (${response.status}) for ${json.message} in ${json.path}`, {
+					cause: {
+						httpStatus: response.status,
+						detail: json.detail,
+					},
+				});
 			} else {
 				return json;
 			}
 		} catch (error) {
 			console.error(error);
-			alert('A backend error occurred, please reload the page.');
+			if (error.cause.httpStatus === 400) {
+				alert(error.cause.detail);
+			} else {
+				alert('A backend error occurred, please reload the page.');
+			}
 		}
 	}
 }

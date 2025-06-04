@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.Game;
+import com.scheible.risingempire.game.api.GameFactory.Savegame;
 import com.scheible.risingempire.game.api.GameOptions;
 import com.scheible.risingempire.game.api.GameOptions.FakeSystemNotificationProvider;
 import com.scheible.risingempire.game.api.GameOptions.FakeTechProvider;
@@ -618,6 +619,11 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 	@Override
 	public int round() {
 		return this.round;
+	}
+
+	@Override
+	public Savegame save() {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 }

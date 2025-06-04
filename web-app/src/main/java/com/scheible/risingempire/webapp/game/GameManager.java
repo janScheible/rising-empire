@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.Game;
+import com.scheible.risingempire.game.api.GameFactory.Savegame;
 import com.scheible.risingempire.game.api.TurnStatus;
 import com.scheible.risingempire.game.api._testgame.TestScenario;
 import com.scheible.risingempire.game.api.universe.Player;
@@ -107,6 +108,10 @@ public class GameManager {
 		this.gameHolder.removeGame(gameId);
 
 		this.notificationService.broadcast("game-change");
+	}
+
+	public Savegame saveGame(String gameId) {
+		return this.gameHolder.get(gameId).get().save();
 	}
 
 }

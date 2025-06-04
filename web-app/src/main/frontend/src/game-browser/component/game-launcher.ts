@@ -6,15 +6,18 @@ import LaunchGameUtil from '~/game-browser/component/launch-game-util';
 import HypermediaUtil from '~/util/hypermedia-util';
 import GridLayout from '~/component/grid-layout';
 import ContainerButtons from '~/component/container-buttons';
+import Action from '~/util/action';
 
 export default class GameLauncher extends HTMLElement {
 	static NAME = 're-game-launcher';
 
-	#startEl: HTMLButtonElement;
 	#gameIdEl: HTMLInputElement;
 	#playerEl: HTMLSelectElement;
+	#savegameEl: HTMLInputElement;
+	#startOrLoadButtonEl: HTMLButtonElement;
 
-	#startAction;
+	#startAction: Action;
+	#loadAction: Action;
 
 	constructor() {
 		super();
@@ -24,7 +27,7 @@ export default class GameLauncher extends HTMLElement {
 				@import ${cssUrl('~/element.css', import.meta.url)};
 
 				#inputs {
-					max-width: 370px;
+					max-width: 450px;
 				}
 
 				#header {
@@ -42,37 +45,58 @@ export default class GameLauncher extends HTMLElement {
 
 					<label for="player">Player color:</label>
 					<select id="player"></select>
+
+					<label for="savegame">Savegame:</label>
+					<input id="savegame" type="file" accept="application/json">
 				</${GridLayout.NAME}>
 
 				<${ContainerButtons.NAME}>
-					<button id="start-button" disabled>Start</button>
+					<button id="start-or-load-button" disabled>Start</button>
 				</${ContainerButtons.NAME}>
 			</${Container.NAME}>`;
 
-		this.#startEl = this.shadowRoot.querySelector('#start-button');
+		this.#startOrLoadButtonEl = this.shadowRoot.querySelector('#start-or-load-button');
 
 		this.#gameIdEl = this.shadowRoot.querySelector('#game-id') as HTMLInputElement;
-
-		this.#gameIdEl.addEventListener('input', (event) => (this.#startEl.disabled = this.#disableStartButton()));
+		this.#gameIdEl.addEventListener(
+			'input',
+			(event) => (this.#startOrLoadButtonEl.disabled = this.#disableStartButton())
+		);
 
 		this.#playerEl = this.shadowRoot.querySelector('#player') as HTMLSelectElement;
+		this.#savegameEl = this.shadowRoot.querySelector('#savegame');
 
-		this.shadowRoot.querySelector('#start-button').addEventListener('click', (event: MouseEvent) => {
+		this.#startOrLoadButtonEl.addEventListener('click', (event: MouseEvent) => {
 			const gameId = this.#gameIdEl.value;
 			const player = this.#playerEl.value;
+			const file = this.#savegameEl.files[0];
 
-			LaunchGameUtil.launchUrlTemplate(this.#startAction.href, gameId, player, event.ctrlKey);
+			if (file) {
+				const reader = new FileReader();
+				reader.onload = (event) => {
+					this.#savegameEl.value = null;
+					this.#startOrLoadButtonEl.innerText = 'Start';
+
+					HypermediaUtil.submitAction(this.#loadAction, { savegame: event.target.result, player, gameId });
+				};
+				reader.readAsText(file);
+			} else {
+				LaunchGameUtil.launchUrlTemplate(this.#startAction.href, gameId, player, event.ctrlKey);
+			}
 		});
+
+		this.#savegameEl.addEventListener('change', (event) => (this.#startOrLoadButtonEl.innerText = 'Load'));
 	}
 
 	render(data) {
 		this.#startAction = HypermediaUtil.getAction(data, 'start');
+		this.#loadAction = HypermediaUtil.getAction(data, 'load');
 
 		if (this.#gameIdEl.value === '#INIT#') {
 			Reconciler.reconcileAttribute(this.#gameIdEl, 'value', data.defaultGameId ?? '');
 		}
 
-		Reconciler.reconcileProperty(this.#startEl, 'disabled', this.#disableStartButton());
+		Reconciler.reconcileProperty(this.#startOrLoadButtonEl, 'disabled', this.#disableStartButton());
 
 		Reconciler.reconcileChildren(
 			this.#playerEl,

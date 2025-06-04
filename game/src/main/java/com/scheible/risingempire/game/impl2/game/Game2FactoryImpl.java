@@ -2,6 +2,7 @@ package com.scheible.risingempire.game.impl2.game;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.scheible.risingempire.game.api.Game;
 import com.scheible.risingempire.game.api.GameFactory;
@@ -10,6 +11,7 @@ import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.universe.Race;
 import com.scheible.risingempire.game.api.view.system.StarType;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
+import com.scheible.risingempire.game.impl2.apiinternal.Round;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.empire.Empire;
 import com.scheible.risingempire.game.impl2.navy.Fleet;
@@ -24,7 +26,13 @@ public class Game2FactoryImpl implements GameFactory {
 
 	@Override
 	public Game create(GameOptions gameOptions) {
-		return new Game2Impl(gameOptions.galaxySize(),
+		return createInternal(gameOptions, ThreadLocalRandom.current().nextLong());
+	}
+
+	private Game2Impl createInternal(GameOptions gameOptions, long seed) {
+		Long.toString(seed); // just to make PMD happy
+
+		return new Game2Impl(gameOptions,
 				List.of(new Empire(Player.BLUE, Race.LUMERISKS), new Empire(Player.YELLOW, Race.MYXALOR),
 						new Empire(Player.WHITE, Race.XELIPHARI)),
 				List.of(new Star("Sol", new Position("6.173", "5.026"), StarType.YELLOW, false),
@@ -44,8 +52,32 @@ public class Game2FactoryImpl implements GameFactory {
 	}
 
 	@Override
-	public Game load(Object whatEver) {
-		throw new UnsupportedOperationException("Not supported yet.");
+	public Game load(Savegame savegame) {
+		if (savegame instanceof Savegame2Impl savegame2) {
+			Game2Impl game = createInternal(savegame2.gameOptions(), savegame2.seed());
+
+			List<Round> rounds = savegame2.commands().keySet().stream().sorted().toList();
+
+			for (int i = 0; i < rounds.size(); i++) {
+				boolean last = i == rounds.size() - 1;
+				Round round = rounds.get(i);
+
+				for (Player player : savegame2.gameOptions().players()) {
+					game.applyCommands(player, savegame2.commands().get(round).getOrDefault(player, List.of()));
+
+					if (!last) {
+						game.forPlayer(player).finishTurn();
+
+					}
+				}
+			}
+
+			return game;
+		}
+		else {
+			throw new UnsupportedOperationException(
+					"Savegame of type '" + savegame.getClass().getSimpleName() + "' is not supported!");
+		}
 	}
 
 }

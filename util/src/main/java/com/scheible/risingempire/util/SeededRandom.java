@@ -5,7 +5,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Custom random class to make sure that it is used in places where a explicit seed is
- * usefull.
+ * useful.
  *
  * @author sj
  */

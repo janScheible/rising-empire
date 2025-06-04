@@ -2,6 +2,7 @@ package com.scheible.risingempire.game.api;
 
 import java.util.Set;
 
+import com.scheible.risingempire.game.api.GameFactory.Savegame;
 import com.scheible.risingempire.game.api.universe.Player;
 
 /**
@@ -24,5 +25,7 @@ public interface Game {
 	 * turns.
 	 */
 	int round();
+
+	Savegame save();
 
 }

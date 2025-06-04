@@ -15,7 +15,7 @@ public interface GameFactory {
 
 	Game create(GameOptions gameOptions);
 
-	Game load(Object whatEver);
+	Game load(Savegame savegame);
 
 	/*
 	 * See https://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom
@@ -28,21 +28,29 @@ public interface GameFactory {
 
 			@Override
 			public Game create(GameOptions gameOptions) {
+				return gameFactory(gameOptions).create(gameOptions);
+			}
+
+			@Override
+			public Game load(Savegame savegame) {
+				return gameFactory(savegame.gameOptions()).load(savegame);
+			}
+
+			private static GameFactory gameFactory(GameOptions gameOptions) {
 				return GAME_FACTORIES.stream()
 					.filter(service -> service.type().getPackageName().contains(".impl2.") == gameOptions.game2())
 					.findFirst()
 					.orElseThrow()
-					.get()
-					.create(gameOptions);
-			}
-
-			@Override
-			public Game load(Object whatEver) {
-				// the passed input has to be inspected if game2 or not
-				throw new UnsupportedOperationException("Not supported yet.");
+					.get();
 			}
 
 		};
+
+	}
+
+	interface Savegame {
+
+		GameOptions gameOptions();
 
 	}
 

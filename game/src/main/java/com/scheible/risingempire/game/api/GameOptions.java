@@ -62,6 +62,10 @@ public record GameOptions(GalaxySize galaxySize, int playerCount,
 		return this.spaceCombatOutcome;
 	}
 
+	public Set<Player> players() {
+		return Set.of(Player.BLUE, Player.YELLOW, Player.WHITE);
+	}
+
 	@FunctionalInterface
 	public interface FakeTechProvider {
 
