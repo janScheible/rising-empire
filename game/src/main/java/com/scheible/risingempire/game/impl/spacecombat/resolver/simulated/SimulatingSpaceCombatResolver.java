@@ -42,6 +42,7 @@ public class SimulatingSpaceCombatResolver implements SpaceCombatResolver {
 		this.random = random;
 	}
 
+	// CPD-OFF
 	@Override
 	public SpaceCombat resolve(SystemId systemId, OrbitingFleet defending, DeployedFleet attacking,
 			ShipDesignProvider shipDesignProvider) {
@@ -195,6 +196,7 @@ public class SimulatingSpaceCombatResolver implements SpaceCombatResolver {
 			exchanges.add(current);
 		}
 	}
+	// CPD-ON
 
 	static class SpaceCombatSummary {
 

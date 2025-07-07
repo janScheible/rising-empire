@@ -35,6 +35,7 @@ import com.scheible.risingempire.game.impl2.intelligence.system.ColonyIntelProvi
 import com.scheible.risingempire.game.impl2.intelligence.system.OrbitingFleetsProvider;
 import com.scheible.risingempire.game.impl2.navy.ColonyShipSpecsProvider;
 import com.scheible.risingempire.game.impl2.navy.DepartingColonistTransportsProvider;
+import com.scheible.risingempire.game.impl2.navy.DestroyedShipsProvider;
 import com.scheible.risingempire.game.impl2.navy.Fleet;
 import com.scheible.risingempire.game.impl2.navy.Navy;
 import com.scheible.risingempire.game.impl2.navy.NewColoniesProvider;
@@ -42,8 +43,18 @@ import com.scheible.risingempire.game.impl2.navy.NewShipsProvider;
 import com.scheible.risingempire.game.impl2.navy.eta.ColoniesProvider;
 import com.scheible.risingempire.game.impl2.navy.eta.ShipMovementSpecsProvider;
 import com.scheible.risingempire.game.impl2.ship.BuildCapacityProvider;
+import com.scheible.risingempire.game.impl2.ship.ShipDesign;
 import com.scheible.risingempire.game.impl2.ship.Shipyard;
+import com.scheible.risingempire.game.impl2.ship.weapon.BeamWeapon;
+import com.scheible.risingempire.game.impl2.ship.weapon.Missile;
+import com.scheible.risingempire.game.impl2.ship.weapon.Weapon;
 import com.scheible.risingempire.game.impl2.spaceforce.EncounteringFleetShipsProvider;
+import com.scheible.risingempire.game.impl2.spaceforce.SpaceForce;
+import com.scheible.risingempire.game.impl2.spaceforce.combat.ShipCombatSpecs;
+import com.scheible.risingempire.game.impl2.spaceforce.combat.ShipCombatSpecsProvider;
+import com.scheible.risingempire.game.impl2.spaceforce.combat.weapon.CombatBeamWeapon;
+import com.scheible.risingempire.game.impl2.spaceforce.combat.weapon.CombatMissile;
+import com.scheible.risingempire.game.impl2.spaceforce.combat.weapon.CombatWeapon;
 import com.scheible.risingempire.game.impl2.technology.ResearchPointProvider;
 import com.scheible.risingempire.game.impl2.technology.ShipScannerCapability;
 import com.scheible.risingempire.game.impl2.technology.Technology;
@@ -287,7 +298,8 @@ public final class Adapters {
 				.collect(Collectors.groupingBy(f -> f.location().current(),
 						Collectors.collectingAndThen(Collectors.toCollection(ArrayList::new),
 								fleets -> fleets.stream()
-									.map(f -> new EncounteringFleet(f.player(), f.ships().counts(),
+									.map(f -> new EncounteringFleet(f.player(),
+											f.location().asOrbit().orElseThrow().system(), f.ships(),
 											f.location()
 												.asOrbit()
 												.orElseThrow()
@@ -413,6 +425,52 @@ public final class Adapters {
 			return this.delegate.arrivedColonistTransports()
 				.stream()
 				.map(act -> new ArrivingColonistTransport(act.player(), act.destination(), act.transporters()))
+				.collect(Collectors.toSet());
+		}
+
+	}
+
+	public static class ShipCombatSpecsProviderAdapter implements ShipCombatSpecsProvider {
+
+		private Shipyard delegate;
+
+		public void delegate(Shipyard delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public ShipCombatSpecs shipCombatSpecs(Player player, ShipClassId shipClassId) {
+			ShipDesign design = this.delegate.design(player, shipClassId);
+
+			return new ShipCombatSpecs(shipClassId, design.hitPoints(), design.hitsAbsorbedByShield(),
+					design.beamDefence(), design.missileDefence(), design.initiative(), design.combatSpeed(),
+					design.weapons()
+						.entrySet()
+						.stream()
+						.collect(Collectors.toMap(e -> toCombatWeapon(e.getKey()), Entry::getValue)),
+					this.delegate.battleScanner(player, shipClassId));
+		}
+
+		private CombatWeapon toCombatWeapon(Weapon weapon) {
+			return weapon instanceof BeamWeapon ? new CombatBeamWeapon(weapon.name(), weapon.damage())
+					: new CombatMissile(weapon.name(), weapon.damage(), ((Missile) weapon).rackSize());
+		}
+
+	}
+
+	public static class DestroyedShipsProviderAdapter implements DestroyedShipsProvider {
+
+		private SpaceForce delegate;
+
+		public void delegate(SpaceForce delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Set<DestroyedShips> destroyedShips() {
+			return this.delegate.spaceCombatFleets()
+				.stream()
+				.map(df -> new DestroyedShips(df.player(), df.position(), df.ships()))
 				.collect(Collectors.toSet());
 		}
 

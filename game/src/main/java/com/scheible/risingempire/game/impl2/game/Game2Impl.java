@@ -53,6 +53,7 @@ import com.scheible.risingempire.game.impl2.game.Adapters.ColonyFleetProviderAda
 import com.scheible.risingempire.game.impl2.game.Adapters.ColonyIntelProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ColonyShipSpecsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.DepartingColonistTransportsProviderAdpater;
+import com.scheible.risingempire.game.impl2.game.Adapters.DestroyedShipsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.EncounteringFleetShipsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.FleetItinearySegmentProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.InitialShipClassProviderAdapter;
@@ -61,6 +62,7 @@ import com.scheible.risingempire.game.impl2.game.Adapters.NewShipsProviderAdapte
 import com.scheible.risingempire.game.impl2.game.Adapters.OrbitingFleetsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ResearchPointProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ScanAreasProviderAdapter;
+import com.scheible.risingempire.game.impl2.game.Adapters.ShipCombatSpecsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ShipCostProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ShipMovementSpecsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ShipScannerSpecsProviderAdapter;
@@ -78,8 +80,10 @@ import com.scheible.risingempire.game.impl2.navy.Navy.ShipDeployment;
 import com.scheible.risingempire.game.impl2.navy.Ships;
 import com.scheible.risingempire.game.impl2.navy.eta.EtaCalculator;
 import com.scheible.risingempire.game.impl2.ship.Shipyard;
-import com.scheible.risingempire.game.impl2.spaceforce.RetreatingFleet;
+import com.scheible.risingempire.game.impl2.spaceforce.SpaceCombatFleet;
 import com.scheible.risingempire.game.impl2.spaceforce.SpaceForce;
+import com.scheible.risingempire.game.impl2.spaceforce.combat.SpaceCombatResolver;
+import com.scheible.risingempire.game.impl2.spaceforce.combat.SpaceCombatResolverImpl;
 import com.scheible.risingempire.game.impl2.technology.Technology;
 import com.scheible.risingempire.game.impl2.technology.Technology.SelectTechnology;
 import com.scheible.risingempire.game.impl2.universe.Star;
@@ -90,8 +94,10 @@ import com.scheible.risingempire.game.impl2.view.FleetIdMapper.DomainFleetId;
 import com.scheible.risingempire.game.impl2.view.FleetIdMapper.OrbitingFleetId;
 import com.scheible.risingempire.game.impl2.view.FleetViewMapper;
 import com.scheible.risingempire.game.impl2.view.LocationMapper;
+import com.scheible.risingempire.game.impl2.view.SpaceCombatViewMapper;
 import com.scheible.risingempire.game.impl2.view.SystemIdMapper;
 import com.scheible.risingempire.game.impl2.view.SystemViewMapper;
+import com.scheible.risingempire.util.SeededRandom;
 
 public class Game2Impl implements Game {
 
@@ -123,7 +129,8 @@ public class Game2Impl implements Game {
 
 	private final PlayerTurns playerTurns;
 
-	public Game2Impl(GameOptions gameOptions, List<Empire> empires, List<Star> stars, List<Fleet> fleets) {
+	public Game2Impl(GameOptions gameOptions, List<Empire> empires, List<Star> stars, List<Fleet> fleets,
+			SeededRandom seededRandom) {
 		ColoniesProviderAdapter coloniesProviderAdapter = new ColoniesProviderAdapter();
 		ShipMovementSpecsProviderAdapter shipMovementSpecsProviderAdapter = new ShipMovementSpecsProviderAdapter();
 		ColonyFleetProviderAdapter colonyFleetProviderAdapter = new ColonyFleetProviderAdapter();
@@ -144,8 +151,13 @@ public class Game2Impl implements Game {
 		AnnexedSystemsProviderAdapter annexedSystemsProviderAdapter = new AnnexedSystemsProviderAdapter();
 		DepartingColonistTransportsProviderAdpater departingColonistTransportsProviderAdpater = new DepartingColonistTransportsProviderAdpater();
 		ArrivingColonistTransportsProviderAdapter arrivingColonistTransportsProviderAdapter = new ArrivingColonistTransportsProviderAdapter();
+		ShipCombatSpecsProviderAdapter shipCombatSpecsProviderAdapter = new ShipCombatSpecsProviderAdapter();
+		DestroyedShipsProviderAdapter destroyedShipsProviderAdapter = new DestroyedShipsProviderAdapter();
 
 		this.gameOptions = gameOptions;
+
+		SpaceCombatResolver spaceCombatResolver = new SpaceCombatResolverImpl(shipCombatSpecsProviderAdapter,
+				seededRandom);
 
 		this.universe = new Universe(LocationMapper.fromLocationValue(gameOptions.galaxySize().width()),
 				LocationMapper.fromLocationValue(gameOptions.galaxySize().height()), stars);
@@ -153,13 +165,14 @@ public class Game2Impl implements Game {
 		this.technology = new Technology(researchPointProviderAdapter);
 		this.shipyard = new Shipyard(buildCapacityProviderAdpater);
 		this.navy = new Navy(fleets, shipMovementSpecsProviderAdapter, newShipsProviderAdapter,
-				newColoniesProviderAdapter, colonyShipSpecsProviderAdapter, departingColonistTransportsProviderAdpater);
+				newColoniesProviderAdapter, colonyShipSpecsProviderAdapter, departingColonistTransportsProviderAdpater,
+				destroyedShipsProviderAdapter);
 		this.etaCalculator = new EtaCalculator(shipMovementSpecsProviderAdapter, coloniesProviderAdapter);
 		this.colonization = new Colonization(colonyFleetProviderAdapter, shipCostProviderAdapter,
 				initialShipClassProviderAdapter, annexedSystemsProviderAdapter,
 				arrivingColonistTransportsProviderAdapter);
 		this.army = new Army(siegedSystemProviderAdapter);
-		this.spaceForce = new SpaceForce(encounteringFleetShipsProviderAdapter);
+		this.spaceForce = new SpaceForce(encounteringFleetShipsProviderAdapter, spaceCombatResolver);
 		this.systemIntelligence = new SystemIntelligence(orbitingFleetsProviderAdapter, colonyProviderAdapter);
 		this.fleetIntelligence = new FleetIntelligence(scanAreasProviderAdapter, shipScannerSpecsProviderAdapter,
 				fleetItinearySegmentProviderAdapter);
@@ -184,6 +197,8 @@ public class Game2Impl implements Game {
 		annexedSystemsProviderAdapter.delegate(this.army);
 		departingColonistTransportsProviderAdpater.delegate(this.colonization);
 		arrivingColonistTransportsProviderAdapter.delegate(this.navy);
+		shipCombatSpecsProviderAdapter.delegate(this.shipyard);
+		destroyedShipsProviderAdapter.delegate(this.spaceForce);
 
 		this.round = new Round(1);
 		this.playerTurns = new PlayerTurns(this.empires.players());
@@ -241,6 +256,7 @@ public class Game2Impl implements Game {
 		this.navy.sendColonistTransports(this.round);
 		this.navy.issueRelocations(this.playerTurns.commands(RelocateShips.class));
 		this.navy.moveFleets(this.round, this.playerTurns.commands(ShipDeployment.class));
+		this.systemIntelligence.recon(this.round);
 		this.spaceForce.resolveSpaceCombats();
 		this.navy.removeDestroyedShips();
 		this.colonization.welcomeColonistTransports();
@@ -248,12 +264,11 @@ public class Game2Impl implements Game {
 		this.navy.removeUsedColonyShips();
 		this.army.annexSystems(this.round, this.playerTurns.commands(Annex.class));
 		this.colonization.annexSystems();
-		this.systemIntelligence.recon(this.round);
 
 		this.round = this.round.next();
 		this.playerTurns.beginNewRound(this.round);
 
-		for (RetreatingFleet retreatingFleet : this.spaceForce.retreatingFleets()) {
+		for (SpaceCombatFleet retreatingFleet : this.spaceForce.retreatingFleets()) {
 			Fleet fleet = this.navy.findOrbiting(retreatingFleet.player(), retreatingFleet.position()).orElseThrow();
 			Position closestColony = this.universe
 				.closest(retreatingFleet.position(),
@@ -356,16 +371,31 @@ public class Game2Impl implements Game {
 					.stream()
 					.map(spaceCombat -> SpaceCombatView.builder()
 						.systemId(SystemIdMapper.toSystemId(spaceCombat.system()))
-						.fireExchangeCount(0)
+						.systemName(Game2Impl.this.universe.star(spaceCombat.system()).name())
+						.fireExchangeCount(spaceCombat.fireExchangeCount())
 						.attacker(Game2Impl.this.empires.race(spaceCombat.attacker()))
 						.attackerPlayer(spaceCombat.attacker())
 						.attackerFleets(Set.of())
-						.attackerShipSpecs(List.of())
+						.attackerShipSpecs(spaceCombat.previousAttackerShips()
+							.stream()
+							.map(e -> SpaceCombatViewMapper.toCombatantShipSpecsView(spaceCombat.attacker(), e.getKey(),
+									spaceCombat.attackerShips().count(e.getKey()), e.getValue(),
+									spaceCombat.attackerFireExchanges().getOrDefault(e.getKey(), List.of()),
+									Game2Impl.this.shipyard.design(spaceCombat.attacker(), e.getKey()),
+									this.player == spaceCombat.attacker() || spaceCombat.attackerShipSpecsAvailable()))
+							.toList())
 						.defender(Game2Impl.this.empires.race(spaceCombat.defender()))
 						.defenderPlayer(spaceCombat.defender())
 						.defenderFleet(Optional.empty())
 						.defenderFleetsBeforeArrival(Set.of())
-						.defenderShipSpecs(List.of())
+						.defenderShipSpecs(spaceCombat.previousDefenderShips()
+							.stream()
+							.map(e -> SpaceCombatViewMapper.toCombatantShipSpecsView(spaceCombat.defender(), e.getKey(),
+									spaceCombat.defenderShips().count(e.getKey()), e.getValue(),
+									spaceCombat.defenderFireExchanges().getOrDefault(e.getKey(), List.of()),
+									Game2Impl.this.shipyard.design(spaceCombat.defender(), e.getKey()),
+									this.player == spaceCombat.defender() || spaceCombat.defenderShipSpecsAvailable()))
+							.toList())
 						.outcome(spaceCombat.outcome())
 						.build())
 					.collect(Collectors.toSet()))

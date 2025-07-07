@@ -18,9 +18,10 @@ import static java.util.Collections.unmodifiableList;
  * @author sj
  */
 @StagedRecordBuilder
-public record SpaceCombatView(SystemId systemId, int fireExchangeCount, Race attacker, Player attackerPlayer,
-		Set<FleetBeforeArrivalView> attackerFleets, List<CombatantShipSpecsView> attackerShipSpecs, Race defender,
-		Player defenderPlayer, Optional<FleetId> defenderFleet, Set<FleetBeforeArrivalView> defenderFleetsBeforeArrival,
+public record SpaceCombatView(SystemId systemId, String systemName, int fireExchangeCount, Race attacker,
+		Player attackerPlayer, Set<FleetBeforeArrivalView> attackerFleets,
+		List<CombatantShipSpecsView> attackerShipSpecs, Race defender, Player defenderPlayer,
+		Optional<FleetId> defenderFleet, Set<FleetBeforeArrivalView> defenderFleetsBeforeArrival,
 		List<CombatantShipSpecsView> defenderShipSpecs, Outcome outcome) {
 
 	public enum Outcome {

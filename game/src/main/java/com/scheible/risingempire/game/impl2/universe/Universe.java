@@ -74,6 +74,10 @@ public class Universe {
 		return new Planet(PlanetType.TERRAN, PlanetSpecial.NONE, new Population(100));
 	}
 
+	public Star star(Position system) {
+		return this.stars.stream().filter(s -> s.position().equals(system)).findFirst().orElseThrow();
+	}
+
 	public List<Star> stars() {
 		return Collections.unmodifiableList(this.stars);
 	}

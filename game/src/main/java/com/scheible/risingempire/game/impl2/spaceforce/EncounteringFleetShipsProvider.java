@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
-import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
+import com.scheible.risingempire.game.impl2.navy.Ships;
 
 /**
  * @author sj
@@ -15,7 +15,7 @@ public interface EncounteringFleetShipsProvider {
 
 	Map<Position, List<EncounteringFleet>> encounteringFleetShips();
 
-	record EncounteringFleet(Player player, Map<ShipClassId, Integer> counts, Optional<Double> arrivalRoundFraction) {
+	record EncounteringFleet(Player player, Position system, Ships ships, Optional<Double> arrivalRoundFraction) {
 
 		public boolean arriving() {
 			return this.arrivalRoundFraction.isPresent();

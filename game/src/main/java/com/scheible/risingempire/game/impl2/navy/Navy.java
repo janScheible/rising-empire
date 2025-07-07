@@ -15,6 +15,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
 import com.scheible.risingempire.game.impl2.common.Command;
 import com.scheible.risingempire.game.impl2.navy.DepartingColonistTransportsProvider.DepartingColonistTransport;
+import com.scheible.risingempire.game.impl2.navy.DestroyedShipsProvider.DestroyedShips;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Itinerary;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Orbit;
@@ -36,34 +37,40 @@ public class Navy {
 
 	private final DepartingColonistTransportsProvider departingColonistTransportsProvider;
 
+	private final DestroyedShipsProvider destroyedShipsProvider;
+
 	private final Set<ArrivedColonistTransport> arrivedColonistTransports = new HashSet<>();
 
 	public Navy(List<Fleet> fleets, ShipSpeedSpecsProvider shipSpeedSpecsProvider, NewShipsProvider newShipsProvider,
 			NewColoniesProvider newColoniesProvider, ColonyShipSpecsProvider colonyShipSpecsProvider,
-			DepartingColonistTransportsProvider departingColonistTransportsProvider) {
+			DepartingColonistTransportsProvider departingColonistTransportsProvider,
+			DestroyedShipsProvider destroyedShipsProvider) {
 		this.fleets = new Fleets(new ArrayList<>(fleets), shipSpeedSpecsProvider);
 		this.dispatcher = new Dispatcher(this.fleets);
 		this.newShipsProvider = newShipsProvider;
 		this.newColoniesProvider = newColoniesProvider;
 		this.colonyShipSpecsProvider = colonyShipSpecsProvider;
 		this.departingColonistTransportsProvider = departingColonistTransportsProvider;
+		this.destroyedShipsProvider = destroyedShipsProvider;
 
 	}
 
 	private Navy(Fleets fleets, NewShipsProvider newShipsProvider, NewColoniesProvider newColoniesProvider,
 			ColonyShipSpecsProvider colonyShipSpecsProvider,
-			DepartingColonistTransportsProvider departingColonistTransportsProvider) {
+			DepartingColonistTransportsProvider departingColonistTransportsProvider,
+			DestroyedShipsProvider destroyedShipsProvider) {
 		this.fleets = new Fleets(new ArrayList<>(fleets.fleets()), fleets.shipSpeedSpecsProvider());
 		this.dispatcher = new Dispatcher(this.fleets);
 		this.newShipsProvider = newShipsProvider;
 		this.newColoniesProvider = newColoniesProvider;
 		this.colonyShipSpecsProvider = colonyShipSpecsProvider;
 		this.departingColonistTransportsProvider = departingColonistTransportsProvider;
+		this.destroyedShipsProvider = destroyedShipsProvider;
 	}
 
 	public Navy apply(Round round, List<ShipDeployment> deployments) {
 		Navy copy = new Navy(this.fleets, this.newShipsProvider, this.newColoniesProvider, this.colonyShipSpecsProvider,
-				this.departingColonistTransportsProvider);
+				this.departingColonistTransportsProvider, this.destroyedShipsProvider);
 		copy.dispatcher.dispatch(round, deployments);
 		return copy;
 	}
@@ -186,6 +193,14 @@ public class Navy {
 	}
 
 	public void removeDestroyedShips() {
+		for (DestroyedShips destroyedShips : this.destroyedShipsProvider.destroyedShips()) {
+			Fleet orbiting = this.fleets.findOrbiting(destroyedShips.player(), destroyedShips.system()).orElseThrow();
+
+			this.fleets.remove(orbiting);
+			if (!destroyedShips.ships().empty()) {
+				this.fleets.add(new Fleet(orbiting.player(), orbiting.location(), destroyedShips.ships()));
+			}
+		}
 	}
 
 	public void removeUsedColonyShips() {

@@ -8,7 +8,6 @@ import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.spacecombat.CombatantShipSpecsView;
 import com.scheible.risingempire.game.api.view.spacecombat.FireExchangeView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
-import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.webapp.adapter.frontend.annotation.FrontendController;
 import com.scheible.risingempire.webapp.adapter.frontend.context.FrontendContext;
 import com.scheible.risingempire.webapp.adapter.frontend.spacecombatpage.SpaceCombatPageDto.CombatOutcomeDto;
@@ -40,9 +39,7 @@ class SpaceCombatPageController {
 			.findAny()
 			.orElseThrow();
 
-		return new EntityModel<>(new SpaceCombatPageDto(
-				context.getGameView().system(new SystemId(currentSpaceCombatSystemId)).starName().orElseThrow(),
-				spaceCombatView.attacker(),
+		return new EntityModel<>(new SpaceCombatPageDto(spaceCombatView.systemName(), spaceCombatView.attacker(),
 				toCombatantShipSpecsDtos(spaceCombatView.attackerPlayer(), spaceCombatView.attackerShipSpecs()),
 				spaceCombatView.defender(),
 				toCombatantShipSpecsDtos(spaceCombatView.defenderPlayer(), spaceCombatView.defenderShipSpecs()),

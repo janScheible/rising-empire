@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 
@@ -76,6 +77,14 @@ public record Ships(Map<ShipClassId, Integer> counts) {
 			}
 		});
 		return new Ships(updatedShips);
+	}
+
+	public Stream<Entry<ShipClassId, Integer>> stream() {
+		return this.counts.entrySet().stream();
+	}
+
+	public int count(ShipClassId shipClassId) {
+		return this.counts.getOrDefault(shipClassId, 0);
 	}
 
 }

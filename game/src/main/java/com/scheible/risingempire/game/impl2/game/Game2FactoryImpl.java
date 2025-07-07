@@ -18,6 +18,7 @@ import com.scheible.risingempire.game.impl2.navy.Fleet;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Orbit;
 import com.scheible.risingempire.game.impl2.navy.Ships;
 import com.scheible.risingempire.game.impl2.universe.Star;
+import com.scheible.risingempire.util.SeededRandom;
 
 /**
  * @author sj
@@ -30,8 +31,6 @@ public class Game2FactoryImpl implements GameFactory {
 	}
 
 	private Game2Impl createInternal(GameOptions gameOptions, long seed) {
-		Long.toString(seed); // just to make PMD happy
-
 		return new Game2Impl(gameOptions,
 				List.of(new Empire(Player.BLUE, Race.LUMERISKS), new Empire(Player.YELLOW, Race.MYXALOR),
 						new Empire(Player.WHITE, Race.XELIPHARI)),
@@ -48,7 +47,8 @@ public class Game2FactoryImpl implements GameFactory {
 						new Fleet(Player.YELLOW, new Orbit(new Position("9.973", "5.626")),
 								new Ships(Map.of(new ShipClassId("scout"), 2, new ShipClassId("colony-ship"), 1))),
 						new Fleet(Player.WHITE, new Orbit(new Position("4.080", "8.226")),
-								new Ships(Map.of(new ShipClassId("scout"), 2, new ShipClassId("colony-ship"), 1)))));
+								new Ships(Map.of(new ShipClassId("scout"), 2, new ShipClassId("colony-ship"), 1)))),
+				new SeededRandom(seed));
 	}
 
 	@Override

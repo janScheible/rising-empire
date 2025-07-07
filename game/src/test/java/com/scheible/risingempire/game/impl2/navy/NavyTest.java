@@ -90,7 +90,7 @@ class NavyTest extends AbstractNavyTest {
 		Navy navy = new Navy(List.of(orbitingFleet(this.origin, new Ships(Map.of(this.enterprise, 1, this.colony, 2)))),
 				this.shipMovementSpecsProvider, (Player _) -> Map.of(),
 				() -> Set.of(new NewColony(this.player, this.origin)), shipClassId -> this.colony.equals(shipClassId),
-				() -> Set.of());
+				() -> Set.of(), () -> Set.of());
 
 		navy.removeUsedColonyShips();
 
@@ -102,7 +102,8 @@ class NavyTest extends AbstractNavyTest {
 	void testSendColonistTransports() {
 		Navy navy = new Navy(List.of(), this.shipMovementSpecsProvider, (Player _) -> Map.of(), () -> Set.of(),
 				shipClassId -> false,
-				() -> Set.of(new DepartingColonistTransport(this.player, this.origin, this.destination, 42)));
+				() -> Set.of(new DepartingColonistTransport(this.player, this.origin, this.destination, 42)),
+				() -> Set.of());
 
 		Round round = new Round(1);
 		navy.sendColonistTransports(round);
@@ -122,12 +123,12 @@ class NavyTest extends AbstractNavyTest {
 
 	private Navy createNavy(List<Fleet> fleets) {
 		return new Navy(fleets, this.shipMovementSpecsProvider, (Player _) -> Map.of(), () -> Set.of(),
-				shipClassId -> false, () -> Set.of());
+				shipClassId -> false, () -> Set.of(), () -> Set.of());
 	}
 
 	private Navy createNavy(List<Fleet> fleets, NewShipsProvider newShipsProvider) {
 		return new Navy(fleets, this.shipMovementSpecsProvider, newShipsProvider, () -> Set.of(), shipClassId -> false,
-				() -> Set.of());
+				() -> Set.of(), () -> Set.of());
 	}
 
 	private Fleet justLeavingFleet(Position origin, Position destination, Round dispatchment, Ships ships) {
