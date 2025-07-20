@@ -103,6 +103,8 @@ public class Game2Impl implements Game {
 
 	private final GameOptions gameOptions;
 
+	private final SeededRandom random;
+
 	private final Universe universe;
 
 	private final Empires empires;
@@ -130,7 +132,7 @@ public class Game2Impl implements Game {
 	private final PlayerTurns playerTurns;
 
 	public Game2Impl(GameOptions gameOptions, List<Empire> empires, List<Star> stars, List<Fleet> fleets,
-			SeededRandom seededRandom) {
+			Map<Player, Position> homeSystems, SeededRandom random) {
 		ColoniesProviderAdapter coloniesProviderAdapter = new ColoniesProviderAdapter();
 		ShipMovementSpecsProviderAdapter shipMovementSpecsProviderAdapter = new ShipMovementSpecsProviderAdapter();
 		ColonyFleetProviderAdapter colonyFleetProviderAdapter = new ColonyFleetProviderAdapter();
@@ -155,12 +157,12 @@ public class Game2Impl implements Game {
 		DestroyedShipsProviderAdapter destroyedShipsProviderAdapter = new DestroyedShipsProviderAdapter();
 
 		this.gameOptions = gameOptions;
+		this.random = random;
 
-		SpaceCombatResolver spaceCombatResolver = new SpaceCombatResolverImpl(shipCombatSpecsProviderAdapter,
-				seededRandom);
+		SpaceCombatResolver spaceCombatResolver = new SpaceCombatResolverImpl(shipCombatSpecsProviderAdapter, random);
 
 		this.universe = new Universe(LocationMapper.fromLocationValue(gameOptions.galaxySize().width()),
-				LocationMapper.fromLocationValue(gameOptions.galaxySize().height()), stars);
+				LocationMapper.fromLocationValue(gameOptions.galaxySize().height()), stars, homeSystems);
 		this.empires = new Empires(empires);
 		this.technology = new Technology(researchPointProviderAdapter);
 		this.shipyard = new Shipyard(buildCapacityProviderAdpater);
@@ -202,7 +204,7 @@ public class Game2Impl implements Game {
 
 		this.round = new Round(1);
 		this.playerTurns = new PlayerTurns(this.empires.players());
-		this.colonization.initialize();
+		this.colonization.initialize(this.universe.homeSystems());
 	}
 
 	@Override
@@ -325,7 +327,7 @@ public class Game2Impl implements Game {
 		commands.putAll(this.playerTurns.pastCommandMapping());
 		commands.put(this.round, this.playerTurns.commandMapping());
 
-		return new Savegame2Impl(this.gameOptions, 0L, commands);
+		return new Savegame2Impl(this.gameOptions, this.random.seed(), commands);
 	}
 
 	void applyCommands(Player player, List<Command> commands) {

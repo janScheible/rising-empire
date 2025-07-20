@@ -98,7 +98,9 @@ class NewGameController {
 			TestScenario testScenario = null;
 
 			if (isTestGameId(context.getGameId())) {
-				AvailableScenario availableScenario = TEST_GAME_SCENARIO_MAPPING.get(body.scenarioId.orElse(null));
+				String scenarioId = body.scenarioId.orElse(null);
+				AvailableScenario availableScenario = scenarioId != null ? TEST_GAME_SCENARIO_MAPPING.get(scenarioId)
+						: null;
 				if (context.getPlayer() == Player.BLUE && availableScenario != null) {
 					testScenario = TestScenario.start(availableScenario.testMethodSupplier.get());
 					game = testScenario.getGame();
@@ -106,6 +108,7 @@ class NewGameController {
 				else {
 					game = GameFactory.get()
 						.create(GameOptions.testGameBuilder() //
+							.game2(body.game2)
 							.fakeTechProvider((player,
 									round) -> (round % 5 == 0) ? Set.of(TechGroupView.builder()
 										.group(Arrays2.asSet( //

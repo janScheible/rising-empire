@@ -18,7 +18,7 @@ public record Parsec(BigDecimal quantity) implements Comparable<Parsec> {
 	}
 
 	public Parsec(double quantity) {
-		this(BigDecimal.valueOf(quantity).setScale(3));
+		this(BigDecimal.valueOf(quantity).setScale(3, RoundingMode.UP));
 	}
 
 	public Parsec(String quantity) {

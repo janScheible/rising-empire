@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl.universe;
+package com.scheible.risingempire.game.impl2.universe.bigbang;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,10 +6,10 @@ import java.util.Set;
 
 import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.universe.Location;
+import com.scheible.risingempire.util.SeededRandom;
 
 import static java.util.Collections.unmodifiableList;
 
-// CPD-OFF
 /**
  * @author sj
  */
@@ -31,6 +31,6 @@ public interface BigBang {
 		return new UniformBigBang();
 	}
 
-	Set<Location> getSystemLocations(GalaxySize galaxySize, int maxSystemDistance);
+	Set<Location> systemLocations(GalaxySize galaxySize, int maxSystemDistance, SeededRandom random);
 
 }

@@ -29,6 +29,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ColonizationTest {
 
+	private final Map<Player, Position> homeSystems = Map.of( //
+			Player.BLUE, new Position("6.173", "5.026"), //
+			Player.YELLOW, new Position("9.973", "5.626"), //
+			Player.WHITE, new Position("4.080", "8.226"));
+
 	@Test
 	void testSpaceDockNewShips() {
 		ShipClassId first = new ShipClassId("first");
@@ -42,7 +47,7 @@ public class ColonizationTest {
 				(Player _, ShipClassId shipClassId) -> shipCosts.get(shipClassId), () -> first, () -> Set.of(),
 				() -> Set.of());
 
-		colonization.initialize();
+		colonization.initialize(this.homeSystems);
 		assertSpaceDock(colonization.colony(colonySystem), 0, new Rounds(2),
 				new ConstructionProgress(first, new Credit(0)));
 
@@ -83,7 +88,7 @@ public class ColonizationTest {
 		Colonization colonization = new Colonization((Player _) -> Set.of(system),
 				(Player _, ShipClassId _) -> new Credit(1000), () -> new ShipClassId("first"), () -> Set.of(),
 				() -> Set.of());
-		colonization.initialize();
+		colonization.initialize(this.homeSystems);
 
 		List<ColonizationCommand> commands = List.of(new Colonize(Player.BLUE, system, false));
 
@@ -104,7 +109,7 @@ public class ColonizationTest {
 		Colonization colonization = new Colonization((Player _) -> Set.of(),
 				(Player _, ShipClassId _) -> new Credit(1000), () -> new ShipClassId("first"),
 				() -> Set.of(new AnnexedSystem(Player.YELLOW, system)), () -> Set.of());
-		colonization.initialize();
+		colonization.initialize(this.homeSystems);
 
 		assertThat(colonization.colony(system).orElseThrow().player()).isEqualTo(Player.BLUE);
 
@@ -120,7 +125,7 @@ public class ColonizationTest {
 		Colonization colonization = new Colonization((Player _) -> Set.of(),
 				(Player _, ShipClassId _) -> new Credit(1000), () -> new ShipClassId("first"), () -> Set.of(),
 				() -> Set.of());
-		colonization.initialize();
+		colonization.initialize(this.homeSystems);
 
 		assertThat(colonization.colony(system).orElseThrow().population()).isEqualTo(new Population(50));
 
@@ -137,6 +142,7 @@ public class ColonizationTest {
 		Colonization colonization = new Colonization((Player _) -> Set.of(),
 				(Player _, ShipClassId _) -> new Credit(1000), () -> new ShipClassId("first"), () -> Set.of(),
 				() -> Set.of(new ArrivingColonistTransport(Player.BLUE, system, 20)));
+		colonization.initialize(this.homeSystems);
 
 		assertThat(colonization.colony(system).orElseThrow().population()).isEqualTo(new Population(50));
 

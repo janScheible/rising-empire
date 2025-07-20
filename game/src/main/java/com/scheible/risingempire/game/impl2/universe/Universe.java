@@ -1,10 +1,11 @@
 package com.scheible.risingempire.game.impl2.universe;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
+import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.system.PlanetSpecial;
 import com.scheible.risingempire.game.api.view.system.PlanetType;
 import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
@@ -14,26 +15,11 @@ import com.scheible.risingempire.game.impl2.apiinternal.Position;
 /**
  * @author sj
  */
-public class Universe {
+public record Universe(Parsec width, Parsec height, List<Star> stars, Map<Player, Position> homeSystems) {
 
-	private Parsec galaxyWidth;
-
-	private Parsec galaxyHeight;
-
-	private List<Star> stars;
-
-	public Universe(Parsec galaxyWidth, Parsec galaxyHeight, List<Star> stars) {
-		this.galaxyWidth = galaxyWidth;
-		this.galaxyHeight = galaxyHeight;
-		this.stars = new ArrayList<>(stars);
-	}
-
-	public Parsec height() {
-		return this.galaxyHeight;
-	}
-
-	public Parsec width() {
-		return this.galaxyWidth;
+	public Universe {
+		stars = Collections.unmodifiableList(stars);
+		homeSystems = Collections.unmodifiableMap(homeSystems);
 	}
 
 	public Star closest(Position position, Predicate<Star> starPredicate) {
@@ -80,6 +66,10 @@ public class Universe {
 
 	public List<Star> stars() {
 		return Collections.unmodifiableList(this.stars);
+	}
+
+	public boolean homeSystem(Player player, Position position) {
+		return this.homeSystems.get(player).equals(position);
 	}
 
 }

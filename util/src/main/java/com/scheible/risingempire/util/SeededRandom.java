@@ -11,14 +11,22 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class SeededRandom {
 
+	private final long seed;
+
 	private final Random random;
 
 	public SeededRandom() {
-		this.random = new Random(ThreadLocalRandom.current().nextLong());
+		this.seed = ThreadLocalRandom.current().nextLong();
+		this.random = new Random(this.seed);
 	}
 
 	public SeededRandom(long seed) {
-		this.random = new Random(seed);
+		this.seed = seed;
+		this.random = new Random(this.seed);
+	}
+
+	public long seed() {
+		return this.seed;
 	}
 
 	public int nextInt(int bound) {
@@ -27,6 +35,14 @@ public class SeededRandom {
 
 	public int nextInt(int origin, int bound) {
 		return this.random.nextInt(origin, bound);
+	}
+
+	public double nextDouble() {
+		return this.random.nextDouble();
+	}
+
+	public boolean nextBoolean() {
+		return this.random.nextBoolean();
 	}
 
 }

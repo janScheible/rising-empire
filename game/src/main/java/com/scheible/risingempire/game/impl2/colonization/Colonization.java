@@ -57,10 +57,7 @@ public class Colonization {
 	public Colonization(ColonyFleetProvider colonyFleetProvider, ShipCostProvider shipCostProvider,
 			InitialShipClassProvider initialShipClassProvider, AnnexedSystemsProvider annexedSystemsProvider,
 			ArrivingColonistTransportsProvider arrivingColonistTransportsProvider) {
-		this.colonies = new ArrayList<>(List.of( //
-				new Colony(Player.BLUE, new Position("6.173", "5.026"), SpaceDock.UNINITIALIZED, new Population(50)),
-				new Colony(Player.YELLOW, new Position("9.973", "5.626"), SpaceDock.UNINITIALIZED, new Population(50)),
-				new Colony(Player.WHITE, new Position("4.080", "8.226"), SpaceDock.UNINITIALIZED, new Population(50))));
+		this.colonies = new ArrayList<>();
 
 		this.colonyFleetProvider = colonyFleetProvider;
 		this.shipCostProvider = shipCostProvider;
@@ -89,7 +86,12 @@ public class Colonization {
 		this.transferColonistsCommands = transferColonistsCommands;
 	}
 
-	public void initialize() {
+	public void initialize(Map<Player, Position> homeSystems) {
+		this.colonies.addAll(homeSystems.entrySet()
+			.stream()
+			.map(hs -> new Colony(hs.getKey(), hs.getValue(), SpaceDock.UNINITIALIZED, new Population(50)))
+			.toList());
+
 		for (int i = 0; i < this.colonies.size(); i++) {
 			Colony colony = this.colonies.get(i);
 
@@ -299,21 +301,6 @@ public class Colonization {
 
 	public ResearchPoint researchPoints(Player player) {
 		return new ResearchPoint(0);
-	}
-
-	public boolean homeSystem(Player player, Position position) {
-		if (player == Player.BLUE && position.equals(new Position("6.173", "5.026"))) {
-			return true;
-		}
-		else if (player == Player.YELLOW && position.equals(new Position("9.973", "5.626"))) {
-			return true;
-		}
-		else if (player == Player.WHITE && position.equals(new Position("4.080", "8.226"))) {
-			return true;
-		}
-		else {
-			return false;
-		}
 	}
 
 	public Map<Position, Map<ShipClassId, Integer>> newShips() {

@@ -1,16 +1,15 @@
-package com.scheible.risingempire.game.impl.universe;
+package com.scheible.risingempire.game.impl2.universe.bigbang;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.universe.Location;
+import com.scheible.risingempire.util.SeededRandom;
 
-// CPD-OFF
 /**
  * Uniform system distribution created with
  * <a href="https://en.wikipedia.org/wiki/Supersampling#Poisson_disk"> Poisson disk
@@ -21,10 +20,10 @@ import com.scheible.risingempire.game.api.universe.Location;
 class UniformBigBang implements BigBang {
 
 	@Override
-	public Set<Location> getSystemLocations(GalaxySize galaxySize, int maxSystemDistance) {
+	public Set<Location> systemLocations(GalaxySize galaxySize, int maxSystemDistance, SeededRandom random) {
 		PoissonDiscSamplingAlogirthm algorithm = PoissonDiscSamplingAlogirthm.create(galaxySize.width(),
 				galaxySize.height(), maxSystemDistance * 0.85);
-		Set<Vector> samplePoints = algorithm.sample();
+		Set<Vector> samplePoints = algorithm.sample(random);
 
 		return samplePoints.stream().map(v -> new Location((int) v.x, (int) v.y)).collect(Collectors.toSet());
 	}
@@ -72,7 +71,7 @@ class UniformBigBang implements BigBang {
 			return new PoissonDiscSamplingAlogirthm(r, w, cols, rows, grid, active);
 		}
 
-		private Set<Vector> sample() {
+		private Set<Vector> sample(SeededRandom random) {
 			for (int i = 0; i < this.cols * this.rows; i++) {
 				this.grid[i] = null;
 			}
@@ -85,12 +84,12 @@ class UniformBigBang implements BigBang {
 			this.active.add(start);
 
 			while (!this.active.isEmpty()) {
-				int i = (int) Math.floor(ThreadLocalRandom.current().nextInt(this.active.size()));
+				int i = (int) Math.floor(random.nextInt(this.active.size()));
 				Vector pos = this.active.get(i);
 
 				for (int j = 0; j < K; j++) {
-					Vector sample = Vector.random2d();
-					double m = this.r * (1 + ThreadLocalRandom.current().nextDouble());
+					Vector sample = Vector.random2d(random);
+					double m = this.r * (1 + random.nextDouble());
 					sample.setLength(m);
 					sample.add(pos);
 
@@ -172,8 +171,8 @@ class UniformBigBang implements BigBang {
 			return this;
 		}
 
-		private static Vector random2d() {
-			double angle = Math.random() * Math.PI * 2;
+		private static Vector random2d(SeededRandom random) {
+			double angle = random.nextDouble() * Math.PI * 2;
 			return new Vector(Math.cos(angle), Math.sin(angle));
 		}
 

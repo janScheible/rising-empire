@@ -5,6 +5,8 @@ package com.scheible.risingempire.game.api.universe;
  */
 public record Location(int x, int y) {
 
+	public static Location ORIGIN = new Location(0, 0);
+
 	public Location moveAlong(Location destination, int speed) {
 		double distance = distance(destination);
 
