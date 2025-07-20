@@ -34,13 +34,25 @@ import com.scheible.risingempire.util.SeededRandom;
  */
 public class Game2FactoryImpl implements GameFactory {
 
-	private static List<StarType> STAR_TYPES = List.of(StarType.RED, StarType.GREEN, StarType.YELLOW, StarType.BLUE,
-			StarType.WHITE, StarType.PURPLE);
+	private static final List<StarType> STAR_TYPES = List.of(StarType.RED, StarType.GREEN, StarType.YELLOW,
+			StarType.BLUE, StarType.WHITE, StarType.PURPLE);
 
-	private static List<PlanetType> PLANET_TYPES = List.of(PlanetType.NOT_HABITABLE, PlanetType.RADIATED,
+	private static final List<PlanetType> PLANET_TYPES = List.of(PlanetType.NOT_HABITABLE, PlanetType.RADIATED,
 			PlanetType.TOXIC, PlanetType.INFERNO, PlanetType.DEAD, PlanetType.TUNDRA, PlanetType.BARREN,
 			PlanetType.MINIMAL, PlanetType.DESERT, PlanetType.STEPPE, PlanetType.ARID, PlanetType.OCEAN,
 			PlanetType.JUNGLE, PlanetType.TERRAN);
+
+	private static final Map<Race, String> HOME_SYSTEM_NAMES = Map.of( //
+			Race.BLYZARIANS, "Blyzar", //
+			Race.DRACONILITHS, "Draconis", //
+			Race.KRYLOQUIANS, "Krylon", //
+			Race.LUMERISKS, "Lumera", //
+			Race.MYXALOR, "Myxar", //
+			Race.OLTHARIEN, "Olthara", //
+			Race.QALTRUVIAN, "Qaltru", //
+			Race.VORTELUXIAN, "Vortelux", //
+			Race.XELIPHARI, "Xeliphar", //
+			Race.ZYNTHORAX, "Zynthor");
 
 	@Override
 	public Game create(GameOptions gameOptions) {
@@ -50,7 +62,12 @@ public class Game2FactoryImpl implements GameFactory {
 	private Game2Impl createInternal(GameOptions gameOptions, long seed) {
 		SeededRandom random = new SeededRandom(seed);
 
-		GeneratedStars generatedStars = generateStars(gameOptions.galaxySize(), random);
+		Map<Player, Race> races = Map.of( //
+				Player.BLUE, Race.LUMERISKS, //
+				Player.YELLOW, Race.MYXALOR, //
+				Player.WHITE, Race.MYXALOR);
+
+		GeneratedStars generatedStars = generateStars(gameOptions.galaxySize(), races, random);
 		List<Star> stars = gameOptions.testGame()
 				? List.of(new Star("Sol", new Position("6.173", "5.026"), StarType.YELLOW, false),
 						new Star("Alpha Centauri", new Position(7.680, 3.986), StarType.BLUE, true),
@@ -70,9 +87,12 @@ public class Game2FactoryImpl implements GameFactory {
 						Player.WHITE, stars.get(1).position(), //
 						Player.YELLOW, stars.get(2).position());
 
-		return new Game2Impl(gameOptions, List.of(new Empire(Player.BLUE, Race.LUMERISKS),
-				new Empire(Player.YELLOW, Race.MYXALOR), new Empire(Player.WHITE, Race.XELIPHARI)), stars,
-				generatedStars.planets(),
+		return new Game2Impl(gameOptions,
+				List.of(new Empire(Player.BLUE, races.get(Player.BLUE)),
+						new Empire(Player.YELLOW,
+								races.get(Player.YELLOW)),
+						new Empire(Player.WHITE, races.get(Player.WHITE))),
+				stars, generatedStars.planets(),
 				List.of(new Fleet(Player.BLUE, new Orbit(homeSystems.get(Player.BLUE)),
 						new Ships(Map.of(new ShipClassId("scout"), 2, new ShipClassId("colony-ship"), 1))),
 						new Fleet(Player.YELLOW, new Orbit(homeSystems.get(Player.YELLOW)),
@@ -82,7 +102,7 @@ public class Game2FactoryImpl implements GameFactory {
 				homeSystems, random);
 	}
 
-	private static GeneratedStars generateStars(GalaxySize galaxySize, SeededRandom random) {
+	private static GeneratedStars generateStars(GalaxySize galaxySize, Map<Player, Race> races, SeededRandom random) {
 		List<Star> stars = new ArrayList<>();
 		Map<Position, Planet> planets = new HashMap<>();
 
@@ -130,7 +150,7 @@ public class Game2FactoryImpl implements GameFactory {
 
 		for (Player player : List.of(Player.YELLOW, Player.WHITE, Player.BLUE)) {
 			Position starPosition = new Position(startStars.get(player).x() / 75.0, startStars.get(player).y() / 75.0);
-			stars.add(0, new Star(BigBang.STAR_NAMES.get(i++), starPosition, StarType.YELLOW, false));
+			stars.add(0, new Star(HOME_SYSTEM_NAMES.get(races.get(player)), starPosition, StarType.YELLOW, false));
 			planets.put(starPosition,
 					new Planet(PlanetType.TERRAN, PlanetSpecial.NONE, maxPopulation(PlanetType.TERRAN)));
 		}

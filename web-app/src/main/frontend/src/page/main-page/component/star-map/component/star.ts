@@ -115,7 +115,7 @@ export default class Star extends HTMLElement {
 			Reconciler.reconcileProperty(this.#starImageEl, 'hidden', true);
 		}
 
-		Reconciler.reconcileProperty(this.#nameEl, 'innerText', data.name ? data.name : '');
+		Reconciler.reconcileProperty(this.#nameEl, 'innerText', Theme.getSystemName(data.name) ?? '');
 		Reconciler.reconcileStyle(
 			this.#nameEl,
 			'color',

@@ -111,7 +111,7 @@ export default class SpaceCombatPage extends HTMLElement {
 		this.#data = data;
 		this.#continueAction = HypermediaUtil.getAction(data, 'continue');
 
-		Reconciler.reconcileProperty(this.#systemNameEl, 'innerText', data.systemName);
+		Reconciler.reconcileProperty(this.#systemNameEl, 'innerText', Theme.getSystemName(data.systemName));
 
 		this.#attackerEls.forEach((attackerEl) =>
 			Reconciler.reconcileProperty(attackerEl, 'innerText', Theme.getRace(data.attacker))

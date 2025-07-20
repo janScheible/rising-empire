@@ -246,8 +246,12 @@ public class MooThemeGeneratorCli {
 			BufferedImage inspectorSheet = SpriteSheetGenerator.generate(3, true,
 					List.of(process(getImage.apply(starmap, 101), Scale.TRIPLE, -16_777_216)));
 
-			Set<String> races = new TextBinaryReader(10, 12,
+			List<String> races = new TextBinaryReader(10, 12,
 					new char[] { 'H', 'M', 'S', 'S', 'P', 'A', 'K', 'B', 'M', 'D' })
+				.read(Files.newInputStream(Path.of(orionDir.getAbsolutePath(), "ORION.EXE")));
+
+			List<String> homeSystems = new TextBinaryReader(10, 12,
+					new char[] { 'S', 'F', 'C', 'S', 'M', 'A', 'K', 'U', 'M', 'N' })
 				.read(Files.newInputStream(Path.of(orionDir.getAbsolutePath(), "ORION.EXE")));
 
 			File targetDir = Optional.of(new File(".").getCanonicalFile())
@@ -259,7 +263,8 @@ public class MooThemeGeneratorCli {
 					sheetEntry("stars.png", starsSheet), sheetEntry("stars-small.png", starsSmallSheet),
 					sheetEntry("ships-blue.png", shipsBlueSheet), sheetEntry("ships-white.png", shipsWhiteSheet),
 					sheetEntry("ships-yellow.png", shipsYellowSheet), sheetEntry("planets.png", planetsSheet),
-					sheetEntry("inspector.png", inspectorSheet), sheetEntry("races.txt", races));
+					sheetEntry("inspector.png", inspectorSheet), sheetEntry("races.txt", races),
+					sheetEntry("home-systems.txt", homeSystems));
 			logger.info("Wrote ZIP file to ''{0}''.", themeZip);
 		}
 		catch (UncheckedIOException ex) {
@@ -331,12 +336,14 @@ public class MooThemeGeneratorCli {
 							ImageIO.write(image, "png", baos);
 							zos.write(baos.toByteArray());
 						}
-						else if (entry.getValue() instanceof Set<?> set) {
-							List<String> list = new ArrayList<>();
-							for (Object listEntry : set) {
-								list.add(listEntry.toString());
+						else if (entry.getValue() instanceof List<?> list) {
+							List<String> stringList = new ArrayList<>();
+							for (Object listEntry : list) {
+								stringList.add(listEntry.toString());
 							}
-							zos.write(list.stream().collect(Collectors.joining("\n")).getBytes(StandardCharsets.UTF_8));
+							zos.write(stringList.stream()
+								.collect(Collectors.joining("\n"))
+								.getBytes(StandardCharsets.UTF_8));
 						}
 						else {
 							throw new IllegalArgumentException("ZIp file writing does not support values of type '"

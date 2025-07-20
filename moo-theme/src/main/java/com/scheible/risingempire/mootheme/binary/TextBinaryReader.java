@@ -4,8 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author sj
@@ -31,8 +31,8 @@ public class TextBinaryReader {
 	}
 
 	@SuppressWarnings("PMD.AvoidReassigningLoopVariables")
-	public Set<String> read(InputStream rawInput) throws IOException {
-		Set<String> result = new HashSet<>();
+	public List<String> read(InputStream rawInput) throws IOException {
+		List<String> result = new ArrayList<>();
 
 		int i = -1;
 		try (DataInputStream dataInput = new DataInputStream(new BufferedInputStream(rawInput))) {

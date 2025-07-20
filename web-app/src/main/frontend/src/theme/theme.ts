@@ -156,6 +156,19 @@ export default class Theme {
 		ZYNTHORAX: 'Zynthorax',
 	};
 
+	static #HOME_SYSTEMS = {
+		Blyzar: 'Blyzar',
+		Draconis: 'Draconis',
+		Krylon: 'Krylon',
+		Lumera: 'Lumera',
+		Myxar: 'Myxar',
+		Olthara: 'Olthara',
+		Qaltru: 'Qaltru',
+		Vortelux: 'Vortelux',
+		Xeliphar: 'Xeliphar',
+		Zynthor: 'Zynthor',
+	};
+
 	static #logger: Logger = LoggerFactory.get(`${import.meta.url}`);
 
 	static #elements: { [id: string]: string } = {};
@@ -178,7 +191,15 @@ export default class Theme {
 			} else if (!result.value) {
 				Theme.#logger.warn(`Preloading of ${qualifier} had no result.`);
 			} else {
-				Theme.#elements[qualifier] = URL.createObjectURL(result.value);
+				if (Array.isArray(result.value)) {
+					if (qualifier === 'races') {
+						Theme.#applyArrayToObject(Theme.#RACES, result.value as string[]);
+					} else if (qualifier === 'home-systems') {
+						Theme.#applyArrayToObject(Theme.#HOME_SYSTEMS, result.value as string[]);
+					}
+				} else {
+					Theme.#elements[qualifier] = URL.createObjectURL(result.value);
+				}
 			}
 		}
 
@@ -196,12 +217,13 @@ export default class Theme {
 			if (fileName.toLowerCase().endsWith('.txt')) {
 				const text = new TextDecoder().decode(fileEntry[1] as Uint8Array);
 				if (qualifier === 'races') {
-					const races = text.split('\n').sort();
-					let i = 0;
-					for (const race of Object.keys(Theme.#RACES)) {
-						Theme.#RACES[race] = races[i];
-						i++;
-					}
+					const races = text.split('\n');
+					Theme.#applyArrayToObject(Theme.#RACES, races);
+					idbSets.push(set(qualifier, races));
+				} else if (qualifier === 'home-systems') {
+					const homeSystems = text.split('\n');
+					Theme.#applyArrayToObject(Theme.#HOME_SYSTEMS, homeSystems);
+					idbSets.push(set(qualifier, homeSystems));
 				}
 			} else if (Theme.#QUALIFIERS.indexOf(qualifier) >= 0) {
 				const blob = new Blob([fileEntry[1] as Uint8Array], { type: 'image/png' });
@@ -238,6 +260,14 @@ export default class Theme {
 		return x + y * width;
 	}
 
+	static #applyArrayToObject(obj, arrayValues: string[]) {
+		let i = 0;
+		for (const property of Object.keys(obj)) {
+			obj[property] = arrayValues[i];
+			i++;
+		}
+	}
+
 	static isEmpty(): boolean {
 		return Object.keys(Theme.#elements).length === 0;
 	}
@@ -248,6 +278,10 @@ export default class Theme {
 
 	static getRace(qualifier: string): string {
 		return Theme.#RACES[qualifier];
+	}
+
+	static getSystemName(systemName: string): string {
+		return Theme.#HOME_SYSTEMS[systemName] ?? systemName;
 	}
 
 	static set enabled(enabled: boolean) {
@@ -272,6 +306,6 @@ export default class Theme {
 		const spriteSheetQualifiers = Object.values(Theme.#SPRITE_SHEETS)
 			.flatMap((spriteSheet) => spriteSheet.sprites)
 			.map((sprite) => sprite.qualifier);
-		return [...Theme.#QUALIFIERS, ...spriteSheetQualifiers];
+		return [...Theme.#QUALIFIERS, ...spriteSheetQualifiers, 'races', 'home-systems'];
 	}
 }

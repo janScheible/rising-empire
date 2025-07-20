@@ -1,4 +1,5 @@
 import FlowLayout from '~/component/flow-layout';
+import Theme from '~/theme/theme';
 import cssUrl from '~/util/cssUrl';
 import Reconciler from '~/util/reconciler';
 
@@ -25,7 +26,7 @@ export default class SystemName extends HTMLElement {
 	}
 
 	render(data) {
-		Reconciler.reconcileProperty(this.#systemNameEl, 'innerText', data.name);
+		Reconciler.reconcileProperty(this.#systemNameEl, 'innerText', Theme.getSystemName(data.name));
 	}
 }
 
