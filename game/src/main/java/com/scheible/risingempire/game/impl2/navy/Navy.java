@@ -216,7 +216,11 @@ public class Navy {
 				.orElseThrow();
 
 			this.fleets.remove(orbiting);
-			this.fleets.add(orbiting.detach(new Ships(Map.of(colonyShipClassId, 1))));
+
+			Fleet withoutColonyShip = orbiting.detach(new Ships(Map.of(colonyShipClassId, 1)));
+			if (!withoutColonyShip.ships().empty()) {
+				this.fleets.add(withoutColonyShip);
+			}
 		}
 	}
 
