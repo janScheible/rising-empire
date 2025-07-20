@@ -44,6 +44,8 @@ public class Colonization {
 
 	private final ArrivingColonistTransportsProvider arrivingColonistTransportsProvider;
 
+	private final MaxPopulationProvider maxPopulationProvider;
+
 	private final Map<Position, Map<ShipClassId, Integer>> newShips = new HashMap<>();
 
 	private final Set<Position> newColonies = new HashSet<>();
@@ -56,7 +58,8 @@ public class Colonization {
 
 	public Colonization(ColonyFleetProvider colonyFleetProvider, ShipCostProvider shipCostProvider,
 			InitialShipClassProvider initialShipClassProvider, AnnexedSystemsProvider annexedSystemsProvider,
-			ArrivingColonistTransportsProvider arrivingColonistTransportsProvider) {
+			ArrivingColonistTransportsProvider arrivingColonistTransportsProvider,
+			MaxPopulationProvider maxPopulationProvider) {
 		this.colonies = new ArrayList<>();
 
 		this.colonyFleetProvider = colonyFleetProvider;
@@ -64,6 +67,7 @@ public class Colonization {
 		this.initialShipClassProvider = initialShipClassProvider;
 		this.annexedSystemsProvider = annexedSystemsProvider;
 		this.arrivingColonistTransportsProvider = arrivingColonistTransportsProvider;
+		this.maxPopulationProvider = maxPopulationProvider;
 
 		this.colonizationCommands = new HashSet<>();
 		this.transferColonistsCommands = new HashSet<>();
@@ -72,7 +76,8 @@ public class Colonization {
 	private Colonization(List<Colony> colonies, ColonyFleetProvider colonyFleetProvider,
 			ShipCostProvider shipCostProvider, InitialShipClassProvider initialShipClassProvider,
 			AnnexedSystemsProvider annexedSystemsProvider,
-			ArrivingColonistTransportsProvider arrivingColonistTransportsProvider, Set<Colonize> colonizationCommands,
+			ArrivingColonistTransportsProvider arrivingColonistTransportsProvider,
+			MaxPopulationProvider maxPopulationProvider, Set<Colonize> colonizationCommands,
 			Set<TransferColonists> transferColonistsCommands) {
 		this.colonies = colonies;
 
@@ -81,6 +86,7 @@ public class Colonization {
 		this.initialShipClassProvider = initialShipClassProvider;
 		this.annexedSystemsProvider = annexedSystemsProvider;
 		this.arrivingColonistTransportsProvider = arrivingColonistTransportsProvider;
+		this.maxPopulationProvider = maxPopulationProvider;
 
 		this.colonizationCommands = colonizationCommands;
 		this.transferColonistsCommands = transferColonistsCommands;
@@ -115,7 +121,7 @@ public class Colonization {
 
 		Colonization copy = new Colonization(new ArrayList<>(this.colonies), this.colonyFleetProvider,
 				this.shipCostProvider, this.initialShipClassProvider, this.annexedSystemsProvider,
-				this.arrivingColonistTransportsProvider, currrentColonizationCommands,
+				this.arrivingColonistTransportsProvider, this.maxPopulationProvider, currrentColonizationCommands,
 				currentTransferColonistsCommands);
 
 		copy.updateColonies(
@@ -171,8 +177,9 @@ public class Colonization {
 
 	public void growPopulations() {
 		for (int i = 0; i < this.colonies.size(); i++) {
-			this.colonies.set(i, this.colonies.get(i)
-				.with(colonyBuilder -> colonyBuilder.population(colonyBuilder.population().grow(new Population(100)))));
+			Colony colony = this.colonies.get(i);
+			this.colonies.set(i, colony.with(colonyBuilder -> colonyBuilder
+				.population(colonyBuilder.population().grow(this.maxPopulationProvider.max(colony.position())))));
 		}
 	}
 
@@ -224,7 +231,7 @@ public class Colonization {
 			}
 
 			if (this.colonyFleetProvider.colonizableSystems(colonize.player()).contains(colonize.system())) {
-				Population population = new Population(20);
+				Population population = new Population(5);
 				Colony preliminaryColony = new Colony(colonize.player(), colonize.system(), SpaceDock.UNINITIALIZED,
 						population);
 

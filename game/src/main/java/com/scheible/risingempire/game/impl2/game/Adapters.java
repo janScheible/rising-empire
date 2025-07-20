@@ -27,6 +27,7 @@ import com.scheible.risingempire.game.impl2.colonization.Colonization;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
 import com.scheible.risingempire.game.impl2.colonization.ColonyFleetProvider;
 import com.scheible.risingempire.game.impl2.colonization.InitialShipClassProvider;
+import com.scheible.risingempire.game.impl2.colonization.MaxPopulationProvider;
 import com.scheible.risingempire.game.impl2.colonization.ShipCostProvider;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.FleetItinearySegmentProvider;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.ScanAreasProvider;
@@ -58,6 +59,7 @@ import com.scheible.risingempire.game.impl2.spaceforce.combat.weapon.CombatWeapo
 import com.scheible.risingempire.game.impl2.technology.ResearchPointProvider;
 import com.scheible.risingempire.game.impl2.technology.ShipScannerCapability;
 import com.scheible.risingempire.game.impl2.technology.Technology;
+import com.scheible.risingempire.game.impl2.universe.Universe;
 
 /**
  * Contains all adapters use in the game implementation. Adapters provide a delegate
@@ -472,6 +474,21 @@ public final class Adapters {
 				.stream()
 				.map(df -> new DestroyedShips(df.player(), df.position(), df.ships()))
 				.collect(Collectors.toSet());
+		}
+
+	}
+
+	public static class MaxPopualtionProviderAdapter implements MaxPopulationProvider {
+
+		private Universe delegate;
+
+		public void delegate(Universe delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Population max(Position system) {
+			return this.delegate.planet(system).max();
 		}
 
 	}

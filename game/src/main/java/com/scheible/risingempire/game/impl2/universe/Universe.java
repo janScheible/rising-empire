@@ -6,16 +6,14 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import com.scheible.risingempire.game.api.universe.Player;
-import com.scheible.risingempire.game.api.view.system.PlanetSpecial;
-import com.scheible.risingempire.game.api.view.system.PlanetType;
 import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
-import com.scheible.risingempire.game.impl2.apiinternal.Population;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 
 /**
  * @author sj
  */
-public record Universe(Parsec width, Parsec height, List<Star> stars, Map<Player, Position> homeSystems) {
+public record Universe(Parsec width, Parsec height, List<Star> stars, Map<Position, Planet> planets,
+		Map<Player, Position> homeSystems) {
 
 	public Universe {
 		stars = Collections.unmodifiableList(stars);
@@ -53,11 +51,11 @@ public record Universe(Parsec width, Parsec height, List<Star> stars, Map<Player
 	}
 
 	public Planet planet(Star star) {
-		return new Planet(PlanetType.TERRAN, PlanetSpecial.NONE, new Population(100));
+		return planet(star.position());
 	}
 
 	public Planet planet(Position system) {
-		return new Planet(PlanetType.TERRAN, PlanetSpecial.NONE, new Population(100));
+		return this.planets.get(system);
 	}
 
 	public Star star(Position system) {

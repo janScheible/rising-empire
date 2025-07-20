@@ -57,6 +57,7 @@ import com.scheible.risingempire.game.impl2.game.Adapters.DestroyedShipsProvider
 import com.scheible.risingempire.game.impl2.game.Adapters.EncounteringFleetShipsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.FleetItinearySegmentProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.InitialShipClassProviderAdapter;
+import com.scheible.risingempire.game.impl2.game.Adapters.MaxPopualtionProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.NewColoniesProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.NewShipsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.OrbitingFleetsProviderAdapter;
@@ -86,6 +87,7 @@ import com.scheible.risingempire.game.impl2.spaceforce.combat.SpaceCombatResolve
 import com.scheible.risingempire.game.impl2.spaceforce.combat.SpaceCombatResolverImpl;
 import com.scheible.risingempire.game.impl2.technology.Technology;
 import com.scheible.risingempire.game.impl2.technology.Technology.SelectTechnology;
+import com.scheible.risingempire.game.impl2.universe.Planet;
 import com.scheible.risingempire.game.impl2.universe.Star;
 import com.scheible.risingempire.game.impl2.universe.Universe;
 import com.scheible.risingempire.game.impl2.view.FleetIdMapper;
@@ -131,8 +133,8 @@ public class Game2Impl implements Game {
 
 	private final PlayerTurns playerTurns;
 
-	public Game2Impl(GameOptions gameOptions, List<Empire> empires, List<Star> stars, List<Fleet> fleets,
-			Map<Player, Position> homeSystems, SeededRandom random) {
+	public Game2Impl(GameOptions gameOptions, List<Empire> empires, List<Star> stars, Map<Position, Planet> planets,
+			List<Fleet> fleets, Map<Player, Position> homeSystems, SeededRandom random) {
 		ColoniesProviderAdapter coloniesProviderAdapter = new ColoniesProviderAdapter();
 		ShipMovementSpecsProviderAdapter shipMovementSpecsProviderAdapter = new ShipMovementSpecsProviderAdapter();
 		ColonyFleetProviderAdapter colonyFleetProviderAdapter = new ColonyFleetProviderAdapter();
@@ -155,6 +157,7 @@ public class Game2Impl implements Game {
 		ArrivingColonistTransportsProviderAdapter arrivingColonistTransportsProviderAdapter = new ArrivingColonistTransportsProviderAdapter();
 		ShipCombatSpecsProviderAdapter shipCombatSpecsProviderAdapter = new ShipCombatSpecsProviderAdapter();
 		DestroyedShipsProviderAdapter destroyedShipsProviderAdapter = new DestroyedShipsProviderAdapter();
+		MaxPopualtionProviderAdapter maxPopualtionProviderAdapter = new MaxPopualtionProviderAdapter();
 
 		this.gameOptions = gameOptions;
 		this.random = random;
@@ -162,7 +165,7 @@ public class Game2Impl implements Game {
 		SpaceCombatResolver spaceCombatResolver = new SpaceCombatResolverImpl(shipCombatSpecsProviderAdapter, random);
 
 		this.universe = new Universe(LocationMapper.fromLocationValue(gameOptions.galaxySize().width()),
-				LocationMapper.fromLocationValue(gameOptions.galaxySize().height()), stars, homeSystems);
+				LocationMapper.fromLocationValue(gameOptions.galaxySize().height()), stars, planets, homeSystems);
 		this.empires = new Empires(empires);
 		this.technology = new Technology(researchPointProviderAdapter);
 		this.shipyard = new Shipyard(buildCapacityProviderAdpater);
@@ -172,7 +175,7 @@ public class Game2Impl implements Game {
 		this.etaCalculator = new EtaCalculator(shipMovementSpecsProviderAdapter, coloniesProviderAdapter);
 		this.colonization = new Colonization(colonyFleetProviderAdapter, shipCostProviderAdapter,
 				initialShipClassProviderAdapter, annexedSystemsProviderAdapter,
-				arrivingColonistTransportsProviderAdapter);
+				arrivingColonistTransportsProviderAdapter, maxPopualtionProviderAdapter);
 		this.army = new Army(siegedSystemProviderAdapter);
 		this.spaceForce = new SpaceForce(encounteringFleetShipsProviderAdapter, spaceCombatResolver);
 		this.systemIntelligence = new SystemIntelligence(orbitingFleetsProviderAdapter, colonyProviderAdapter);
@@ -201,6 +204,7 @@ public class Game2Impl implements Game {
 		arrivingColonistTransportsProviderAdapter.delegate(this.navy);
 		shipCombatSpecsProviderAdapter.delegate(this.shipyard);
 		destroyedShipsProviderAdapter.delegate(this.spaceForce);
+		maxPopualtionProviderAdapter.delegate(this.universe);
 
 		this.round = new Round(1);
 		this.playerTurns = new PlayerTurns(this.empires.players());
