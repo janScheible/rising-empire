@@ -65,7 +65,7 @@ public class Game2FactoryImpl implements GameFactory {
 		Map<Player, Race> races = Map.of( //
 				Player.BLUE, Race.LUMERISKS, //
 				Player.YELLOW, Race.MYXALOR, //
-				Player.WHITE, Race.MYXALOR);
+				Player.WHITE, Race.XELIPHARI);
 
 		GeneratedStars generatedStars = generateStars(gameOptions.galaxySize(), races, random);
 		List<Star> stars = gameOptions.testGame()
