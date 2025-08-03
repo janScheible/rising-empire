@@ -325,8 +325,9 @@ public class MainPageDtoPopulator {
 							.filter(c -> c.player() == gameView.player() && !state.isTransferColonistsState()
 									&& !state.isRelocateShipsState())
 							.map(c -> new EntityModel<>(new BuildQueueDto(c.spaceDock().get().current().name(),
-									c.spaceDock().get().current().size(), gameView.player(), Math
-										.max(c.spaceDock().get().count(), 1)))
+									c.spaceDock().get().current().size(), gameView
+										.player(),
+									c.spaceDock().get().count()))
 								.with(Action
 									.jsonPost("next-ship-type",
 											context.toFrontendUri("main-page", "inspector", "ship-types"))

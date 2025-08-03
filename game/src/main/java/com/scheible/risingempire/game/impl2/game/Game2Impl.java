@@ -18,6 +18,7 @@ import com.scheible.risingempire.game.api.TurnStatus;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
+import com.scheible.risingempire.game.api.view.colony.ProductionArea;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
@@ -36,6 +37,7 @@ import com.scheible.risingempire.game.impl2.army.Army.Annex;
 import com.scheible.risingempire.game.impl2.army.Army.ArmyCommand;
 import com.scheible.risingempire.game.impl2.army.SiegedSystem;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
+import com.scheible.risingempire.game.impl2.colonization.Colonization.AllocateResources;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.ColonizationCommand;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.Colonize;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.ColonyCommand;
@@ -451,8 +453,7 @@ public class Game2Impl implements Game {
 
 			Colony colony = colonization().colony(this.player, system).orElseThrow();
 
-			Game2Impl.this.playerTurns.removeCommands(this.player,
-					command -> command.player().equals(this.player) && command.colony().equals(system),
+			Game2Impl.this.playerTurns.removeCommands(this.player, command -> command.colony().equals(system),
 					SpaceDockShipClass.class);
 
 			Game2Impl.this.playerTurns.addCommand(this.player, new SpaceDockShipClass(this.player, system,
@@ -465,8 +466,8 @@ public class Game2Impl implements Game {
 
 			Position originColonySystem = SystemIdMapper.fromColonyId(originId);
 
-			Game2Impl.this.playerTurns.removeCommands(this.player, command -> command.player().equals(this.player)
-					&& command.originColony().equals(originColonySystem), TransferColonists.class);
+			Game2Impl.this.playerTurns.removeCommands(this.player,
+					command -> command.originColony().equals(originColonySystem), TransferColonists.class);
 
 			if (colonists > 0 && !originId.equals(destinationId)) {
 				Population population = new Population(colonists);
@@ -495,8 +496,7 @@ public class Game2Impl implements Game {
 			Position system = SystemIdMapper.fromSystemId(systemId);
 
 			if (Game2Impl.this.colonizableSystems(this.player).stream().anyMatch(cs -> cs.equals(system))) {
-				Game2Impl.this.playerTurns.removeCommands(this.player,
-						command -> command.player().equals(this.player) && command.system().equals(system),
+				Game2Impl.this.playerTurns.removeCommands(this.player, command -> command.system().equals(system),
 						Colonize.class);
 				Game2Impl.this.playerTurns.addCommand(this.player, new Colonize(this.player, system, skip));
 			}
@@ -512,8 +512,7 @@ public class Game2Impl implements Game {
 			if (Game2Impl.this.army.annexationStatus(this.player, system)
 				.map(AnnexationStatus::annexable)
 				.orElse(Boolean.FALSE)) {
-				Game2Impl.this.playerTurns.removeCommands(this.player,
-						command -> command.player().equals(this.player) && command.system().equals(system),
+				Game2Impl.this.playerTurns.removeCommands(this.player, command -> command.system().equals(system),
 						Annex.class);
 				Game2Impl.this.playerTurns.addCommand(this.player, new Annex(this.player, system, skip));
 			}
@@ -550,6 +549,15 @@ public class Game2Impl implements Game {
 			else {
 				throw new IllegalArgumentException("The technology " + techId + " can't be selected!");
 			}
+		}
+
+		@Override
+		public void adjustRation(ColonyId colonyId, ProductionArea area, int percentage) {
+			Position colonyPosition = SystemIdMapper.fromColonyId(colonyId);
+			Game2Impl.this.playerTurns.removeCommands(this.player, command -> command.colony().equals(colonyPosition),
+					AllocateResources.class);
+			Game2Impl.this.playerTurns.addCommand(this.player,
+					new AllocateResources(this.player, colonyPosition, area, percentage));
 		}
 
 		@Override

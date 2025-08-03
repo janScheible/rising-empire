@@ -7,6 +7,7 @@ import com.scheible.risingempire.game.api.TurnStatus;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
+import com.scheible.risingempire.game.api.view.colony.ProductionArea;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
@@ -74,6 +75,11 @@ public class PlayerGameImpl implements PlayerGame {
 	@Override
 	public void relocateShips(ColonyId originId, ColonyId destinationId) {
 		this.game.relocateShips(this.player, originId, destinationId);
+	}
+
+	@Override
+	public void adjustRation(ColonyId colonyId, ProductionArea area, int percentage) {
+		// not supported... just ignore...
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package com.scheible.risingempire.game.impl2.colonization;
 
+import java.util.Optional;
+
 import com.scheible.risingempire.game.impl2.apiinternal.Credit;
 import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
@@ -7,7 +9,7 @@ import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 /**
  * @author sj
  */
-public record SpaceDock(ShipClassId current, SpaceDockOutput output, ConstructionProgress progress) {
+public record SpaceDock(ShipClassId current, Optional<SpaceDockOutput> output, ConstructionProgress progress) {
 
 	static SpaceDock UNINITIALIZED = new SpaceDock(null, null, null);
 

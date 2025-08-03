@@ -21,6 +21,7 @@ import com.scheible.risingempire.game.impl2.army.AnnexationStatus;
 import com.scheible.risingempire.game.impl2.army.Army;
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
+import com.scheible.risingempire.game.impl2.colonization.SpaceDock.SpaceDockOutput;
 import com.scheible.risingempire.game.impl2.empire.Empires;
 import com.scheible.risingempire.game.impl2.intelligence.system.SystemIntelligence;
 import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconReport;
@@ -94,16 +95,28 @@ public class SystemViewMapper {
 										.size(design.size())
 										.look(design.look())
 										.build())
-									.count(c.spaceDock().output().nextRoundCount())
+									.count(c.spaceDock()
+										.output()
+										.map(sdo -> Math.max(sdo.nextRoundCount(), 1)) //
+										// return 1 even if it takes multiple rounds to
+										// finish the ship
+										.orElse(0))
 									.build())
 							: Optional.empty())
 					.allocations(starHasOwnColony.test(star) ? Optional.of(Map.of( //
 							ProductionArea.DEFENCE, new AllocationView(0, "None"), //
-							ProductionArea.ECOLOGY, new AllocationView(25, "Clean"), //
+							ProductionArea.ECOLOGY, new AllocationView(0, "None"), //
 							ProductionArea.INDUSTRY, new AllocationView(0, "None"), //
 							ProductionArea.SHIP,
-							new AllocationView(75, c.spaceDock().output().duration().quantity() + " r"), //
-							ProductionArea.TECHNOLOGY, new AllocationView(0, "0 RP"))) : Optional.empty())
+							new AllocationView(100 - c.techPercentage().value(),
+									c.spaceDock()
+										.output()
+										.map(SpaceDockOutput::duration)
+										.map(r -> r.quantity() + " r")
+										.orElse("None")),
+							ProductionArea.TECHNOLOGY,
+							new AllocationView(c.techPercentage().value(), c.researchPoints().quantity() + " RP")))
+							: Optional.empty())
 					.annexationStatus(annexationStatus.map(as -> AnnexationStatusView.builder()
 						.siegeRounds(as.siegeRounds().map(Rounds::quantity))
 						.roundsUntilAnnexable(as.roundsUntilAnnexable().map(Rounds::quantity))

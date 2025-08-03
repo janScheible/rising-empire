@@ -12,6 +12,7 @@ import com.scheible.risingempire.game.api.Game;
 import com.scheible.risingempire.game.api.TurnStatus;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
+import com.scheible.risingempire.game.api.view.colony.ProductionArea;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
@@ -127,6 +128,15 @@ class MainPageController {
 	@PostMapping(path = "/main-page/inspector/spendings", consumes = APPLICATION_JSON_VALUE)
 	ResponseEntity<Void> allocateSystemSpendings(@ModelAttribute FrontendContext context,
 			@RequestBody SystemSpendingsBodyDto body) {
+		if (body.technology.isPresent()) {
+			context.getPlayerGame()
+				.adjustRation(body.selectedStarId.toColonyId(), ProductionArea.TECHNOLOGY, body.technology.get());
+		}
+		else if (body.ship.isPresent()) {
+			context.getPlayerGame()
+				.adjustRation(body.selectedStarId.toColonyId(), ProductionArea.TECHNOLOGY, 100 - body.ship.get());
+		}
+
 		return ResponseEntity.status(HttpStatus.SEE_OTHER)
 			.header(HttpHeaders.LOCATION,
 					context.withSelectedStar(body.selectedStarId)

@@ -5,6 +5,7 @@ import java.util.Optional;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.GameView;
 import com.scheible.risingempire.game.api.view.colony.ColonyId;
+import com.scheible.risingempire.game.api.view.colony.ProductionArea;
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
@@ -45,6 +46,8 @@ public interface PlayerGame {
 	void deployFleet(FleetId fleetId, SystemId destinationId, ShipsView ships);
 
 	void selectTech(TechId techId);
+
+	void adjustRation(ColonyId colonyId, ProductionArea area, int percentage);
 
 	//
 	// End player turn. Round ends as soon as all players have finished their turns.

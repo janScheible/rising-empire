@@ -12,6 +12,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.universe.Player;
+import com.scheible.risingempire.game.api.view.colony.ProductionArea;
 import com.scheible.risingempire.game.impl2.apiinternal.Credit;
 import com.scheible.risingempire.game.impl2.apiinternal.Population;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
@@ -23,6 +24,7 @@ import com.scheible.risingempire.game.impl2.colonization.ArrivingColonistTranspo
 import com.scheible.risingempire.game.impl2.colonization.SpaceDock.ConstructionProgress;
 import com.scheible.risingempire.game.impl2.colonization.SpaceDock.SpaceDockOutput;
 import com.scheible.risingempire.game.impl2.common.Command;
+import com.scheible.risingempire.util.Percentage;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
@@ -95,7 +97,8 @@ public class Colonization {
 	public void initialize(Map<Player, Position> homeSystems) {
 		this.colonies.addAll(homeSystems.entrySet()
 			.stream()
-			.map(hs -> new Colony(hs.getKey(), hs.getValue(), SpaceDock.UNINITIALIZED, new Population(50)))
+			.map(hs -> new Colony(hs.getKey(), hs.getValue(), SpaceDock.UNINITIALIZED, new Population(50),
+					new Percentage(100), researchPoints(new Percentage(100))))
 			.toList());
 
 		for (int i = 0; i < this.colonies.size(); i++) {
@@ -103,7 +106,9 @@ public class Colonization {
 
 			ShipClassId initalShipClass = this.initialShipClassProvider.initial();
 			ConstructionProgress progress = new ConstructionProgress(initalShipClass, new Credit(0));
-			SpaceDockOutput output = spaceDockOutput(colony, initalShipClass, progress).spaceDockOutput();
+			Optional<SpaceDockOutput> output = spaceDockOutput(colony.player(), colony.techPercentage(),
+					initalShipClass, progress)
+				.spaceDockOutput();
 
 			this.colonies.set(i, colony.withSpaceDock(new SpaceDock(initalShipClass, output, progress)));
 		}
@@ -167,11 +172,22 @@ public class Colonization {
 				.map(SpaceDockShipClass::shipClassId)
 				.orElse(spaceDock.current());
 
-			SpaceDockOutput output = spaceDockOutput(colony, spaceDockShipClassId, spaceDock.progress())
+			Percentage techPercentage = colonyCommands.stream()
+				.filter(AllocateResources.class::isInstance)
+				.map(AllocateResources.class::cast)
+				.findFirst()
+				.map(AllocateResources::percentage)
+				.map(Percentage::new)
+				.orElse(colony.techPercentage());
+
+			Optional<SpaceDockOutput> output = spaceDockOutput(colony.player(), techPercentage, spaceDockShipClassId,
+					spaceDock.progress())
 				.spaceDockOutput();
 
 			this.colonies.set(i,
-					colony.withSpaceDock(new SpaceDock(spaceDockShipClassId, output, spaceDock.progress())));
+					colony.withSpaceDock(new SpaceDock(spaceDockShipClassId, output, spaceDock.progress()))
+						.withTechPercentage(techPercentage)
+						.withResearchPoints(researchPoints(techPercentage)));
 		}
 	}
 
@@ -190,29 +206,35 @@ public class Colonization {
 			Colony colony = this.colonies.get(i);
 			SpaceDock spaceDock = colony.spaceDock();
 
-			SpaceDockOutputWithRemainingInvest finishRoundOutput = spaceDockOutput(colony, spaceDock.current(),
-					spaceDock.progress());
+			SpaceDockOutputWithRemainingInvest finishRoundOutput = spaceDockOutput(colony.player(),
+					colony.techPercentage(), spaceDock.current(), spaceDock.progress());
 
 			ConstructionProgress progress = new ConstructionProgress(spaceDock.current(),
 					finishRoundOutput.remainingInvest());
 
-			int newShipsCount = finishRoundOutput.spaceDockOutput().nextRoundCount();
+			int newShipsCount = finishRoundOutput.spaceDockOutput().map(SpaceDockOutput::nextRoundCount).orElse(0);
 			if (newShipsCount > 0) {
 				this.newShips.put(colony.position(), Map.of(spaceDock.current(), newShipsCount));
 			}
 
-			SpaceDockOutput nextRoundOutput = spaceDockOutput(colony, spaceDock.current(), progress).spaceDockOutput();
+			Optional<SpaceDockOutput> nextRoundOutput = spaceDockOutput(colony.player(), colony.techPercentage(),
+					spaceDock.current(), progress)
+				.spaceDockOutput();
 
 			this.colonies.set(i, colony.withSpaceDock(new SpaceDock(spaceDock.current(), nextRoundOutput, progress)));
 		}
 	}
 
-	private SpaceDockOutputWithRemainingInvest spaceDockOutput(Colony colony, ShipClassId current,
-			ConstructionProgress progress) {
-		Credit buildCapacity = buildCapacity(colony.player(), colony.position());
+	private SpaceDockOutputWithRemainingInvest spaceDockOutput(Player owner, Percentage techPercentage,
+			ShipClassId current, ConstructionProgress progress) {
+		Credit buildCapacity = buildCapacity(techPercentage);
 		Credit invest = progress.build(current, buildCapacity);
 
-		Credit shipCost = this.shipCostProvider.cost(colony.player(), current);
+		if (techPercentage.value() == 100) {
+			return new SpaceDockOutputWithRemainingInvest(Optional.empty(), invest);
+		}
+
+		Credit shipCost = this.shipCostProvider.cost(owner, current);
 		int newShipsCount = invest.integerDivide(shipCost);
 
 		Rounds roundsPerShip = new Rounds(1);
@@ -220,7 +242,7 @@ public class Colonization {
 			roundsPerShip = new Rounds(shipCost.subtract(invest).divideRoundUp(buildCapacity) + 1);
 		}
 
-		return new SpaceDockOutputWithRemainingInvest(new SpaceDockOutput(roundsPerShip, newShipsCount),
+		return new SpaceDockOutputWithRemainingInvest(Optional.of(new SpaceDockOutput(roundsPerShip, newShipsCount)),
 				invest.modulo(shipCost));
 	}
 
@@ -232,12 +254,14 @@ public class Colonization {
 
 			if (this.colonyFleetProvider.colonizableSystems(colonize.player()).contains(colonize.system())) {
 				Population population = new Population(5);
+				Percentage techPercentage = new Percentage(100);
 				Colony preliminaryColony = new Colony(colonize.player(), colonize.system(), SpaceDock.UNINITIALIZED,
-						population);
+						population, techPercentage, researchPoints(techPercentage));
 
 				ShipClassId initalShipClass = this.initialShipClassProvider.initial();
 				ConstructionProgress progress = new ConstructionProgress(initalShipClass, new Credit(0));
-				SpaceDockOutput output = spaceDockOutput(preliminaryColony, initalShipClass, progress)
+				Optional<SpaceDockOutput> output = spaceDockOutput(preliminaryColony.player(),
+						preliminaryColony.techPercentage(), initalShipClass, progress)
 					.spaceDockOutput();
 
 				this.colonies.add(preliminaryColony.withSpaceDock(new SpaceDock(initalShipClass, output, progress)));
@@ -302,8 +326,21 @@ public class Colonization {
 		return population.quantity() <= maxTranfser;
 	}
 
+	private Credit buildCapacity(Percentage techPercentage) {
+		if (techPercentage.value() == 100) {
+			return new Credit(0);
+		}
+		else {
+			return new Credit((int) (1500 * ((100 - techPercentage.value()) / 100.0)));
+		}
+	}
+
+	private ResearchPoint researchPoints(Percentage techPercentage) {
+		return new ResearchPoint(techPercentage.value());
+	}
+
 	public Credit buildCapacity(Player player, Position system) {
-		return new Credit(1500);
+		return buildCapacity(colony(player, system).orElseThrow().techPercentage());
 	}
 
 	public ResearchPoint researchPoints(Player player) {
@@ -361,7 +398,8 @@ public class Colonization {
 
 	}
 
-	public record AllocateResources(Player player, Position colony) implements ColonyCommand {
+	public record AllocateResources(Player player, Position colony, ProductionArea area,
+			int percentage) implements ColonyCommand {
 
 	}
 
@@ -375,7 +413,8 @@ public class Colonization {
 
 	}
 
-	private record SpaceDockOutputWithRemainingInvest(SpaceDockOutput spaceDockOutput, Credit remainingInvest) {
+	private record SpaceDockOutputWithRemainingInvest(Optional<SpaceDockOutput> spaceDockOutput,
+			Credit remainingInvest) {
 
 	}
 

@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.scheible.risingempire.game.api.universe.Player;
+import com.scheible.risingempire.game.api.view.colony.ProductionArea;
 import com.scheible.risingempire.game.impl2.apiinternal.Credit;
 import com.scheible.risingempire.game.impl2.apiinternal.Population;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
@@ -13,12 +14,14 @@ import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.colonization.AnnexedSystemsProvider.AnnexedSystem;
 import com.scheible.risingempire.game.impl2.colonization.ArrivingColonistTransportsProvider.ArrivingColonistTransport;
+import com.scheible.risingempire.game.impl2.colonization.Colonization.AllocateResources;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.ColonizationCommand;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.Colonize;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.ColonyCommand;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.SpaceDockShipClass;
 import com.scheible.risingempire.game.impl2.colonization.Colonization.TransferColonists;
 import com.scheible.risingempire.game.impl2.colonization.SpaceDock.ConstructionProgress;
+import com.scheible.risingempire.game.impl2.colonization.SpaceDock.SpaceDockOutput;
 import org.assertj.core.api.ObjectAssert;
 import org.junit.jupiter.api.Test;
 
@@ -50,6 +53,9 @@ public class ColonizationTest {
 				() -> Set.of(), (_) -> this.population);
 
 		colonization.initialize(this.homeSystems);
+		colonization
+			.updateColonies(List.of(new AllocateResources(Player.BLUE, colonySystem, ProductionArea.TECHNOLOGY, 0)));
+
 		assertSpaceDock(colonization.colony(colonySystem), 0, new Rounds(2),
 				new ConstructionProgress(first, new Credit(0)));
 
@@ -72,13 +78,17 @@ public class ColonizationTest {
 		assertThat(colonization.newShips().get(colonySystem)).isEqualTo(Map.of(second, 2));
 		assertSpaceDock(colonization.colony(colonySystem), 3, new Rounds(1),
 				new ConstructionProgress(second, new Credit(300)));
+
+		colonization
+			.updateColonies(List.of(new AllocateResources(Player.BLUE, colonySystem, ProductionArea.TECHNOLOGY, 100)));
+		assertThat(colonization.colony(colonySystem).orElseThrow().spaceDock().output()).isEmpty();
 	}
 
 	private static ObjectAssert<SpaceDock> assertSpaceDock(Optional<Colony> colony, int nextRoundCount, Rounds duration,
 			ConstructionProgress constructionProgress) {
 		return assertThat(colony.orElseThrow().spaceDock()).satisfies(spaceDock -> {
-			assertThat(spaceDock.output().nextRoundCount()).isEqualTo(nextRoundCount);
-			assertThat(spaceDock.output().duration()).isEqualTo(duration);
+			assertThat(spaceDock.output().map(SpaceDockOutput::nextRoundCount)).contains(nextRoundCount);
+			assertThat(spaceDock.output().map(SpaceDockOutput::duration)).contains(duration);
 			assertThat(spaceDock.progress()).isEqualTo(constructionProgress);
 		});
 	}
