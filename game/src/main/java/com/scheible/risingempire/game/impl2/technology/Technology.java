@@ -1,8 +1,11 @@
 package com.scheible.risingempire.game.impl2.technology;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.tech.TechId;
@@ -13,43 +16,51 @@ import com.scheible.risingempire.game.impl2.common.Command;
 
 public class Technology {
 
-	private static final Map<ShipClassId, Speed> SPEEDS = Map.of( //
+	private final Map<ShipClassId, Speed> speeds = new HashMap<>(Map.of( //
 			new ShipClassId("scout"), new Speed(1.5), //
 			new ShipClassId("colony-ship"), new Speed(1.0), //
 			new ShipClassId("fighter"), new Speed(1.0), //
 			new ShipClassId("destroyer"), new Speed(1.0), //
 			new ShipClassId("cruiser"), new Speed(1.0), //
-			ShipClassId.COLONISTS_TRANSPORTER, new Speed(1.0));
+			ShipClassId.COLONISTS_TRANSPORTER, new Speed(1.0)));
 
-	private static final Map<ShipClassId, Parsec> RANGES = Map.of( //
+	private final Map<ShipClassId, Parsec> ranges = new HashMap<>(Map.of( //
 			new ShipClassId("scout"), new Parsec(4.0), //
 			new ShipClassId("colony-ship"), new Parsec(3.0), //
 			new ShipClassId("fighter"), new Parsec(3.0), //
 			new ShipClassId("destroyer"), new Parsec(3.0), //
 			new ShipClassId("cruiser"), new Parsec(3.0), //
-			ShipClassId.COLONISTS_TRANSPORTER, new Parsec(3.0));
+			ShipClassId.COLONISTS_TRANSPORTER, new Parsec(3.0)));
 
 	private final ResearchPointProvider researchPointProvider;
 
-	public Technology(ResearchPointProvider researchPointProvider) {
+	public Technology(ResearchPointProvider researchPointProvider, double fleetSpeedFactor, double fleetRangeFactor) {
 		this.researchPointProvider = researchPointProvider;
 		this.researchPointProvider.hashCode(); // to make PMD happy for now...
+
+		this.speeds.putAll(this.speeds.entrySet()
+			.stream()
+			.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().multiply(fleetSpeedFactor))));
+
+		this.ranges.putAll(this.ranges.entrySet()
+			.stream()
+			.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().multiply(new Parsec(fleetRangeFactor)))));
 	}
 
 	public Speed speed(Player player, ShipClassId shipClassId) {
-		return SPEEDS.get(shipClassId);
+		return this.speeds.get(shipClassId);
 	}
 
 	public Parsec range(Player player, ShipClassId shipClassId) {
-		return RANGES.get(shipClassId);
+		return this.ranges.get(shipClassId);
 	}
 
 	public Parsec range(Player player) {
-		return RANGES.values().stream().min(Parsec::compareTo).get();
+		return this.ranges.values().stream().min(Parsec::compareTo).get();
 	}
 
 	public Parsec extendedRange(Player player) {
-		return RANGES.values().stream().max(Parsec::compareTo).get();
+		return this.ranges.values().stream().max(Parsec::compareTo).get();
 	}
 
 	public Parsec scanRange(Player player, ShipClassId shipClassId) {

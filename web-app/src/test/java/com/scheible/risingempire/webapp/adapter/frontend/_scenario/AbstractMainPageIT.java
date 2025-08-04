@@ -56,11 +56,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 		"com.scheible.risingempire.webapp.adapter.frontend._scenario.AbstractMainPageIT=INFO" })
 abstract class AbstractMainPageIT {
 
-	static final SystemId BLUE_HOME_SYSTEM_ID = new SystemId("s60x60");
+	static final SystemId BLUE_HOME_SYSTEM_ID = new SystemId("s800x800");
 
-	static final SystemId WHITE_HOME_SYSTEM_ID = new SystemId("s220x100");
+	static final SystemId WHITE_HOME_SYSTEM_ID = new SystemId("s2933x1333");
 
-	static final SystemId YELLOW_HOME_SYSTEM_ID = new SystemId("s140x340");
+	static final SystemId YELLOW_HOME_SYSTEM_ID = new SystemId("s1866x4533");
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractMainPageIT.class);
 

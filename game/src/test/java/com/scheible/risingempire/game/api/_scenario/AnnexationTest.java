@@ -5,6 +5,7 @@ import com.scheible.risingempire.game.api._testgame.TestScenario;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.colony.ColonyView;
 import com.scheible.risingempire.game.api.view.fleet.FleetView;
+import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outcome;
 import org.junit.jupiter.api.Test;
 
 import static com.scheible.risingempire.game.api._testgame.AbstractGameTest.SOL_BLUE_HOME;
@@ -24,7 +25,8 @@ public class AnnexationTest extends AbstractGameTest {
 				.fleetRangeFactor(30.0)
 				.fleetSpeedFactor(30.0)
 				// decrease the number of turns of siege required to annex a system to 1
-				.annexationSiegeRounds(1);
+				.annexationSiegeRounds(1)
+				.predefinedSpaceCombatOutcome(Outcome.ATTACKER_WON);
 		}).turn((game, view) -> {
 			FleetView fleetAtSol = view.orbiting(SOL_BLUE_HOME).orElseThrow();
 			game.deployFleet(fleetAtSol.id(), SPICIA_WHITE, fleetAtSol.ships());

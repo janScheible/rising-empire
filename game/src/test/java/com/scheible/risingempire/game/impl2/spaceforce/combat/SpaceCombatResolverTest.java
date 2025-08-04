@@ -48,7 +48,7 @@ class SpaceCombatResolverTest {
 			.battleScanner(false)
 			.build();
 
-		ResolvedSpaceCombat spaceCombat = new SpaceCombatResolverImpl(null, new SeededRandom(345_492_973_976L))
+		ResolvedSpaceCombat spaceCombat = new SimulatedSpaceCombatResolver(null, new SeededRandom(345_492_973_976L))
 			.resolve(Map.of(attackingFighterDesing, 3), Map.of(defendingFighterDesing, 7));
 
 		assertThat(spaceCombat.outcome()).isEqualTo(Outcome.DEFENDER_WON);

@@ -53,7 +53,7 @@ export default class NewGamePage extends HTMLElement {
 						</select>
 
 						<label id="game2-label" for="game2">Game 2</label>
-						<input name="game2" type="checkbox" data-row-align="left">
+						<input name="game2" type="checkbox" checked data-row-align="left">
 
 						<label id="scenario-label" hidden for="scenario">Scenario</label>
 						<select hidden name="scenario">

@@ -25,25 +25,29 @@ public class Army {
 
 	private final SiegedSystemsProvider siegedSystemsProvider;
 
+	private final int annexationSiegeRounds;
+
 	private final Map<Player, Map<Position, Rounds>> playerSiegedSystemRounds;
 
 	private final Map<Player, Position> annexedSystems = new HashMap<>();
 
 	private final Set<Annex> annexCommands;
 
-	public Army(SiegedSystemsProvider siegedSystemsProvider) {
+	public Army(SiegedSystemsProvider siegedSystemsProvider, int annexationSiegeRounds) {
 		this.playerSiegedSystemRounds = new HashMap<>();
 
 		this.siegedSystemsProvider = siegedSystemsProvider;
+		this.annexationSiegeRounds = annexationSiegeRounds;
 
 		this.annexCommands = new HashSet<>();
 	}
 
 	private Army(Map<Player, Map<Position, Rounds>> playerSiegedSystemRoundsMapping,
-			SiegedSystemsProvider siegedSystemsProvider, Set<Annex> annexCommands) {
+			SiegedSystemsProvider siegedSystemsProvider, int annexationSiegeRounds, Set<Annex> annexCommands) {
 		this.playerSiegedSystemRounds = playerSiegedSystemRoundsMapping;
 
 		this.siegedSystemsProvider = siegedSystemsProvider;
+		this.annexationSiegeRounds = annexationSiegeRounds;
 
 		this.annexCommands = annexCommands;
 	}
@@ -54,7 +58,8 @@ public class Army {
 			.map(Annex.class::cast)
 			.collect(Collectors.toSet());
 
-		Army copy = new Army(this.playerSiegedSystemRounds, this.siegedSystemsProvider, currrentAnnexCommands);
+		Army copy = new Army(this.playerSiegedSystemRounds, this.siegedSystemsProvider, this.annexationSiegeRounds,
+				currrentAnnexCommands);
 
 		return copy;
 	}
@@ -117,10 +122,10 @@ public class Army {
 		}
 
 		if (rounds != null) {
-			Rounds siegeRounds = new Rounds(Math.min(5, rounds.quantity()));
-			Rounds roundsUntilAnnexable = new Rounds(5 - siegeRounds.quantity());
+			Rounds siegeRounds = new Rounds(Math.min(this.annexationSiegeRounds, rounds.quantity()));
+			Rounds roundsUntilAnnexable = new Rounds(this.annexationSiegeRounds - siegeRounds.quantity());
 
-			boolean annexable = player.equals(siegingPlayer) && rounds.quantity() >= 5;
+			boolean annexable = player.equals(siegingPlayer) && rounds.quantity() >= this.annexationSiegeRounds;
 
 			Optional<Annex> annexCommand = this.annexCommands.stream()
 				.filter(ac -> !ac.skip() && ac.player() == player && ac.system().equals(system))

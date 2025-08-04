@@ -69,30 +69,52 @@ public class Game2FactoryImpl implements GameFactory {
 
 		GeneratedStars generatedStars = generateStars(gameOptions.galaxySize(), races, random);
 		List<Star> stars = gameOptions.testGame()
-				? List.of(new Star("Sol", new Position("6.173", "5.026"), StarType.YELLOW, false),
-						new Star("Alpha Centauri", new Position(7.680, 3.986), StarType.BLUE, true),
-						new Star("Barnard's Star", new Position(5.173, 6.626), StarType.YELLOW, false),
-						new Star("Deneb", new Position(7.680, 7.226), StarType.GREEN, false),
-						new Star("Rigel", new Position(8.680, 2.133), StarType.GREEN, false),
-						new Star("Vega", new Position("9.973", "5.626"), StarType.WHITE, false),
-						new Star("Lalande", new Position(3.386, 2.133), StarType.YELLOW, true),
-						new Star("Sirius", new Position("4.080", "8.226"), StarType.RED, true))
+				? List.of(new Star("Sol", new Position("0.8", "0.8"), StarType.YELLOW, false),
+						new Star("Krylon", new Position("2.933", "1.333"), StarType.RED, false),
+						new Star("Bunda", new Position("1.066", "3.466"), StarType.GREEN, false),
+						new Star("Ajax", new Position("2.4", "2.933"), StarType.BLUE, false),
+						new Star("Drakka", new Position("4.533", "1.866"), StarType.WHITE, false),
+						new Star("Centauri", new Position("1.866", "4.533"), StarType.PURPLE, true),
+						new Star("Spica", new Position("13.12", "9.706"), StarType.GREEN, true),
+						new Star("Rigel", new Position("3.2", "5.866"), StarType.GREEN, true),
+						new Star("Spicia", new Position("5.066", "4"), StarType.YELLOW, true))
 				: generatedStars.stars();
 		Map<Player, Position> homeSystems = gameOptions.testGame() ? Map.of( //
-				Player.BLUE, new Position("6.173", "5.026"), //
-				Player.YELLOW, new Position("9.973", "5.626"), //
-				Player.WHITE, new Position("4.080", "8.226"))
+				Player.BLUE, /* Sol */ new Position("0.8", "0.8"), //
+				Player.YELLOW, /* Centauri */ new Position("1.866", "4.533"), //
+				Player.WHITE, /* Krylon */ new Position("2.933", "1.333"))
 				: Map.of( //
 						Player.BLUE, stars.get(0).position(), //
 						Player.WHITE, stars.get(1).position(), //
 						Player.YELLOW, stars.get(2).position());
 
-		return new Game2Impl(gameOptions,
+		Map<Position, Planet> planets = gameOptions.testGame() ? Map.of( //
+				/* Sol */ new Position("0.8", "0.8"),
+				new Planet(PlanetType.JUNGLE, PlanetSpecial.NONE, new Population(100)), //
+				/* Krylon */ new Position("2.933", "1.333"),
+				new Planet(PlanetType.TERRAN, PlanetSpecial.NONE, new Population(100)), //
+				/* Bunda */ new Position("1.066", "3.466"),
+				new Planet(PlanetType.ARID, PlanetSpecial.NONE, new Population(30)), //
+				/* Ajax */ new Position("2.4", "2.933"),
+				new Planet(PlanetType.TOXIC, PlanetSpecial.RICH, new Population(25)), //
+				/* Drakka */ new Position("4.533", "1.866"),
+				new Planet(PlanetType.MINIMAL, PlanetSpecial.NONE, new Population(50)), //
+				/* Centauri */ new Position("1.866", "4.533"),
+				new Planet(PlanetType.OCEAN, PlanetSpecial.NONE, new Population(110)), //
+				/* Spica */ new Position("13.12", "9.706"),
+				new Planet(PlanetType.TUNDRA, PlanetSpecial.NONE, new Population(50)), //
+				/* Rigel */ new Position("3.2", "5.866"),
+				new Planet(PlanetType.TUNDRA, PlanetSpecial.NONE, new Population(50)), //
+				/* Spicia */ new Position("5.066", "4"),
+				new Planet(PlanetType.ARID, PlanetSpecial.NONE, new Population(50)) //
+		) : generatedStars.planets();
+
+		Game2Impl game = new Game2Impl(gameOptions,
 				List.of(new Empire(Player.BLUE, races.get(Player.BLUE)),
 						new Empire(Player.YELLOW,
 								races.get(Player.YELLOW)),
 						new Empire(Player.WHITE, races.get(Player.WHITE))),
-				stars, generatedStars.planets(),
+				stars, planets,
 				List.of(new Fleet(Player.BLUE, new Orbit(homeSystems.get(Player.BLUE)),
 						new Ships(Map.of(new ShipClassId("scout"), 2, new ShipClassId("colony-ship"), 1))),
 						new Fleet(Player.YELLOW, new Orbit(homeSystems.get(Player.YELLOW)),
@@ -100,6 +122,14 @@ public class Game2FactoryImpl implements GameFactory {
 						new Fleet(Player.WHITE, new Orbit(homeSystems.get(Player.WHITE)),
 								new Ships(Map.of(new ShipClassId("scout"), 2, new ShipClassId("colony-ship"), 1)))),
 				homeSystems, random);
+
+		if (gameOptions.testGame()) {
+			game.addColonies(Map.of( //
+					Player.YELLOW, /* Rigel */ new Position("3.2", "5.866"), //
+					Player.WHITE, /* Spicia */ new Position("5.066", "4")));
+		}
+
+		return game;
 	}
 
 	private static GeneratedStars generateStars(GalaxySize galaxySize, Map<Player, Race> races, SeededRandom random) {

@@ -52,7 +52,7 @@ public class ColonizationTest {
 				(Player _, ShipClassId shipClassId) -> shipCosts.get(shipClassId), () -> first, () -> Set.of(),
 				() -> Set.of(), (_) -> this.population);
 
-		colonization.initialize(this.homeSystems);
+		colonization.addColonies(this.homeSystems);
 		colonization
 			.updateColonies(List.of(new AllocateResources(Player.BLUE, colonySystem, ProductionArea.TECHNOLOGY, 0)));
 
@@ -100,7 +100,7 @@ public class ColonizationTest {
 		Colonization colonization = new Colonization((Player _) -> Set.of(system),
 				(Player _, ShipClassId _) -> new Credit(1000), () -> new ShipClassId("first"), () -> Set.of(),
 				() -> Set.of(), (_) -> this.population);
-		colonization.initialize(this.homeSystems);
+		colonization.addColonies(this.homeSystems);
 
 		List<ColonizationCommand> commands = List.of(new Colonize(Player.BLUE, system, false));
 
@@ -121,7 +121,7 @@ public class ColonizationTest {
 		Colonization colonization = new Colonization((Player _) -> Set.of(),
 				(Player _, ShipClassId _) -> new Credit(1000), () -> new ShipClassId("first"),
 				() -> Set.of(new AnnexedSystem(Player.YELLOW, system)), () -> Set.of(), (_) -> this.population);
-		colonization.initialize(this.homeSystems);
+		colonization.addColonies(this.homeSystems);
 
 		assertThat(colonization.colony(system).orElseThrow().player()).isEqualTo(Player.BLUE);
 
@@ -137,7 +137,7 @@ public class ColonizationTest {
 		Colonization colonization = new Colonization((Player _) -> Set.of(),
 				(Player _, ShipClassId _) -> new Credit(1000), () -> new ShipClassId("first"), () -> Set.of(),
 				() -> Set.of(), (_) -> this.population);
-		colonization.initialize(this.homeSystems);
+		colonization.addColonies(this.homeSystems);
 
 		assertThat(colonization.colony(system).orElseThrow().population()).isEqualTo(new Population(50));
 
@@ -154,7 +154,7 @@ public class ColonizationTest {
 		Colonization colonization = new Colonization((Player _) -> Set.of(),
 				(Player _, ShipClassId _) -> new Credit(1000), () -> new ShipClassId("first"), () -> Set.of(),
 				() -> Set.of(new ArrivingColonistTransport(Player.BLUE, system, 20)), (_) -> this.population);
-		colonization.initialize(this.homeSystems);
+		colonization.addColonies(this.homeSystems);
 
 		assertThat(colonization.colony(system).orElseThrow().population()).isEqualTo(new Population(50));
 

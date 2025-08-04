@@ -13,6 +13,10 @@ public record Speed(Parsec distance) implements Comparable<Speed> {
 		this(new Parsec(distance));
 	}
 
+	public Speed multiply(double factor) {
+		return new Speed(this.distance.multiply(new Parsec(factor)));
+	}
+
 	@Override
 	public int compareTo(Speed o) {
 		return this.distance.compareTo(o.distance);

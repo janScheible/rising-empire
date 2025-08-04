@@ -94,8 +94,8 @@ public class Colonization {
 		this.transferColonistsCommands = transferColonistsCommands;
 	}
 
-	public void initialize(Map<Player, Position> homeSystems) {
-		this.colonies.addAll(homeSystems.entrySet()
+	public void addColonies(Map<Player, Position> systems) {
+		this.colonies.addAll(systems.entrySet()
 			.stream()
 			.map(hs -> new Colony(hs.getKey(), hs.getValue(), SpaceDock.UNINITIALIZED, new Population(50),
 					new Percentage(100), researchPoints(new Percentage(100))))

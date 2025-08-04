@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.universe.Player;
@@ -11,6 +12,7 @@ import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outco
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.navy.Ships;
 import com.scheible.risingempire.game.impl2.spaceforce.EncounteringFleetShipsProvider.EncounteringFleet;
+import com.scheible.risingempire.game.impl2.spaceforce.combat.PredefinedSpaceCombatResolver;
 import com.scheible.risingempire.game.impl2.spaceforce.combat.ResolvedSpaceCombat;
 import com.scheible.risingempire.game.impl2.spaceforce.combat.SpaceCombatResolver;
 
@@ -32,9 +34,11 @@ public class SpaceForce {
 	private final SpaceCombatResolver spaceCombatResolver;
 
 	public SpaceForce(EncounteringFleetShipsProvider encounteringFleetShipsProvider,
-			SpaceCombatResolver spaceCombatResolver) {
+			SpaceCombatResolver spaceCombatResolver, Optional<Outcome> predefinedSpaceCombatOutcome) {
 		this.encounteringFleetShipsProvider = encounteringFleetShipsProvider;
-		this.spaceCombatResolver = spaceCombatResolver;
+		this.spaceCombatResolver = predefinedSpaceCombatOutcome
+			.<SpaceCombatResolver>map(outcome -> new PredefinedSpaceCombatResolver(outcome, spaceCombatResolver))
+			.orElse(spaceCombatResolver);
 	}
 
 	public void resolveSpaceCombats() {

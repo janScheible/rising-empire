@@ -9,12 +9,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(value = TestScenarioRunnerExtension.class)
 public abstract class AbstractGameTest {
 
-	public static SystemId SOL_BLUE_HOME = new SystemId("s60x60");
+	public static SystemId SOL_BLUE_HOME = new SystemId("s800x800");
 
-	public static SystemId FIERAS_WHITE_HOME = new SystemId("s220x100");
+	public static SystemId KRYLON_WHITE_HOME = new SystemId("s2933x1333");
 
-	public static SystemId SPICIA_WHITE = new SystemId("s380x300");
+	public static SystemId SPICIA_WHITE = new SystemId("s5066x4000");
 
-	public static SystemId AJAX = new SystemId("s180x220");
+	public static SystemId AJAX = new SystemId("s2400x2933");
 
 }

@@ -85,8 +85,8 @@ import com.scheible.risingempire.game.impl2.navy.eta.EtaCalculator;
 import com.scheible.risingempire.game.impl2.ship.Shipyard;
 import com.scheible.risingempire.game.impl2.spaceforce.SpaceCombatFleet;
 import com.scheible.risingempire.game.impl2.spaceforce.SpaceForce;
+import com.scheible.risingempire.game.impl2.spaceforce.combat.SimulatedSpaceCombatResolver;
 import com.scheible.risingempire.game.impl2.spaceforce.combat.SpaceCombatResolver;
-import com.scheible.risingempire.game.impl2.spaceforce.combat.SpaceCombatResolverImpl;
 import com.scheible.risingempire.game.impl2.technology.Technology;
 import com.scheible.risingempire.game.impl2.technology.Technology.SelectTechnology;
 import com.scheible.risingempire.game.impl2.universe.Planet;
@@ -164,12 +164,14 @@ public class Game2Impl implements Game {
 		this.gameOptions = gameOptions;
 		this.random = random;
 
-		SpaceCombatResolver spaceCombatResolver = new SpaceCombatResolverImpl(shipCombatSpecsProviderAdapter, random);
+		SpaceCombatResolver spaceCombatResolver = new SimulatedSpaceCombatResolver(shipCombatSpecsProviderAdapter,
+				random);
 
 		this.universe = new Universe(LocationMapper.fromLocationValue(gameOptions.galaxySize().width()),
 				LocationMapper.fromLocationValue(gameOptions.galaxySize().height()), stars, planets, homeSystems);
 		this.empires = new Empires(empires);
-		this.technology = new Technology(researchPointProviderAdapter);
+		this.technology = new Technology(researchPointProviderAdapter, this.gameOptions.fleetSpeedFactor(),
+				this.gameOptions.fleetRangeFactor());
 		this.shipyard = new Shipyard(buildCapacityProviderAdpater);
 		this.navy = new Navy(fleets, shipMovementSpecsProviderAdapter, newShipsProviderAdapter,
 				newColoniesProviderAdapter, colonyShipSpecsProviderAdapter, departingColonistTransportsProviderAdpater,
@@ -178,8 +180,9 @@ public class Game2Impl implements Game {
 		this.colonization = new Colonization(colonyFleetProviderAdapter, shipCostProviderAdapter,
 				initialShipClassProviderAdapter, annexedSystemsProviderAdapter,
 				arrivingColonistTransportsProviderAdapter, maxPopualtionProviderAdapter);
-		this.army = new Army(siegedSystemProviderAdapter);
-		this.spaceForce = new SpaceForce(encounteringFleetShipsProviderAdapter, spaceCombatResolver);
+		this.army = new Army(siegedSystemProviderAdapter, this.gameOptions.annexationSiegeRounds());
+		this.spaceForce = new SpaceForce(encounteringFleetShipsProviderAdapter, spaceCombatResolver,
+				this.gameOptions.predefinedSpaceCombatOutcome());
 		this.systemIntelligence = new SystemIntelligence(orbitingFleetsProviderAdapter, colonyProviderAdapter);
 		this.fleetIntelligence = new FleetIntelligence(scanAreasProviderAdapter, shipScannerSpecsProviderAdapter,
 				fleetItinearySegmentProviderAdapter);
@@ -210,7 +213,11 @@ public class Game2Impl implements Game {
 
 		this.round = new Round(1);
 		this.playerTurns = new PlayerTurns(this.empires.players());
-		this.colonization.initialize(this.universe.homeSystems());
+		this.colonization.addColonies(this.universe.homeSystems());
+	}
+
+	void addColonies(Map<Player, Position> colonies) {
+		this.colonization.addColonies(colonies);
 	}
 
 	@Override
@@ -524,6 +531,7 @@ public class Game2Impl implements Game {
 		@Override
 		public void deployFleet(FleetId fleetId, SystemId destinationId, ShipsView ships) {
 			if (calcEta(fleetId, destinationId, ships).isEmpty()) {
+				calcEta(fleetId, destinationId, ships);
 				throw new IllegalArgumentException(
 						"The star " + destinationId + " is beyond the reach of the " + fleetId + " fleet.");
 			}

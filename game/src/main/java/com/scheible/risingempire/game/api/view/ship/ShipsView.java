@@ -1,5 +1,7 @@
 package com.scheible.risingempire.game.api.view.ship;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -48,6 +50,15 @@ public record ShipsView(Map<ShipTypeView, Integer> ships) {
 		}
 
 		return ShipsView.builder().ships(Map.of(typeAndCount.getKey(), count)).build();
+	}
+
+	public ShipsView partsByName(String... shipNames) {
+		List<String> shipNameList = Arrays.asList(shipNames);
+
+		return new ShipsView(this.ships.entrySet()
+			.stream()
+			.filter(e -> shipNameList.contains(e.getKey().name()))
+			.collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
 	}
 
 	public int countByType(ShipTypeView type) {

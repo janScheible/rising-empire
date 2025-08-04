@@ -144,7 +144,7 @@ public class GameImpl implements Game, FleetManager, ColonyManager, TechManager 
 		this.fleetTurn = new FleetTurn(() -> this.round, this.systems,
 				(player, systemId, snapshot) -> this.fractions.get(player).updateSnapshot(systemId, snapshot),
 				this.fleetFormer, fleetFinder,
-				gameOptions.spaceCombatOutcome()
+				gameOptions.predefinedSpaceCombatOutcome()
 					.<SpaceCombatResolver>map(KnownInAdvanceWinnerSpaceCombatResolver::new)
 					.orElseGet(() -> new SimulatingSpaceCombatResolver(random)),
 				this.shipDesignProvider);

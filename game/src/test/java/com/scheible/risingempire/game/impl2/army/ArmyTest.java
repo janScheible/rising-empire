@@ -25,7 +25,7 @@ public class ArmyTest {
 		Player player = Player.BLUE;
 		Player otherPlayer = Player.YELLOW;
 
-		Army army = new Army(() -> Set.of(new SiegedSystem(system, otherPlayer, player)));
+		Army army = new Army(() -> Set.of(new SiegedSystem(system, otherPlayer, player)), 5);
 
 		assertThat(army.annexationStatus(player, system)).isEmpty();
 		assertThat(army.annexationStatus(otherPlayer, system)).isEmpty();
@@ -53,7 +53,7 @@ public class ArmyTest {
 
 		Set<SiegedSystem> siegedSystems = new HashSet<>(Set.of(new SiegedSystem(system, Player.YELLOW, player)));
 
-		Army army = new Army(() -> siegedSystems);
+		Army army = new Army(() -> siegedSystems, 5);
 
 		Round round = new Round(1);
 		for (int i = 0; i < 3; i++) {
