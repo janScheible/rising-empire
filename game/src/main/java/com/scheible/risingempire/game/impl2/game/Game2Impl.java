@@ -141,7 +141,7 @@ public class Game2Impl implements Game {
 		ShipMovementSpecsProviderAdapter shipMovementSpecsProviderAdapter = new ShipMovementSpecsProviderAdapter();
 		ColonyFleetProviderAdapter colonyFleetProviderAdapter = new ColonyFleetProviderAdapter();
 		SiegedSystemProviderAdapter siegedSystemProviderAdapter = new SiegedSystemProviderAdapter();
-		BuildCapacityProviderAdapter buildCapacityProviderAdpater = new BuildCapacityProviderAdapter();
+		BuildCapacityProviderAdapter buildCapacityProviderAdapter = new BuildCapacityProviderAdapter();
 		ResearchPointProviderAdapter researchPointProviderAdapter = new ResearchPointProviderAdapter();
 		NewShipsProviderAdapter newShipsProviderAdapter = new NewShipsProviderAdapter();
 		OrbitingFleetsProviderAdapter orbitingFleetsProviderAdapter = new OrbitingFleetsProviderAdapter();
@@ -172,7 +172,7 @@ public class Game2Impl implements Game {
 		this.empires = new Empires(empires);
 		this.technology = new Technology(researchPointProviderAdapter, this.gameOptions.fleetSpeedFactor(),
 				this.gameOptions.fleetRangeFactor());
-		this.shipyard = new Shipyard(buildCapacityProviderAdpater);
+		this.shipyard = new Shipyard(buildCapacityProviderAdapter);
 		this.navy = new Navy(fleets, shipMovementSpecsProviderAdapter, newShipsProviderAdapter,
 				newColoniesProviderAdapter, colonyShipSpecsProviderAdapter, departingColonistTransportsProviderAdpater,
 				destroyedShipsProviderAdapter);
@@ -191,7 +191,7 @@ public class Game2Impl implements Game {
 		shipMovementSpecsProviderAdapter.delegate(this.technology);
 		colonyFleetProviderAdapter.delegate(this::colonizableSystems);
 		siegedSystemProviderAdapter.delegate(this::siegedSystems);
-		buildCapacityProviderAdpater.delegate(this.colonization);
+		buildCapacityProviderAdapter.delegate(this.colonization);
 		researchPointProviderAdapter.delegate(this.colonization);
 		newShipsProviderAdapter.delegate(this.colonization);
 		orbitingFleetsProviderAdapter.delegate(this.navy);

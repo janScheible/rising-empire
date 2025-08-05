@@ -95,10 +95,13 @@ public class Colonization {
 	}
 
 	public void addColonies(Map<Player, Position> systems) {
+		Population population = new Population(50);
+		Percentage techPercentage = new Percentage(100);
+
 		this.colonies.addAll(systems.entrySet()
 			.stream()
-			.map(hs -> new Colony(hs.getKey(), hs.getValue(), SpaceDock.UNINITIALIZED, new Population(50),
-					new Percentage(100), researchPoints(new Percentage(100))))
+			.map(hs -> new Colony(hs.getKey(), hs.getValue(), SpaceDock.UNINITIALIZED, population, techPercentage,
+					researchPoints(population, techPercentage)))
 			.toList());
 
 		for (int i = 0; i < this.colonies.size(); i++) {
@@ -106,8 +109,8 @@ public class Colonization {
 
 			ShipClassId initalShipClass = this.initialShipClassProvider.initial();
 			ConstructionProgress progress = new ConstructionProgress(initalShipClass, new Credit(0));
-			Optional<SpaceDockOutput> output = spaceDockOutput(colony.player(), colony.techPercentage(),
-					initalShipClass, progress)
+			Optional<SpaceDockOutput> output = spaceDockOutput(colony.player(), colony.population(),
+					colony.techPercentage(), initalShipClass, progress)
 				.spaceDockOutput();
 
 			this.colonies.set(i, colony.withSpaceDock(new SpaceDock(initalShipClass, output, progress)));
@@ -180,14 +183,14 @@ public class Colonization {
 				.map(Percentage::new)
 				.orElse(colony.techPercentage());
 
-			Optional<SpaceDockOutput> output = spaceDockOutput(colony.player(), techPercentage, spaceDockShipClassId,
-					spaceDock.progress())
+			Optional<SpaceDockOutput> output = spaceDockOutput(colony.player(), colony.population(), techPercentage,
+					spaceDockShipClassId, spaceDock.progress())
 				.spaceDockOutput();
 
 			this.colonies.set(i,
 					colony.withSpaceDock(new SpaceDock(spaceDockShipClassId, output, spaceDock.progress()))
 						.withTechPercentage(techPercentage)
-						.withResearchPoints(researchPoints(techPercentage)));
+						.withResearchPoints(researchPoints(colony.population(), techPercentage)));
 		}
 	}
 
@@ -206,7 +209,7 @@ public class Colonization {
 			Colony colony = this.colonies.get(i);
 			SpaceDock spaceDock = colony.spaceDock();
 
-			SpaceDockOutputWithRemainingInvest finishRoundOutput = spaceDockOutput(colony.player(),
+			SpaceDockOutputWithRemainingInvest finishRoundOutput = spaceDockOutput(colony.player(), colony.population(),
 					colony.techPercentage(), spaceDock.current(), spaceDock.progress());
 
 			ConstructionProgress progress = new ConstructionProgress(spaceDock.current(),
@@ -217,17 +220,17 @@ public class Colonization {
 				this.newShips.put(colony.position(), Map.of(spaceDock.current(), newShipsCount));
 			}
 
-			Optional<SpaceDockOutput> nextRoundOutput = spaceDockOutput(colony.player(), colony.techPercentage(),
-					spaceDock.current(), progress)
+			Optional<SpaceDockOutput> nextRoundOutput = spaceDockOutput(colony.player(), colony.population(),
+					colony.techPercentage(), spaceDock.current(), progress)
 				.spaceDockOutput();
 
 			this.colonies.set(i, colony.withSpaceDock(new SpaceDock(spaceDock.current(), nextRoundOutput, progress)));
 		}
 	}
 
-	private SpaceDockOutputWithRemainingInvest spaceDockOutput(Player owner, Percentage techPercentage,
-			ShipClassId current, ConstructionProgress progress) {
-		Credit buildCapacity = buildCapacity(techPercentage);
+	private SpaceDockOutputWithRemainingInvest spaceDockOutput(Player owner, Population population,
+			Percentage techPercentage, ShipClassId current, ConstructionProgress progress) {
+		Credit buildCapacity = buildCapacity(population, techPercentage);
 		Credit invest = progress.build(current, buildCapacity);
 
 		if (techPercentage.value() == 100) {
@@ -256,12 +259,12 @@ public class Colonization {
 				Population population = new Population(5);
 				Percentage techPercentage = new Percentage(100);
 				Colony preliminaryColony = new Colony(colonize.player(), colonize.system(), SpaceDock.UNINITIALIZED,
-						population, techPercentage, researchPoints(techPercentage));
+						population, techPercentage, researchPoints(population, techPercentage));
 
 				ShipClassId initalShipClass = this.initialShipClassProvider.initial();
 				ConstructionProgress progress = new ConstructionProgress(initalShipClass, new Credit(0));
 				Optional<SpaceDockOutput> output = spaceDockOutput(preliminaryColony.player(),
-						preliminaryColony.techPercentage(), initalShipClass, progress)
+						preliminaryColony.population(), preliminaryColony.techPercentage(), initalShipClass, progress)
 					.spaceDockOutput();
 
 				this.colonies.add(preliminaryColony.withSpaceDock(new SpaceDock(initalShipClass, output, progress)));
@@ -315,8 +318,8 @@ public class Colonization {
 			ArrivingColonistTransport arriving = arrivingMapping.get(colony.position());
 
 			if (arriving != null && colony.player() == arriving.player()) {
-				this.colonies.set(i, colony.with(colonyBuilder -> colonyBuilder.population(
-						colonyBuilder.population().add(new Population(arriving.transporters()), new Population(100)))));
+				this.colonies.set(i, colony.with(colonyBuilder -> colonyBuilder.population(colonyBuilder.population()
+					.add(new Population(arriving.transporters()), this.maxPopulationProvider.max(colony.position())))));
 			}
 		}
 	}
@@ -326,25 +329,28 @@ public class Colonization {
 		return population.quantity() <= maxTranfser;
 	}
 
-	private Credit buildCapacity(Percentage techPercentage) {
+	private Credit buildCapacity(Population population, Percentage techPercentage) {
 		if (techPercentage.value() == 100) {
 			return new Credit(0);
 		}
 		else {
-			return new Credit((int) (1500 * ((100 - techPercentage.value()) / 100.0)));
+			return new Credit((int) (((100 - techPercentage.value()) / 100.0) * population.quantity() * 30));
 		}
 	}
 
-	private ResearchPoint researchPoints(Percentage techPercentage) {
-		return new ResearchPoint(techPercentage.value());
+	private ResearchPoint researchPoints(Population population, Percentage techPercentage) {
+		return new ResearchPoint((int) ((techPercentage.value() / 100.0) * population.quantity() * 10));
 	}
 
 	public Credit buildCapacity(Player player, Position system) {
-		return buildCapacity(colony(player, system).orElseThrow().techPercentage());
+		Colony colony = colony(player, system).orElseThrow();
+		return buildCapacity(colony.population(), colony.techPercentage());
 	}
 
 	public ResearchPoint researchPoints(Player player) {
-		return new ResearchPoint(0);
+		return colonies(player).stream()
+			.map(colony -> researchPoints(colony.population(), colony.techPercentage()))
+			.reduce(new ResearchPoint(0), ResearchPoint::add);
 	}
 
 	public Map<Position, Map<ShipClassId, Integer>> newShips() {
