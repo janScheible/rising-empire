@@ -16,7 +16,7 @@ public class ShipyardTest {
 
 	@Test
 	public void testNextShipClass() {
-		Shipyard shipyard = new Shipyard((Player _) -> 1.0);
+		Shipyard shipyard = new Shipyard((Player _) -> 1.0, (Player _) -> 0);
 
 		List<ShipClassId> shipClassIds = new ArrayList<>();
 		ShipClassId first = new ShipClassId("scout");

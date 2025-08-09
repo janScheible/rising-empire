@@ -192,6 +192,10 @@ public class Technology {
 		return 1.0 + (this.techCategoryLevels.get(player).get(TechCategory.SHIP)) / 2.0;
 	}
 
+	public int shipTechLevel(Player player) {
+		return this.techCategoryLevels.get(player).get(TechCategory.SHIP);
+	}
+
 	public sealed interface TechnologyCommand extends Command {
 
 	}

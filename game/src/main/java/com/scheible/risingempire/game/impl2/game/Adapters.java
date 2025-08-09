@@ -47,6 +47,7 @@ import com.scheible.risingempire.game.impl2.navy.eta.ColoniesProvider;
 import com.scheible.risingempire.game.impl2.navy.eta.ShipMovementSpecsProvider;
 import com.scheible.risingempire.game.impl2.shipyard.ShipCostTechProvider;
 import com.scheible.risingempire.game.impl2.shipyard.ShipDesign;
+import com.scheible.risingempire.game.impl2.shipyard.ShipTechLevelProvider;
 import com.scheible.risingempire.game.impl2.shipyard.Shipyard;
 import com.scheible.risingempire.game.impl2.shipyard.weapon.BeamWeapon;
 import com.scheible.risingempire.game.impl2.shipyard.weapon.Missile;
@@ -521,6 +522,21 @@ public final class Adapters {
 		@Override
 		public double researchLabsPerPopulation(Player player) {
 			return this.delegate.researchLabsPerPopulation(player);
+		}
+
+	}
+
+	public static class ShipTechLevelProviderAdapter implements ShipTechLevelProvider {
+
+		private Technology delegate;
+
+		public void delegate(Technology delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public int shipTechLevel(Player player) {
+			return this.delegate.shipTechLevel(player);
 		}
 
 	}

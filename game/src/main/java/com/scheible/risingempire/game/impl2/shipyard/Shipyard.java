@@ -21,6 +21,7 @@ import com.scheible.risingempire.game.impl2.shipyard.special.ColonyBase;
 import com.scheible.risingempire.game.impl2.shipyard.special.ReserveTanks;
 import com.scheible.risingempire.game.impl2.shipyard.weapon.BeamWeapon;
 import com.scheible.risingempire.game.impl2.shipyard.weapon.Missile;
+import com.scheible.risingempire.util.RomanNumberGenerator;
 
 /**
  * @author sj
@@ -33,23 +34,42 @@ public class Shipyard {
 
 	private final ShipCostTechProvider shipCostTechProvider;
 
-	public Shipyard(ShipCostTechProvider shipCostTechProvider) {
+	private final ShipTechLevelProvider shipTechLevelProvider;
+
+	public Shipyard(ShipCostTechProvider shipCostTechProvider, ShipTechLevelProvider shipTechLevelProvider) {
 		this.shipCostTechProvider = shipCostTechProvider;
+		this.shipTechLevelProvider = shipTechLevelProvider;
 	}
 
 	public ShipDesign design(Player player, ShipClassId shipClassId) {
+		int shipTechLevel = this.shipTechLevelProvider.shipTechLevel(player);
+
+		String armorName = "Armor " + RomanNumberGenerator.getNumber(shipTechLevel);
+		String engineName = "Engine " + RomanNumberGenerator.getNumber(shipTechLevel);
+
+		int computerLevel = shipTechLevel;
+		int shieldLevel = shipTechLevel;
+		int ecmLevel = shipTechLevel;
+		double armor = 1.0 + shipTechLevel / 2.0;
+		int engineLevel = shipTechLevel + 1;
+		int maneuverLevel = shipTechLevel + 1;
+
+		BeamWeapon laser = new BeamWeapon("Laser", new Damage(1, (int) (4 * (shipTechLevel + 1) / 2.0)));
+		Missile missile2 = new Missile("Missile", new Damage((int) (4 * (shipTechLevel + 1) / 2.0)), 2);
+		Missile missile5 = new Missile("Missile", new Damage((int) (4 * (shipTechLevel + 1) / 2.0)), 5);
+
 		if (shipClassId.value().equals("scout")) {
 			return ShipDesign.builder()
 				.id(shipClassId)
 				.name("Scout")
 				.size(ShipSize.SMALL)
 				.look(0)
-				.computer(new Computer(0))
-				.shield(new Shield(0))
-				.ecm(new Ecm(0))
-				.armor(new Armor("Titanium", 1.0))
-				.engine(new Engine("Nuclear", 2))
-				.maneuver(new Maneuver(1))
+				.computer(new Computer(computerLevel))
+				.shield(new Shield(shieldLevel))
+				.ecm(new Ecm(ecmLevel))
+				.armor(new Armor(armorName, armor))
+				.engine(new Engine("Engine " + RomanNumberGenerator.getNumber(shipTechLevel + 1), engineLevel + 1))
+				.maneuver(new Maneuver(maneuverLevel))
 				.weapons(Map.of())
 				.specials(Set.of(new ReserveTanks()))
 				.build();
@@ -60,12 +80,12 @@ public class Shipyard {
 				.name("Colony Ship")
 				.size(ShipSize.LARGE)
 				.look(0)
-				.computer(new Computer(0))
-				.shield(new Shield(0))
-				.ecm(new Ecm(0))
-				.armor(new Armor("Titanium", 1.0))
-				.engine(new Engine("Retro", 1))
-				.maneuver(new Maneuver(1))
+				.computer(new Computer(computerLevel))
+				.shield(new Shield(shieldLevel))
+				.ecm(new Ecm(ecmLevel))
+				.armor(new Armor(armorName, armor))
+				.engine(new Engine(engineName, engineLevel))
+				.maneuver(new Maneuver(maneuverLevel))
 				.weapons(Map.of())
 				.specials(Set.of(new ColonyBase()))
 				.build();
@@ -76,13 +96,13 @@ public class Shipyard {
 				.name("Fighter")
 				.size(ShipSize.SMALL)
 				.look(0)
-				.computer(new Computer(0))
-				.shield(new Shield(0))
-				.ecm(new Ecm(0))
-				.armor(new Armor("Titanium", 1.0))
-				.engine(new Engine("Retro", 1))
-				.maneuver(new Maneuver(1))
-				.weapons(Map.of(new BeamWeapon("Laser", new Damage(1, 4)), 1))
+				.computer(new Computer(computerLevel))
+				.shield(new Shield(shieldLevel))
+				.ecm(new Ecm(ecmLevel))
+				.armor(new Armor(armorName, armor))
+				.engine(new Engine(engineName, engineLevel))
+				.maneuver(new Maneuver(maneuverLevel))
+				.weapons(Map.of(laser, 1))
 				.specials(Set.of())
 				.build();
 		}
@@ -92,14 +112,14 @@ public class Shipyard {
 				.name("Destroyer")
 				.size(ShipSize.MEDIUM)
 				.look(0)
-				.computer(new Computer(0))
-				.shield(new Shield(0))
-				.ecm(new Ecm(0))
-				.armor(new Armor("Titanium", 1.0))
-				.engine(new Engine("Retro", 1))
-				.maneuver(new Maneuver(1))
-				.weapons(Map.of(new BeamWeapon("Laser", new Damage(1, 4)), 3, //
-						new Missile("Nuclear Missile", new Damage(4), 2), 1))
+				.computer(new Computer(computerLevel))
+				.shield(new Shield(shieldLevel))
+				.ecm(new Ecm(ecmLevel))
+				.armor(new Armor(armorName, armor))
+				.engine(new Engine(engineName, engineLevel))
+				.maneuver(new Maneuver(maneuverLevel))
+				.weapons(Map.of(laser, 3, //
+						missile2, 1))
 				.specials(Set.of())
 				.build();
 		}
@@ -109,14 +129,14 @@ public class Shipyard {
 				.name("Cruiser")
 				.size(ShipSize.LARGE)
 				.look(0)
-				.computer(new Computer(0))
-				.shield(new Shield(0))
-				.ecm(new Ecm(0))
-				.armor(new Armor("Titanium", 1.0))
-				.engine(new Engine("Retro", 1))
-				.maneuver(new Maneuver(1))
-				.weapons(Map.of(new BeamWeapon("Laser", new Damage(1, 4)), 11, //
-						new Missile("Nuclear Missile", new Damage(4), 5), 5))
+				.computer(new Computer(computerLevel))
+				.shield(new Shield(shieldLevel))
+				.ecm(new Ecm(ecmLevel))
+				.armor(new Armor(armorName, armor))
+				.engine(new Engine(engineName, engineLevel))
+				.maneuver(new Maneuver(maneuverLevel))
+				.weapons(Map.of(laser, 11, //
+						missile5, 5))
 				.specials(Set.of(new BattleScanner()))
 				.build();
 		}
@@ -126,12 +146,12 @@ public class Shipyard {
 				.name("Transporter")
 				.size(ShipSize.LARGE)
 				.look(0)
-				.computer(new Computer(0))
-				.shield(new Shield(0))
-				.ecm(new Ecm(0))
-				.armor(new Armor("Titanium", 1.0))
-				.engine(new Engine("Retro", 1))
-				.maneuver(new Maneuver(1))
+				.computer(new Computer(computerLevel))
+				.shield(new Shield(shieldLevel))
+				.ecm(new Ecm(ecmLevel))
+				.armor(new Armor(armorName, armor))
+				.engine(new Engine(engineName, engineLevel))
+				.maneuver(new Maneuver(maneuverLevel))
 				.weapons(Map.of())
 				.specials(Set.of())
 				.build();

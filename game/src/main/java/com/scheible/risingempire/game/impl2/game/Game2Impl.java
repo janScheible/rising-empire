@@ -73,6 +73,7 @@ import com.scheible.risingempire.game.impl2.game.Adapters.ShipCostProviderAdapte
 import com.scheible.risingempire.game.impl2.game.Adapters.ShipCostTechProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ShipMovementSpecsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ShipScannerSpecsProviderAdapter;
+import com.scheible.risingempire.game.impl2.game.Adapters.ShipTechLevelProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.SiegedSystemProviderAdapter;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.FleetIntelligence;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.ScanAreasProvider.ScanArea;
@@ -168,6 +169,7 @@ public class Game2Impl implements Game {
 		MaxPopualtionProviderAdapter maxPopualtionProviderAdapter = new MaxPopualtionProviderAdapter();
 		FactoryTechProviderAdapter factoryTechProviderAdapter = new FactoryTechProviderAdapter();
 		ResearchLabTechProviderAdapter researchLabTechProviderAdapter = new ResearchLabTechProviderAdapter();
+		ShipTechLevelProviderAdapter shipTechLevelProviderAdapter = new ShipTechLevelProviderAdapter();
 
 		this.gameOptions = gameOptions;
 		this.random = random;
@@ -180,7 +182,7 @@ public class Game2Impl implements Game {
 		this.empires = new Empires(empires);
 		this.technology = new Technology(researchPointProviderAdapter, this.empires.players(),
 				this.gameOptions.fleetSpeedFactor(), this.gameOptions.fleetRangeFactor());
-		this.shipyard = new Shipyard(shipCostTechProviderAdapter);
+		this.shipyard = new Shipyard(shipCostTechProviderAdapter, shipTechLevelProviderAdapter);
 		this.navy = new Navy(fleets, shipMovementSpecsProviderAdapter, newShipsProviderAdapter,
 				newColoniesProviderAdapter, colonyShipSpecsProviderAdapter, departingColonistTransportsProviderAdpater,
 				destroyedShipsProviderAdapter);
@@ -221,6 +223,7 @@ public class Game2Impl implements Game {
 		maxPopualtionProviderAdapter.delegate(this.universe);
 		factoryTechProviderAdapter.delegate(this.technology);
 		researchLabTechProviderAdapter.delegate(this.technology);
+		shipTechLevelProviderAdapter.delegate(this.technology);
 
 		this.round = new Round(1);
 		this.playerTurns = new PlayerTurns(this.empires.players());
