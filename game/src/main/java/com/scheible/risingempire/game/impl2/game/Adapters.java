@@ -26,8 +26,10 @@ import com.scheible.risingempire.game.impl2.colonization.ArrivingColonistTranspo
 import com.scheible.risingempire.game.impl2.colonization.Colonization;
 import com.scheible.risingempire.game.impl2.colonization.Colony;
 import com.scheible.risingempire.game.impl2.colonization.ColonyFleetProvider;
+import com.scheible.risingempire.game.impl2.colonization.FactoryTechProvider;
 import com.scheible.risingempire.game.impl2.colonization.InitialShipClassProvider;
 import com.scheible.risingempire.game.impl2.colonization.MaxPopulationProvider;
+import com.scheible.risingempire.game.impl2.colonization.ResearchLabTechProvider;
 import com.scheible.risingempire.game.impl2.colonization.ShipCostProvider;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.FleetItinearySegmentProvider;
 import com.scheible.risingempire.game.impl2.intelligence.fleet.ScanAreasProvider;
@@ -489,6 +491,36 @@ public final class Adapters {
 		@Override
 		public Population max(Position system) {
 			return this.delegate.planet(system).max();
+		}
+
+	}
+
+	public static class FactoryTechProviderAdapter implements FactoryTechProvider {
+
+		private Technology delegate;
+
+		public void delegate(Technology delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public double factoriesPerPopulation(Player player) {
+			return this.delegate.factoriesPerPopulation(player);
+		}
+
+	}
+
+	public static class ResearchLabTechProviderAdapter implements ResearchLabTechProvider {
+
+		private Technology delegate;
+
+		public void delegate(Technology delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public double researchLabsPerPopulation(Player player) {
+			return this.delegate.researchLabsPerPopulation(player);
 		}
 
 	}

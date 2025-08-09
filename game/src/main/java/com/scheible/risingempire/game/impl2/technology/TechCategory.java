@@ -5,8 +5,8 @@ package com.scheible.risingempire.game.impl2.technology;
  */
 public enum TechCategory {
 
-	SHIP("Makes ships faster, extends their range and stats."), FACTORY("More factories per population."),
-	RESEARCH("More research points per population.");
+	FACTORY("More factories per population."), RESEARCH("More research points per population."),
+	SHIP("Makes ships faster, extends their range and stats.");
 
 	private final String description;
 

@@ -59,12 +59,14 @@ import com.scheible.risingempire.game.impl2.game.Adapters.ColonyShipSpecsProvide
 import com.scheible.risingempire.game.impl2.game.Adapters.DepartingColonistTransportsProviderAdpater;
 import com.scheible.risingempire.game.impl2.game.Adapters.DestroyedShipsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.EncounteringFleetShipsProviderAdapter;
+import com.scheible.risingempire.game.impl2.game.Adapters.FactoryTechProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.FleetItinearySegmentProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.InitialShipClassProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.MaxPopualtionProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.NewColoniesProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.NewShipsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.OrbitingFleetsProviderAdapter;
+import com.scheible.risingempire.game.impl2.game.Adapters.ResearchLabTechProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ResearchPointProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ScanAreasProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ShipCombatSpecsProviderAdapter;
@@ -164,6 +166,8 @@ public class Game2Impl implements Game {
 		ShipCombatSpecsProviderAdapter shipCombatSpecsProviderAdapter = new ShipCombatSpecsProviderAdapter();
 		DestroyedShipsProviderAdapter destroyedShipsProviderAdapter = new DestroyedShipsProviderAdapter();
 		MaxPopualtionProviderAdapter maxPopualtionProviderAdapter = new MaxPopualtionProviderAdapter();
+		FactoryTechProviderAdapter factoryTechProviderAdapter = new FactoryTechProviderAdapter();
+		ResearchLabTechProviderAdapter researchLabTechProviderAdapter = new ResearchLabTechProviderAdapter();
 
 		this.gameOptions = gameOptions;
 		this.random = random;
@@ -183,7 +187,8 @@ public class Game2Impl implements Game {
 		this.etaCalculator = new EtaCalculator(shipMovementSpecsProviderAdapter, coloniesProviderAdapter);
 		this.colonization = new Colonization(colonyFleetProviderAdapter, shipCostProviderAdapter,
 				initialShipClassProviderAdapter, annexedSystemsProviderAdapter,
-				arrivingColonistTransportsProviderAdapter, maxPopualtionProviderAdapter);
+				arrivingColonistTransportsProviderAdapter, maxPopualtionProviderAdapter, factoryTechProviderAdapter,
+				researchLabTechProviderAdapter);
 		this.army = new Army(siegedSystemProviderAdapter, this.gameOptions.annexationSiegeRounds());
 		this.spaceForce = new SpaceForce(encounteringFleetShipsProviderAdapter, spaceCombatResolver,
 				this.gameOptions.predefinedSpaceCombatOutcome());
@@ -214,6 +219,8 @@ public class Game2Impl implements Game {
 		shipCombatSpecsProviderAdapter.delegate(this.shipyard);
 		destroyedShipsProviderAdapter.delegate(this.spaceForce);
 		maxPopualtionProviderAdapter.delegate(this.universe);
+		factoryTechProviderAdapter.delegate(this.technology);
+		researchLabTechProviderAdapter.delegate(this.technology);
 
 		this.round = new Round(1);
 		this.playerTurns = new PlayerTurns(this.empires.players());

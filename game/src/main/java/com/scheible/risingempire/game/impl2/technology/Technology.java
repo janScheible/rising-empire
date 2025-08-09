@@ -76,26 +76,26 @@ public class Technology {
 		for (Player player : this.players) {
 			ResearchPoint researchPoints = this.researchPointProvider.researchPoints(player);
 
-			if (researchPoints.quantity() > 0) {
-				Research currentResearch = this.currentResearches.get(player);
+			Optional<TechId> commandTechId = commands.stream()
+				.filter(c -> c.player().equals(player))
+				.findFirst()
+				.map(SelectTechnology::techId);
 
+			Research currentResearch = this.currentResearches.get(player);
+
+			if (currentResearch != null && currentResearch.tech().isEmpty()) {
+				// In a real game there should be always a command to select the tech.
+				// But for automated tests and AI players this is not the case...
+				// therfore the fallback for now.
+				TechId fallbackTechId = selectableTechnologies(player).orElseThrow().next().getFirst().id();
+				TechId techId = commandTechId.orElse(fallbackTechId);
+
+				currentResearch = new Research(player, Optional.of(fromTechId(techId)), currentResearch.progress());
+			}
+
+			if (researchPoints.quantity() > 0) {
 				if (currentResearch == null) {
 					currentResearch = new Research(player, Optional.empty(), new ResearchPoint(0));
-				}
-				else if (currentResearch.tech().isEmpty()) {
-					// In a real game there should be always a command to select the tech.
-					// But for automated tests and AI players this is not the case...
-					// therfore the fallback for now.
-					TechId fallbackTechId = selectableTechnologies(player).orElseThrow().next().getFirst().id();
-
-					TechId commandTechId = commands.stream()
-						.filter(c -> c.player().equals(player))
-						.findFirst()
-						.map(SelectTechnology::techId)
-						.orElse(fallbackTechId);
-
-					currentResearch = new Research(player, Optional.of(fromTechId(commandTechId)),
-							currentResearch.progress());
 				}
 
 				currentResearch = new Research(currentResearch.player(), currentResearch.tech(),
@@ -111,9 +111,9 @@ public class Technology {
 					currentResearch = new Research(player, Optional.empty(),
 							currentResearch.progress().subtract(researchedTech.expense()));
 				}
-
-				this.currentResearches.put(player, currentResearch);
 			}
+
+			this.currentResearches.put(player, currentResearch);
 		}
 	}
 
@@ -140,23 +140,28 @@ public class Technology {
 		return new Tech(id,
 				category.name().substring(0, 1) + category.name().toLowerCase(Locale.ROOT).substring(1) + " "
 						+ RomanNumberGenerator.getNumber(level) + " Technology",
-				category.description(), level, category, new ResearchPoint(100 * level));
+				category.description(), level, category, new ResearchPoint(30 * (int) Math.pow(level + 1, 2)));
 	}
 
 	public Speed speed(Player player, ShipClassId shipClassId) {
-		return this.speeds.get(shipClassId);
+		return this.speeds.get(shipClassId)
+			.add(new Speed(this.techCategoryLevels.get(player).get(TechCategory.SHIP) + 1));
 	}
 
 	public Parsec range(Player player, ShipClassId shipClassId) {
-		return this.ranges.get(shipClassId);
+		return applyTechLevel(player, this.ranges.get(shipClassId));
 	}
 
 	public Parsec range(Player player) {
-		return this.ranges.values().stream().min(Parsec::compareTo).get();
+		return applyTechLevel(player, this.ranges.values().stream().min(Parsec::compareTo).get());
 	}
 
 	public Parsec extendedRange(Player player) {
-		return this.ranges.values().stream().max(Parsec::compareTo).get();
+		return applyTechLevel(player, this.ranges.values().stream().max(Parsec::compareTo).get());
+	}
+
+	private Parsec applyTechLevel(Player player, Parsec baseRange) {
+		return baseRange.add(new Parsec(this.techCategoryLevels.get(player).get(TechCategory.SHIP)));
 	}
 
 	public Parsec scanRange(Player player, ShipClassId shipClassId) {
@@ -173,6 +178,14 @@ public class Technology {
 
 	public ShipScannerCapability shipScannerCapability(Player player) {
 		return ShipScannerCapability.LOCATION_AND_ITINERARY;
+	}
+
+	public double factoriesPerPopulation(Player player) {
+		return 1.0 + (this.techCategoryLevels.get(player).get(TechCategory.FACTORY)) / 10.0;
+	}
+
+	public double researchLabsPerPopulation(Player player) {
+		return 0.3 + (this.techCategoryLevels.get(player).get(TechCategory.RESEARCH)) / 4.0;
 	}
 
 	public sealed interface TechnologyCommand extends Command {

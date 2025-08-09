@@ -172,19 +172,19 @@ public class Shipyard {
 
 	public Credit cost(Player player, ShipClassId shipClassId) {
 		if (shipClassId.value().equals("scout")) {
-			return new Credit(100);
+			return new Credit(20);
 		}
 		else if (shipClassId.value().equals("colony-ship")) {
-			return new Credit(5000);
+			return new Credit(400);
 		}
 		else if (shipClassId.value().equals("fighter")) {
-			return new Credit(200);
+			return new Credit(50);
 		}
 		else if (shipClassId.value().equals("destroyer")) {
-			return new Credit(2000);
+			return new Credit(150);
 		}
 		else if (shipClassId.value().equals("cruiser")) {
-			return new Credit(6000);
+			return new Credit(500);
 		}
 		else {
 			throw new IllegalArgumentException("Unknown ship class '" + shipClassId + "'!");
