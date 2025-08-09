@@ -94,8 +94,9 @@ public class MainPageDtoPopulator {
 			.values()
 			.stream()
 			.filter(s -> s.fleetRange().isPresent() && s.extendedFleetRange().isPresent())
-			.map(s -> new FleetRangeDto("fleetRange@" + s.id().value(), s.location().x(), s.location().y(),
-					s.fleetRange().orElseThrow(), s.extendedFleetRange().orElseThrow()))
+			.map(s -> new FleetRangeDto("fleetRange@" + s.id().value() + "r" + s.fleetRange().orElseThrow(),
+					s.location().x(), s.location().y(), s.fleetRange().orElseThrow(),
+					s.extendedFleetRange().orElseThrow()))
 			.collect(Collectors.toList()));
 
 		mainPage.starMap.getContent().ranges.colonyScannerRanges.addAll(gameView.systems()
