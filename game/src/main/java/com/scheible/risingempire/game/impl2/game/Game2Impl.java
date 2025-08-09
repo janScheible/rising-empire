@@ -24,7 +24,9 @@ import com.scheible.risingempire.game.api.view.ship.ShipTypeView;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
+import com.scheible.risingempire.game.api.view.tech.TechGroupView;
 import com.scheible.risingempire.game.api.view.tech.TechId;
+import com.scheible.risingempire.game.api.view.tech.TechView;
 import com.scheible.risingempire.game.impl2.apiinternal.Population;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
@@ -87,6 +89,8 @@ import com.scheible.risingempire.game.impl2.spaceforce.SpaceCombatFleet;
 import com.scheible.risingempire.game.impl2.spaceforce.SpaceForce;
 import com.scheible.risingempire.game.impl2.spaceforce.combat.SimulatedSpaceCombatResolver;
 import com.scheible.risingempire.game.impl2.spaceforce.combat.SpaceCombatResolver;
+import com.scheible.risingempire.game.impl2.technology.SelectableTech;
+import com.scheible.risingempire.game.impl2.technology.Tech;
 import com.scheible.risingempire.game.impl2.technology.Technology;
 import com.scheible.risingempire.game.impl2.technology.Technology.SelectTechnology;
 import com.scheible.risingempire.game.impl2.universe.Planet;
@@ -170,8 +174,8 @@ public class Game2Impl implements Game {
 		this.universe = new Universe(LocationMapper.fromLocationValue(gameOptions.galaxySize().width()),
 				LocationMapper.fromLocationValue(gameOptions.galaxySize().height()), stars, planets, homeSystems);
 		this.empires = new Empires(empires);
-		this.technology = new Technology(researchPointProviderAdapter, this.gameOptions.fleetSpeedFactor(),
-				this.gameOptions.fleetRangeFactor());
+		this.technology = new Technology(researchPointProviderAdapter, this.empires.players(),
+				this.gameOptions.fleetSpeedFactor(), this.gameOptions.fleetRangeFactor());
 		this.shipyard = new Shipyard(buildCapacityProviderAdapter);
 		this.navy = new Navy(fleets, shipMovementSpecsProviderAdapter, newShipsProviderAdapter,
 				newColoniesProviderAdapter, colonyShipSpecsProviderAdapter, departingColonistTransportsProviderAdpater,
@@ -349,6 +353,13 @@ public class Game2Impl implements Game {
 
 	private class PlayerGame2Impl implements PlayerGame {
 
+		private static final TechView START_RESEARCHING = TechView.builder()
+			.id(new TechId("start-reseaching"))
+			.name("The possibiltiy to research new technologies")
+			.description("They improve abilities in certain areas.")
+			.expense(0)
+			.build();
+
 		private final Player player;
 
 		private PlayerGame2Impl(Player player) {
@@ -414,7 +425,14 @@ public class Game2Impl implements Game {
 						.outcome(spaceCombat.outcome())
 						.build())
 					.collect(Collectors.toSet()))
-				.selectTechGroups(Set.of())
+				.selectTechGroups(Game2Impl.this.technology.selectableTechnologies(this.player)
+					.map(selectableTech -> TechGroupView.builder()
+						.researched(
+								selectableTech.researched().map(PlayerGame2Impl::toTechView).orElse(START_RESEARCHING))
+						.next(selectableTech.next().stream().map(PlayerGame2Impl::toTechView).toList())
+						.build())
+					.stream()
+					.collect(Collectors.toSet()))
 				.newShips(newShips(this.player))
 				.build();
 		}
@@ -551,7 +569,11 @@ public class Game2Impl implements Game {
 
 		@Override
 		public void selectTech(TechId techId) {
-			if (Game2Impl.this.technology.selectableTechnologies(this.player).contains(techId)) {
+			if (Game2Impl.this.technology.selectableTechnologies(this.player)
+				.map(SelectableTech::next)
+				.orElseGet(List::of)
+				.stream()
+				.anyMatch(tech -> tech.id().equals(techId))) {
 				Game2Impl.this.playerTurns.addCommand(this.player, new SelectTechnology(this.player, techId));
 			}
 			else {
@@ -623,6 +645,15 @@ public class Game2Impl implements Game {
 			if (!Game2Impl.this.colonization.colony(this.player, colonySystem).isPresent()) {
 				throw new IllegalArgumentException("The player " + this.player + " has no colony at " + colonyId + "!");
 			}
+		}
+
+		private static TechView toTechView(Tech tech) {
+			return TechView.builder()
+				.id(tech.id())
+				.name(tech.name())
+				.description(tech.description())
+				.expense(tech.expense().quantity())
+				.build();
 		}
 
 	}

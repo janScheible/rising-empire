@@ -1,18 +1,26 @@
 package com.scheible.risingempire.game.impl2.technology;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.api.view.tech.TechId;
 import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
+import com.scheible.risingempire.game.impl2.apiinternal.ResearchPoint;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import com.scheible.risingempire.game.impl2.apiinternal.Speed;
 import com.scheible.risingempire.game.impl2.common.Command;
+import com.scheible.risingempire.util.RomanNumberGenerator;
 
 public class Technology {
 
@@ -34,9 +42,24 @@ public class Technology {
 
 	private final ResearchPointProvider researchPointProvider;
 
-	public Technology(ResearchPointProvider researchPointProvider, double fleetSpeedFactor, double fleetRangeFactor) {
+	private final Set<Player> players;
+
+	private final Map<Player, Map<TechCategory, Integer>> techCategoryLevels;
+
+	private final Map<Player, Research> currentResearches = new HashMap<>();
+
+	/** The techs researched in the current round. */
+	private final Map<Player, Tech> researchedTechs = new HashMap<>();
+
+	public Technology(ResearchPointProvider researchPointProvider, Set<Player> players, double fleetSpeedFactor,
+			double fleetRangeFactor) {
 		this.researchPointProvider = researchPointProvider;
-		this.researchPointProvider.hashCode(); // to make PMD happy for now...
+
+		this.players = Collections.unmodifiableSet(players);
+
+		this.techCategoryLevels = this.players.stream()
+			.collect(Collectors.toMap(Function.identity(),
+					p -> Stream.of(TechCategory.values()).collect(Collectors.toMap(Function.identity(), _ -> 0))));
 
 		this.speeds.putAll(this.speeds.entrySet()
 			.stream()
@@ -45,6 +68,79 @@ public class Technology {
 		this.ranges.putAll(this.ranges.entrySet()
 			.stream()
 			.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().multiply(new Parsec(fleetRangeFactor)))));
+	}
+
+	public void advanceResearch(List<SelectTechnology> commands) {
+		this.researchedTechs.clear();
+
+		for (Player player : this.players) {
+			ResearchPoint researchPoints = this.researchPointProvider.researchPoints(player);
+
+			if (researchPoints.quantity() > 0) {
+				Research currentResearch = this.currentResearches.get(player);
+
+				if (currentResearch == null) {
+					currentResearch = new Research(player, Optional.empty(), new ResearchPoint(0));
+				}
+				else if (currentResearch.tech().isEmpty()) {
+					// In a real game there should be always a command to select the tech.
+					// But for automated tests and AI players this is not the case...
+					// therfore the fallback for now.
+					TechId fallbackTechId = selectableTechnologies(player).orElseThrow().next().getFirst().id();
+
+					TechId commandTechId = commands.stream()
+						.filter(c -> c.player().equals(player))
+						.findFirst()
+						.map(SelectTechnology::techId)
+						.orElse(fallbackTechId);
+
+					currentResearch = new Research(player, Optional.of(fromTechId(commandTechId)),
+							currentResearch.progress());
+				}
+
+				currentResearch = new Research(currentResearch.player(), currentResearch.tech(),
+						currentResearch.progress().add(researchPoints));
+
+				boolean doneResarchingCurrentTech = currentResearch.tech().isPresent() && currentResearch.progress()
+					.quantity() >= currentResearch.tech().orElseThrow().expense().quantity();
+
+				if (doneResarchingCurrentTech) {
+					Tech researchedTech = currentResearch.tech().orElseThrow();
+					this.researchedTechs.put(player, researchedTech);
+					this.techCategoryLevels.get(player).compute(researchedTech.category(), (key, value) -> value + 1);
+					currentResearch = new Research(player, Optional.empty(),
+							currentResearch.progress().subtract(researchedTech.expense()));
+				}
+
+				this.currentResearches.put(player, currentResearch);
+			}
+		}
+	}
+
+	public Optional<SelectableTech> selectableTechnologies(Player player) {
+		if ((this.currentResearches.get(player) != null && this.currentResearches.get(player).tech().isEmpty())) {
+			return Optional.of(new SelectableTech(Optional.ofNullable(this.researchedTechs.get(player)),
+					this.techCategoryLevels.get(player)
+						.entrySet()
+						.stream()
+						.map(e -> fromTechId(new TechId(e.getKey() + "@" + (e.getValue() + 1))))
+						.sorted(Comparator.comparing(Tech::name))
+						.toList()));
+		}
+		else {
+			return Optional.empty();
+		}
+	}
+
+	private static Tech fromTechId(TechId id) {
+		String[] parts = id.value().split("@");
+		TechCategory category = TechCategory.valueOf(parts[0]);
+		int level = Integer.parseInt(parts[1]);
+
+		return new Tech(id,
+				category.name().substring(0, 1) + category.name().toLowerCase(Locale.ROOT).substring(1) + " "
+						+ RomanNumberGenerator.getNumber(level) + " Technology",
+				category.description(), level, category, new ResearchPoint(100 * level));
 	}
 
 	public Speed speed(Player player, ShipClassId shipClassId) {
@@ -73,13 +169,6 @@ public class Technology {
 
 	public Parsec colonyScanRange(Player player) {
 		return new Parsec(1.5);
-	}
-
-	public void advanceResearch(List<SelectTechnology> commands) {
-	}
-
-	public Set<TechId> selectableTechnologies(Player player) {
-		return Set.of();
 	}
 
 	public ShipScannerCapability shipScannerCapability(Player player) {

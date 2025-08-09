@@ -12,11 +12,14 @@ import com.scheible.risingempire.webapp.hypermedia.EntityModel;
 @JsonTypeInfo(use = Id.NAME)
 class SelectTechPageDto {
 
-	final TechDto researchedTech = new TechDto(null, "Super cow powers");
+	final String category = ""; // not yet supported
+
+	final TechDto researchedTech;
 
 	final List<EntityModel<TechDto>> techs;
 
-	SelectTechPageDto(List<EntityModel<TechDto>> techs) {
+	SelectTechPageDto(TechDto researchedTech, List<EntityModel<TechDto>> techs) {
+		this.researchedTech = researchedTech;
 		this.techs = techs;
 	}
 
@@ -26,13 +29,15 @@ class SelectTechPageDto {
 
 		final String name;
 
-		final String description = "Something that tells you what something or someone is like.";
+		final String description;
 
-		final int expense = 120;
+		final int expense;
 
-		TechDto(String id, String name) {
+		TechDto(String id, String name, String description, int expense) {
 			this.id = id;
 			this.name = name;
+			this.description = description;
+			this.expense = expense;
 		}
 
 	}

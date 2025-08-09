@@ -3,6 +3,7 @@ package com.scheible.risingempire.webapp.adapter.frontend.newgamepage;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -25,7 +26,6 @@ import com.scheible.risingempire.game.api.view.system.SystemNotificationView;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
 import com.scheible.risingempire.game.api.view.tech.TechId;
 import com.scheible.risingempire.game.api.view.tech.TechView;
-import com.scheible.risingempire.util.jdk.Arrays2;
 import com.scheible.risingempire.webapp.adapter.frontend.annotation.FrontendController;
 import com.scheible.risingempire.webapp.adapter.frontend.context.FrontendContext;
 import com.scheible.risingempire.webapp.adapter.frontend.newgamepage.NewGamePageDto.ScenarioDto;
@@ -111,21 +111,30 @@ class NewGameController {
 							.game2(body.game2)
 							.fakeTechProvider((player,
 									round) -> (round % 5 == 0) ? Set.of(TechGroupView.builder()
-										.group(Arrays2.asSet( //
+										.researched(TechView.builder()
+											.id(new TechId("researched"))
+											.name("Better Ships III")
+											.description("All of ships is level III.")
+											.expense(120)
+											.build())
+										.next(List.of( //
 												TechView.builder()
 													.id(new TechId("hl"))
 													.name("Hand Lasers")
 													.description("Bla...")
+													.expense(120)
 													.build(),
 												TechView.builder()
 													.id(new TechId("gl"))
 													.name("Gatling Laser")
 													.description("Bla...")
+													.expense(100)
 													.build(),
 												TechView.builder()
 													.id(new TechId("hvr"))
 													.name("Hyper-V Rockets")
 													.description("Bla...")
+													.expense(90)
 													.build()))
 										.build()) : Set.of())
 							.fakeSystemNotificationProvider((player, round) -> {

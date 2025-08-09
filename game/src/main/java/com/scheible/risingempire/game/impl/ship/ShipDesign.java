@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.scheible.risingempire.game.api.view.ship.ShipSize;
+import com.scheible.risingempire.util.RomanNumberGenerator;
 
 import static java.util.Collections.unmodifiableSet;
 

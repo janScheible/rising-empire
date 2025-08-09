@@ -1,35 +1,35 @@
 package com.scheible.risingempire.game.api.view.tech;
 
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Stream;
 
 import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
-import com.scheible.risingempire.game.api.view.tech.TechGroupViewBuilder.GroupStage;
+import com.scheible.risingempire.game.api.view.tech.TechGroupViewBuilder.ResearchedStage;
 
-import static java.util.Collections.unmodifiableSet;
+import static java.util.Collections.unmodifiableList;
 
 /**
  * @author sj
  */
 @StagedRecordBuilder
-public record TechGroupView(Set<TechView> group) implements Iterable<TechView> {
+public record TechGroupView(TechView researched, List<TechView> next) implements Iterable<TechView> {
 
 	public TechGroupView {
-		group = unmodifiableSet(group);
+		next = unmodifiableList(next);
 	}
 
-	public static GroupStage builder() {
+	public static ResearchedStage builder() {
 		return TechGroupViewBuilder.builder();
 	}
 
 	@Override
 	public Iterator<TechView> iterator() {
-		return this.group.iterator();
+		return this.next.iterator();
 	}
 
 	public Stream<TechView> stream() {
-		return this.group.stream();
+		return this.next.stream();
 	}
 
 }

@@ -38,6 +38,7 @@ import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.system.SystemNotificationView;
 import com.scheible.risingempire.game.api.view.system.SystemView;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
+import com.scheible.risingempire.game.api.view.tech.TechId;
 import com.scheible.risingempire.game.api.view.tech.TechView;
 import com.scheible.risingempire.game.impl.colony.Colony;
 import com.scheible.risingempire.game.impl.fleet.DeployedFleet;
@@ -228,9 +229,20 @@ public class GameViewBuilder {
 		Set<TechGroupView> technologies = techManager.getSelectTechs(player)
 			.stream()
 			.map(g -> TechGroupView.builder()
-				.group(g.stream()
-					.map(t -> TechView.builder().id(t.getKey()).name(t.getValue()).description("-").build())
-					.collect(Collectors.toSet()))
+				.researched(TechView.builder()
+					.id(new TechId("researched"))
+					.name("Better Ships III")
+					.description("All of ships is level III.")
+					.expense(120)
+					.build())
+				.next(g.stream()
+					.map(t -> TechView.builder()
+						.id(t.getKey())
+						.name(t.getValue())
+						.description("-")
+						.expense(120)
+						.build())
+					.toList())
 				.build())
 			.collect(Collectors.toSet());
 

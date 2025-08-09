@@ -16,6 +16,8 @@ export default class SelectTechPage extends HTMLElement {
 	#researchedNameEl: HTMLDivElement;
 	#researchedDescriptionEl: HTMLDivElement;
 
+	#categoryEl: HTMLSpanElement;
+
 	#technologiesEl: HTMLElement & ListBox;
 
 	#selectTechActions;
@@ -51,7 +53,7 @@ export default class SelectTechPage extends HTMLElement {
 					</${FlowLayout.NAME}>
 
 					<${FlowLayout.NAME} direction="column">
-						Select next planetology technology our reseachers should focus on.
+						<div>Select next <span id="category"></span> technology our reseachers should focus on.</div>
 						<${ListBox.NAME} id="technologies">
 							<template id="technology-template">
 								<div>
@@ -77,6 +79,8 @@ export default class SelectTechPage extends HTMLElement {
 		this.#researchedNameEl = this.shadowRoot.querySelector('#researched-name');
 		this.#researchedDescriptionEl = this.shadowRoot.querySelector('#researched-description');
 
+		this.#categoryEl = this.shadowRoot.querySelector('#category');
+
 		this.#technologiesEl = this.shadowRoot.querySelector('#technologies');
 		this.#technologiesEl.addEventListener('dblclick', (e) => {
 			if (this.#technologiesEl.selectedIndex >= 0) {
@@ -93,6 +97,8 @@ export default class SelectTechPage extends HTMLElement {
 
 		Reconciler.reconcileProperty(this.#researchedNameEl, 'innerText', data.researchedTech.name);
 		Reconciler.reconcileProperty(this.#researchedDescriptionEl, 'innerText', data.researchedTech.description);
+
+		Reconciler.reconcileProperty(this.#categoryEl, 'innerText', data.category);
 
 		Reconciler.reconcileChildren(
 			this.#technologiesEl,
@@ -118,6 +124,7 @@ export default class SelectTechPage extends HTMLElement {
 					);
 				},
 				idAttributName: 'data-tech-id',
+				idValueFn: (data) => data.id.split('@')[0], // strip tech level to have unique ids
 			}
 		);
 
