@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl2.ship.weapon;
+package com.scheible.risingempire.game.impl2.shipyard.weapon;
 
 import com.scheible.risingempire.game.impl2.apiinternal.Damage;
 

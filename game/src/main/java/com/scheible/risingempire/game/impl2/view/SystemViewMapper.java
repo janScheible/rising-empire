@@ -27,7 +27,7 @@ import com.scheible.risingempire.game.impl2.intelligence.system.SystemIntelligen
 import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconReport;
 import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconReport.ColonyReconReport;
 import com.scheible.risingempire.game.impl2.intelligence.system.SystemReconReport.PlanetReconReport;
-import com.scheible.risingempire.game.impl2.ship.Shipyard;
+import com.scheible.risingempire.game.impl2.shipyard.Shipyard;
 import com.scheible.risingempire.game.impl2.spaceforce.SpaceForce;
 import com.scheible.risingempire.game.impl2.technology.Technology;
 import com.scheible.risingempire.game.impl2.universe.Planet;

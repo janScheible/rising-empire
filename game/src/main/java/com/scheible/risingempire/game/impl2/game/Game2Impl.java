@@ -86,7 +86,7 @@ import com.scheible.risingempire.game.impl2.navy.Navy.RelocateShips;
 import com.scheible.risingempire.game.impl2.navy.Navy.ShipDeployment;
 import com.scheible.risingempire.game.impl2.navy.Ships;
 import com.scheible.risingempire.game.impl2.navy.eta.EtaCalculator;
-import com.scheible.risingempire.game.impl2.ship.Shipyard;
+import com.scheible.risingempire.game.impl2.shipyard.Shipyard;
 import com.scheible.risingempire.game.impl2.spaceforce.SpaceCombatFleet;
 import com.scheible.risingempire.game.impl2.spaceforce.SpaceForce;
 import com.scheible.risingempire.game.impl2.spaceforce.combat.SimulatedSpaceCombatResolver;

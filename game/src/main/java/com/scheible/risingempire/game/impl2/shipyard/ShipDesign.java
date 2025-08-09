@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl2.ship;
+package com.scheible.risingempire.game.impl2.shipyard;
 
 import java.util.Map;
 import java.util.Set;
@@ -6,16 +6,16 @@ import java.util.Set;
 import com.scheible.risingempire.game.api.annotation.StagedRecordBuilder;
 import com.scheible.risingempire.game.api.view.ship.ShipSize;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
-import com.scheible.risingempire.game.impl2.ship.ShipDesignBuilder.IdStage;
-import com.scheible.risingempire.game.impl2.ship.component.Armor;
-import com.scheible.risingempire.game.impl2.ship.component.Computer;
-import com.scheible.risingempire.game.impl2.ship.component.Ecm;
-import com.scheible.risingempire.game.impl2.ship.component.Engine;
-import com.scheible.risingempire.game.impl2.ship.component.Maneuver;
-import com.scheible.risingempire.game.impl2.ship.component.Shield;
-import com.scheible.risingempire.game.impl2.ship.special.BattleScanner;
-import com.scheible.risingempire.game.impl2.ship.special.Special;
-import com.scheible.risingempire.game.impl2.ship.weapon.Weapon;
+import com.scheible.risingempire.game.impl2.shipyard.ShipDesignBuilder.IdStage;
+import com.scheible.risingempire.game.impl2.shipyard.component.Armor;
+import com.scheible.risingempire.game.impl2.shipyard.component.Computer;
+import com.scheible.risingempire.game.impl2.shipyard.component.Ecm;
+import com.scheible.risingempire.game.impl2.shipyard.component.Engine;
+import com.scheible.risingempire.game.impl2.shipyard.component.Maneuver;
+import com.scheible.risingempire.game.impl2.shipyard.component.Shield;
+import com.scheible.risingempire.game.impl2.shipyard.special.BattleScanner;
+import com.scheible.risingempire.game.impl2.shipyard.special.Special;
+import com.scheible.risingempire.game.impl2.shipyard.weapon.Weapon;
 
 /**
  * @author sj

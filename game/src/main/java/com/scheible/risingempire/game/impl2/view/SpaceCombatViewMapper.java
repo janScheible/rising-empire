@@ -10,7 +10,7 @@ import com.scheible.risingempire.game.api.view.ship.ShipTypeId;
 import com.scheible.risingempire.game.api.view.spacecombat.CombatantShipSpecsView;
 import com.scheible.risingempire.game.api.view.spacecombat.FireExchangeView;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
-import com.scheible.risingempire.game.impl2.ship.ShipDesign;
+import com.scheible.risingempire.game.impl2.shipyard.ShipDesign;
 import com.scheible.risingempire.game.impl2.spaceforce.combat.FireExchange;
 
 /**

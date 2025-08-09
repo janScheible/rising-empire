@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl2.ship.component;
+package com.scheible.risingempire.game.impl2.shipyard.component;
 
 /**
  * @author sj
