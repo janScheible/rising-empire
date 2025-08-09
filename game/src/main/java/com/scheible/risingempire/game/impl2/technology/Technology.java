@@ -1,5 +1,6 @@
 package com.scheible.risingempire.game.impl2.technology;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -22,9 +23,13 @@ import com.scheible.risingempire.game.impl2.apiinternal.Speed;
 import com.scheible.risingempire.game.impl2.common.Command;
 import com.scheible.risingempire.util.RomanNumberGenerator;
 
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.Collections.unmodifiableSet;
+
 public class Technology {
 
-	private final Map<ShipClassId, Speed> speeds = new HashMap<>(Map.of( //
+	private static final Map<ShipClassId, Speed> SPEEDS = new HashMap<>(Map.of( //
 			new ShipClassId("scout"), new Speed(1.5), //
 			new ShipClassId("colony-ship"), new Speed(1.0), //
 			new ShipClassId("fighter"), new Speed(1.0), //
@@ -32,7 +37,7 @@ public class Technology {
 			new ShipClassId("cruiser"), new Speed(1.0), //
 			ShipClassId.COLONISTS_TRANSPORTER, new Speed(1.0)));
 
-	private final Map<ShipClassId, Parsec> ranges = new HashMap<>(Map.of( //
+	private static final Map<ShipClassId, Parsec> RANGES = new HashMap<>(Map.of( //
 			new ShipClassId("scout"), new Parsec(4.0), //
 			new ShipClassId("colony-ship"), new Parsec(3.0), //
 			new ShipClassId("fighter"), new Parsec(3.0), //
@@ -44,12 +49,18 @@ public class Technology {
 
 	private final Set<Player> players;
 
+	private final Map<ShipClassId, Speed> speeds;
+
+	private final Map<ShipClassId, Parsec> ranges;
+
 	private final Map<Player, Map<TechCategory, Integer>> techCategoryLevels;
 
-	private final Map<Player, Research> currentResearches = new HashMap<>();
+	private final Map<Player, Research> currentResearches;
 
 	/** The techs researched in the current round. */
-	private final Map<Player, Tech> researchedTechs = new HashMap<>();
+	private final Map<Player, Tech> researchedTechs;
+
+	private final List<SelectTechnology> selectTechnologyCommands;
 
 	public Technology(ResearchPointProvider researchPointProvider, Set<Player> players, double fleetSpeedFactor,
 			double fleetRangeFactor) {
@@ -61,13 +72,43 @@ public class Technology {
 			.collect(Collectors.toMap(Function.identity(),
 					p -> Stream.of(TechCategory.values()).collect(Collectors.toMap(Function.identity(), _ -> 0))));
 
-		this.speeds.putAll(this.speeds.entrySet()
+		this.speeds = SPEEDS.entrySet()
 			.stream()
-			.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().multiply(fleetSpeedFactor))));
+			.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().multiply(fleetSpeedFactor)));
 
-		this.ranges.putAll(this.ranges.entrySet()
+		this.ranges = RANGES.entrySet()
 			.stream()
-			.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().multiply(new Parsec(fleetRangeFactor)))));
+			.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().multiply(new Parsec(fleetRangeFactor))));
+
+		this.currentResearches = new HashMap<>();
+		this.researchedTechs = new HashMap<>();
+
+		this.selectTechnologyCommands = new ArrayList<>();
+	}
+
+	private Technology(ResearchPointProvider researchPointProvider, Set<Player> players, Map<ShipClassId, Speed> speeds,
+			Map<ShipClassId, Parsec> ranges, Map<Player, Map<TechCategory, Integer>> techCategoryLevels,
+			Map<Player, Research> currentResearches, Map<Player, Tech> researchedTechs,
+			List<SelectTechnology> selectTechnologyCommands) {
+		this.researchPointProvider = researchPointProvider;
+
+		this.players = unmodifiableSet(players);
+
+		this.speeds = speeds;
+		this.ranges = ranges;
+
+		this.techCategoryLevels = unmodifiableMap(techCategoryLevels);
+		this.currentResearches = unmodifiableMap(currentResearches);
+		this.researchedTechs = unmodifiableMap(researchedTechs);
+
+		this.selectTechnologyCommands = unmodifiableList(selectTechnologyCommands);
+	}
+
+	public Technology apply(List<SelectTechnology> commands) {
+		Technology copy = new Technology(this.researchPointProvider, this.players, this.speeds, this.ranges,
+				this.techCategoryLevels, this.currentResearches, this.researchedTechs, commands);
+
+		return copy;
 	}
 
 	public void advanceResearch(List<SelectTechnology> commands) {
@@ -118,7 +159,11 @@ public class Technology {
 	}
 
 	public Optional<SelectableTech> selectableTechnologies(Player player) {
-		if ((this.currentResearches.get(player) != null && this.currentResearches.get(player).tech().isEmpty())) {
+		boolean selectTechnologyCommand = this.selectTechnologyCommands.stream()
+			.anyMatch(c -> c.player().equals(player));
+
+		if (!selectTechnologyCommand && (this.currentResearches.get(player) != null
+				&& this.currentResearches.get(player).tech().isEmpty())) {
 			return Optional.of(new SelectableTech(Optional.ofNullable(this.researchedTechs.get(player)),
 					this.techCategoryLevels.get(player)
 						.entrySet()

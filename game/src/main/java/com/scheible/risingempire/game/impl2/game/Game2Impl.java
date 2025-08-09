@@ -435,7 +435,7 @@ public class Game2Impl implements Game {
 						.outcome(spaceCombat.outcome())
 						.build())
 					.collect(Collectors.toSet()))
-				.selectTechGroups(Game2Impl.this.technology.selectableTechnologies(this.player)
+				.selectTechGroups(technology().selectableTechnologies(this.player)
 					.map(selectableTech -> TechGroupView.builder()
 						.researched(
 								selectableTech.researched().map(PlayerGame2Impl::toTechView).orElse(START_RESEARCHING))
@@ -616,6 +616,10 @@ public class Game2Impl implements Game {
 
 		private Army army() {
 			return Game2Impl.this.army.apply(Game2Impl.this.playerTurns.commands(ArmyCommand.class));
+		}
+
+		private Technology technology() {
+			return Game2Impl.this.technology.apply(Game2Impl.this.playerTurns.commands(SelectTechnology.class));
 		}
 
 		private Map<ShipTypeView, Integer> newShips(Player player) {
