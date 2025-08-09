@@ -318,18 +318,23 @@ public class Colonization {
 	}
 
 	public void welcomeColonistTransports() {
-		Map<Position, ArrivingColonistTransport> arrivingMapping = this.arrivingColonistTransportsProvider
+		Map<Position, List<ArrivingColonistTransport>> arrivingMapping = this.arrivingColonistTransportsProvider
 			.colonistTransports()
 			.stream()
-			.collect(Collectors.toMap(ArrivingColonistTransport::destination, Function.identity()));
+			.collect(Collectors.groupingBy(ArrivingColonistTransport::destination));
 
 		for (int i = 0; i < this.colonies.size(); i++) {
 			Colony colony = this.colonies.get(i);
-			ArrivingColonistTransport arriving = arrivingMapping.get(colony.position());
+			List<ArrivingColonistTransport> arrivingTransporters = arrivingMapping.getOrDefault(colony.position(),
+					List.of());
 
-			if (arriving != null && colony.player() == arriving.player()) {
-				this.colonies.set(i, colony.with(colonyBuilder -> colonyBuilder.population(colonyBuilder.population()
-					.add(new Population(arriving.transporters()), this.maxPopulationProvider.max(colony.position())))));
+			for (ArrivingColonistTransport arrivingTransport : arrivingTransporters) {
+				if (colony.player() == arrivingTransport.player()) {
+					this.colonies.set(i,
+							colony.with(colonyBuilder -> colonyBuilder.population(colonyBuilder.population()
+								.add(new Population(arrivingTransport.transporters()),
+										this.maxPopulationProvider.max(colony.position())))));
+				}
 			}
 		}
 	}
