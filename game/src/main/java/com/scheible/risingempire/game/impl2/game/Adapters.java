@@ -45,7 +45,7 @@ import com.scheible.risingempire.game.impl2.navy.NewColoniesProvider;
 import com.scheible.risingempire.game.impl2.navy.NewShipsProvider;
 import com.scheible.risingempire.game.impl2.navy.eta.ColoniesProvider;
 import com.scheible.risingempire.game.impl2.navy.eta.ShipMovementSpecsProvider;
-import com.scheible.risingempire.game.impl2.shipyard.BuildCapacityProvider;
+import com.scheible.risingempire.game.impl2.shipyard.ShipCostTechProvider;
 import com.scheible.risingempire.game.impl2.shipyard.ShipDesign;
 import com.scheible.risingempire.game.impl2.shipyard.Shipyard;
 import com.scheible.risingempire.game.impl2.shipyard.weapon.BeamWeapon;
@@ -152,17 +152,17 @@ public final class Adapters {
 
 	}
 
-	public static class BuildCapacityProviderAdapter implements BuildCapacityProvider {
+	public static class ShipCostTechProviderAdapter implements ShipCostTechProvider {
 
-		private Colonization delegate;
+		private Technology delegate;
 
-		public void delegate(Colonization delegate) {
+		public void delegate(Technology delegate) {
 			this.delegate = delegate;
 		}
 
 		@Override
-		public Credit buildCapacity(Player player, Position system) {
-			return this.delegate.buildCapacity(player, system);
+		public double shipCostTechFactor(Player player) {
+			return this.delegate.shipCostTechFactor(player);
 		}
 
 	}

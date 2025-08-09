@@ -31,11 +31,10 @@ public class Shipyard {
 			new ShipClassId("colony-ship"), new ShipClassId("fighter"), new ShipClassId("destroyer"),
 			new ShipClassId("cruiser"));
 
-	private final BuildCapacityProvider buildCapacityProvider;
+	private final ShipCostTechProvider shipCostTechProvider;
 
-	public Shipyard(BuildCapacityProvider buildCapacityProvider) {
-		this.buildCapacityProvider = buildCapacityProvider;
-		this.buildCapacityProvider.hashCode(); // to make PMD happy for now...
+	public Shipyard(ShipCostTechProvider shipCostTechProvider) {
+		this.shipCostTechProvider = shipCostTechProvider;
 	}
 
 	public ShipDesign design(Player player, ShipClassId shipClassId) {
@@ -171,24 +170,15 @@ public class Shipyard {
 	}
 
 	public Credit cost(Player player, ShipClassId shipClassId) {
-		if (shipClassId.value().equals("scout")) {
-			return new Credit(20);
-		}
-		else if (shipClassId.value().equals("colony-ship")) {
-			return new Credit(400);
-		}
-		else if (shipClassId.value().equals("fighter")) {
-			return new Credit(50);
-		}
-		else if (shipClassId.value().equals("destroyer")) {
-			return new Credit(150);
-		}
-		else if (shipClassId.value().equals("cruiser")) {
-			return new Credit(500);
-		}
-		else {
-			throw new IllegalArgumentException("Unknown ship class '" + shipClassId + "'!");
-		}
+		Credit cost = switch (shipClassId.value()) {
+			case "scout" -> new Credit(20);
+			case "colony-ship" -> new Credit(400);
+			case "fighter" -> new Credit(50);
+			case "destroyer" -> new Credit(150);
+			case "cruiser" -> new Credit(500);
+			default -> throw new IllegalArgumentException("Unknown ship class '" + shipClassId + "'!");
+		};
+		return new Credit((int) (cost.quantity() * this.shipCostTechProvider.shipCostTechFactor(player)));
 	}
 
 }

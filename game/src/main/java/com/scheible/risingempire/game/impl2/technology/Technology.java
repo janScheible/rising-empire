@@ -188,6 +188,10 @@ public class Technology {
 		return 0.3 + (this.techCategoryLevels.get(player).get(TechCategory.RESEARCH)) / 4.0;
 	}
 
+	public double shipCostTechFactor(Player player) {
+		return 1.0 + (this.techCategoryLevels.get(player).get(TechCategory.SHIP)) / 2.0;
+	}
+
 	public sealed interface TechnologyCommand extends Command {
 
 	}

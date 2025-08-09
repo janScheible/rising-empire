@@ -51,7 +51,6 @@ import com.scheible.risingempire.game.impl2.empire.Empire;
 import com.scheible.risingempire.game.impl2.empire.Empires;
 import com.scheible.risingempire.game.impl2.game.Adapters.AnnexedSystemsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ArrivingColonistTransportsProviderAdapter;
-import com.scheible.risingempire.game.impl2.game.Adapters.BuildCapacityProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ColoniesProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ColonyFleetProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ColonyIntelProviderAdapter;
@@ -71,6 +70,7 @@ import com.scheible.risingempire.game.impl2.game.Adapters.ResearchPointProviderA
 import com.scheible.risingempire.game.impl2.game.Adapters.ScanAreasProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ShipCombatSpecsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ShipCostProviderAdapter;
+import com.scheible.risingempire.game.impl2.game.Adapters.ShipCostTechProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ShipMovementSpecsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.ShipScannerSpecsProviderAdapter;
 import com.scheible.risingempire.game.impl2.game.Adapters.SiegedSystemProviderAdapter;
@@ -147,7 +147,7 @@ public class Game2Impl implements Game {
 		ShipMovementSpecsProviderAdapter shipMovementSpecsProviderAdapter = new ShipMovementSpecsProviderAdapter();
 		ColonyFleetProviderAdapter colonyFleetProviderAdapter = new ColonyFleetProviderAdapter();
 		SiegedSystemProviderAdapter siegedSystemProviderAdapter = new SiegedSystemProviderAdapter();
-		BuildCapacityProviderAdapter buildCapacityProviderAdapter = new BuildCapacityProviderAdapter();
+		ShipCostTechProviderAdapter shipCostTechProviderAdapter = new ShipCostTechProviderAdapter();
 		ResearchPointProviderAdapter researchPointProviderAdapter = new ResearchPointProviderAdapter();
 		NewShipsProviderAdapter newShipsProviderAdapter = new NewShipsProviderAdapter();
 		OrbitingFleetsProviderAdapter orbitingFleetsProviderAdapter = new OrbitingFleetsProviderAdapter();
@@ -180,7 +180,7 @@ public class Game2Impl implements Game {
 		this.empires = new Empires(empires);
 		this.technology = new Technology(researchPointProviderAdapter, this.empires.players(),
 				this.gameOptions.fleetSpeedFactor(), this.gameOptions.fleetRangeFactor());
-		this.shipyard = new Shipyard(buildCapacityProviderAdapter);
+		this.shipyard = new Shipyard(shipCostTechProviderAdapter);
 		this.navy = new Navy(fleets, shipMovementSpecsProviderAdapter, newShipsProviderAdapter,
 				newColoniesProviderAdapter, colonyShipSpecsProviderAdapter, departingColonistTransportsProviderAdpater,
 				destroyedShipsProviderAdapter);
@@ -200,7 +200,7 @@ public class Game2Impl implements Game {
 		shipMovementSpecsProviderAdapter.delegate(this.technology);
 		colonyFleetProviderAdapter.delegate(this::colonizableSystems);
 		siegedSystemProviderAdapter.delegate(this::siegedSystems);
-		buildCapacityProviderAdapter.delegate(this.colonization);
+		shipCostTechProviderAdapter.delegate(this.technology);
 		researchPointProviderAdapter.delegate(this.colonization);
 		newShipsProviderAdapter.delegate(this.colonization);
 		orbitingFleetsProviderAdapter.delegate(this.navy);

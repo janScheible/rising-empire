@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.scheible.risingempire.game.api.universe.Player;
-import com.scheible.risingempire.game.impl2.apiinternal.Credit;
-import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.ShipClassId;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +16,7 @@ public class ShipyardTest {
 
 	@Test
 	public void testNextShipClass() {
-		Shipyard shipyard = new Shipyard((Player _, Position _) -> new Credit(0));
+		Shipyard shipyard = new Shipyard((Player _) -> 1.0);
 
 		List<ShipClassId> shipClassIds = new ArrayList<>();
 		ShipClassId first = new ShipClassId("scout");
