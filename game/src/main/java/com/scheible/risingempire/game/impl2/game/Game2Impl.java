@@ -405,6 +405,8 @@ public class Game2Impl implements Game {
 					.collect(Collectors.toMap(Entry::getKey, Entry::getValue)))
 				.spaceCombats(Game2Impl.this.spaceForce.spaceCombats()
 					.stream()
+					.filter(spaceCombat -> spaceCombat.attacker() == this.player
+							|| spaceCombat.defender() == this.player)
 					.map(spaceCombat -> SpaceCombatView.builder()
 						.systemId(SystemIdMapper.toSystemId(spaceCombat.system()))
 						.systemName(Game2Impl.this.universe.star(spaceCombat.system()).name())
