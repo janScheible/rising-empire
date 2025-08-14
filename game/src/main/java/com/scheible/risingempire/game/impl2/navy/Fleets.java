@@ -64,6 +64,13 @@ class Fleets {
 			.findFirst();
 	}
 
+	List<Fleet> findAllOrbiting(Player player, Position system) {
+		return this.fleets.stream()
+			.filter(fleet -> player.equals(fleet.player())
+					&& system.equals(fleet.location().asOrbit().map(Orbit::system).orElse(null)))
+			.toList();
+	}
+
 	Optional<Fleet> findJustLeaving(Player player, Position origin, Position destination, Speed speed) {
 		return this.fleets.stream()
 			.filter(Predicate.not(Fleet::colonistTransport))

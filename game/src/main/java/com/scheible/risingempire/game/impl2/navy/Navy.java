@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
@@ -111,8 +112,11 @@ public class Navy {
 									fleet.ships().counts().get(ShipClassId.COLONISTS_TRANSPORTER)));
 					}
 					else {
-						Optional<Fleet> alreadyOrbiting = this.fleets.findOrbiting(fleet.player(),
-								itinerary.destination());
+						Optional<Fleet> alreadyOrbiting = this.fleets
+							.findAllOrbiting(fleet.player(), itinerary.destination())
+							.stream()
+							.filter(Predicate.not(obsoleteFleets::contains))
+							.findFirst();
 						alreadyOrbiting.ifPresent(obsoleteFleets::add);
 
 						Set<Itinerary> partsBeforeArrival = new HashSet<>(Set.of(itinerary));
