@@ -15,7 +15,7 @@ import com.scheible.risingempire.util.jdk.Long2;
  */
 public record FleetId(String value) {
 
-	private static Predicate<String> GAME2_ID_PREDICATE = Pattern.compile("^f\\d+?").asPredicate();
+	private static Predicate<String> GAME2_ID_PREDICATE = Pattern.compile("^f[BGPRWY]\\d+?").asPredicate();
 
 	private static final long MIN = 1_193_046;
 

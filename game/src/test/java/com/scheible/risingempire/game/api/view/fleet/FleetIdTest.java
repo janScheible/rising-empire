@@ -24,10 +24,10 @@ class FleetIdTest {
 
 	@Test
 	void testGame2Ids() {
-		FleetId deployedFleetId = new FleetId("f1.234x5.678->1.222x3.444@42w/9.134");
+		FleetId deployedFleetId = new FleetId("fB1.234x5.678->1.222x3.444@42w/9.134");
 		assertThat(deployedFleetId).isNotNull();
 
-		FleetId orbitingFleetId = new FleetId("f1.234x5.678");
+		FleetId orbitingFleetId = new FleetId("fB1.234x5.678");
 		assertThat(orbitingFleetId).isNotNull();
 	}
 

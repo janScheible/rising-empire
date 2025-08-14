@@ -40,7 +40,7 @@ public class FleetViewMapper {
 		// contrast to the inital orbiting fleet at begin of turn as in the original game.
 		// Should have the same effect and makes the whole parent-child fleet tracking
 		// unnecessary.
-		Optional<FleetId> parentId = Optional.of(FleetIdMapper.toFleetId(fleet.location().current()));
+		Optional<FleetId> parentId = Optional.of(FleetIdMapper.toFleetId(fleet.player(), fleet.location().current()));
 
 		Star closestStar = universe.closest(fleet.location().current(), (Star _) -> true);
 
@@ -58,27 +58,27 @@ public class FleetViewMapper {
 			.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
 		return Optional.of(switch (fleet.location()) {
-			case Orbit(Position system, Set<Itinerary> partsBeforArrival) -> FleetView.create(
-					FleetView.orbitingBuilder()
-						.id(FleetIdMapper.toFleetId(system))
-						.parentId(parentId)
-						.player(fleet.player())
-						.race(empires.race(fleet.player()))
-						.ships(new ShipsView(ships))
-						.orbiting(SystemIdMapper.toSystemId(system))
-						.location(LocationMapper.toLocation(system))
-						.fleetsBeforeArrival(partsBeforArrival.stream()
-							.map(pba -> new FleetBeforeArrivalView(FleetIdMapper.toFleetId(pba),
-									horizontalDirection(pba), LocationMapper.toLocationValue(pba.speed().distance()),
-									LocationMapper.toLocation(pba.current()), pba.justLeaving()))
-							.collect(Collectors.toSet()))
-						.deployable(player.equals(fleet.player()))
-						.scannerRange(Optional.of(LocationMapper.toLocationValue(
-								technology.effectiveScanRange(fleet.player(), fleet.ships().counts().keySet()))))
-						.build());
+			case Orbit(Position system, Set<Itinerary> partsBeforArrival) ->
+				FleetView.create(FleetView.orbitingBuilder()
+					.id(FleetIdMapper.toFleetId(fleet.player(), system))
+					.parentId(parentId)
+					.player(fleet.player())
+					.race(empires.race(fleet.player()))
+					.ships(new ShipsView(ships))
+					.orbiting(SystemIdMapper.toSystemId(system))
+					.location(LocationMapper.toLocation(system))
+					.fleetsBeforeArrival(partsBeforArrival.stream()
+						.map(pba -> new FleetBeforeArrivalView(FleetIdMapper.toFleetId(fleet.player(), pba),
+								horizontalDirection(pba), LocationMapper.toLocationValue(pba.speed().distance()),
+								LocationMapper.toLocation(pba.current()), pba.justLeaving()))
+						.collect(Collectors.toSet()))
+					.deployable(player.equals(fleet.player()))
+					.scannerRange(Optional.of(LocationMapper.toLocationValue(
+							technology.effectiveScanRange(fleet.player(), fleet.ships().counts().keySet()))))
+					.build());
 			case Itinerary itinerary -> FleetView.create(FleetView.deployedBuilder()
-				.id(FleetIdMapper.toFleetId(itinerary.origin(), itinerary.destination(), itinerary.dispatchment(),
-						itinerary.speed()))
+				.id(FleetIdMapper.toFleetId(fleet.player(), itinerary.origin(), itinerary.destination(),
+						itinerary.dispatchment(), itinerary.speed()))
 				.parentId(parentId)
 				.player(fleet.player())
 				.race(empires.race(fleet.player()))
