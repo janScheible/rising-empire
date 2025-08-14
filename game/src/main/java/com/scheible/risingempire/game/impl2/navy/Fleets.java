@@ -58,10 +58,7 @@ class Fleets {
 	}
 
 	Optional<Fleet> findOrbiting(Player player, Position system) {
-		return this.fleets.stream()
-			.filter(fleet -> player.equals(fleet.player())
-					&& system.equals(fleet.location().asOrbit().map(Orbit::system).orElse(null)))
-			.findFirst();
+		return findAllOrbiting(player, system).stream().findFirst();
 	}
 
 	List<Fleet> findAllOrbiting(Player player, Position system) {

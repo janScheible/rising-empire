@@ -240,8 +240,17 @@ public class Navy {
 
 	}
 
-	public record DeployOrbiting(Player player, Position origin, Position destination,
-			Ships ships) implements ShipDeployment {
+	public record DeployOrbiting(Player player, Position origin, Position destination, Ships ships,
+			boolean retreating) implements ShipDeployment {
+
+		public DeployOrbiting(Player player, Position origin, Position destination, Ships ships) {
+			this(player, origin, destination, ships, false);
+		}
+
+		@Override
+		public boolean synthetic() {
+			return this.retreating;
+		}
 
 	}
 
