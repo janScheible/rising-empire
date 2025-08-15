@@ -6,6 +6,7 @@ export default class SpaceCombatPageStories {
 	static #RENDER_DATA = `{
 			"systemName": "Sol",
 			"attacker": "MYXALOR",
+			"attackerPlayerColor": "blue",
 			"fireExchangeCount": 4,
 			"attackerShipSpecs": [
 				{
@@ -34,6 +35,7 @@ export default class SpaceCombatPageStories {
 				}
 			],
 			"defender": "LUMERISKS",
+			"defenderPlayerColor": "white",
 			"defenderShipSpecs": [
 				{
 					"id": "Scout@1",

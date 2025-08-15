@@ -40,8 +40,9 @@ class SpaceCombatPageController {
 			.orElseThrow();
 
 		return new EntityModel<>(new SpaceCombatPageDto(spaceCombatView.systemName(), spaceCombatView.attacker(),
+				spaceCombatView.attackerPlayer(),
 				toCombatantShipSpecsDtos(spaceCombatView.attackerPlayer(), spaceCombatView.attackerShipSpecs()),
-				spaceCombatView.defender(),
+				spaceCombatView.defender(), spaceCombatView.defenderPlayer(),
 				toCombatantShipSpecsDtos(spaceCombatView.defenderPlayer(), spaceCombatView.defenderShipSpecs()),
 				spaceCombatView.fireExchangeCount(),
 				new CombatOutcomeDto(OutcomeDto.toOutcomeDto(context.getPlayer(), spaceCombatView.attackerPlayer(),

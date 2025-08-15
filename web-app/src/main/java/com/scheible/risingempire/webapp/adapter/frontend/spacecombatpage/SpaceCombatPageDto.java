@@ -26,23 +26,30 @@ class SpaceCombatPageDto {
 
 	final List<CombatantShipSpecsDto> attackerShipSpecs;
 
+	final PlayerDto attackerPlayerColor;
+
 	final RaceDto defender;
 
 	final List<CombatantShipSpecsDto> defenderShipSpecs;
+
+	final PlayerDto defenderPlayerColor;
 
 	final int fireExchangeCount;
 
 	final CombatOutcomeDto combatOutcome;
 
-	SpaceCombatPageDto(String systemName, Race attacker, List<CombatantShipSpecsDto> attackerShipSpecs, Race defender,
+	SpaceCombatPageDto(String systemName, Race attacker, Player attackerPlayer,
+			List<CombatantShipSpecsDto> attackerShipSpecs, Race defender, Player defenderPlayer,
 			List<CombatantShipSpecsDto> defenderShipSpecs, int fireExchangeCount, CombatOutcomeDto combatOutcome) {
 		this.systemName = systemName;
 
 		this.attacker = RaceDto.fromRace(attacker);
 		this.attackerShipSpecs = attackerShipSpecs;
+		this.attackerPlayerColor = PlayerDto.fromPlayer(attackerPlayer);
 
 		this.defender = RaceDto.fromRace(defender);
 		this.defenderShipSpecs = defenderShipSpecs;
+		this.defenderPlayerColor = PlayerDto.fromPlayer(defenderPlayer);
 
 		this.fireExchangeCount = fireExchangeCount;
 

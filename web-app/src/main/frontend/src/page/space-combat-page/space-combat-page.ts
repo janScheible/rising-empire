@@ -55,11 +55,11 @@ export default class SpaceCombatPage extends HTMLElement {
 
 					<${GridLayout.NAME} cols="2" col-gap="XL">
 						<${FlowLayout.NAME} id="attacker-ship-specs" direction="column">
-							<div><span class="attacker"></span> fleet</div>
+							<div>Attacking <span class="attacker colored"></span> fleet</div>
 						</${FlowLayout.NAME}>
 
 						<${FlowLayout.NAME} id="defender-ship-specs" direction="column">
-							<div><span class="defender"></span> fleet</div>
+							<div>Defending <span class="defender colored"></span> fleet</div>
 						</${FlowLayout.NAME}>
 					</${GridLayout.NAME}>
 
@@ -113,12 +113,20 @@ export default class SpaceCombatPage extends HTMLElement {
 
 		Reconciler.reconcileProperty(this.#systemNameEl, 'innerText', Theme.getSystemName(data.systemName));
 
-		this.#attackerEls.forEach((attackerEl) =>
-			Reconciler.reconcileProperty(attackerEl, 'innerText', Theme.getRace(data.attacker))
-		);
-		this.#defenderEls.forEach((_defenderEl) =>
-			Reconciler.reconcileProperty(_defenderEl, 'innerText', Theme.getRace(data.defender))
-		);
+		this.#attackerEls.forEach((attackerEl) => {
+			Reconciler.reconcileProperty(attackerEl, 'innerText', Theme.getRace(data.attacker));
+
+			if (attackerEl.classList.contains('colored')) {
+				Reconciler.reconcileStyle(attackerEl, 'color', `var(--${data.attackerPlayerColor}-player-color)`);
+			}
+		});
+		this.#defenderEls.forEach((defenderEl) => {
+			Reconciler.reconcileProperty(defenderEl, 'innerText', Theme.getRace(data.defender));
+
+			if (defenderEl.classList.contains('colored')) {
+				Reconciler.reconcileStyle(defenderEl, 'color', `var(--${data.defenderPlayerColor}-player-color)`);
+			}
+		});
 
 		Reconciler.reconcileStyle(this.#outcomeEl, 'visibility', 'hidden');
 
