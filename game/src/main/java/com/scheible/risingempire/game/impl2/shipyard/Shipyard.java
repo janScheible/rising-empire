@@ -54,9 +54,9 @@ public class Shipyard {
 		int engineLevel = shipTechLevel + 1;
 		int maneuverLevel = shipTechLevel + 1;
 
-		BeamWeapon laser = new BeamWeapon("Laser", new Damage(1, (int) (4 * (shipTechLevel + 1) / 2.0)));
-		Missile missile2 = new Missile("Missile", new Damage((int) (4 * (shipTechLevel + 1) / 2.0)), 2);
-		Missile missile5 = new Missile("Missile", new Damage((int) (4 * (shipTechLevel + 1) / 2.0)), 5);
+		BeamWeapon laser = new BeamWeapon("Laser", new Damage(1, 4 * (shipTechLevel + 1)));
+		Missile missile2 = new Missile("Missile", new Damage(4 * (shipTechLevel + 1)), 2);
+		Missile missile5 = new Missile("Missile", new Damage(4 * (shipTechLevel + 1)), 5);
 
 		if (shipClassId.value().equals("scout")) {
 			return ShipDesign.builder()
