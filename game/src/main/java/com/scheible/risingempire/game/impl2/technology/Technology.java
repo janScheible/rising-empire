@@ -189,8 +189,7 @@ public class Technology {
 	}
 
 	public Speed speed(Player player, ShipClassId shipClassId) {
-		return this.speeds.get(shipClassId)
-			.add(new Speed(this.techCategoryLevels.get(player).get(TechCategory.SHIP) + 1));
+		return this.speeds.get(shipClassId).add(new Speed(this.techCategoryLevels.get(player).get(TechCategory.SHIP)));
 	}
 
 	public Parsec range(Player player, ShipClassId shipClassId) {
