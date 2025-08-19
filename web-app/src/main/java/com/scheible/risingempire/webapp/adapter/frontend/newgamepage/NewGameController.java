@@ -171,7 +171,7 @@ class NewGameController {
 						.build());
 			}
 
-			this.gameManager.startGame(context.getGameId(), context.getPlayer(), game,
+			this.gameManager.startGame(context.getGameId(), Optional.of(context.getPlayer()), game,
 					Optional.ofNullable(testScenario));
 		}
 

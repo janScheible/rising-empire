@@ -81,7 +81,7 @@ abstract class AbstractMainPageIT {
 	private GameManager gameManager;
 
 	protected void startGameForBlue(Game game) {
-		this.gameManager.startGame(TEST_GAME_ID, Player.BLUE, game, Optional.empty());
+		this.gameManager.startGame(TEST_GAME_ID, Optional.of(Player.BLUE), game, Optional.empty());
 	}
 
 	protected Game getGame() {

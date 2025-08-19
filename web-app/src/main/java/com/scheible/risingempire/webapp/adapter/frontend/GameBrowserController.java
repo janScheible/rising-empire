@@ -54,7 +54,6 @@ import com.scheible.risingempire.webapp.hypermedia.EntityModel;
 import com.scheible.risingempire.webapp.notification.NotificationService;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.info.GitProperties;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -177,7 +176,7 @@ class GameBrowserController {
 	}
 
 	@PostMapping(path = "/game-browser/games", consumes = APPLICATION_JSON_VALUE)
-	ResponseEntity<String> loadGame(@RequestBody SavegameBodyDto savegameBody) {
+	ResponseEntity<RunningGameDto> loadGame(@RequestBody SavegameBodyDto savegameBody) {
 		Savegame savegame;
 
 		try {
@@ -193,9 +192,10 @@ class GameBrowserController {
 
 		Game game = GameFactory.get().load(savegame);
 
-		this.gameManager.startGame(savegameBody.gameId(), savegameBody.player().toPlayer(), game, Optional.empty());
+		String gameId = savegameBody.gameId();
+		this.gameManager.startGame(gameId, Optional.empty(), game, Optional.empty());
 
-		return ResponseEntity.status(HttpStatus.SEE_OTHER).header(HttpHeaders.LOCATION, "/game-browser").build();
+		return ResponseEntity.ok(new RunningGameDto(gameId, toRunningGamePlayers(gameId), game.round()));
 	}
 
 	private static SimpleModule createSavegameModule() {

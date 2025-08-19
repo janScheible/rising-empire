@@ -66,22 +66,32 @@ export default class GameLauncher extends HTMLElement {
 		this.#playerEl = this.shadowRoot.querySelector('#player') as HTMLSelectElement;
 		this.#savegameEl = this.shadowRoot.querySelector('#savegame');
 
-		this.#startOrLoadButtonEl.addEventListener('click', (event: MouseEvent) => {
+		this.#startOrLoadButtonEl.addEventListener('click', (mouseEvent: MouseEvent) => {
 			const gameId = this.#gameIdEl.value;
 			const player = this.#playerEl.value;
 			const file = this.#savegameEl.files[0];
 
 			if (file) {
 				const reader = new FileReader();
-				reader.onload = (event) => {
+				reader.onload = (fileEvent) => {
 					this.#savegameEl.value = null;
 					this.#startOrLoadButtonEl.innerText = 'Start';
 
-					HypermediaUtil.submitAction(this.#loadAction, { savegame: event.target.result, player, gameId });
+					HypermediaUtil.submitAction(
+						this.#loadAction,
+						{ savegame: fileEvent.target.result, player, gameId },
+						(runningGame) => {
+							const joinAction = HypermediaUtil.getAction(
+								runningGame.players.filter((p) => p.playerColor === player)[0],
+								'join'
+							);
+							LaunchGameUtil.launchUrl(joinAction.href, mouseEvent.ctrlKey);
+						}
+					);
 				};
 				reader.readAsText(file);
 			} else {
-				LaunchGameUtil.launchUrlTemplate(this.#startAction.href, gameId, player, event.ctrlKey);
+				LaunchGameUtil.launchUrlTemplate(this.#startAction.href, gameId, player, mouseEvent.ctrlKey);
 			}
 		});
 

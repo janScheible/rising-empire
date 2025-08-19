@@ -2,6 +2,7 @@ package com.scheible.risingempire.webapp.notification;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -120,7 +121,7 @@ public class NotificationService {
 	}
 
 	public void removePlayerSession(String gameId, Player player) {
-		this.playerSessionIds.getOrDefault(gameId, Map.of()).remove(player);
+		this.playerSessionIds.getOrDefault(gameId, new HashMap<>()).remove(player);
 	}
 
 	public void unregisterBroadcastChannel(String channelId) {

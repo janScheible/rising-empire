@@ -35,8 +35,9 @@ public class GameManager {
 		this.notificationService = notificationService;
 	}
 
-	public void startGame(String gameId, Player startingPlayer, Game game, Optional<TestScenario> testScenario) {
-		game.players().stream().filter(player -> player != startingPlayer).forEach(game::registerAi);
+	public void startGame(String gameId, Optional<Player> startingPlayer, Game game,
+			Optional<TestScenario> testScenario) {
+		game.players().stream().filter(player -> player != startingPlayer.orElse(null)).forEach(game::registerAi);
 
 		// if scenario present run turn logic of the first round
 		testScenario.ifPresent(ts -> ts.applyTurnLogic(game));
