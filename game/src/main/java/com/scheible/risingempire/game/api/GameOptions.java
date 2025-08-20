@@ -18,7 +18,6 @@ import io.soabase.recordbuilder.core.RecordBuilder;
 @StagedRecordBuilder
 public record GameOptions(GalaxySize galaxySize, int playerCount,
 		@Initialized @RecordBuilder.Initializer("DEFAULT_TEST_GAME") boolean testGame,
-		@Initialized @RecordBuilder.Initializer("DEFAULT_GAME_2") boolean game2,
 		@Initialized @RecordBuilder.Initializer("DEFAULT_FAKE_TECH_PROVIDER") Optional<FakeTechProvider> fakeTechProvider,
 		@Initialized @RecordBuilder.Initializer("DEFAULT_FAKE_SYSTEM_NOTIFICATION_PROVIDER") Optional<FakeSystemNotificationProvider> fakeSystemNotificationProvider,
 		@Initialized @RecordBuilder.Initializer("DEFAULT_FLEET_RANGE_FACTOR") double fleetRangeFactor,
@@ -27,8 +26,6 @@ public record GameOptions(GalaxySize galaxySize, int playerCount,
 		@Initialized @RecordBuilder.Initializer("DEFAULT_ANNEXATION_SIEGE_ROUNGS") int annexationSiegeRounds) {
 
 	public static final boolean DEFAULT_TEST_GAME = false;
-
-	public static final boolean DEFAULT_GAME_2 = true;
 
 	public static final Optional<FakeTechProvider> DEFAULT_FAKE_TECH_PROVIDER = Optional.empty();
 

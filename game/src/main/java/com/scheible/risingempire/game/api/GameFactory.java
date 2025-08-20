@@ -28,20 +28,16 @@ public interface GameFactory {
 
 			@Override
 			public Game create(GameOptions gameOptions) {
-				return gameFactory(gameOptions).create(gameOptions);
+				return gameFactory().create(gameOptions);
 			}
 
 			@Override
 			public Game load(Savegame savegame) {
-				return gameFactory(savegame.gameOptions()).load(savegame);
+				return gameFactory().load(savegame);
 			}
 
-			private static GameFactory gameFactory(GameOptions gameOptions) {
-				return GAME_FACTORIES.stream()
-					.filter(service -> service.type().getPackageName().contains(".impl2.") == gameOptions.game2())
-					.findFirst()
-					.orElseThrow()
-					.get();
+			private static GameFactory gameFactory() {
+				return GAME_FACTORIES.stream().findFirst().orElseThrow().get();
 			}
 
 		};

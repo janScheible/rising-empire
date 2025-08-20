@@ -1,4 +1,4 @@
-package com.scheible.risingempire.game.impl.ai;
+package com.scheible.risingempire.game.impl2.ai;
 
 import com.scheible.risingempire.game.api.ai.Ai;
 import com.scheible.risingempire.game.api.ai.AiFactory;

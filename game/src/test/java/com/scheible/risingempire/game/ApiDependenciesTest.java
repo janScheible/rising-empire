@@ -13,25 +13,11 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 class ApiDependenciesTest {
 
 	@ArchTest
-	static final ArchRule apiMustNotDependOnImplRule = noClasses().that()
-		.resideInAPackage("..game.api..") //
-		.should()
-		.dependOnClassesThat()
-		.resideInAPackage("..game.impl..");
-
-	@ArchTest
 	static final ArchRule apiMustNotDependOnImpl2Rule = noClasses().that()
 		.resideInAPackage("..game.api..") //
 		.should()
 		.dependOnClassesThat()
 		.resideInAPackage("..game.impl2..");
-
-	@ArchTest
-	static final ArchRule impl2MustNotDependOnImpl2Rule = noClasses().that()
-		.resideInAPackage("..game.impl2..") //
-		.should()
-		.dependOnClassesThat()
-		.resideInAPackage("..game.impl..");
 
 	@ArchTest
 	static final ArchRule apiMustNotDependOnUtilRule = noClasses().that()

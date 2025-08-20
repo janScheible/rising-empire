@@ -108,7 +108,6 @@ class NewGameController {
 				else {
 					game = GameFactory.get()
 						.create(GameOptions.testGameBuilder() //
-							.game2(body.game2)
 							.fakeTechProvider((player,
 									round) -> (round % 5 == 0) ? Set.of(TechGroupView.builder()
 										.researched(TechView.builder()
@@ -164,11 +163,7 @@ class NewGameController {
 			}
 			else {
 				game = GameFactory.get()
-					.create(GameOptions.builder()
-						.galaxySize(body.galaxySize)
-						.playerCount(body.playerCount)
-						.game2(body.game2)
-						.build());
+					.create(GameOptions.builder().galaxySize(body.galaxySize).playerCount(body.playerCount).build());
 			}
 
 			this.gameManager.startGame(context.getGameId(), Optional.of(context.getPlayer()), game,
@@ -190,8 +185,6 @@ class NewGameController {
 		GalaxySize galaxySize = GalaxySize.HUGE;
 
 		int playerCount = 3;
-
-		boolean game2 = false;
 
 		Optional<String> scenarioId = Optional.empty();
 
