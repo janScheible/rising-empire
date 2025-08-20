@@ -465,11 +465,9 @@ public class Game2Impl implements Game {
 		@Override
 		public Optional<Integer> calcEta(FleetId fleetId, SystemId destinationId, ShipsView ships) {
 			Optional<Position> origin = (switch (FleetIdMapper.fromFleetId(fleetId)) {
-				case OrbitingFleetId orbitingFleetId ->
-					Game2Impl.this.navy.findOrbiting(this.player, orbitingFleetId.system());
-				case DeployedFleetId deployedFleetId ->
-					Game2Impl.this.navy.findDispatched(this.player, deployedFleetId.origin(),
-							deployedFleetId.destination(), deployedFleetId.dispatchment(), deployedFleetId.speed());
+				case OrbitingFleetId orbitingFleetId -> navy().findOrbiting(this.player, orbitingFleetId.system());
+				case DeployedFleetId deployedFleetId -> navy().findDispatched(this.player, deployedFleetId.origin(),
+						deployedFleetId.destination(), deployedFleetId.dispatchment(), deployedFleetId.speed());
 			}).map(Fleet::location).map(Location::current);
 
 			if (origin.isEmpty()) {
