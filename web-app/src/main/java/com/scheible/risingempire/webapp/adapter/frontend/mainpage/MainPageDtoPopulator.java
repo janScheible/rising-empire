@@ -586,17 +586,17 @@ public class MainPageDtoPopulator {
 
 	static MainPageDto.SpaceCombatDto toSpaceCombat(SpaceCombatView sc, SystemView combatSystem) {
 		Player player = null;
-		Set<FleetBeforeArrivalView> fleets = Set.of();
+		Set<FleetBeforeArrivalView> destroyedFleets = Set.of();
 		boolean orbiting = false;
 
 		if (sc.outcome() == Outcome.ATTACKER_WON) {
 			player = sc.defenderPlayer();
-			fleets = sc.defenderFleetsBeforeArrival();
+			destroyedFleets = sc.defenderFleetsBeforeArrival();
 			orbiting = true;
 		}
 		else if (sc.outcome() == Outcome.DEFENDER_WON) {
 			player = sc.attackerPlayer();
-			fleets = sc.attackerFleets();
+			destroyedFleets = sc.attackerFleets();
 			orbiting = false;
 		}
 
@@ -605,17 +605,17 @@ public class MainPageDtoPopulator {
 		List<FleetDto> destroyedFleetDtos = new ArrayList<>();
 
 		if (player != null) {
-			destroyedFleetDtos.addAll(fleets.stream()
+			destroyedFleetDtos.addAll(destroyedFleets.stream()
 				.map(fba -> new FleetDto(fba.id(), finalPlayer, false, Optional.of(fba.location().x()),
 						Optional.of(fba.location().y()), fba.justLeaving(), combatSystem.location().x(),
 						combatSystem.location().y(), finalOrbiting, false, Optional.of(fba.speed()),
 						Optional.of(fba.horizontalDirection()), List.of()))
 				.toList());
 
-			if (sc.outcome() == Outcome.ATTACKER_WON && sc.defenderFleet().isPresent()) {
-				destroyedFleetDtos.add(new FleetDto(sc.defenderFleet().get(), finalPlayer, false, Optional.empty(),
-						Optional.empty(), false, combatSystem.location().x(), combatSystem.location().y(), true, false,
-						Optional.empty(), Optional.empty(), List.of()));
+			if (sc.outcome() == Outcome.ATTACKER_WON && sc.destroyedDefenderFleet().isPresent()) {
+				destroyedFleetDtos.add(new FleetDto(sc.destroyedDefenderFleet().get(), finalPlayer, false,
+						Optional.empty(), Optional.empty(), false, combatSystem.location().x(),
+						combatSystem.location().y(), true, false, Optional.empty(), Optional.empty(), List.of()));
 			}
 		}
 

@@ -24,6 +24,7 @@ import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Itinerary;
 import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Orbit;
 import com.scheible.risingempire.game.impl2.shipyard.ShipDesign;
 import com.scheible.risingempire.game.impl2.shipyard.Shipyard;
+import com.scheible.risingempire.game.impl2.spaceforce.SpaceCombat.SpaceCombatFleetPart;
 import com.scheible.risingempire.game.impl2.spaceforce.SpaceForce;
 import com.scheible.risingempire.game.impl2.technology.Technology;
 import com.scheible.risingempire.game.impl2.universe.Star;
@@ -58,24 +59,25 @@ public class FleetViewMapper {
 			.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
 		return Optional.of(switch (fleet.location()) {
-			case Orbit(Position system, Set<Itinerary> partsBeforArrival) ->
-				FleetView.create(FleetView.orbitingBuilder()
-					.id(FleetIdMapper.toFleetId(fleet.player(), system))
-					.parentId(parentId)
-					.player(fleet.player())
-					.race(empires.race(fleet.player()))
-					.ships(new ShipsView(ships))
-					.orbiting(SystemIdMapper.toSystemId(system))
-					.location(LocationMapper.toLocation(system))
-					.fleetsBeforeArrival(partsBeforArrival.stream()
-						.map(pba -> new FleetBeforeArrivalView(FleetIdMapper.toFleetId(fleet.player(), pba),
-								horizontalDirection(pba), LocationMapper.toLocationValue(pba.speed().distance()),
-								LocationMapper.toLocation(pba.current()), pba.justLeaving()))
-						.collect(Collectors.toSet()))
-					.deployable(player.equals(fleet.player()))
-					.scannerRange(Optional.of(LocationMapper.toLocationValue(
-							technology.effectiveScanRange(fleet.player(), fleet.ships().counts().keySet()))))
-					.build());
+			case Orbit(Position system, Set<Itinerary> partsBeforArrival) -> FleetView.create(
+					FleetView.orbitingBuilder()
+						.id(FleetIdMapper.toFleetId(fleet.player(), system))
+						.parentId(parentId)
+						.player(fleet.player())
+						.race(empires.race(fleet.player()))
+						.ships(new ShipsView(ships))
+						.orbiting(SystemIdMapper.toSystemId(system))
+						.location(LocationMapper.toLocation(system))
+						.fleetsBeforeArrival(partsBeforArrival.stream()
+							.map(pba -> new FleetBeforeArrivalView(FleetIdMapper.toFleetId(fleet.player(), pba),
+									horizontalDirection(pba.current(), pba.destination()),
+									LocationMapper.toLocationValue(pba.speed().distance()),
+									LocationMapper.toLocation(pba.current()), pba.justLeaving()))
+							.collect(Collectors.toSet()))
+						.deployable(player.equals(fleet.player()))
+						.scannerRange(Optional.of(LocationMapper.toLocationValue(
+								technology.effectiveScanRange(fleet.player(), fleet.ships().counts().keySet()))))
+						.build());
 			case Itinerary itinerary -> FleetView.create(FleetView.deployedBuilder()
 				.id(FleetIdMapper.toFleetId(fleet.player(), itinerary.origin(), itinerary.destination(),
 						itinerary.dispatchment(), itinerary.speed()))
@@ -93,7 +95,7 @@ public class FleetViewMapper {
 				.location(LocationMapper.toLocation(itinerary.current()))
 				.speed(LocationMapper.toLocationValue(itinerary.speed().distance()))
 				.closest(SystemIdMapper.toSystemId(closestStar.position()))
-				.orientation(horizontalDirection(itinerary))
+				.orientation(horizontalDirection(itinerary.current(), itinerary.destination()))
 				.deployable(player.equals(fleet.player()) && itinerary.justLeaving()
 						&& !spaceForce.retreating(fleet.player(), fleet.location().current()))
 				.scannerRange(Optional.of(LocationMapper
@@ -103,14 +105,25 @@ public class FleetViewMapper {
 		});
 	}
 
+	public static FleetBeforeArrivalView toFleetBeforeArrivalView(Player player, Position spaceCombatSystem,
+			SpaceCombatFleetPart part) {
+		boolean justLeaving = part.current().equals(part.origin());
+		FleetId fleetId = justLeaving ? FleetIdMapper.toFleetId(player, part.origin())
+				: FleetIdMapper.toFleetId(player, part.origin(), spaceCombatSystem, part.dispatchment(), part.speed());
+
+		return new FleetBeforeArrivalView(fleetId,
+				FleetViewMapper.horizontalDirection(part.current(), spaceCombatSystem),
+				LocationMapper.toLocationValue(part.speed().distance()), LocationMapper.toLocation(part.current()),
+				justLeaving);
+	}
+
 	public static ShipTypeView toShipTypeView(Player player, ShipClassId shipClassId, Shipyard shipyard) {
 		ShipDesign design = shipyard.design(player, shipClassId);
 		return new ShipTypeView(new ShipTypeId(shipClassId.value()), design.name(), design.size(), design.look());
 	}
 
-	private static HorizontalDirection horizontalDirection(Itinerary itinerary) {
-		return itinerary.current().x().compareTo(itinerary.destination().x()) > 0 ? HorizontalDirection.LEFT
-				: HorizontalDirection.RIGHT;
+	private static HorizontalDirection horizontalDirection(Position current, Position destination) {
+		return current.x().compareTo(destination.x()) > 0 ? HorizontalDirection.LEFT : HorizontalDirection.RIGHT;
 	}
 
 }

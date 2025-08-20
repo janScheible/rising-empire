@@ -218,7 +218,7 @@ public class GameViewBuilder {
 						sc.getAttackerFireExchanges(), designs.get(sc.getAttacker())))
 				.defender(playerRaceMapping.get(sc.getDefender()))
 				.defenderPlayer(sc.getDefender())
-				.defenderFleet(Optional.of(sc.getDefenderFleet()))
+				.destroyedDefenderFleet(Optional.of(sc.getDefenderFleet()))
 				.defenderFleetsBeforeArrival(Set.of() /* TODO pass data */)
 				.defenderShipSpecs(toCombatantShipSpecs(sc.getPreviousDefenderShipCounts(), sc.getDefenderShipCounts(),
 						sc.getDefenderFireExchanges(), designs.get(sc.getDefender())))

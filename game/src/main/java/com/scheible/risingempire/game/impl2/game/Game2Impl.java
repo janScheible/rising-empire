@@ -426,7 +426,11 @@ public class Game2Impl implements Game {
 						.fireExchangeCount(spaceCombat.fireExchangeCount())
 						.attacker(Game2Impl.this.empires.race(spaceCombat.attacker()))
 						.attackerPlayer(spaceCombat.attacker())
-						.attackerFleets(Set.of())
+						.attackerFleets(spaceCombat.attackerFleets()
+							.stream()
+							.map(fba -> FleetViewMapper.toFleetBeforeArrivalView(spaceCombat.attacker(),
+									spaceCombat.system(), fba))
+							.collect(Collectors.toSet()))
 						.attackerShipSpecs(spaceCombat.previousAttackerShips()
 							.stream()
 							.map(e -> SpaceCombatViewMapper.toCombatantShipSpecsView(spaceCombat.attacker(), e.getKey(),
@@ -437,8 +441,14 @@ public class Game2Impl implements Game {
 							.toList())
 						.defender(Game2Impl.this.empires.race(spaceCombat.defender()))
 						.defenderPlayer(spaceCombat.defender())
-						.defenderFleet(Optional.empty())
-						.defenderFleetsBeforeArrival(Set.of())
+						.destroyedDefenderFleet(spaceCombat.defenderShips().empty()
+								? Optional.of(FleetIdMapper.toFleetId(spaceCombat.defender(), spaceCombat.system()))
+								: Optional.empty())
+						.defenderFleetsBeforeArrival(spaceCombat.defenderFleetsBeforeArrival()
+							.stream()
+							.map(fba -> FleetViewMapper.toFleetBeforeArrivalView(spaceCombat.defender(),
+									spaceCombat.system(), fba))
+							.collect(Collectors.toSet()))
 						.defenderShipSpecs(spaceCombat.previousDefenderShips()
 							.stream()
 							.map(e -> SpaceCombatViewMapper.toCombatantShipSpecsView(spaceCombat.defender(), e.getKey(),

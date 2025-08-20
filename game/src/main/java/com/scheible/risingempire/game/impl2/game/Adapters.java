@@ -53,6 +53,7 @@ import com.scheible.risingempire.game.impl2.shipyard.weapon.BeamWeapon;
 import com.scheible.risingempire.game.impl2.shipyard.weapon.Missile;
 import com.scheible.risingempire.game.impl2.shipyard.weapon.Weapon;
 import com.scheible.risingempire.game.impl2.spaceforce.EncounteringFleetShipsProvider;
+import com.scheible.risingempire.game.impl2.spaceforce.EncounteringFleetShipsProvider.EncounteringFleet.EncounteringFleetPart;
 import com.scheible.risingempire.game.impl2.spaceforce.SpaceForce;
 import com.scheible.risingempire.game.impl2.spaceforce.combat.ShipCombatSpecs;
 import com.scheible.risingempire.game.impl2.spaceforce.combat.ShipCombatSpecsProvider;
@@ -309,7 +310,15 @@ public final class Adapters {
 												.asOrbit()
 												.orElseThrow()
 												.arrivalRoundFractions()
-												.flatMap(fs -> fs.stream().min(Double::compare))))
+												.flatMap(fs -> fs.stream().min(Double::compare)),
+											f.location()
+												.asOrbit()
+												.orElseThrow()
+												.partsBeforArrival()
+												.stream()
+												.map(pba -> new EncounteringFleetPart(pba.origin(), pba.current(),
+														pba.dispatchment(), pba.speed()))
+												.collect(Collectors.toSet())))
 									.toList())));
 		}
 

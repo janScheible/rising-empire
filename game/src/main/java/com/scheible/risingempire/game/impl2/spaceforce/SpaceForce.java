@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.scheible.risingempire.game.api.universe.Player;
@@ -12,6 +13,8 @@ import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView.Outco
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.navy.Ships;
 import com.scheible.risingempire.game.impl2.spaceforce.EncounteringFleetShipsProvider.EncounteringFleet;
+import com.scheible.risingempire.game.impl2.spaceforce.EncounteringFleetShipsProvider.EncounteringFleet.EncounteringFleetPart;
+import com.scheible.risingempire.game.impl2.spaceforce.SpaceCombat.SpaceCombatFleetPart;
 import com.scheible.risingempire.game.impl2.spaceforce.combat.PredefinedSpaceCombatResolver;
 import com.scheible.risingempire.game.impl2.spaceforce.combat.ResolvedSpaceCombat;
 import com.scheible.risingempire.game.impl2.spaceforce.combat.SpaceCombatResolver;
@@ -64,11 +67,11 @@ public class SpaceForce {
 				Ships attackerShips = resolvedSpaceCombat.attackerShips(attackingFleet.ships());
 				Ships defenderShips = resolvedSpaceCombat.defenderShips(defendingFleet.ships());
 
-				if (resolvedSpaceCombat.outcome().equals(Outcome.ATTACKER_RETREATED)) {
+				if (resolvedSpaceCombat.outcome() == Outcome.ATTACKER_RETREATED) {
 					encounteringFleetShips.remove(1);
 					this.retreatingFleets.add(new SpaceCombatFleet(attackingFleet.player(), system, attackerShips));
 				}
-				else if (resolvedSpaceCombat.outcome().equals(Outcome.DEFENDER_WON)) {
+				else if (resolvedSpaceCombat.outcome() == Outcome.DEFENDER_WON) {
 					encounteringFleetShips.remove(1);
 				}
 				else { // ATTACKER_WON
@@ -93,6 +96,7 @@ public class SpaceForce {
 					.fireExchangeCount(resolvedSpaceCombat.fireExchangeCount())
 					.previousAttackerShips(attackingFleet.ships())
 					.attackerShips(attackerShips)
+					.attackerFleets(toSpaceCombatFleetParts(attackingFleet.partsBeforeArrival()))
 					.attackerFireExchanges(resolvedSpaceCombat.attackerFireExchanges()
 						.entrySet()
 						.stream()
@@ -100,6 +104,7 @@ public class SpaceForce {
 					.attackerShipSpecsAvailable(resolvedSpaceCombat.attackerShipSpecsAvailable())
 					.previousDefenderShips(defendingFleet.ships())
 					.defenderShips(defenderShips)
+					.defenderFleetsBeforeArrival(toSpaceCombatFleetParts(defendingFleet.partsBeforeArrival()))
 					.defenderFireExchanges(resolvedSpaceCombat.defenderFireExchanges()
 						.entrySet()
 						.stream()
@@ -108,6 +113,12 @@ public class SpaceForce {
 					.build());
 			}
 		}
+	}
+
+	private static Set<SpaceCombatFleetPart> toSpaceCombatFleetParts(Set<EncounteringFleetPart> parts) {
+		return parts.stream()
+			.map(elp -> new SpaceCombatFleetPart(elp.origin(), elp.current(), elp.dispatchment(), elp.speed()))
+			.collect(Collectors.toSet());
 	}
 
 	public boolean retreating(Player player, Position fleet) {

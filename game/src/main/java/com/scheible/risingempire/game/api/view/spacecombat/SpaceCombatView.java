@@ -21,7 +21,7 @@ import static java.util.Collections.unmodifiableList;
 public record SpaceCombatView(SystemId systemId, String systemName, int fireExchangeCount, Race attacker,
 		Player attackerPlayer, Set<FleetBeforeArrivalView> attackerFleets,
 		List<CombatantShipSpecsView> attackerShipSpecs, Race defender, Player defenderPlayer,
-		Optional<FleetId> defenderFleet, Set<FleetBeforeArrivalView> defenderFleetsBeforeArrival,
+		Optional<FleetId> destroyedDefenderFleet, Set<FleetBeforeArrivalView> defenderFleetsBeforeArrival,
 		List<CombatantShipSpecsView> defenderShipSpecs, Outcome outcome) {
 
 	public enum Outcome {

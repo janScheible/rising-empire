@@ -28,8 +28,8 @@ public class FleetIdMapper {
 				+ destination.toPlainString() + "@" + dispatchment.quantity() + "w/" + speed.toPlainString());
 	}
 
-	public static FleetId toFleetId(Player player, Position origin) {
-		return new FleetId("f" + player.name().substring(0, 1) + origin.toPlainString());
+	public static FleetId toFleetId(Player player, Position system) {
+		return new FleetId("f" + player.name().substring(0, 1) + system.toPlainString());
 	}
 
 	public static DomainFleetId fromFleetId(FleetId fleetId) {

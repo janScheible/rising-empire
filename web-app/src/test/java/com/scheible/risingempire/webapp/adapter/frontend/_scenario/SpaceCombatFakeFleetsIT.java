@@ -65,9 +65,9 @@ class SpaceCombatFakeFleetsIT extends AbstractMainPageIT {
 		// also the destroyed fleets of the (new) space combats have to be considered
 		assertThat(extractFleets(blueClient)).areExactly(1, fleet("blue", 60, 60, false))
 			.areExactly(1, fleet("blue", 219, 99, false))
-			// .areExactly(1, fleet("white", 220, 100, true))
-			.areExactly(1, fleet("blue", 139, 339, false));
-		// .areExactly(1, fleet("yellow", 140, 340, true));
+			.areExactly(1, fleet("white", 219, 99, true))
+			.areExactly(1, fleet("blue", 139, 339, false))
+			.areExactly(1, fleet("yellow", 139, 339, true));
 	}
 
 }
