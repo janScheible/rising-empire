@@ -33,7 +33,7 @@ export default class BuildQueue extends HTMLElement {
 					<div data-row-span="2">
 						<${GridLayout.NAME} cols="1">
 							<button id="next-ship-type">Ships</button>
-							<button id="relocate-ships">Relocate</button>
+							<button id="relocate-ships" disabled>Relocate</button>
 							<button id="transfer-colonists">Transfer</button>
 						</${GridLayout.NAME}>
 					</div>

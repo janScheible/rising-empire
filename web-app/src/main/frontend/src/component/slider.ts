@@ -5,8 +5,11 @@ export default class Slider extends HTMLElement {
 
 	#rangeEl: HTMLDivElement;
 	#indicatorEl: HTMLDivElement;
+	#decreaseButtonEl: HTMLButtonElement;
+	#increaseButtonEl: HTMLButtonElement;
 
 	#locked: boolean = false;
+	#disabled: boolean = false;
 	#value: number;
 
 	constructor() {
@@ -44,6 +47,10 @@ export default class Slider extends HTMLElement {
 					background-color: darkred;
 				}
 
+				#range.disabled {
+					background-color: gray;
+				}
+
 				button {
 					padding: 0px 2px 0px 2px;
 					margin: 0px;
@@ -51,6 +58,10 @@ export default class Slider extends HTMLElement {
 					color: darkred;
 					font-size: 80%;
 					border-color: dimgray;
+				}
+
+				button.disabled {
+					color: gray;
 				}
 			</style>
 			<button id="decrease">◀</button><div id="range"><div id="indicator">&nbsp;</div></div><button id="increase">▶</button>`;
@@ -66,12 +77,12 @@ export default class Slider extends HTMLElement {
 
 		this.#rangeEl = this.shadowRoot.querySelector('#range');
 		this.#rangeEl.addEventListener('click', (e) => {
-			if (!this.#locked) {
+			if (!this.#locked && !this.#disabled) {
 				updatingEventDispatcher(() => Math.floor((e.offsetX / (e.target as HTMLElement).offsetWidth) * 100));
 			}
 		});
 		this.#rangeEl.addEventListener('wheel', (e) => {
-			if (!this.#locked) {
+			if (!this.#locked && !this.#disabled) {
 				e.preventDefault();
 				updatingEventDispatcher(() => this.value + Math.sign(e.deltaY) * -10);
 			}
@@ -79,18 +90,35 @@ export default class Slider extends HTMLElement {
 
 		this.#indicatorEl = this.shadowRoot.querySelector('#indicator');
 
-		this.shadowRoot.querySelector('#decrease').addEventListener('click', (e) => {
+		this.#decreaseButtonEl = this.shadowRoot.querySelector('#decrease');
+		this.#decreaseButtonEl.addEventListener('click', (e) => {
 			if (!this.#locked) {
 				updatingEventDispatcher(() => this.value - 1);
 			}
 		});
-		this.shadowRoot.querySelector('#increase').addEventListener('click', (e) => {
+		this.#increaseButtonEl = this.shadowRoot.querySelector('#increase');
+		this.#increaseButtonEl.addEventListener('click', (e) => {
 			if (!this.#locked) {
 				updatingEventDispatcher(() => this.value + 1);
 			}
 		});
 
 		this.value = 0;
+	}
+
+	connectedCallback() {
+		const disabled = this.getAttribute('disabled') === '';
+		this.#disabled = disabled;
+
+		if (this.#disabled) {
+			this.#rangeEl.classList.add('disabled');
+
+			this.#decreaseButtonEl.classList.add('disabled');
+			this.#increaseButtonEl.classList.add('disabled');
+		}
+
+		this.#decreaseButtonEl.disabled = this.#disabled;
+		this.#increaseButtonEl.disabled = this.#disabled;
 	}
 
 	#update() {

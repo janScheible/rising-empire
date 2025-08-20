@@ -306,7 +306,7 @@ public class MainPageDtoPopulator {
 							.map(c -> new ColonyDto(
 									Optional.ofNullable(c.player() != gameView.player()
 											? new ForeignColonyOwner(c.race(), c.player()) : null),
-									c.population(), c.outdated(), c.allocations().map(r -> new ProductionDto(42, 78)),
+									c.population(), c.outdated(), c.allocations().map(r -> new ProductionDto()),
 									c.annexationStatus().flatMap(AnnexationStatusView::roundsUntilAnnexable),
 									c.annexationStatus()
 										.filter(as -> context.getPlayer() == c.player())

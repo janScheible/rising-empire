@@ -41,7 +41,7 @@ export default class ButtonBar extends HTMLElement {
 			<button id="map" disabled>Map</button>
 			<button id="races" disabled>Races</button>
 			<button id="planets" disabled>Planets</button>
-			<button id="tech">Tech</button>
+			<button id="tech" disabled>Tech</button>
 			<button id="turn" disabled>Next Turn</button>
 			<${ModalDialog.NAME} hidden></${ModalDialog.NAME}>`;
 
@@ -58,8 +58,9 @@ export default class ButtonBar extends HTMLElement {
 		this.#finishTurnAction = HypermediaUtil.getAction(data, 'finish-turn');
 		Reconciler.reconcileProperty(this.#turnEl, 'disabled', !this.#finishTurnAction);
 
-		this.#showTechPageAction = HypermediaUtil.getAction(data, 'show-tech-page');
-		Reconciler.reconcileProperty(this.#techEl, 'disabled', !this.#showTechPageAction);
+		// not yet really implemented... page just shows dummy data
+		// this.#showTechPageAction = HypermediaUtil.getAction(data, 'show-tech-page');
+		//Reconciler.reconcileProperty(this.#techEl, 'disabled', !this.#showTechPageAction);
 	}
 }
 

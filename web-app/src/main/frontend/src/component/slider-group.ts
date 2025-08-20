@@ -56,8 +56,9 @@ export default class SliderGroup extends HTMLElement {
 				if (el instanceof SliderGroupCategory) {
 					const name = el.innerHTML;
 					const category = el.qualifier;
+					const disabled = el.disabled;
 
-					this.#instantiateAndAppendTemplate(category);
+					this.#instantiateAndAppendTemplate(category, disabled);
 
 					const nameEl: FlowLayout = this.#containerEl.querySelector(`[data-category="${category}"].name`);
 					nameEl.innerText = name;
@@ -101,12 +102,16 @@ export default class SliderGroup extends HTMLElement {
 		});
 	}
 
-	#instantiateAndAppendTemplate(category) {
+	#instantiateAndAppendTemplate(category, disabled) {
 		const categoryFragmentEl: HTMLElement = this.#categoryTemplateEl.content.cloneNode(true) as HTMLElement;
 
 		Array.from(categoryFragmentEl.querySelectorAll('.category')).forEach(
 			(categoryEl: HTMLElement) => (categoryEl.dataset.category = category)
 		);
+
+		if (disabled) {
+			categoryFragmentEl.querySelector(Slider.NAME).setAttribute('disabled', '');
+		}
 
 		this.#containerEl.appendChild(categoryFragmentEl);
 	}

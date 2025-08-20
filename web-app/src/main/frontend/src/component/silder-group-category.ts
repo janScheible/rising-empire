@@ -12,6 +12,10 @@ export default class SliderGroupCategory extends HTMLElement {
 			</style>`;
 	}
 
+	get disabled() {
+		return this.getAttribute('disabled') === '';
+	}
+
 	get qualifier() {
 		return this.getAttribute('qualifier');
 	}

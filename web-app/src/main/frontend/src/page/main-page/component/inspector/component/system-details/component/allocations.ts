@@ -20,9 +20,9 @@ export default class Allocations extends HTMLElement {
 				<div class="bold">Allocate spending</div>
 				<${SliderGroup.NAME} select-action="allocate-spending">
 					<${SliderGroupCategory.NAME} qualifier="ship">Ship</${SliderGroupCategory.NAME}>
-					<${SliderGroupCategory.NAME} qualifier="defence">Def</${SliderGroupCategory.NAME}>
-					<${SliderGroupCategory.NAME} qualifier="industry">Ind</${SliderGroupCategory.NAME}>
-					<${SliderGroupCategory.NAME} qualifier="ecology">Eco</${SliderGroupCategory.NAME}>
+					<${SliderGroupCategory.NAME} disabled qualifier="defence">Def</${SliderGroupCategory.NAME}>
+					<${SliderGroupCategory.NAME} disabled qualifier="industry">Ind</${SliderGroupCategory.NAME}>
+					<${SliderGroupCategory.NAME} disabled qualifier="ecology">Eco</${SliderGroupCategory.NAME}>
 					<${SliderGroupCategory.NAME} qualifier="technology">Tech</${SliderGroupCategory.NAME}>
 				</${SliderGroup.NAME}>
 			</${FlowLayout.NAME}>`;

@@ -356,14 +356,9 @@ class InspectorDto {
 
 	static class ProductionDto {
 
-		final int net;
+		final int net = 0; // not yet implemented
 
-		final int gross;
-
-		ProductionDto(int net, int gross) {
-			this.net = net;
-			this.gross = gross;
-		}
+		final int gross = 0; // not yet implemented
 
 	}
 
@@ -390,7 +385,7 @@ class InspectorDto {
 
 		final boolean outdated;
 
-		final int bases = 0;
+		final int bases = 0; // not yet implemented
 
 		final Optional<ProductionDto> production;
 
