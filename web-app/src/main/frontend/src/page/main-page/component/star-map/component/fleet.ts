@@ -146,8 +146,15 @@ export default class Fleet extends HTMLElement {
 				{ duration: animationDuration * 1000, fill: 'forwards' }
 			);
 			fleetAnimation.addEventListener('finish', () => {
-				fleetAnimation.commitStyles();
-				fleetAnimation.cancel();
+				try {
+					fleetAnimation.commitStyles();
+					fleetAnimation.cancel();
+				} catch (error) {
+					// "Animation.commitStyles: Target is not rendered" seems to happen when the tab is not visible when the animation happens
+					// --> ignore error and set final position directly
+					Reconciler.reconcileStyle(this, 'left', location.x + 'px');
+					Reconciler.reconcileStyle(this, 'top', location.y + 'px');
+				}
 			});
 
 			Fleet.#logger.debug(
