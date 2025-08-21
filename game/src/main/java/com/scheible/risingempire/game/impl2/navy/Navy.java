@@ -76,6 +76,10 @@ public class Navy {
 		return copy;
 	}
 
+	public void dispatch(Round round, List<ShipDeployment> deployments) {
+		this.dispatcher.dispatch(round, deployments);
+	}
+
 	public void moveFleets(Round round, List<ShipDeployment> deployments) {
 		this.arrivedColonistTransports.clear();
 
@@ -245,11 +249,6 @@ public class Navy {
 
 		public DeployOrbiting(Player player, Position origin, Position destination, Ships ships) {
 			this(player, origin, destination, ships, false);
-		}
-
-		@Override
-		public boolean synthetic() {
-			return this.retreating;
 		}
 
 	}

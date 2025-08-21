@@ -1,5 +1,6 @@
 package com.scheible.risingempire.game.impl2.game;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -7,8 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -299,15 +298,18 @@ public class Game2Impl implements Game {
 		this.round = this.round.next();
 		this.playerTurns.beginNewRound(this.round);
 
+		List<ShipDeployment> retreatCommands = new ArrayList<>();
 		for (SpaceCombatFleet retreatingFleet : this.spaceForce.retreatingFleets()) {
 			Fleet fleet = this.navy.findOrbiting(retreatingFleet.player(), retreatingFleet.position()).orElseThrow();
 			Position closestColony = this.universe
 				.closest(retreatingFleet.position(),
 						star -> this.colonization.colony(retreatingFleet.player(), star.position()).isPresent())
 				.position();
-			this.playerTurns.addCommand(retreatingFleet.player(), new DeployOrbiting(retreatingFleet.player(),
-					retreatingFleet.position(), closestColony, fleet.ships(), true));
+			retreatCommands.add(new DeployOrbiting(retreatingFleet.player(), retreatingFleet.position(), closestColony,
+					fleet.ships(), true));
 		}
+		// apply the commands immediately and therfore make them a fact for next round
+		this.navy.dispatch(this.round, retreatCommands);
 	}
 
 	private Set<Position> colonizableSystems(Player player) {
@@ -352,20 +354,9 @@ public class Game2Impl implements Game {
 
 	@Override
 	public Savegame save() {
-		// don't save synthetic commands, the game logic will recreate them
-		Function<Map<Player, List<Command>>, Map<Player, List<Command>>> removeSynthetic = playerCommands -> playerCommands
-			.entrySet()
-			.stream()
-			.collect(Collectors.toMap(Entry::getKey,
-					e -> e.getValue().stream().filter(Predicate.not(Command::synthetic)).toList()));
-
 		Map<Round, Map<Player, List<Command>>> commands = new HashMap<>();
-
-		commands.putAll(this.playerTurns.pastCommandMapping()
-			.entrySet()
-			.stream()
-			.collect(Collectors.toMap(Entry::getKey, e -> removeSynthetic.apply(e.getValue()))));
-		commands.put(this.round, removeSynthetic.apply(this.playerTurns.commandMapping()));
+		commands.putAll(this.playerTurns.pastCommandMapping());
+		commands.put(this.round, this.playerTurns.commandMapping());
 
 		return new Savegame2Impl(this.gameOptions, this.random.seed(), commands);
 	}
