@@ -16,10 +16,17 @@ class NewGamePageDto {
 
 	final List<GalaxySize> galaxySizes;
 
+	final int maxPlayerCount;
+
+	final boolean testGame;
+
 	final Optional<List<ScenarioDto>> gameScenarios;
 
-	NewGamePageDto(List<GalaxySize> galaxySizes, Optional<List<ScenarioDto>> gameScenarios) {
+	NewGamePageDto(List<GalaxySize> galaxySizes, int maxPlayerCount, boolean testGame,
+			Optional<List<ScenarioDto>> gameScenarios) {
 		this.galaxySizes = galaxySizes;
+		this.maxPlayerCount = maxPlayerCount;
+		this.testGame = testGame;
 		this.gameScenarios = gameScenarios;
 	}
 

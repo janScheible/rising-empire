@@ -12,11 +12,13 @@ import com.scheible.risingempire.game.api.view.system.SystemNotificationView;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
+import static java.util.Collections.unmodifiableSet;
+
 /**
  * @author sj
  */
 @StagedRecordBuilder
-public record GameOptions(GalaxySize galaxySize, int playerCount,
+public record GameOptions(GalaxySize galaxySize, Set<Player> players,
 		@Initialized @RecordBuilder.Initializer("DEFAULT_TEST_GAME") boolean testGame,
 		@Initialized @RecordBuilder.Initializer("DEFAULT_FAKE_TECH_PROVIDER") Optional<FakeTechProvider> fakeTechProvider,
 		@Initialized @RecordBuilder.Initializer("DEFAULT_FAKE_SYSTEM_NOTIFICATION_PROVIDER") Optional<FakeSystemNotificationProvider> fakeSystemNotificationProvider,
@@ -41,6 +43,7 @@ public record GameOptions(GalaxySize galaxySize, int playerCount,
 	public static final int DEFAULT_ANNEXATION_SIEGE_ROUNGS = 5;
 
 	public GameOptions {
+		players = unmodifiableSet(players);
 	}
 
 	public static GalaxySizeStage builder() {
@@ -48,7 +51,9 @@ public record GameOptions(GalaxySize galaxySize, int playerCount,
 	}
 
 	public static GameOptionsBuilder testGameBuilder() {
-		return builder().galaxySize(GalaxySize.HUGE).playerCount(3).testGame(true);
+		return builder().galaxySize(GalaxySize.HUGE)
+			.players(Set.of(Player.BLUE, Player.WHITE, Player.YELLOW))
+			.testGame(true);
 	}
 
 	/**
@@ -57,10 +62,6 @@ public record GameOptions(GalaxySize galaxySize, int playerCount,
 	 */
 	public Optional<Outcome> predefinedSpaceCombatOutcome() {
 		return this.predefinedSpaceCombatOutcome;
-	}
-
-	public Set<Player> players() {
-		return Set.of(Player.BLUE, Player.YELLOW, Player.WHITE);
 	}
 
 	@FunctionalInterface

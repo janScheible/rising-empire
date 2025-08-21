@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.Game;
@@ -64,10 +67,16 @@ public class Game2FactoryImpl implements GameFactory {
 
 		Map<Player, Race> races = Map.of( //
 				Player.BLUE, Race.LUMERISKS, //
-				Player.YELLOW, Race.MYXALOR, //
-				Player.WHITE, Race.XELIPHARI);
+				Player.GREEN, Race.DRACONILITHS, //
+				Player.PURPLE, Race.BLYZARIANS, //
+				Player.RED, Race.ZYNTHORAX, //
+				Player.WHITE, Race.XELIPHARI, //
+				Player.YELLOW, Race.MYXALOR);
 
-		GeneratedStars generatedStars = generateStars(gameOptions.galaxySize(), races, random);
+		List<Player> players = gameOptions.players().stream().sorted().toList();
+
+		GeneratedStars generatedStars = generateStars(gameOptions.galaxySize(), players, races, random);
+
 		List<Star> stars = gameOptions.testGame()
 				? List.of(new Star("Sol", new Position("0.8", "0.8"), StarType.YELLOW, false),
 						new Star("Krylon", new Position("2.933", "1.333"), StarType.RED, false),
@@ -79,14 +88,14 @@ public class Game2FactoryImpl implements GameFactory {
 						new Star("Rigel", new Position("3.2", "5.866"), StarType.GREEN, true),
 						new Star("Spicia", new Position("5.066", "4"), StarType.YELLOW, true))
 				: generatedStars.stars();
+
 		Map<Player, Position> homeSystems = gameOptions.testGame() ? Map.of( //
 				Player.BLUE, /* Sol */ new Position("0.8", "0.8"), //
 				Player.YELLOW, /* Centauri */ new Position("1.866", "4.533"), //
 				Player.WHITE, /* Krylon */ new Position("2.933", "1.333"))
-				: Map.of( //
-						Player.BLUE, stars.get(0).position(), //
-						Player.WHITE, stars.get(1).position(), //
-						Player.YELLOW, stars.get(2).position());
+				: IntStream.range(0, players.size())
+					.mapToObj(i -> Map.entry(players.get(i), stars.get(i).position()))
+					.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
 		Map<Position, Planet> planets = gameOptions.testGame() ? Map.of( //
 				/* Sol */ new Position("0.8", "0.8"),
@@ -109,19 +118,14 @@ public class Game2FactoryImpl implements GameFactory {
 				new Planet(PlanetType.ARID, PlanetSpecial.NONE, new Population(50)) //
 		) : generatedStars.planets();
 
-		Game2Impl game = new Game2Impl(gameOptions,
-				List.of(new Empire(Player.BLUE, races.get(Player.BLUE)),
-						new Empire(Player.YELLOW,
-								races.get(Player.YELLOW)),
-						new Empire(Player.WHITE, races.get(Player.WHITE))),
-				stars, planets,
-				List.of(new Fleet(Player.BLUE, new Orbit(homeSystems.get(Player.BLUE)),
-						new Ships(Map.of(new ShipClassId("scout"), 2, new ShipClassId("colony-ship"), 1))),
-						new Fleet(Player.YELLOW, new Orbit(homeSystems.get(Player.YELLOW)),
-								new Ships(Map.of(new ShipClassId("scout"), 2, new ShipClassId("colony-ship"), 1))),
-						new Fleet(Player.WHITE, new Orbit(homeSystems.get(Player.WHITE)),
-								new Ships(Map.of(new ShipClassId("scout"), 2, new ShipClassId("colony-ship"), 1)))),
-				homeSystems, random);
+		List<Empire> empires = players.stream().map(p -> new Empire(p, races.get(p))).toList();
+
+		List<Fleet> fleets = players.stream()
+			.map(p -> new Fleet(p, new Orbit(homeSystems.get(p)),
+					new Ships(Map.of(new ShipClassId("scout"), 2, new ShipClassId("colony-ship"), 1))))
+			.toList();
+
+		Game2Impl game = new Game2Impl(gameOptions, empires, stars, planets, fleets, homeSystems, random);
 
 		if (gameOptions.testGame()) {
 			game.addColonies(Map.of( //
@@ -132,7 +136,8 @@ public class Game2FactoryImpl implements GameFactory {
 		return game;
 	}
 
-	private static GeneratedStars generateStars(GalaxySize galaxySize, Map<Player, Race> races, SeededRandom random) {
+	private static GeneratedStars generateStars(GalaxySize galaxySize, List<Player> players, Map<Player, Race> races,
+			SeededRandom random) {
 		List<Star> stars = new ArrayList<>();
 		Map<Position, Planet> planets = new HashMap<>();
 
@@ -143,15 +148,12 @@ public class Game2FactoryImpl implements GameFactory {
 			.sorted((a, b) -> Double.compare(a.distance(Location.ORIGIN), b.distance(Location.ORIGIN)))
 			.toList();
 
-		Map<Player, Location> startRegions = Map.of(//
-				Player.BLUE, new Location(galaxySize.width() / 4, galaxySize.height() / 4), //
-				Player.WHITE, new Location((galaxySize.width() / 4) * 3, galaxySize.height() / 4), //
-				Player.YELLOW, new Location(galaxySize.width() / 2, (galaxySize.height() / 4) * 3));
+		Map<Player, Location> startRegions = startRegions(galaxySize, players);
 
 		Map<Player, Location> startStars = new HashMap<>();
 
 		for (Location starPosition : starLocations) {
-			for (Player player : List.of(Player.BLUE, Player.WHITE, Player.YELLOW)) {
+			for (Player player : players) {
 				Location previousClosestStar = startStars.get(player);
 				if (previousClosestStar == null) {
 					startStars.put(player, starPosition);
@@ -178,7 +180,7 @@ public class Game2FactoryImpl implements GameFactory {
 			}
 		}
 
-		for (Player player : List.of(Player.YELLOW, Player.WHITE, Player.BLUE)) {
+		for (Player player : players) {
 			Position starPosition = new Position(startStars.get(player).x() / 75.0, startStars.get(player).y() / 75.0);
 			stars.add(0, new Star(HOME_SYSTEM_NAMES.get(races.get(player)), starPosition, StarType.YELLOW, false));
 			planets.put(starPosition,
@@ -186,6 +188,34 @@ public class Game2FactoryImpl implements GameFactory {
 		}
 
 		return new GeneratedStars(stars, planets);
+	}
+
+	/**
+	 * Start regions are placed on an ellipse with equal distance between every player.
+	 */
+	private static Map<Player, Location> startRegions(GalaxySize galaxySize, List<Player> players) {
+		Map<Player, Location> startRegions = new HashMap<>();
+
+		double a = (galaxySize.width() / 3.0);
+		double b = (galaxySize.height() / 3.0);
+		double centerX = galaxySize.width() / 2.0;
+		double centerY = galaxySize.height() / 2.0;
+
+		double step = (2.0 * Math.PI) / players.size();
+		double t = 0;
+		int startRegionPlayer = 0;
+
+		while (t < 2.0 * (Math.PI - 0.01)) {
+			double x = a * Math.cos(t);
+			double y = b * Math.sin(t);
+
+			startRegions.put(players.get(startRegionPlayer), new Location((int) (centerX + x), (int) (centerY + y)));
+
+			t += step;
+			startRegionPlayer++;
+		}
+
+		return startRegions;
 	}
 
 	/**

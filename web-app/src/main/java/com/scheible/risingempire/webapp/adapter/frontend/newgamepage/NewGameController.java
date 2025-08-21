@@ -1,5 +1,6 @@
 package com.scheible.risingempire.webapp.adapter.frontend.newgamepage;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -10,6 +11,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.scheible.risingempire.game.api.GalaxySize;
 import com.scheible.risingempire.game.api.Game;
@@ -28,6 +31,7 @@ import com.scheible.risingempire.game.api.view.tech.TechId;
 import com.scheible.risingempire.game.api.view.tech.TechView;
 import com.scheible.risingempire.webapp.adapter.frontend.annotation.FrontendController;
 import com.scheible.risingempire.webapp.adapter.frontend.context.FrontendContext;
+import com.scheible.risingempire.webapp.adapter.frontend.dto.PlayerDto;
 import com.scheible.risingempire.webapp.adapter.frontend.newgamepage.NewGamePageDto.ScenarioDto;
 import com.scheible.risingempire.webapp.game.GameHolder;
 import com.scheible.risingempire.webapp.game.GameManager;
@@ -80,7 +84,8 @@ class NewGameController {
 
 	@GetMapping(path = "/new-game-page")
 	EntityModel<NewGamePageDto> newGame(@ModelAttribute FrontendContext context) {
-		return new EntityModel<>(new NewGamePageDto(Arrays.asList(GalaxySize.values()),
+		return new EntityModel<>(new NewGamePageDto(Arrays.asList(GalaxySize.values()), PlayerDto.values().length,
+				isTestGameId(context.getGameId()),
 				isTestGameId(context.getGameId()) && context.getPlayer() == Player.BLUE
 						? Optional.of(TEST_GAME_SCENARIO_MAPPING.entrySet()
 							.stream()
@@ -162,8 +167,17 @@ class NewGameController {
 				}
 			}
 			else {
+				Set<Player> players = new HashSet<>(Set.of(context.getPlayer()));
+				List<Player> availablePlayers = Stream.of(Player.values())
+					.filter(p -> p != context.getPlayer())
+					.collect(Collectors.toCollection(ArrayList::new));
+
+				while (players.size() < body.playerCount) {
+					players.add(availablePlayers.removeFirst());
+				}
+
 				game = GameFactory.get()
-					.create(GameOptions.builder().galaxySize(body.galaxySize).playerCount(body.playerCount).build());
+					.create(GameOptions.builder().galaxySize(body.galaxySize).players(players).build());
 			}
 
 			this.gameManager.startGame(context.getGameId(), Optional.of(context.getPlayer()), game,
@@ -184,7 +198,7 @@ class NewGameController {
 
 		GalaxySize galaxySize = GalaxySize.HUGE;
 
-		int playerCount = 3;
+		int playerCount;
 
 		Optional<String> scenarioId = Optional.empty();
 

@@ -13,6 +13,8 @@ export default class NewGamePage extends HTMLElement {
 
 	#galaxySizeEl: HTMLSelectElement;
 
+	#playerCountEl: HTMLSelectElement;
+
 	#scenarioLabelEl: HTMLLabelElement;
 	#scenarioSelectEl: HTMLSelectElement;
 
@@ -36,19 +38,10 @@ export default class NewGamePage extends HTMLElement {
 					<${GridLayout.NAME} cols="1fr 2fr" gap="L">
 						<label for="galaxy-size">Galaxy size</label>
 						<select name="galaxy-size">
-							<option value="SMALL">Small</option>
-							<option value="MEDIUM" selected>Medium</option>
-							<option value="LARGE">Large</option>
-							<option value="HUGE">Huge</option>
 						</select>
 
 						<label for="player-count">Player count</label>
 						<select name="player-count" disabled>
-							<option value="1">1</option>
-							<option value="2">2</option>
-							<option value="3" selected>3</option>
-							<option value="4">4</option>
-							<option value="5">5</option>
 						</select>
 
 						<label id="scenario-label" hidden for="scenario">Scenario</label>
@@ -61,6 +54,7 @@ export default class NewGamePage extends HTMLElement {
 			</${ModalDialog.NAME}>`;
 
 		this.#galaxySizeEl = this.shadowRoot.querySelector('select[name="galaxy-size"]');
+		this.#playerCountEl = this.shadowRoot.querySelector('select[name="player-count"]');
 		this.#scenarioLabelEl = this.shadowRoot.querySelector('label[for="scenario"]');
 		this.#scenarioSelectEl = this.shadowRoot.querySelector('select[name="scenario"]');
 
@@ -69,6 +63,7 @@ export default class NewGamePage extends HTMLElement {
 			const values = Object.assign(
 				{
 					galaxySize: this.#galaxySizeEl.selectedOptions[0].value,
+					playerCount: this.#playerCountEl.selectedOptions[0].value,
 				},
 				selectedScenarioId ? { scenarioId: selectedScenarioId } : null
 			);
@@ -78,6 +73,44 @@ export default class NewGamePage extends HTMLElement {
 	}
 
 	render(data) {
+		Reconciler.reconcileProperty(this.#playerCountEl, 'disabled', data.testGame);
+
+		Reconciler.reconcileChildren(
+			this.#galaxySizeEl,
+			this.#galaxySizeEl.querySelectorAll(':scope > option'),
+			data.galaxySizes,
+			'option',
+			{
+				renderCallbackFn: (el: HTMLInputElement, size) => {
+					el.value = size;
+					el.innerText = size.substring(0, 1) + size.substring(1).toLowerCase();
+
+					if (size === 'MEDIUM') {
+						el.setAttribute('selected', '');
+					}
+				},
+				idAttributName: 'value',
+			}
+		);
+
+		Reconciler.reconcileChildren(
+			this.#playerCountEl,
+			this.#playerCountEl.querySelectorAll(':scope > option'),
+			Array.from({ length: data.maxPlayerCount }, (_, i) => i + 1).splice(1),
+			'option',
+			{
+				renderCallbackFn: (el: HTMLInputElement, count) => {
+					el.value = count;
+					el.innerText = count;
+
+					if (count === 3) {
+						el.setAttribute('selected', '');
+					}
+				},
+				idAttributName: 'value',
+			}
+		);
+
 		if (
 			!Reconciler.isHiddenAfterPropertyReconciliation(this.#scenarioLabelEl, !data.gameScenarios) &&
 			!Reconciler.isHiddenAfterPropertyReconciliation(this.#scenarioSelectEl, !data.gameScenarios)
@@ -96,6 +129,7 @@ export default class NewGamePage extends HTMLElement {
 				}
 			);
 		}
+
 		this.#createAction = HypermediaUtil.getAction(data, 'create');
 	}
 }

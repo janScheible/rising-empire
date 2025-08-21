@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
@@ -109,10 +110,10 @@ class GameBrowserController {
 			.mapToObj(SPACE_WORDS::get)
 			.collect(Collectors.joining());
 
-		return ResponseEntity.ok(new GameBrowserDto(new EntityModel<>(
-				new GameLauncherDto(defaultGameId, List.of(PlayerDto.YELLOW, PlayerDto.BLUE, PlayerDto.WHITE)))
-			.with(Action.get("start", "games", "{gameId}", "{player}").with("gameId", null).with("player", null))
-			.with(Action.jsonPost("load", "game-browser", "games")),
+		return ResponseEntity.ok(new GameBrowserDto(
+				new EntityModel<>(new GameLauncherDto(defaultGameId, Stream.of(PlayerDto.values()).toList())).with(
+						Action.get("start", "games", "{gameId}", "{player}").with("gameId", null).with("player", null))
+					.with(Action.jsonPost("load", "game-browser", "games")),
 				this.gameHolder.getGameIds()
 					.stream()
 					.map(gameId -> new EntityModel<>(new RunningGameDto(gameId, toRunningGamePlayers(gameId),

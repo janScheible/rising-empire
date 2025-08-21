@@ -5,6 +5,9 @@ import Story from '~/storybook/stories/story';
 export default class NewGamePageStories {
 	static showNewGamePage(story: Story) {
 		story.setRenderData(`{
+			"galaxySizes": ["SMALL","MEDIUM","LARGE","HUGE"],
+			"maxPlayerCount": 6,
+			"testGame":true,
 			"_actions": [
 				{ "fields": [], "name": "create" }
 			]
