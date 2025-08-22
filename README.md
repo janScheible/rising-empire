@@ -66,3 +66,4 @@ Although third-party libraries should be avoided, in some cases it makes sense t
 ### Assets
 
 1.  [Orbitron font](https://www.1001fonts.com/orbitron-font.html) ([SIL Open Font License](http://scripts.sil.org/OFL))
+1.  [Lucid Dream music by Ronald Kah](https://ronaldkah.de/) ([Creative Commons Namensnennung 4.0 International License](https://creativecommons.org/licenses/by/4.0/deed.de))

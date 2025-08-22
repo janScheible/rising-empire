@@ -98,3 +98,9 @@ const notificationWebSocket = new Sockette(notificationWebSocketUri.toString(), 
 	onerror: (event) => frontendEl.showConnected(false),
 	onclose: (event) => frontendEl.showConnected(false),
 });
+
+const backgroundMusic = new Audio('/frontend/ronald-kah-lucid-dream-full.mp3');
+backgroundMusic.addEventListener('ended', (e) => {
+	backgroundMusic.play();
+});
+backgroundMusic.play();
