@@ -3,7 +3,7 @@ import PageStoryWrapper from '~/storybook/component/page-story-wrapper';
 import Story from '~/storybook/stories/story';
 
 export default class NewShipsPageStories {
-	static showNewShipsDialog(story: Story) {
+	static showNewShipsPage(story: Story) {
 		story.setRenderData(`{
 			"newShips": [{
 				"count": 5,
