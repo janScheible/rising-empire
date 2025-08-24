@@ -17,6 +17,7 @@ export default class Unexplored extends HTMLElement {
 
 	#habitabilityEl: Habitability;
 	#descriptionEl: HTMLDivElement;
+	#rangeInfoEl: HTMLDivElement;
 	#rangeEl: HTMLSpanElement;
 
 	constructor() {
@@ -34,11 +35,12 @@ export default class Unexplored extends HTMLElement {
 			<${Container.NAME} outer-gap="12px">
 				<${Habitability.NAME}></${Habitability.NAME}>
 				<div id="description">Unexplored</div>
-				<div>Range <span id="range"></span> parsecs</div>
+				<div id="range-info">Range <span id="range"></span> parsecs</div>
 			</${Container.NAME}>`;
 
 		this.#habitabilityEl = this.shadowRoot.querySelector(Habitability.NAME);
 		this.#descriptionEl = this.shadowRoot.querySelector('#description');
+		this.#rangeInfoEl = this.shadowRoot.querySelector('#range-info');
 		this.#rangeEl = this.shadowRoot.querySelector('#range');
 	}
 
@@ -51,7 +53,9 @@ export default class Unexplored extends HTMLElement {
 				Unexplored.#STAR_TYPE_DESCRIPTION_MAPPING[data.starType]
 			);
 
-			Reconciler.reconcileProperty(this.#rangeEl, 'innerText', data.range);
+			if (!Reconciler.isHiddenAfterPropertyReconciliation(this.#rangeInfoEl, !data.range)) {
+				Reconciler.reconcileProperty(this.#rangeEl, 'innerText', data.range);
+			}
 		}
 	}
 }

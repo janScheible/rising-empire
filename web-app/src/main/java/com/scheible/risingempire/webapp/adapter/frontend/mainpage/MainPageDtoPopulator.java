@@ -243,7 +243,9 @@ public class MainPageDtoPopulator {
 						.with("selectedStarId", selectedSystemId.value()))
 			.with(!gameView.newShips().isEmpty(),
 					() -> Action.get("show-new-ships", context.toFrontendUri("new-ships-page"))
-						.with("selectedStarId", selectedSystemId.value()));
+						.with("selectedStarId", selectedSystemId.value()))
+			.with(gameView.victory() || gameView.defeat(),
+					() -> Action.get("show-victory-defeat", context.toFrontendUri("victory-defeat-page")));
 	}
 
 	private static SystemId fromSelectedStar(GameView gameView, MainPageState state, MainPageDto mainPage,
@@ -390,7 +392,7 @@ public class MainPageDtoPopulator {
 			}
 			else {
 				mainPage.inspector.unexplored = new UnexploredDto(selectedSystem.starType(),
-						selectedSystem.closestColony().orElseThrow());
+						selectedSystem.closestColony().orElse(null));
 			}
 		}
 		else if (colonization || annexation) {

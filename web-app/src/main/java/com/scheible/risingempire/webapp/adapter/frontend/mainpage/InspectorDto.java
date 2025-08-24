@@ -281,9 +281,9 @@ class InspectorDto {
 
 		final StarType starType;
 
-		final int range;
+		final Integer range;
 
-		UnexploredDto(StarType starType, int range) {
+		UnexploredDto(StarType starType, Integer range) {
 			this.starType = starType;
 			this.range = range;
 		}

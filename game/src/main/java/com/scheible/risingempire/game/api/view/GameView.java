@@ -30,7 +30,8 @@ import static java.util.Collections.unmodifiableSet;
 @StagedRecordBuilder
 public record GameView(int galaxyWidth, int galaxyHeight, Player player, Race race, Set<Player> players, int round,
 		Map<Player, Boolean> turnFinishedStatus, Map<SystemId, SystemView> systems, Map<FleetId, FleetView> fleets,
-		Set<SpaceCombatView> spaceCombats, Set<TechGroupView> selectTechGroups, Map<ShipTypeView, Integer> newShips) {
+		Set<SpaceCombatView> spaceCombats, Set<TechGroupView> selectTechGroups, Map<ShipTypeView, Integer> newShips,
+		boolean victory, boolean defeat) {
 
 	public GameView {
 		turnFinishedStatus = unmodifiableMap(turnFinishedStatus);

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -382,6 +383,9 @@ public class Game2Impl implements Game {
 
 		@Override
 		public GameView view() {
+			Map<Player, Boolean> defeats = Stream.of(Player.values())
+				.collect(Collectors.toMap(Function.identity(), p -> Game2Impl.this.colonization.colonies(p).isEmpty()));
+
 			return GameView.builder()
 				.galaxyWidth(LocationMapper.toLocationValue(Game2Impl.this.universe.width()))
 				.galaxyHeight(LocationMapper.toLocationValue(Game2Impl.this.universe.height()))
@@ -460,6 +464,12 @@ public class Game2Impl implements Game {
 					.stream()
 					.collect(Collectors.toSet()))
 				.newShips(newShips(this.player))
+				.victory(defeats.entrySet()
+					.stream()
+					.filter(e -> e.getKey() != this.player)
+					.map(Entry::getValue)
+					.allMatch(d -> d == true))
+				.defeat(defeats.get(this.player))
 				.build();
 		}
 

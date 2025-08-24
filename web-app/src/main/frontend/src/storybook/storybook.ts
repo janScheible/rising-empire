@@ -47,7 +47,7 @@ import RelocateStories from '~/storybook/stories/relocate-ships-stories';
 import NewShipsPageStories from '~/storybook/stories/new-ships-page-stories';
 import FleetStories from '~/storybook/stories/fleet-stories';
 import TransportsStories from '~/storybook/stories/transports-stories';
-import WinLosePageStories from '~/storybook/stories/win-lose-page-stories';
+import VictoryDefeatPageStories from '~/storybook/stories/victory-defeat-page-stories';
 
 class Storybook extends HTMLElement {
 	static NAME = 're-storybook';
@@ -99,7 +99,7 @@ class Storybook extends HTMLElement {
 		'turn-finished-dialog-waiting-for-others': (story) =>
 			TurnFinishedDialogStories.showTurnFinishedDialogWaitingForOthers(story),
 		'new-ships-page': (story) => NewShipsPageStories.showNewShipsPage(story),
-		'win-lose-page': (story) => WinLosePageStories.showWinLosePage(story),
+		'victory-defeat-page': (story) => VictoryDefeatPageStories.showVictoryDefeatPage(story),
 	};
 
 	#stageEl: HTMLDivElement;
@@ -226,7 +226,7 @@ class Storybook extends HTMLElement {
 									<option value="fleet" class="lv-3">fleet</option>
 								<option value="turn-finished-dialog-waiting-for-others" class="lv-2">turn-finished-dialog waiting for others</option>
 							<option value="new-ships-page" class="lv-1">new-ships-page</option>
-							<option value="win-lose-page" class="lv-1">win-lose-page</option>
+							<option value="victory-defeat-page" class="lv-1">victory-defeat-page</option>
 					</select>
 
 					<div id="stage" data-flow-size="1fr"></div>
