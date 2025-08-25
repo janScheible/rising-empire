@@ -65,7 +65,7 @@ export default class NewGamePage extends HTMLElement {
 					galaxySize: this.#galaxySizeEl.selectedOptions[0].value,
 					playerCount: this.#playerCountEl.selectedOptions[0].value,
 				},
-				selectedScenarioId ? { scenarioId: selectedScenarioId } : null
+				selectedScenarioId !== '-1' ? { scenarioId: selectedScenarioId } : null
 			);
 
 			HypermediaUtil.submitAction(this.#createAction, values);
@@ -118,7 +118,7 @@ export default class NewGamePage extends HTMLElement {
 			Reconciler.reconcileChildren(
 				this.#scenarioSelectEl,
 				this.#scenarioSelectEl.querySelectorAll(':scope > option'),
-				data.gameScenarios,
+				[{ id: -1, name: '-' }].concat(data.gameScenarios),
 				'option',
 				{
 					renderCallbackFn: (el: HTMLInputElement, data) => {
