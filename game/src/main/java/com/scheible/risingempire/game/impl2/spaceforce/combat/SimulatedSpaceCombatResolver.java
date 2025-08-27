@@ -66,6 +66,7 @@ public class SimulatedSpaceCombatResolver implements SpaceCombatResolver {
 						: attackingStacks)
 					.stream()
 					.filter(s -> !s.isDestroyed())
+					.sorted()
 					.collect(Collectors.toList());
 
 				if (otherSideStacks.isEmpty()) {

@@ -11,7 +11,7 @@ import com.scheible.risingempire.util.SeededRandom;
 /**
  * @author sj
  */
-class CombatStack {
+class CombatStack implements Comparable<CombatStack> {
 
 	enum Side {
 
@@ -64,6 +64,11 @@ class CombatStack {
 
 	int getDamage() {
 		return this.hitPoints - this.topShipHitPoints;
+	}
+
+	@Override
+	public int compareTo(CombatStack o) {
+		return this.design.shipClassId().toString().compareTo(o.design.shipClassId().toString());
 	}
 
 }
