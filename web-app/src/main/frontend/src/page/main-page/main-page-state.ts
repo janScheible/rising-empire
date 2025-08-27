@@ -80,9 +80,9 @@ export default class MainPageState {
 			if (!stateChanged) {
 				for (const spotlightState of [
 					{ occurences: this.#explorations, name: 'explorations' },
+					{ occurences: this.#spaceCombats, name: 'spaceCombats' },
 					{ occurences: this.#colonizations, name: 'colonizations' },
 					{ occurences: this.#annexations, name: 'annexations' },
-					{ occurences: this.#spaceCombats, name: 'spaceCombats' },
 				]) {
 					if (spotlightState.occurences.length > 0) {
 						const occurence = spotlightState.occurences[0];
