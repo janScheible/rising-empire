@@ -54,7 +54,19 @@ public class Shipyard {
 		int engineLevel = shipTechLevel + 1;
 		int maneuverLevel = shipTechLevel + 1;
 
-		BeamWeapon laser = new BeamWeapon("Laser", new Damage(1, 4 * (shipTechLevel + 1)));
+		double damageMultiplier = shipTechLevel;
+		if (shieldLevel == 0) {
+			damageMultiplier = 0.4;
+		}
+		else if (shieldLevel == 1) {
+			damageMultiplier = 1;
+		}
+		else if (shieldLevel == 2) {
+			damageMultiplier = 2.2;
+		}
+
+		BeamWeapon laser = new BeamWeapon("Laser",
+				new Damage((int) damageMultiplier, (int) (4 * (damageMultiplier + 1))));
 		Missile missile2 = new Missile("Missile", new Damage(4 * (shipTechLevel + 1)), 2);
 		Missile missile5 = new Missile("Missile", new Damage(4 * (shipTechLevel + 1)), 5);
 
