@@ -100,7 +100,16 @@ const notificationWebSocket = new Sockette(notificationWebSocketUri.toString(), 
 });
 
 const backgroundMusic = new Audio('/frontend/ronald-kah-lucid-dream-full.mp3');
-backgroundMusic.addEventListener('ended', (e) => {
-	backgroundMusic.play();
-});
-backgroundMusic.play();
+
+async function playBackgroundMusic() {
+	try {
+		await backgroundMusic.play();
+	} catch (error) {
+		if (error.name !== 'NotAllowedError') {
+			throw error;
+		}
+	}
+}
+
+backgroundMusic.addEventListener('canplay', playBackgroundMusic);
+backgroundMusic.addEventListener('ended', playBackgroundMusic);
