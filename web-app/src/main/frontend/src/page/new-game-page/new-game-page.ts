@@ -65,7 +65,7 @@ export default class NewGamePage extends HTMLElement {
 					galaxySize: this.#galaxySizeEl.selectedOptions[0].value,
 					playerCount: this.#playerCountEl.selectedOptions[0].value,
 				},
-				selectedScenarioId !== '-1' ? { scenarioId: selectedScenarioId } : null
+				selectedScenarioId && selectedScenarioId !== '-1' ? { scenarioId: selectedScenarioId } : null
 			);
 
 			HypermediaUtil.submitAction(this.#createAction, values);
