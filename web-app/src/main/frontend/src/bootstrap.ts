@@ -99,17 +99,16 @@ const notificationWebSocket = new Sockette(notificationWebSocketUri.toString(), 
 	onclose: (event) => frontendEl.showConnected(false),
 });
 
-const backgroundMusic = new Audio('/frontend/ronald-kah-lucid-dream-full.mp3');
+const backgroundMusicEl = document.createElement('audio');
+backgroundMusicEl.setAttribute('src', '/frontend/ronald-kah-lucid-dream-full.mp3');
+backgroundMusicEl.setAttribute('loop', 'loop');
+document.body.appendChild(backgroundMusicEl);
 
-async function playBackgroundMusic() {
-	try {
-		await backgroundMusic.play();
-	} catch (error) {
-		if (error.name !== 'NotAllowedError') {
-			throw error;
-		}
-	}
+// without the indirection of the mousemove event it was not possible to catch the error in Firefox... :-(
+function playBackgroundMusic() {
+	document.removeEventListener('mousemove', playBackgroundMusic);
+	backgroundMusicEl.play().catch((e) => {
+		// ignore error
+	});
 }
-
-backgroundMusic.addEventListener('canplay', playBackgroundMusic);
-backgroundMusic.addEventListener('ended', playBackgroundMusic);
+document.addEventListener('mousemove', playBackgroundMusic);
