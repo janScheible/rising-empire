@@ -76,6 +76,8 @@ public class MooThemeGeneratorCli {
 					Files.readAllBytes(Path.of(orionDir.getAbsolutePath(), "SHIPS2.LBX")));
 			InputStream starmap = new ByteArrayInputStream(
 					Files.readAllBytes(Path.of(orionDir.getAbsolutePath(), "STARMAP.LBX")));
+			InputStream screens = new ByteArrayInputStream(
+					Files.readAllBytes(Path.of(orionDir.getAbsolutePath(), "SCREENS.LBX")));
 
 			BiFunction<InputStream, Integer, BufferedImage> getImage = (input, entry) -> {
 				try {
@@ -206,6 +208,84 @@ public class MooThemeGeneratorCli {
 							process(getImage.apply(ships, 71), Scale.TRIPLE, -16_777_216),
 							process(getImage.apply(ships, 72), Scale.TRIPLE, -16_777_216)));
 
+			BufferedImage shipsRedSheet = SpriteSheetGenerator.generate(3, true,
+					List.of(process(getImage.apply(ships, 0), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 1), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 2), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 3), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 4), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 5), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships, 6), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 7), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 8), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 9), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 10), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 11), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships, 12), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 13), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 14), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 15), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 16), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 17), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships, 18), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 19), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 20), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 21), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 22), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships, 23), Scale.TRIPLE, -16_777_216)));
+
+			BufferedImage shipsGreenSheet = SpriteSheetGenerator.generate(3, true,
+					List.of(process(getImage.apply(ships2, 24), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 25), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 26), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 27), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 28), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 29), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships2, 30), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 31), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 32), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 33), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 34), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 35), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships2, 36), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 37), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 38), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 39), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 40), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 41), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships2, 42), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 43), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 44), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 45), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 46), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 47), Scale.TRIPLE, -16_777_216)));
+
+			BufferedImage shipsPurpleSheet = SpriteSheetGenerator.generate(3, true,
+					List.of(process(getImage.apply(ships2, 48), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 49), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 50), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 51), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 52), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 53), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships2, 54), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 55), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 56), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 57), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 58), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 59), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships2, 60), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 61), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 62), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 63), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 64), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 65), Scale.TRIPLE, -16_777_216)),
+					List.of(process(getImage.apply(ships2, 66), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 67), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 68), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(ships2, 69), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(planets, 47), Scale.TRIPLE, -16_777_216),
+							process(getImage.apply(screens, 7), Scale.TRIPLE, -16_777_216)));
+
 			BufferedImage planetsSheet = SpriteSheetGenerator.generate(3, true,
 					List.of(process(getImage.apply(planets, 0), Scale.TRIPLE, -16_777_216),
 							process(getImage.apply(planets, 1), Scale.TRIPLE, -16_777_216),
@@ -262,9 +342,10 @@ public class MooThemeGeneratorCli {
 			writeZipFile(themeZip, sheetEntry("fleets.png", fleetsSheet), sheetEntry("transports.png", transportsSheet),
 					sheetEntry("stars.png", starsSheet), sheetEntry("stars-small.png", starsSmallSheet),
 					sheetEntry("ships-blue.png", shipsBlueSheet), sheetEntry("ships-white.png", shipsWhiteSheet),
-					sheetEntry("ships-yellow.png", shipsYellowSheet), sheetEntry("planets.png", planetsSheet),
-					sheetEntry("inspector.png", inspectorSheet), sheetEntry("races.txt", races),
-					sheetEntry("home-systems.txt", homeSystems));
+					sheetEntry("ships-yellow.png", shipsYellowSheet), sheetEntry("ships-red.png", shipsRedSheet),
+					sheetEntry("ships-green.png", shipsGreenSheet), sheetEntry("ships-purple.png", shipsPurpleSheet),
+					sheetEntry("planets.png", planetsSheet), sheetEntry("inspector.png", inspectorSheet),
+					sheetEntry("races.txt", races), sheetEntry("home-systems.txt", homeSystems));
 			logger.info("Wrote ZIP file to ''{0}''.", themeZip);
 		}
 		catch (UncheckedIOException ex) {

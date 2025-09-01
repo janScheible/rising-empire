@@ -131,6 +131,33 @@ export default class Theme {
 			],
 			...Theme.#SHIPS_SPRITE_SHEET,
 		},
+		'ships-red': {
+			sprites: [
+				{ qualifier: 'ship-red-small', x: 0, y: 0 },
+				{ qualifier: 'ship-red-medium', x: 1, y: 1 },
+				{ qualifier: 'ship-red-large', x: 2, y: 2 },
+				{ qualifier: 'ship-red-huge', x: 3, y: 3 },
+			],
+			...Theme.#SHIPS_SPRITE_SHEET,
+		},
+		'ships-green': {
+			sprites: [
+				{ qualifier: 'ship-green-small', x: 0, y: 0 },
+				{ qualifier: 'ship-green-medium', x: 1, y: 1 },
+				{ qualifier: 'ship-green-large', x: 2, y: 2 },
+				{ qualifier: 'ship-green-huge', x: 3, y: 3 },
+			],
+			...Theme.#SHIPS_SPRITE_SHEET,
+		},
+		'ships-purple': {
+			sprites: [
+				{ qualifier: 'ship-purple-small', x: 0, y: 0 },
+				{ qualifier: 'ship-purple-medium', x: 1, y: 1 },
+				{ qualifier: 'ship-purple-large', x: 2, y: 2 },
+				{ qualifier: 'ship-purple-huge', x: 3, y: 3 },
+			],
+			...Theme.#SHIPS_SPRITE_SHEET,
+		},
 		inspector: {
 			sprites: [{ qualifier: 'inspector-transport', x: 0, y: 0 }],
 			sheetWidth: 213,
