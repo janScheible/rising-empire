@@ -98,8 +98,11 @@ public class FleetViewMapper {
 				.orientation(horizontalDirection(itinerary.current(), itinerary.destination()))
 				.deployable(player.equals(fleet.player()) && itinerary.justLeaving()
 						&& !spaceForce.retreating(fleet.player(), fleet.location().current()))
-				.scannerRange(Optional.of(LocationMapper
-					.toLocationValue(technology.effectiveScanRange(fleet.player(), fleet.ships().counts().keySet()))))
+				.scannerRange(
+						Optional.ofNullable(fleet.player() == player
+								? LocationMapper.toLocationValue(
+										technology.effectiveScanRange(fleet.player(), fleet.ships().counts().keySet()))
+								: null))
 				.justLeaving(itinerary.justLeaving())
 				.build());
 		});
