@@ -8,7 +8,6 @@ import java.util.Set;
 import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 import com.scheible.risingempire.game.impl2.apiinternal.Round;
-import com.scheible.risingempire.game.impl2.apiinternal.Rounds;
 import com.scheible.risingempire.game.impl2.army.Army.Annex;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +30,8 @@ public class ArmyTest {
 		assertThat(army.annexationStatus(otherPlayer, system)).isEmpty();
 
 		Round round = new Round(1);
-		for (int i = 0; i < 5; i++) {
+		army.annexSystems(round = round.next(), List.of());
+		for (int i = 0; i < 4; i++) {
 			army.annexSystems(round = round.next(), List.of());
 
 			assertThat(army.annexationStatus(player, system).map(AnnexationStatus::annexable)).contains(false);
@@ -56,6 +56,7 @@ public class ArmyTest {
 		Army army = new Army(() -> siegedSystems, 5);
 
 		Round round = new Round(1);
+		army.annexSystems(round = round.next(), List.of());
 		for (int i = 0; i < 3; i++) {
 			army.annexSystems(round = round.next(), List.of());
 
@@ -69,8 +70,7 @@ public class ArmyTest {
 
 		siegedSystems.addAll(Set.of(new SiegedSystem(system, Player.YELLOW, player)));
 		army.annexSystems(round = round.next(), List.of());
-		assertThat(army.annexationStatus(player, system).flatMap(AnnexationStatus::siegeRounds))
-			.contains(new Rounds(0));
+		assertThat(army.annexationStatus(player, system).flatMap(AnnexationStatus::siegeRounds)).isEmpty();
 	}
 
 }

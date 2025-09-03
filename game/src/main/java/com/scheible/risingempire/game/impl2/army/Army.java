@@ -121,7 +121,7 @@ public class Army {
 			}
 		}
 
-		if (rounds != null) {
+		if (rounds != null && rounds.quantity() > 0) {
 			Rounds siegeRounds = new Rounds(Math.min(this.annexationSiegeRounds, rounds.quantity()));
 			Rounds roundsUntilAnnexable = new Rounds(this.annexationSiegeRounds - siegeRounds.quantity());
 
