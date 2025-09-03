@@ -71,7 +71,7 @@ export default class MainPage extends HTMLElement {
 			<div id="round-text-wrapper">
 				<div id="round-text-center-wrapper">
 					<span id="round-text">
-						<${ConnectionIndicator.NAME}></${ConnectionIndicator.NAME}> round <span id="round"></span>
+						<${ConnectionIndicator.NAME}></${ConnectionIndicator.NAME}> Round <span id="round"></span>
 					</span>
 				</div>
 			</div>
