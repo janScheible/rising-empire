@@ -14,22 +14,22 @@ import com.scheible.risingempire.game.impl2.navy.Fleet.Location.Orbit;
  */
 public class FleetIdMapper {
 
-	public static FleetId toFleetId(Player player, Location location) {
+	public static FleetId toFleetId(Player player, Location location, boolean colonistTransport) {
 		return switch (location) {
-			case Orbit orbit -> toFleetId(player, orbit.system());
+			case Orbit orbit -> toFleetId(player, orbit.system(), colonistTransport);
 			case Itinerary itinerary -> toFleetId(player, itinerary.origin(), itinerary.destination(),
-					itinerary.dispatchment(), itinerary.speed());
+					itinerary.dispatchment(), itinerary.speed(), colonistTransport);
 		};
 	}
 
 	public static FleetId toFleetId(Player player, Position origin, Position destination, Round dispatchment,
-			Speed speed) {
-		return new FleetId("f" + player.name().substring(0, 1) + origin.toPlainString() + "->"
-				+ destination.toPlainString() + "@" + dispatchment.quantity() + "w/" + speed.toPlainString());
+			Speed speed, boolean colonistTransport) {
+		return new FleetId((colonistTransport ? "t" : "f") + player.name().substring(0, 1) + origin.toPlainString()
+				+ "->" + destination.toPlainString() + "@" + dispatchment.quantity() + "w/" + speed.toPlainString());
 	}
 
-	public static FleetId toFleetId(Player player, Position system) {
-		return new FleetId("f" + player.name().substring(0, 1) + system.toPlainString());
+	public static FleetId toFleetId(Player player, Position system, boolean colonistTransport) {
+		return new FleetId((colonistTransport ? "t" : "f") + player.name().substring(0, 1) + system.toPlainString());
 	}
 
 	public static DomainFleetId fromFleetId(FleetId fleetId) {

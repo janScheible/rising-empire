@@ -41,7 +41,8 @@ public class FleetViewMapper {
 		// contrast to the inital orbiting fleet at begin of turn as in the original game.
 		// Should have the same effect and makes the whole parent-child fleet tracking
 		// unnecessary.
-		Optional<FleetId> parentId = Optional.of(FleetIdMapper.toFleetId(fleet.player(), fleet.location().current()));
+		Optional<FleetId> parentId = Optional
+			.of(FleetIdMapper.toFleetId(fleet.player(), fleet.location().current(), fleet.colonistTransport()));
 
 		Star closestStar = universe.closest(fleet.location().current(), (Star _) -> true);
 
@@ -61,7 +62,7 @@ public class FleetViewMapper {
 		return Optional.of(switch (fleet.location()) {
 			case Orbit(Position system, Set<Itinerary> partsBeforArrival) -> FleetView.create(
 					FleetView.orbitingBuilder()
-						.id(FleetIdMapper.toFleetId(fleet.player(), system))
+						.id(FleetIdMapper.toFleetId(fleet.player(), system, fleet.colonistTransport()))
 						.parentId(parentId)
 						.player(fleet.player())
 						.race(empires.race(fleet.player()))
@@ -69,7 +70,8 @@ public class FleetViewMapper {
 						.orbiting(SystemIdMapper.toSystemId(system))
 						.location(LocationMapper.toLocation(system))
 						.fleetsBeforeArrival(partsBeforArrival.stream()
-							.map(pba -> new FleetBeforeArrivalView(FleetIdMapper.toFleetId(fleet.player(), pba),
+							.map(pba -> new FleetBeforeArrivalView(
+									FleetIdMapper.toFleetId(fleet.player(), pba, fleet.colonistTransport()),
 									horizontalDirection(pba.current(), pba.destination()),
 									LocationMapper.toLocationValue(pba.speed().distance()),
 									LocationMapper.toLocation(pba.current()), pba.justLeaving()))
@@ -80,7 +82,7 @@ public class FleetViewMapper {
 						.build());
 			case Itinerary itinerary -> FleetView.create(FleetView.deployedBuilder()
 				.id(FleetIdMapper.toFleetId(fleet.player(), itinerary.origin(), itinerary.destination(),
-						itinerary.dispatchment(), itinerary.speed()))
+						itinerary.dispatchment(), itinerary.speed(), fleet.colonistTransport()))
 				.parentId(parentId)
 				.player(fleet.player())
 				.race(empires.race(fleet.player()))
@@ -109,10 +111,11 @@ public class FleetViewMapper {
 	}
 
 	public static FleetBeforeArrivalView toFleetBeforeArrivalView(Player player, Position spaceCombatSystem,
-			SpaceCombatFleetPart part) {
+			SpaceCombatFleetPart part, boolean colonistTransport) {
 		boolean justLeaving = part.current().equals(part.origin());
-		FleetId fleetId = justLeaving ? FleetIdMapper.toFleetId(player, part.origin())
-				: FleetIdMapper.toFleetId(player, part.origin(), spaceCombatSystem, part.dispatchment(), part.speed());
+		FleetId fleetId = justLeaving ? FleetIdMapper.toFleetId(player, part.origin(), colonistTransport)
+				: FleetIdMapper.toFleetId(player, part.origin(), spaceCombatSystem, part.dispatchment(), part.speed(),
+						colonistTransport);
 
 		return new FleetBeforeArrivalView(fleetId,
 				FleetViewMapper.horizontalDirection(part.current(), spaceCombatSystem),

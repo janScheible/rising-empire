@@ -20,7 +20,9 @@ class FleetIdMapperTest {
 		Player player = Player.BLUE;
 		Position position = new Position("1.234", "5.678");
 
-		assertThat(FleetIdMapper.fromFleetId(FleetIdMapper.toFleetId(player, position)))
+		assertThat(FleetIdMapper.fromFleetId(FleetIdMapper.toFleetId(player, position, false)))
+			.isEqualTo(new OrbitingFleetId(position));
+		assertThat(FleetIdMapper.fromFleetId(FleetIdMapper.toFleetId(player, position, true)))
 			.isEqualTo(new OrbitingFleetId(position));
 	}
 
@@ -32,7 +34,11 @@ class FleetIdMapperTest {
 		Round departure = new Round(42);
 		Speed speed = new Speed("9.134");
 
-		assertThat(FleetIdMapper.fromFleetId(FleetIdMapper.toFleetId(player, origin, destination, departure, speed)))
+		assertThat(FleetIdMapper
+			.fromFleetId(FleetIdMapper.toFleetId(player, origin, destination, departure, speed, false)))
+			.isEqualTo(new DeployedFleetId(origin, destination, departure, speed));
+		assertThat(
+				FleetIdMapper.fromFleetId(FleetIdMapper.toFleetId(player, origin, destination, departure, speed, true)))
 			.isEqualTo(new DeployedFleetId(origin, destination, departure, speed));
 	}
 

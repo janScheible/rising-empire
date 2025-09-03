@@ -11,24 +11,19 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class FleetIdTest {
 
 	@Test
-	void testInvalidId() {
+	void testInvalid() {
 		assertThatThrownBy(() -> new FleetId("ab")).isInstanceOf(IllegalArgumentException.class)
-			.hasMessageContaining("Id must be a valid hex number in the interval");
+			.hasMessageContaining("is invalid!");
 	}
 
 	@Test
-	void testRandomIdValidity() {
-		FleetId random = FleetId.createRandom();
-		assertThat(new FleetId(random.value())).isEqualTo(random);
-	}
+	void testValid() {
+		assertThat(new FleetId("fB1.234x5.678->1.222x3.444@42w/9.134")).isNotNull();
+		assertThat(new FleetId("tB1.234x5.678->1.222x3.444@42w/9.134")).isNotNull();
 
-	@Test
-	void testGame2Ids() {
-		FleetId deployedFleetId = new FleetId("fB1.234x5.678->1.222x3.444@42w/9.134");
-		assertThat(deployedFleetId).isNotNull();
+		assertThat(new FleetId("fB1.234x5.678")).isNotNull();
+		assertThat(new FleetId("tB1.234x5.678")).isNotNull();
 
-		FleetId orbitingFleetId = new FleetId("fB1.234x5.678");
-		assertThat(orbitingFleetId).isNotNull();
 	}
 
 }

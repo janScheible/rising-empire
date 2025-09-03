@@ -424,7 +424,7 @@ public class Game2Impl implements Game {
 						.attackerFleets(spaceCombat.attackerFleets()
 							.stream()
 							.map(fba -> FleetViewMapper.toFleetBeforeArrivalView(spaceCombat.attacker(),
-									spaceCombat.system(), fba))
+									spaceCombat.system(), fba, false))
 							.collect(Collectors.toSet()))
 						.attackerShipSpecs(spaceCombat.previousAttackerShips()
 							.stream()
@@ -437,12 +437,13 @@ public class Game2Impl implements Game {
 						.defender(Game2Impl.this.empires.race(spaceCombat.defender()))
 						.defenderPlayer(spaceCombat.defender())
 						.destroyedDefenderFleet(spaceCombat.defenderShips().empty()
-								? Optional.of(FleetIdMapper.toFleetId(spaceCombat.defender(), spaceCombat.system()))
+								? Optional
+									.of(FleetIdMapper.toFleetId(spaceCombat.defender(), spaceCombat.system(), false))
 								: Optional.empty())
 						.defenderFleetsBeforeArrival(spaceCombat.defenderFleetsBeforeArrival()
 							.stream()
 							.map(fba -> FleetViewMapper.toFleetBeforeArrivalView(spaceCombat.defender(),
-									spaceCombat.system(), fba))
+									spaceCombat.system(), fba, false))
 							.collect(Collectors.toSet()))
 						.defenderShipSpecs(spaceCombat.previousDefenderShips()
 							.stream()
