@@ -325,7 +325,8 @@ public class Colonization {
 
 		for (int i = 0; i < this.colonies.size(); i++) {
 			Colony colony = this.colonies.get(i);
-			List<ArrivingColonistTransport> arrivingTransporters = arrivingMapping.getOrDefault(colony.position(),
+			Position colonyPosition = colony.position();
+			List<ArrivingColonistTransport> arrivingTransporters = arrivingMapping.getOrDefault(colonyPosition,
 					List.of());
 
 			for (ArrivingColonistTransport arrivingTransport : arrivingTransporters) {
@@ -333,7 +334,8 @@ public class Colonization {
 					this.colonies.set(i,
 							colony.with(colonyBuilder -> colonyBuilder.population(colonyBuilder.population()
 								.add(new Population(arrivingTransport.transporters()),
-										this.maxPopulationProvider.max(colony.position())))));
+										this.maxPopulationProvider.max(colonyPosition)))));
+					colony = this.colonies.get(i);
 				}
 			}
 		}
