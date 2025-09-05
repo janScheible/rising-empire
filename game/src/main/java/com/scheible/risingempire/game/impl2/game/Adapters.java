@@ -233,7 +233,7 @@ public final class Adapters {
 
 		@Override
 		public Optional<ColonyIntel> colony(Position system) {
-			return this.delegate.colony(system).map(c -> new ColonyIntel(c.player(), new Population(50.0)));
+			return this.delegate.colony(system).map(c -> new ColonyIntel(c.player(), c.population()));
 		}
 
 	}
