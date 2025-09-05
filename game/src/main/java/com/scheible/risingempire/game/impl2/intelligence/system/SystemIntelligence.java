@@ -38,8 +38,21 @@ public class SystemIntelligence {
 
 				Round firstSeen = systemIntel == null ? round : systemIntel.firstSeen();
 				this.knownSystems.computeIfAbsent(player, _ -> new HashMap<>())
-					.put(orbitingFleet, new SystemIntel(firstSeen, round,
-							this.colonyIntelProvider.colony(orbitingFleet).filter(c -> c.player() != player)));
+					.put(orbitingFleet,
+							new SystemIntel(firstSeen, round, this.colonyIntelProvider.colony(orbitingFleet)));
+			}
+		}
+
+		// for own colonies update the population (even if no orbiting fleet is there)
+		for (Player player : this.knownSystems.keySet()) {
+			for (Position system : this.knownSystems.get(player).keySet()) {
+				Optional<ColonyIntel> colonyIntel = this.colonyIntelProvider.colony(system);
+				if (player == colonyIntel.map(ColonyIntel::player).orElse(null)) {
+					SystemIntel systemIntel = this.knownSystems.get(player).get(system);
+					this.knownSystems.get(player)
+						.put(system, new SystemIntel(systemIntel.firstSeen(), systemIntel.lastSeen(),
+								Optional.of(new ColonyIntel(player, colonyIntel.orElseThrow().population()))));
+				}
 			}
 		}
 	}
@@ -57,18 +70,25 @@ public class SystemIntelligence {
 	}
 
 	public SystemReconReport systemReconReport(Player player, Optional<Round> round, Position system) {
-		Optional<Entry<Position, SystemIntel>> systemIntelEntry = this.knownSystems.getOrDefault(player, Map.of())
-			.entrySet()
-			.stream()
-			.filter(e -> e.getKey().equals(system))
-			.findFirst();
+		Optional<Player> colonyPlayer = this.colonyIntelProvider.colony(system).map(ColonyIntel::player);
+		if (player.equals(colonyPlayer.orElse(null))) {
+			return new SystemReconReport(true, Optional.empty());
+		}
+		else {
+			Optional<Entry<Position, SystemIntel>> systemIntelEntry = this.knownSystems.getOrDefault(player, Map.of())
+				.entrySet()
+				.stream()
+				.filter(e -> e.getKey().equals(system))
+				.findFirst();
 
-		return new SystemReconReport(systemIntelEntry.isPresent(),
-				systemIntelEntry.map(Entry::getValue)
-					.flatMap(si -> si.colonyIntel().map(ci -> Map.entry(si, ci)))
-					.map(siCiEntry -> new ColonyReconReport(siCiEntry.getValue().player(),
-							siCiEntry.getValue().population(),
-							!siCiEntry.getKey().lastSeen().equals(round.orElse(null)))));
+			return new SystemReconReport(systemIntelEntry.isPresent(),
+					systemIntelEntry.map(Entry::getValue)
+						.flatMap(si -> si.colonyIntel().map(ci -> Map.entry(si, ci)))
+						.map(siCiEntry -> new ColonyReconReport( //
+								// annexed colonies have changed owner
+								colonyPlayer.orElse(siCiEntry.getValue().player()), siCiEntry.getValue().population(),
+								!siCiEntry.getKey().lastSeen().equals(round.orElse(null)))));
+		}
 	}
 
 }
