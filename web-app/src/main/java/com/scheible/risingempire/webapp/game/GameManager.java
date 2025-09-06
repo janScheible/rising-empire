@@ -104,7 +104,6 @@ public class GameManager {
 			.get()
 			.players()
 			.stream()
-			.filter(player -> this.notificationService.hasChannel(gameId, player))
 			.forEach(player -> kickPlayer(gameId, player, "game-stopped"));
 		this.gameHolder.removeGame(gameId);
 
