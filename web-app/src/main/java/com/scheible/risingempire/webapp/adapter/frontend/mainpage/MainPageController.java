@@ -192,8 +192,9 @@ class MainPageController {
 	ResponseEntity<EntityModel<MainPageDto>> mainPage(HttpServletRequest request,
 			@ModelAttribute FrontendContext context, @RequestParam Optional<String> selectedStarId,
 			@RequestParam Optional<String> selectedFleetId, Optional<String> spotlightedStarId,
-			@RequestParam Optional<String> transferStarId, @RequestParam Optional<String> relocateStarId,
-			@RequestParam Map<String, String> shipTypeIdsAndCounts, @RequestParam Optional<String> partial) {
+			Optional<String> spotlightType, @RequestParam Optional<String> transferStarId,
+			@RequestParam Optional<String> relocateStarId, @RequestParam Map<String, String> shipTypeIdsAndCounts,
+			@RequestParam Optional<String> partial) {
 		if (context.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.SEE_OTHER)
 				.header(HttpHeaders.LOCATION, context.toAction(HttpMethod.GET, "new-game-page").toGetUri())
@@ -203,8 +204,8 @@ class MainPageController {
 		Game game = this.gameHolder.get(context.getGameId()).orElseThrow();
 		game.unregisterAi(context.getPlayer());
 
-		MainPageState state = MainPageState.fromParameters(selectedStarId, spotlightedStarId, transferStarId,
-				relocateStarId, selectedFleetId, shipTypeIdsAndCounts,
+		MainPageState state = MainPageState.fromParameters(selectedStarId, spotlightedStarId, spotlightType,
+				transferStarId, relocateStarId, selectedFleetId, shipTypeIdsAndCounts,
 				(fleetId, parameters) -> toShipTypesAndCounts(context.getGameView().fleet(fleetId).ships(), parameters),
 				(fleetId, orbitingSystemId) -> context.getGameView()
 					.fleet(fleetId)

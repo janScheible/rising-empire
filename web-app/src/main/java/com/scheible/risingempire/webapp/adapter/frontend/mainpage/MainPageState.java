@@ -1,11 +1,13 @@
 package com.scheible.risingempire.webapp.adapter.frontend.mainpage;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
 import com.scheible.risingempire.game.api.view.fleet.FleetId;
 import com.scheible.risingempire.game.api.view.ship.ShipsView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
+import com.scheible.risingempire.webapp.adapter.frontend.mainpage.MainPageState.StarSpotlightState.SpotlightType;
 
 /**
  * @author sj
@@ -25,8 +27,8 @@ abstract class MainPageState {
 	}
 
 	static MainPageState fromParameters(Optional<String> rawSelectedStarId, Optional<String> rawSpotlightedStarId,
-			Optional<String> rawTransferStarId, Optional<String> rawRelocateStarId, Optional<String> rawSelectedFleetId,
-			Map<String, String> rawShipTypeIdsAndCounts, ShipProvider shipProvider,
+			Optional<String> rawSpotlightType, Optional<String> rawTransferStarId, Optional<String> rawRelocateStarId,
+			Optional<String> rawSelectedFleetId, Map<String, String> rawShipTypeIdsAndCounts, ShipProvider shipProvider,
 			OrbitingSystemProvider orbitingSystemProvider, DeployableFleetProvider deployableFleetProvider,
 			OwnColonyProvider ownColonyProvider) {
 		Optional<SystemId> selectedSystemId = rawSelectedStarId.map(id -> new SystemId(id));
@@ -36,7 +38,8 @@ abstract class MainPageState {
 		Optional<FleetId> selectedFleetId = rawSelectedFleetId.map(id -> new FleetId(id));
 
 		if (onlyStar(selectedSystemId, selectedFleetId) && spotlightedSystemId.isPresent()) {
-			return new StarSpotlightState(selectedSystemId.get(), spotlightedSystemId.get());
+			return new StarSpotlightState(selectedSystemId.get(), spotlightedSystemId.get(),
+					SpotlightType.fromParameterValue(rawSpotlightType.get()));
 		}
 		else if (onlyStar(selectedSystemId, selectedFleetId) && transferSystemId.isPresent()) {
 			return new TransferColonistsState(selectedSystemId.get(), transferSystemId.get(), ownColonyProvider);
@@ -164,9 +167,26 @@ abstract class MainPageState {
 
 		private final SystemId spotlightedSystemId;
 
-		StarSpotlightState(SystemId selectedSystemId, SystemId spotlightedSystemId) {
+		private final SpotlightType type;
+
+		enum SpotlightType {
+
+			SPACE_COMBAT, JUST_EXPLORED, COLONIZATION, ANNEXATION;
+
+			static SpotlightType fromParameterValue(String type) {
+				return SpotlightType.valueOf(type.replace("-", "_").toUpperCase(Locale.ROOT));
+			}
+
+			String toParameterValue() {
+				return this.name().replace(("_"), "-").toLowerCase(Locale.ROOT);
+			}
+
+		}
+
+		StarSpotlightState(SystemId selectedSystemId, SystemId spotlightedSystemId, SpotlightType type) {
 			this.selectedSystemId = selectedSystemId;
 			this.spotlightedSystemId = spotlightedSystemId;
+			this.type = type;
 		}
 
 		@Override
@@ -176,6 +196,10 @@ abstract class MainPageState {
 
 		SystemId getActualSelectedSystemId() {
 			return this.selectedSystemId;
+		}
+
+		SpotlightType getType() {
+			return this.type;
 		}
 
 	}

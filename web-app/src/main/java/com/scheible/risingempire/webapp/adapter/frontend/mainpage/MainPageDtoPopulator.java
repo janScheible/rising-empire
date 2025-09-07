@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -55,6 +56,7 @@ import com.scheible.risingempire.webapp.adapter.frontend.mainpage.InspectorDto.T
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.InspectorDto.UnexploredDto;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.MainPageDto.ButtonBarDto;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.MainPageDto.TurnStatusDto;
+import com.scheible.risingempire.webapp.adapter.frontend.mainpage.MainPageState.StarSpotlightState.SpotlightType;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.StarMapDto.FleetDto;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.StarMapDto.FleetSelectionDto;
 import com.scheible.risingempire.webapp.adapter.frontend.mainpage.StarMapDto.ItineraryDto;
@@ -209,32 +211,34 @@ public class MainPageDtoPopulator {
 			}))
 			.toList();
 
-		Function<SystemId, Action> spotlightAction = (systemId) -> Action
+		BiFunction<SystemId, String, Action> spotlightAction = (systemId, type) -> Action
 			.get("spotlight", context.toFrontendUri("main-page"))
 			.with("selectedStarId", selectedSystemId.value())
-			.with("spotlightedStarId", systemId.value());
+			.with("spotlightedStarId", systemId.value())
+			.with("spotlightType", type);
 
 		mainPage.spaceCombats = gameView.spaceCombats()
 			.stream()
 			.map(sc -> new EntityModel<>(toSpaceCombat(sc, gameView.system(sc.systemId())))
-				.with(spotlightAction.apply(sc.systemId())))
+				.with(spotlightAction.apply(sc.systemId(), SpotlightType.SPACE_COMBAT.toParameterValue())))
 			.toList();
 
 		mainPage.explorations = gameView.justExploredSystemIds()
 			.stream()
-			.map(jesi -> new EntityModel<>(new MainPageDto.ExplorationDto(jesi)).with(spotlightAction.apply(jesi)))
+			.map(jesi -> new EntityModel<>(new MainPageDto.ExplorationDto(jesi))
+				.with(spotlightAction.apply(jesi, SpotlightType.JUST_EXPLORED.toParameterValue())))
 			.toList();
 
 		mainPage.colonizations = gameView.colonizableSystemIds()
 			.stream()
 			.map(csi -> new EntityModel<>(new MainPageDto.ColonizationDto(csi, gameView.colonizationCommand(csi)))
-				.with(spotlightAction.apply(csi)))
+				.with(spotlightAction.apply(csi, SpotlightType.COLONIZATION.toParameterValue())))
 			.toList();
 
 		mainPage.annexations = gameView.annexableSystemIds()
 			.stream()
 			.map(asi -> new EntityModel<>(new MainPageDto.AnnexationDto(asi, gameView.annexationCommand(asi)))
-				.with(spotlightAction.apply(asi)))
+				.with(spotlightAction.apply(asi, SpotlightType.ANNEXATION.toParameterValue())))
 			.toList();
 
 		return new EntityModel<>(mainPage)
@@ -256,13 +260,13 @@ public class MainPageDtoPopulator {
 				selectedSystem.location().x(), selectedSystem.location().y());
 
 		boolean colonization = (state.isStarInspectionState() && selectedSystem.colonizable())
-				|| (state.isStarSpotlightState()
+				|| (state.isStarSpotlightState() && state.asStarSpotlightState().getType() == SpotlightType.COLONIZATION
 						&& gameView.colonizableSystemIds().contains(state.getSelectedSystemId().get()));
 		boolean annexation = (state.isStarInspectionState() && selectedSystem.colony()
 			.flatMap(ColonyView::annexationStatus)
 			.map(AnnexationStatusView::annexable)
 			.orElse(Boolean.FALSE))
-				|| (state.isStarSpotlightState()
+				|| (state.isStarSpotlightState() && state.asStarSpotlightState().getType() == SpotlightType.ANNEXATION
 						&& gameView.annexableSystemIds().contains(state.getSelectedSystemId().get()));
 
 		Function<SystemView, HabitabilityDto> habitabilityDtoSupplier = (system) -> new HabitabilityDto(
