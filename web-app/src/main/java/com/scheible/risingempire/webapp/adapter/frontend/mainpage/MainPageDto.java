@@ -76,7 +76,6 @@ class MainPageDto {
 			model.getContent().starMap.getContent().stars = model.getContent().starMap.getContent().stars.stream()
 				.filter(s -> s.getContent().id.equals(state.getSelectedSystemId().map(SystemId::value).orElse(null)))
 				.toList();
-			model.getContent().buttonBar = null;
 			model.getContent().colonizations = null;
 			model.getContent().explorations = null;
 			model.getContent().annexations = null;
@@ -85,16 +84,14 @@ class MainPageDto {
 			model.getContent().starMap.getContent().starBackground = null;
 			model.getContent().starMap.getContent().starNotifications = null;
 
-			model
-				.getContent().parts = Stream
-					.concat(state.getSelectedSystemId()
-						.map(ssid -> "$.starMap.stars[?(@.id=='" + ssid.value() + "')]")
-						.stream(),
-							Stream
-								.concat(updatedParentFleetId.map(f -> "$.starMap.fleets." + f).stream(),
-										Stream.of("$.starMap.starSelection", "$.starMap.fleetSelection", "$.inspector",
-												"$.stateDescription", "$.turnStatus", "$._actions", "$.round")))
-					.toList();
+			model.getContent().parts = Stream
+				.concat(state.getSelectedSystemId()
+					.map(ssid -> "$.starMap.stars[?(@.id=='" + ssid.value() + "')]")
+					.stream(),
+						Stream.concat(updatedParentFleetId.map(f -> "$.starMap.fleets." + f).stream(),
+								Stream.of("$.starMap.starSelection", "$.starMap.fleetSelection", "$.inspector",
+										"$.stateDescription", "$.turnStatus", "$._actions", "$.round", "$.buttonBar")))
+				.toList();
 		}
 
 		return model;
