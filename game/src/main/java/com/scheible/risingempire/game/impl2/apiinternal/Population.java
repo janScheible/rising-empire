@@ -2,7 +2,7 @@ package com.scheible.risingempire.game.impl2.apiinternal;
 
 import java.util.function.Function;
 
-public record Population(double quantity) {
+public record Population(double quantity) implements Comparable<Population> {
 
 	private static final double INCREMENT = 0.201;
 
@@ -25,6 +25,11 @@ public record Population(double quantity) {
 
 	public Population add(Population augend, Population max) {
 		return new Population(Math.min(max.quantity, this.quantity + augend.quantity));
+	}
+
+	@Override
+	public int compareTo(Population o) {
+		return Double.compare(this.quantity, o.quantity);
 	}
 
 }

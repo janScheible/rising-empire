@@ -1,6 +1,7 @@
 package com.scheible.risingempire.game.impl2.colonization;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +37,8 @@ public class Colonization {
 
 	private final List<Colony> colonies;
 
+	private final Map<Player, Position> homeSystems;
+
 	private final ColonyFleetProvider colonyFleetProvider;
 
 	private final ShipCostProvider shipCostProvider;
@@ -68,6 +71,7 @@ public class Colonization {
 			MaxPopulationProvider maxPopulationProvider, FactoryTechProvider factoryTechProvider,
 			ResearchLabTechProvider researchLabTechProvider) {
 		this.colonies = new ArrayList<>();
+		this.homeSystems = new HashMap<>();
 
 		this.colonyFleetProvider = colonyFleetProvider;
 		this.shipCostProvider = shipCostProvider;
@@ -82,14 +86,15 @@ public class Colonization {
 		this.transferColonistsCommands = new HashSet<>();
 	}
 
-	private Colonization(List<Colony> colonies, ColonyFleetProvider colonyFleetProvider,
-			ShipCostProvider shipCostProvider, InitialShipClassProvider initialShipClassProvider,
-			AnnexedSystemsProvider annexedSystemsProvider,
+	private Colonization(List<Colony> colonies, Map<Player, Position> homeSystems,
+			ColonyFleetProvider colonyFleetProvider, ShipCostProvider shipCostProvider,
+			InitialShipClassProvider initialShipClassProvider, AnnexedSystemsProvider annexedSystemsProvider,
 			ArrivingColonistTransportsProvider arrivingColonistTransportsProvider,
 			MaxPopulationProvider maxPopulationProvider, FactoryTechProvider factoryTechProvider,
 			ResearchLabTechProvider researchLabTechProvider, Set<Colonize> colonizationCommands,
 			Set<TransferColonists> transferColonistsCommands) {
 		this.colonies = colonies;
+		this.homeSystems = homeSystems;
 
 		this.colonyFleetProvider = colonyFleetProvider;
 		this.shipCostProvider = shipCostProvider;
@@ -114,6 +119,14 @@ public class Colonization {
 					researchPoints(hs.getKey(), population, techPercentage)))
 			.toList());
 
+		Map<Player, List<Colony>> coloniesPerPlayer = this.colonies.stream()
+			.filter(c -> systems.containsKey(c.player()))
+			.collect(Collectors.groupingBy(Colony::player));
+		coloniesPerPlayer.entrySet()
+			.stream()
+			.filter(e -> e.getValue().size() == 1)
+			.forEach(e -> this.homeSystems.put(e.getKey(), e.getValue().getFirst().position()));
+
 		for (int i = 0; i < this.colonies.size(); i++) {
 			Colony colony = this.colonies.get(i);
 
@@ -137,10 +150,11 @@ public class Colonization {
 			.map(TransferColonists.class::cast)
 			.collect(Collectors.toSet());
 
-		Colonization copy = new Colonization(new ArrayList<>(this.colonies), this.colonyFleetProvider,
-				this.shipCostProvider, this.initialShipClassProvider, this.annexedSystemsProvider,
-				this.arrivingColonistTransportsProvider, this.maxPopulationProvider, this.factoryTechProvider,
-				this.researchLabTechProvider, currrentColonizationCommands, currentTransferColonistsCommands);
+		Colonization copy = new Colonization(new ArrayList<>(this.colonies), new HashMap<>(this.homeSystems),
+				this.colonyFleetProvider, this.shipCostProvider, this.initialShipClassProvider,
+				this.annexedSystemsProvider, this.arrivingColonistTransportsProvider, this.maxPopulationProvider,
+				this.factoryTechProvider, this.researchLabTechProvider, currrentColonizationCommands,
+				currentTransferColonistsCommands);
 
 		copy.updateColonies(
 				commands.stream().filter(ColonyCommand.class::isInstance).map(ColonyCommand.class::cast).toList());
@@ -162,6 +176,10 @@ public class Colonization {
 
 	public Optional<Colony> colony(Position system) {
 		return this.colonies.stream().filter(c -> c.position().equals(system)).findFirst();
+	}
+
+	public boolean homeSystem(Player player, Position position) {
+		return this.homeSystems.get(player).equals(position);
 	}
 
 	public void updateColonies(List<ColonyCommand> commands) {
@@ -293,7 +311,17 @@ public class Colonization {
 
 			Player annexPlayer = annexedSystems.get(colony.position());
 			if (annexPlayer != null) {
+				Player previousPlayer = colony.player();
 				this.colonies.set(i, colony.withPlayer(annexPlayer));
+
+				if (this.homeSystem(previousPlayer, colony.position())) {
+					Optional<Colony> newHomeSystem = colonies(previousPlayer).stream()
+						.sorted(Comparator.comparing(Colony::population)
+							.reversed()
+							.thenComparing(Colony::position, Comparator.comparing(Position::length)))
+						.findFirst();
+					newHomeSystem.ifPresent(nhs -> this.homeSystems.put(previousPlayer, nhs.position()));
+				}
 			}
 		}
 	}

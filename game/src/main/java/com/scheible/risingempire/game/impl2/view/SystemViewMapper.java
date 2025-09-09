@@ -67,7 +67,7 @@ public class SystemViewMapper {
 			.location(LocationMapper.toLocation(star.position()))
 			.starType(star.type())
 			.small(star.small())
-			.homeSystem(universe.homeSystem(player, star.position()))
+			.homeSystem(colonization.homeSystem(player, star.position()))
 			.closestColony(closestColony)
 			.planetType(planetReport.map(PlanetReconReport::planetType))
 			.planetSpecial(planetReport.map(PlanetReconReport::planetSpecial))

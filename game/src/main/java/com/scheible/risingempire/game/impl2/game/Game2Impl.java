@@ -180,7 +180,7 @@ public class Game2Impl implements Game {
 				random);
 
 		this.universe = new Universe(LocationMapper.fromLocationValue(gameOptions.galaxySize().width()),
-				LocationMapper.fromLocationValue(gameOptions.galaxySize().height()), stars, planets, homeSystems);
+				LocationMapper.fromLocationValue(gameOptions.galaxySize().height()), stars, planets);
 		this.empires = new Empires(empires);
 		this.technology = new Technology(researchPointProviderAdapter, this.empires.players(),
 				this.gameOptions.fleetSpeedFactor(), this.gameOptions.fleetRangeFactor());
@@ -229,7 +229,7 @@ public class Game2Impl implements Game {
 
 		this.round = new Round(1);
 		this.playerTurns = new PlayerTurns(this.empires.players());
-		this.colonization.addColonies(this.universe.homeSystems());
+		this.colonization.addColonies(homeSystems);
 	}
 
 	void addColonies(Map<Player, Position> colonies) {

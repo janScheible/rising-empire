@@ -5,19 +5,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import com.scheible.risingempire.game.api.universe.Player;
 import com.scheible.risingempire.game.impl2.apiinternal.Parsec;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
 
 /**
  * @author sj
  */
-public record Universe(Parsec width, Parsec height, List<Star> stars, Map<Position, Planet> planets,
-		Map<Player, Position> homeSystems) {
+public record Universe(Parsec width, Parsec height, List<Star> stars, Map<Position, Planet> planets) {
 
 	public Universe {
 		stars = Collections.unmodifiableList(stars);
-		homeSystems = Collections.unmodifiableMap(homeSystems);
 	}
 
 	public Star closest(Position position, Predicate<Star> starPredicate) {
@@ -64,10 +61,6 @@ public record Universe(Parsec width, Parsec height, List<Star> stars, Map<Positi
 
 	public List<Star> stars() {
 		return Collections.unmodifiableList(this.stars);
-	}
-
-	public boolean homeSystem(Player player, Position position) {
-		return this.homeSystems.get(player).equals(position);
 	}
 
 }
