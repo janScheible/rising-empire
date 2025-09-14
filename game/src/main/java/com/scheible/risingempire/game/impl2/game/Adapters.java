@@ -62,6 +62,7 @@ import com.scheible.risingempire.game.impl2.spaceforce.combat.weapon.CombatMissi
 import com.scheible.risingempire.game.impl2.spaceforce.combat.weapon.CombatWeapon;
 import com.scheible.risingempire.game.impl2.technology.ResearchPointProvider;
 import com.scheible.risingempire.game.impl2.technology.ShipScannerCapability;
+import com.scheible.risingempire.game.impl2.technology.TechCategory;
 import com.scheible.risingempire.game.impl2.technology.Technology;
 import com.scheible.risingempire.game.impl2.universe.Universe;
 
@@ -545,7 +546,7 @@ public final class Adapters {
 
 		@Override
 		public int shipTechLevel(Player player) {
-			return this.delegate.shipTechLevel(player);
+			return this.delegate.techLevel(player, TechCategory.SHIP);
 		}
 
 	}

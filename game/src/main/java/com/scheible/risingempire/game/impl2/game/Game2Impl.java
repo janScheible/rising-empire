@@ -28,6 +28,7 @@ import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
 import com.scheible.risingempire.game.api.view.tech.TechId;
+import com.scheible.risingempire.game.api.view.tech.TechLevelView;
 import com.scheible.risingempire.game.api.view.tech.TechView;
 import com.scheible.risingempire.game.impl2.apiinternal.Population;
 import com.scheible.risingempire.game.impl2.apiinternal.Position;
@@ -96,6 +97,7 @@ import com.scheible.risingempire.game.impl2.spaceforce.combat.SimulatedSpaceComb
 import com.scheible.risingempire.game.impl2.spaceforce.combat.SpaceCombatResolver;
 import com.scheible.risingempire.game.impl2.technology.SelectableTech;
 import com.scheible.risingempire.game.impl2.technology.Tech;
+import com.scheible.risingempire.game.impl2.technology.TechCategory;
 import com.scheible.risingempire.game.impl2.technology.Technology;
 import com.scheible.risingempire.game.impl2.technology.Technology.SelectTechnology;
 import com.scheible.risingempire.game.impl2.universe.Planet;
@@ -471,6 +473,11 @@ public class Game2Impl implements Game {
 					.map(Entry::getValue)
 					.allMatch(d -> d == true))
 				.defeat(defeats.get(this.player))
+				.techLevel(TechLevelView.builder()
+					.factory(Game2Impl.this.technology.techLevel(this.player, TechCategory.FACTORY))
+					.ship(Game2Impl.this.technology.techLevel(this.player, TechCategory.SHIP))
+					.research(Game2Impl.this.technology.techLevel(this.player, TechCategory.RESEARCH))
+					.build())
 				.build();
 		}
 
@@ -584,7 +591,6 @@ public class Game2Impl implements Game {
 		@Override
 		public void deployFleet(FleetId fleetId, SystemId destinationId, ShipsView ships) {
 			if (calcEta(fleetId, destinationId, ships).isEmpty()) {
-				calcEta(fleetId, destinationId, ships);
 				throw new IllegalArgumentException(
 						"The star " + destinationId + " is beyond the reach of the " + fleetId + " fleet.");
 			}

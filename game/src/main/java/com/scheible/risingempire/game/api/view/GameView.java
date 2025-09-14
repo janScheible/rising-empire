@@ -20,6 +20,7 @@ import com.scheible.risingempire.game.api.view.spacecombat.SpaceCombatView;
 import com.scheible.risingempire.game.api.view.system.SystemId;
 import com.scheible.risingempire.game.api.view.system.SystemView;
 import com.scheible.risingempire.game.api.view.tech.TechGroupView;
+import com.scheible.risingempire.game.api.view.tech.TechLevelView;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
@@ -31,7 +32,7 @@ import static java.util.Collections.unmodifiableSet;
 public record GameView(int galaxyWidth, int galaxyHeight, Player player, Race race, Set<Player> players, int round,
 		Map<Player, Boolean> turnFinishedStatus, Map<SystemId, SystemView> systems, Map<FleetId, FleetView> fleets,
 		Set<SpaceCombatView> spaceCombats, Set<TechGroupView> selectTechGroups, Map<ShipTypeView, Integer> newShips,
-		boolean victory, boolean defeat) {
+		boolean victory, boolean defeat, TechLevelView techLevel) {
 
 	public GameView {
 		turnFinishedStatus = unmodifiableMap(turnFinishedStatus);
