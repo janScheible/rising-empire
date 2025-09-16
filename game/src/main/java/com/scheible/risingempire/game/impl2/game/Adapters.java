@@ -195,11 +195,7 @@ public final class Adapters {
 
 		@Override
 		public Map<Position, Map<ShipClassId, Integer>> newShips(Player player) {
-			return this.delegate.colonies(player)
-				.stream()
-				.map(c -> Map.entry(c.position(), this.delegate.newShips().getOrDefault(c.position(), Map.of())))
-				.filter(e -> !e.getValue().isEmpty())
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+			return this.delegate.newShips(player);
 		}
 
 	}

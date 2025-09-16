@@ -61,13 +61,13 @@ public class ColonizationTest {
 
 		colonization.updateColonies(List.of());
 		colonization.buildShips();
-		assertThat(colonization.newShips().get(colonySystem)).isNull();
+		assertThat(colonization.newShips(Player.BLUE).get(colonySystem)).isNull();
 		assertSpaceDock(colonization.colony(colonySystem), 1, new Rounds(1),
 				new ConstructionProgress(first, new Credit(1500)));
 
 		colonization.updateColonies(List.of());
 		colonization.buildShips();
-		assertThat(colonization.newShips().get(colonySystem)).isEqualTo(Map.of(first, 1));
+		assertThat(colonization.newShips(Player.BLUE).get(colonySystem)).isEqualTo(Map.of(first, 1));
 		assertSpaceDock(colonization.colony(colonySystem), 1, new Rounds(1),
 				new ConstructionProgress(first, new Credit(1000)));
 
@@ -75,7 +75,7 @@ public class ColonizationTest {
 			.colony(colonySystem), 2, new Rounds(1), new ConstructionProgress(first, new Credit(1000)));
 		colonization.updateColonies(List.of(new SpaceDockShipClass(Player.BLUE, colonySystem, second)));
 		colonization.buildShips();
-		assertThat(colonization.newShips().get(colonySystem)).isEqualTo(Map.of(second, 2));
+		assertThat(colonization.newShips(Player.BLUE).get(colonySystem)).isEqualTo(Map.of(second, 2));
 		assertSpaceDock(colonization.colony(colonySystem), 3, new Rounds(1),
 				new ConstructionProgress(second, new Credit(300)));
 

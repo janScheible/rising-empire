@@ -55,7 +55,7 @@ public class Colonization {
 
 	private final ResearchLabTechProvider researchLabTechProvider;
 
-	private final Map<Position, Map<ShipClassId, Integer>> newShips = new HashMap<>();
+	private final Map<Position, Entry<Player, Map<ShipClassId, Integer>>> newShips = new HashMap<>();
 
 	private final Set<Position> newColonies = new HashSet<>();
 
@@ -245,7 +245,8 @@ public class Colonization {
 
 			int newShipsCount = finishRoundOutput.spaceDockOutput().map(SpaceDockOutput::nextRoundCount).orElse(0);
 			if (newShipsCount > 0) {
-				this.newShips.put(colony.position(), Map.of(spaceDock.current(), newShipsCount));
+				this.newShips.put(colony.position(),
+						Map.entry(colony.player(), Map.of(spaceDock.current(), newShipsCount)));
 			}
 
 			Optional<SpaceDockOutput> nextRoundOutput = spaceDockOutput(colony.player(), colony.population(),
@@ -400,15 +401,11 @@ public class Colonization {
 			.reduce(new ResearchPoint(0), ResearchPoint::add);
 	}
 
-	public Map<Position, Map<ShipClassId, Integer>> newShips() {
-		return unmodifiableMap(this.newShips);
-	}
-
 	public Map<Position, Map<ShipClassId, Integer>> newShips(Player player) {
 		return this.newShips.entrySet()
 			.stream()
-			.filter(e -> colony(player, e.getKey()).isPresent())
-			.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+			.filter(e -> e.getValue().getKey() == player)
+			.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().getValue()));
 	}
 
 	public boolean colonizeCommand(Player player, Position system) {
