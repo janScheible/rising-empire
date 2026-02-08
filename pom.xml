@@ -5,6 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
+		<!-- Spring Boot 4 requires a bit more changes... -->
 		<version>3.5.9</version>
 		<relativePath></relativePath>
 	</parent>
@@ -39,37 +40,38 @@
 		<de-funfried-netbeans-plugins-externalcodeformatter.spring-linefeed>\n</de-funfried-netbeans-plugins-externalcodeformatter.spring-linefeed>
 
 		<either.java.version>2.9.0</either.java.version>
-		<record-builder-processor.version>42</record-builder-processor.version>
+		<!-- Version 50 breaks returning not-yet-built buidlers. -->
+		<record-builder-processor.version>49</record-builder-processor.version>
 
 		<pocketsaw.version>1.7.1</pocketsaw.version>
 		<classgraph.version>4.8.164</classgraph.version>
-		<archunit.version>1.2.2</archunit.version>
+		<archunit.version>1.4.1</archunit.version>
 		<galen-rainbow4j.version>2.4.4</galen-rainbow4j.version>
-		<browscap-java.version>1.4.4</browscap-java.version>
+		<browscap-java.version>1.5.1</browscap-java.version>
 		<esbuild-devserver-spring-boot-starter>0.2.0</esbuild-devserver-spring-boot-starter>
 
-		<maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
-		<maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
-		<flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
-		<jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+		<maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+		<maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
+		<flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
+		<jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
 		<sortpom-maven-plugin.version>4.0.0</sortpom-maven-plugin.version>
-		<spring-javaformat-maven-plugin.version>0.0.43</spring-javaformat-maven-plugin.version>
+		<spring-javaformat-maven-plugin.version>0.0.47</spring-javaformat-maven-plugin.version>
 		<impsort-maven-plugin.version>1.12.0</impsort-maven-plugin.version>
-		<maven-pmd-plugin.version>3.25.0</maven-pmd-plugin.version>
-		<maven-checkstyle-plugin.version>3.5.0</maven-checkstyle-plugin.version>
-		<maven-forbiddenapis-plugin.version>3.7</maven-forbiddenapis-plugin.version>
-		<archunit-maven-plugin.version>4.0.2</archunit-maven-plugin.version>
-		<pitest-maven.version>1.17.0</pitest-maven.version>
-		<pitest-junit5-plugin.version>1.2.1</pitest-junit5-plugin.version>
+		<maven-pmd-plugin.version>3.28.0</maven-pmd-plugin.version>
+		<maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
+		<maven-forbiddenapis-plugin.version>3.10</maven-forbiddenapis-plugin.version>
+		<archunit-maven-plugin.version>5.0.0</archunit-maven-plugin.version>
+		<pitest-maven.version>1.22.1</pitest-maven.version>
+		<pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
 		<esbuild-maven-plugin.version>0.2.0</esbuild-maven-plugin.version>
 
-		<pmd.version>7.7.0</pmd.version>
-		<forbiddenapis.version>3.7</forbiddenapis.version>
-		<checksytle.version>10.18.1</checksytle.version>
-		<spring-javaformat-checkstyle.version>0.0.43</spring-javaformat-checkstyle.version>
+		<pmd.version>7.21.0</pmd.version>
+		<forbiddenapis.version>3.10</forbiddenapis.version>
+		<checksytle.version>13.2.0</checksytle.version>
+		<spring-javaformat-checkstyle.version>0.0.47</spring-javaformat-checkstyle.version>
 
-		<plexus-compiler-eclipse.version>2.15.0</plexus-compiler-eclipse.version>
-		<org.eclipse.jdt.version>3.39.0</org.eclipse.jdt.version>
+		<plexus-compiler-eclipse.version>2.16.2</plexus-compiler-eclipse.version>
+		<org.eclipse.jdt.version>3.44.0</org.eclipse.jdt.version>
 	</properties>
 
 	<dependencyManagement>
